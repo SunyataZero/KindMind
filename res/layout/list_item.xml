@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+    <CheckBox 
+        android:id="@+id/feeling_list_item_activeCheckBox"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:gravity="center"
+	    android:layout_alignParentLeft="true"
+	    android:enabled="true"
+	    android:focusable="false"
+	    android:padding="12dp"
+	    android:paddingLeft="28dp"
+    />
+
+    <TextView 
+        android:id="@+id/feeling_list_item_titleTextView"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_toRightOf="@id/feeling_list_item_activeCheckBox"
+	    android:textStyle="bold"
+	    android:textSize="18sp"
+	    android:paddingLeft="4dp"
+	    android:paddingRight="4dp"
+    />
+    <TextView 
+        android:id="@+id/feeling_list_item_similarItemsTextView"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@id/feeling_list_item_titleTextView"
+	    android:layout_toRightOf="@id/feeling_list_item_activeCheckBox"
+	    android:textStyle="normal"
+	    android:textSize="12.5sp"
+	    android:paddingLeft="4dp"
+	    android:paddingRight="4dp"
+    />
+    
+</RelativeLayout>

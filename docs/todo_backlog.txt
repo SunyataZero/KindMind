@@ -1,0 +1,89 @@
+
+Gå igenom alla [Refactor]-taggar
+
+
+----------Test av användare-----------
+Gustaf, Sebastian, Pappa
+
+
+*****Navigation drawer med andra personer*****
+Like
+Dislike
+Neutral
+Love
+Cannot stand
+--
+People around
+World
+https://developer.android.com/design/patterns/navigation-drawer.html
+
+
+fixa så att om man markerar något i en lista så får det mycket hög relevans för andra val ___i samma lista___
+
+
+Dagbok generad från pattern-filer
+
+
+användaren kan ställa in en förvald e-postadress (sin egen kanske, kan man fixa så att den hämtas
+från ett annat ställe?)
+
+
+Backup
+https://developer.android.com/guide/topics/data/backup.html
+https://developer.android.com/tools/help/bmgr.html
+
+
+
+*****Spinner med Happiness*****
+Receiving empathically
+Values
+https://developer.android.com/reference/android/app/ActionBar.html#setListNavigationCallbacks%28android.widget.SpinnerAdapter,%20android.app.ActionBar.OnNavigationListener%29
+Och ta bort den sista "strategies" ALT: Ändra till _celebration_ och ge möjlighet att dela med andra
+
+
+*****Decorator pattern för strategies*****
+Lösning för att kunna lägga till funktionalitet dynamiskt: *Decorator och Fragments*
+https://developer.android.com/training/basics/fragments/index.html
+
+Strategies: Detaljer
+Påminnelser (service?)
+Kollar i slutet av dagen (checklista, service)
+
+
+KindSort som default när man kommer till en ny skärm
+
+ancestral navigation
+
+Contentprovider för Backup av filer (istället för world read permission)
+Forskning: Read android documentation about contentproviders
+
+Algorithms (and connected data structures)
+
+Flera knappar
+Olika knappar för olika vyer
+
+
+Long clicking: Context menu
+(to remove an item from a list etc)
+
+Checking todos in eclipse
+
+Fixing the structure for the buttons (strategy pattern?)
+
+
+Adding a summary screen
+
+
+
+Details screen when long clicking on an item
+(any part of the list item except for the checkbox to the right)
+
+
+Koppling till zenfolio
+JSON-RTC
+alternativt SOAP
+
+newly added listdataitem at the top instead of bottom of the list and/or scrolling to it
+
+bug: om man använder force close och sedan snabbt försöker starta igen så kommer inte appen igång
+

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.3" icons="true" always-add-relationships="true" generalizations="true" realizations="true" 
+  associations="true" dependencies="true" nesting-relationships="true">  
+  <class id="1" language="java" name="com.sunyata.kindmind.ListFragmentC.NoToast" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="97" width="104" x="-12" y="525"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="com.sunyata.kindmind.ListFragmentC.FeelingsToast" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="97" width="104" x="-156" y="525"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="com.sunyata.kindmind.ListFragmentC.NeedsToast" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="97" width="104" x="132" y="525"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <interface id="4" language="java" name="com.sunyata.kindmind.ListFragmentC.ToastBehaviour" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="79" width="114" x="132" y="835"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </interface>  
+  <class id="5" language="java" name="com.sunyata.kindmind.ListFragmentC.DataAdapter.CustomOnLongClickListener" 
+    project="KindMind" file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="115" width="189" x="519" y="680"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="6" language="java" name="com.sunyata.kindmind.ListFragmentC.DataAdapter.CustomOnClickListener" 
+    project="KindMind" file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="115" width="161" x="318" y="680"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="com.sunyata.kindmind.ListFragmentC.DataAdapter" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="115" width="218" x="318" y="525"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="8" language="java" name="com.sunyata.kindmind.ListFragmentC" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="439" width="375" x="257" y="46"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <dependency id="9">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="4"/>  
+  </dependency>  
+  <nesting id="10">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="5"/>  
+  </nesting>  
+  <nesting id="11">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="1"/>  
+  </nesting>  
+  <nesting id="12">    
+    <bendpoint x="287" y="525"/>    
+    <bendpoint x="287" y="680"/>    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="4"/>  
+  </nesting>  
+  <dependency id="13">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="7"/>  
+  </dependency>  
+  <dependency id="14">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="7"/>  
+  </dependency>  
+  <nesting id="15">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="2"/>  
+  </nesting>  
+  <nesting id="16">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="3"/>  
+  </nesting>  
+  <association id="17">    
+    <bendpoint x="266" y="525"/>    
+    <bendpoint x="266" y="680"/>    
+    <end type="SOURCE" refId="8" navigable="false">      
+      <attribute id="18" name="mToastBehaviour"/>      
+      <multiplicity id="19" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="20">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="6"/>  
+  </nesting>  
+  <realization id="21">    
+    <bendpoint x="-3" y="680"/>    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="4"/>  
+  </realization>  
+  <realization id="22">    
+    <bendpoint x="141" y="680"/>    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="4"/>  
+  </realization>  
+  <realization id="23">    
+    <bendpoint x="69" y="680"/>    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="4"/>  
+  </realization>  
+  <nesting id="24">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="7"/>  
+  </nesting>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
+    accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="true" package="true" protected="true" private="true" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
