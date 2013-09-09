@@ -83,10 +83,6 @@ public class ListFragmentC extends ListFragment{
     @Override
     public void onPause(){
     	super.onPause();
-    	//Saving to JSON file
-    	if(refListData != null && refListType != null){
-    		//refListData.saveToJson(true);
-    	}
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     }
     @Override

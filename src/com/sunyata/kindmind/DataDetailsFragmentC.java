@@ -22,7 +22,7 @@ public class DataDetailsFragmentC extends Fragment {
 	private EditText mKindActEditText;
 	private Button mDeleteButton;
 	private ListDataItemM refListDataItem;
-	private ListTypeM mListType;
+	private ListTypeM refListType;
 	
 	static Fragment newInstance(ListTypeM inListType){
 		Bundle tmpArguments = new Bundle();
@@ -42,12 +42,12 @@ public class DataDetailsFragmentC extends Fragment {
 		setRetainInstance(true);
 		//setHasOptionsMenu(true);
 		
-		mListType = ListTypeM.valueOf(this.getArguments().getString(Utils.LIST_TYPE));
+		refListType = ListTypeM.valueOf(this.getArguments().getString(Utils.LIST_TYPE));
 		
 		//mKindAct = new KindActM();
 		//KindModel.get().getKindActionList().add(mKindAct);
 		UUID tmpId = (UUID)getActivity().getIntent().getSerializableExtra(ListFragmentC.EXTRA_LIST_DATA_ITEM_ID);
-		refListDataItem = KindModelM.get(getActivity()).getListOfType(mListType).getItem(tmpId);
+		refListDataItem = KindModelM.get(getActivity()).getListOfType(refListType).getItem(tmpId);
 		
 	}
 	
@@ -56,8 +56,11 @@ public class DataDetailsFragmentC extends Fragment {
     	super.onPause();
     	Log.d(Utils.getClassName(), Utils.getMethodName());
     	
-    	//Saving to JSON file
-    	//KindModelM.get(getActivity()).getListOfType(mListType).saveToJson(true);
+    	//Saving the newly created list data item
+    	ListDataM tmpListData = KindModelM.get(getActivity()).getListOfType(refListType);
+    	if(tmpListData != null && refListType != null){
+    		tmpListData.saveToJson(true);
+    	}
     }
 	
 	@Override
@@ -95,7 +98,7 @@ public class DataDetailsFragmentC extends Fragment {
 		mDeleteButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				KindModelM.get(getActivity()).getListOfType(mListType).delete(refListDataItem);
+				KindModelM.get(getActivity()).getListOfType(refListType).delete(refListDataItem);
 				getActivity().finish();
 				//We don't need to notify the adapter (why?)
 			}

@@ -1,4 +1,7 @@
 
+SM Nonviolent Communication, kan jag använda detta?
+
+
 Gå igenom alla [Refactor]-taggar
 
 
@@ -21,16 +24,11 @@ https://developer.android.com/design/patterns/navigation-drawer.html
 fixa så att om man markerar något i en lista så får det mycket hög relevans för andra val ___i samma lista___
 
 
-Dagbok generad från pattern-filer
+
 
 
 användaren kan ställa in en förvald e-postadress (sin egen kanske, kan man fixa så att den hämtas
 från ett annat ställe?)
-
-
-Backup
-https://developer.android.com/guide/topics/data/backup.html
-https://developer.android.com/tools/help/bmgr.html
 
 
 

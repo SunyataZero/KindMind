@@ -84,11 +84,14 @@ public class JsonSerializerM {
 				tmpFile.delete();
 			}
 			
-			OutputStream tmpOutputStream = mContext.openFileOutput(mFilename, Context.MODE_WORLD_READABLE);
+			OutputStream tmpOutputStream = mContext.openFileOutput(mFilename, Context.MODE_PRIVATE);
 			//-Private means that only this application will be able to write
-			//-Refactor: Instead using a content provider
+			//"Context.MODE_WORLD_READABLE" can be used to write so we can read and use this to send
+			// attachments, but this is deprecated, so instead we can use a content provider
 			tmpWriter = new OutputStreamWriter(tmpOutputStream);
 			tmpWriter.write(tmpJsonArray.toString());
+		}catch(Exception e){
+			e.printStackTrace();
 		}finally{
 			if(tmpWriter != null){
 				tmpWriter.close();
