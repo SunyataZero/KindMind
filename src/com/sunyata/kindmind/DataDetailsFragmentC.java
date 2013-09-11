@@ -1,18 +1,22 @@
 package com.sunyata.kindmind;
 
 import java.util.UUID;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+
 import com.sunyata.kindmind.ListDataItemM.ListTypeM;
 
 public class DataDetailsFragmentC extends Fragment {
@@ -40,7 +44,7 @@ public class DataDetailsFragmentC extends Fragment {
 		super.onCreate(savedInstanceState);
 		Log.d(Utils.getClassName(), Utils.getMethodName());
 		setRetainInstance(true);
-		//setHasOptionsMenu(true);
+		setHasOptionsMenu(true); //for the up navigation button
 		
 		refListType = ListTypeM.valueOf(this.getArguments().getString(Utils.LIST_TYPE));
 		
@@ -69,6 +73,10 @@ public class DataDetailsFragmentC extends Fragment {
 		Log.d(Utils.getClassName(), Utils.getMethodName());
 		
 		View v = inflater.inflate(R.layout.fragment_data_details, parent, false);
+		
+		if(NavUtils.getParentActivityName(getActivity()) != null){
+			getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+		}
 		
 		mKindActEditText = (EditText)v.findViewById(R.id.kindact_name);
 		if(refListDataItem.getName().equals(ListDataItemM.NO_NAME_SET) == false){
@@ -149,4 +157,21 @@ public class DataDetailsFragmentC extends Fragment {
     	super.onDetach();
     	Log.d(Utils.getClassName(), Utils.getMethodName());
     }
+    
+	@Override
+	public boolean onOptionsItemSelected(MenuItem inMenuItem){
+		
+		switch (inMenuItem.getItemId()){
+		
+		case android.R.id.home:
+			if(NavUtils.getParentActivityName(getActivity()) != null){
+				NavUtils.navigateUpFromSameTask(getActivity());
+			}
+			return true;
+			
+		default:
+			return super.onOptionsItemSelected(inMenuItem);
+		}
+		
+	}
 }

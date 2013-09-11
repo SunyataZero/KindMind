@@ -9,22 +9,7 @@ Gå igenom alla [Refactor]-taggar
 Gustaf, Sebastian, Pappa
 
 
-*****Navigation drawer med andra personer*****
-Like
-Dislike
-Neutral
-Love
-Cannot stand
---
-People around
-World
-https://developer.android.com/design/patterns/navigation-drawer.html
-
-
 fixa så att om man markerar något i en lista så får det mycket hög relevans för andra val ___i samma lista___
-
-
-
 
 
 användaren kan ställa in en förvald e-postadress (sin egen kanske, kan man fixa så att den hämtas
@@ -48,10 +33,6 @@ Påminnelser (service?)
 Kollar i slutet av dagen (checklista, service)
 
 
-KindSort som default när man kommer till en ny skärm
-
-ancestral navigation
-
 Contentprovider för Backup av filer (istället för world read permission)
 Forskning: Read android documentation about contentproviders
 
@@ -59,23 +40,7 @@ Algorithms (and connected data structures)
 
 Flera knappar
 Olika knappar för olika vyer
-
-
-Long clicking: Context menu
-(to remove an item from a list etc)
-
-Checking todos in eclipse
-
 Fixing the structure for the buttons (strategy pattern?)
-
-
-Adding a summary screen
-
-
-
-Details screen when long clicking on an item
-(any part of the list item except for the checkbox to the right)
-
 
 Koppling till zenfolio
 JSON-RTC

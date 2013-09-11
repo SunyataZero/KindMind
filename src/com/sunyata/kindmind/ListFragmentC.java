@@ -1,12 +1,9 @@
 package com.sunyata.kindmind;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -24,7 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sunyata.kindmind.ListDataItemM.ListTypeM;
-import com.sunyata.kindmind.BuildConfig;
 
 public class ListFragmentC extends ListFragment{
 //will later on extend an abstract class
@@ -68,8 +64,11 @@ public class ListFragmentC extends ListFragment{
     	// shown (strangely enough). Instead we can use onPageSelected in MainActivityC.
     	super.onResume();
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
+    	
+    	//this.initialize();
+    	
     	if(getListAdapter() != null){
-        	((DataAdapter)getListAdapter()).notifyDataSetChanged();
+        	((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
     	}
     	
 		switch(refListType){
@@ -111,11 +110,14 @@ public class ListFragmentC extends ListFragment{
     @Override
     public void onActivityCreated(Bundle inSavedInstanceState){
     	super.onActivityCreated(inSavedInstanceState);
-		refListType = ListTypeM.valueOf(this.getArguments().getString(Utils.LIST_TYPE));
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
-		
+
+    	this.initialize();
+    }
+    private void initialize(){
+    	refListType = ListTypeM.valueOf(this.getArguments().getString(Utils.LIST_TYPE));
 		refListData = KindModelM.get(getActivity()).getListOfType(refListType);
-		DataAdapter adapter = new DataAdapter(refListData.getListOfData());
+		ListFragmentDataAdapterC adapter = new ListFragmentDataAdapterC(refListData.getListOfData());
 		setListAdapter(adapter);
     }
     @Override
@@ -166,19 +168,19 @@ public class ListFragmentC extends ListFragment{
 			intent.putExtra(EXTRA_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
 			startActivityForResult(intent, 0); //Calling DataDetailsActivityC
 			
-			((DataAdapter)getListAdapter()).notifyDataSetChanged();
+			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			
 			return true;
 		
 		case R.id.menu_item_clear_current_list_selections:
 			KindModelM.get(getActivity()).getListOfType(refListType).clearActivated();
-			((DataAdapter)getListAdapter()).notifyDataSetChanged();
+			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			return true;
 
 		case R.id.menu_item_clear_all_list_selections:
 			//KindModelM.get(getActivity()).clearActivatedForAllLists();
 			((MainActivityC)getActivity()).clearActivated();
-			((DataAdapter)getListAdapter()).notifyDataSetChanged();
+			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			//-Only done for this Fragment but this is the only place where it is necassary since
 			// the others will be updated when the pager page is changed.
 			return true;
@@ -195,7 +197,7 @@ public class ListFragmentC extends ListFragment{
 		
 		case R.id.menu_item_sort_alphabetically:
 			KindModelM.get(getActivity()).getListOfType(refListType).sortAlphabetically();
-			((DataAdapter)getListAdapter()).notifyDataSetChanged();
+			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			return true;
 			
 		case R.id.menu_item_kindsort:
@@ -203,13 +205,14 @@ public class ListFragmentC extends ListFragment{
 			KindModelM.get(getActivity()).updateSortValuesForListType(refListType);
 			KindModelM.get(getActivity()).getListOfType(refListType).sortWithKindness();
 			//-Refactor: Put the two lines above into one method?
-			((DataAdapter)getListAdapter()).notifyDataSetChanged();
+			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			return true;
 		
 		case R.id.menu_item_save_pattern:
 			KindModelM.get(getActivity()).savePatternListToJson();
 			return true;
 			
+/*
 		case R.id.menu_item_backup:
 			Intent tmpBackupIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 			tmpBackupIntent.setType("text/plain");
@@ -229,6 +232,7 @@ public class ListFragmentC extends ListFragment{
 						+ "No email program installed");
 			}
 			return true;
+*/
 			
 		case R.id.menu_item_send_as_text_current:
 			sendAsEmail("KindMind list as text", refListData.toFormattedString());
@@ -244,7 +248,6 @@ public class ListFragmentC extends ListFragment{
 		}
 		
 	}
-    
 	private void sendAsEmail(String inTitle, String inTextContent){
 		Intent i = new Intent(Intent.ACTION_SEND);
 		i.setType("text/plain");
@@ -256,14 +259,14 @@ public class ListFragmentC extends ListFragment{
 	
 	//-------------------Adapter that listens to button clicks
     
-	class DataAdapter extends ArrayAdapter<ListDataItemM>{
+	class ListFragmentDataAdapterC extends ArrayAdapter<ListDataItemM>{
 		
-		public DataAdapter(ArrayList<ListDataItemM> inListData){
+		public ListFragmentDataAdapterC(ArrayList<ListDataItemM> inListData){
 			super(getActivity(), android.R.layout.simple_list_item_1, inListData);
 		}
 		
 		@Override
-		public void notifyDataSetChanged(){
+		public void notifyDataSetChanged(){ //Issue 1: Not called
 			super.notifyDataSetChanged();
 			/*			
 			for(int i = 0; i < this.getCount(); i++){
@@ -325,7 +328,7 @@ public class ListFragmentC extends ListFragment{
 					refListData.getItem(mPosition).incrementSingleClickSortValueFromCurrentRun();
 				}
 				*/
-				((DataAdapter)getListAdapter()).notifyDataSetChanged();
+				((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			}
 		}
 		private class CustomOnLongClickListener implements OnLongClickListener{
@@ -336,7 +339,7 @@ public class ListFragmentC extends ListFragment{
 			@Override
 			public boolean onLongClick(View inView) {
 				
-				ListDataItemM tmpListDataItem = DataAdapter.this.getItem(mPosition);
+				ListDataItemM tmpListDataItem = ListFragmentDataAdapterC.this.getItem(mPosition);
 				
 				Intent intent = new Intent(getActivity(), DataDetailsActivityC.class);
 				intent.putExtra(EXTRA_LIST_DATA_ITEM_ID, tmpListDataItem.getId()); //Extracted in DataDetailsFragmentC

@@ -7,12 +7,13 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.ViewGroup;
 
 import com.sunyata.kindmind.ListDataItemM.ListTypeM;
-import com.sunyata.kindmind.ListFragmentC.DataAdapter;
+import com.sunyata.kindmind.ListFragmentC.ListFragmentDataAdapterC;
 
 public class MainActivityC extends FragmentActivity {
 
@@ -43,6 +44,9 @@ public class MainActivityC extends FragmentActivity {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOffscreenPageLimit(0);
+        //-We are using this becase getAdapter sometimes gives null, for more info, see this link:
+        // http://stackoverflow.com/questions/13651262/getactivity-in-arrayadapter-sometimes-returns-null
         //mViewPager.setOffscreenPageLimit(4); //This only partly solves the problem with NPE in onPageScrollStateChanged
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -52,10 +56,13 @@ public class MainActivityC extends FragmentActivity {
 				updateViewPagerView(ListTypeM.getEnumListByLevel(mViewPager.getCurrentItem()).get(0));
 			}
 			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) {}
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+				//updateViewPagerView(ListTypeM.getEnumListByLevel(mViewPager.getCurrentItem()).get(0));
+			}
 			@Override
 			public void onPageScrollStateChanged(int inState) {
 				//onPageSelected seems to be more helpful to use
+				//updateViewPagerView(ListTypeM.getEnumListByLevel(mViewPager.getCurrentItem()).get(0));
 			}
 		});
     }
@@ -99,7 +106,7 @@ public class MainActivityC extends FragmentActivity {
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    class SectionsPagerAdapter extends FragmentPagerAdapter {
+    class SectionsPagerAdapter extends FragmentStatePagerAdapter {
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -204,6 +211,7 @@ public class MainActivityC extends FragmentActivity {
 	public void clearActivated(){
 		KindModelM.get(this).clearActivatedForAllLists();
 	}
+	
 	public void clearData() { //Called from the test project
 		this.clearActivated();
 		KindModelM.get(this).clearAllDataLists();
@@ -215,18 +223,22 @@ public class MainActivityC extends FragmentActivity {
 	ListFragmentC tmpListFragment = null; //Has to be put outside for it to be accessible inside the Runnable
 	private void updateFragmentList(ListFragmentC inListFragment){
 		tmpListFragment = inListFragment;
-		if(tmpListFragment != null && tmpListFragment.getListAdapter() != null){
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					try{
-						((DataAdapter)tmpListFragment.getListAdapter()).notifyDataSetChanged();
-						tmpListFragment.getListView().invalidateViews();
-					}catch(Exception e){
-						Log.w(Utils.getClassName(), "Error in updateFragmentList: " + e.getMessage());
-					}
-				}
-			});
+		if(tmpListFragment == null){
+			return;
 		}
+		if(tmpListFragment.getListAdapter() == null){
+			return;
+		}
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				try{
+					((ListFragmentDataAdapterC)tmpListFragment.getListAdapter()).notifyDataSetChanged();
+					tmpListFragment.getListView().invalidateViews();
+				}catch(Exception e){
+					Log.w(Utils.getClassName(), "Error in updateFragmentList: " + e.getMessage());
+				}
+			}
+		});
 	}
 }

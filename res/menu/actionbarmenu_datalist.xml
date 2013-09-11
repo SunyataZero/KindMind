@@ -42,11 +42,13 @@
         android:title="@string/save_pattern"
         android:showAsAction="always" />
 
+    <!-- 
     <item
         android:id="@+id/menu_item_backup"
         android:icon="@android:drawable/ic_menu_upload"
         android:title="@string/backup"
         android:showAsAction="ifRoom" />
+	 -->
 
     <item
         android:id="@+id/menu_item_send_as_text_current"

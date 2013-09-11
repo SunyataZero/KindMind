@@ -24,5 +24,4 @@ Använda ActionBar för att visa olika vyer
 http://developer.android.com/design/patterns/actionbar.html
 
 
-Dagbok
-
+Adding a summary screen

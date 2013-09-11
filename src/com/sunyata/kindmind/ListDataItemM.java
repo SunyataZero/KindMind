@@ -43,10 +43,6 @@ public class ListDataItemM{ //implements StorableInJsonI
 	ListDataItemM(String inName, ListTypeM inListType) {
 		mId = UUID.randomUUID();
 		mName = inName;
-		if(inListType == null){
-			int asdf = 0 + 100;
-			asdf++;
-		}
 		mListType = inListType;
 		mHardCoded = true;
 	}
