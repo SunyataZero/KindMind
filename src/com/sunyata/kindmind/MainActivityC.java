@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import com.sunyata.kindmind.ListDataItemM.ListTypeM;
 import com.sunyata.kindmind.ListFragmentC.ListFragmentDataAdapterC;
 
-public class MainActivityC extends FragmentActivity {
+public class MainActivityC extends FragmentActivity implements MainActivityCallbackListenerI{
 
 	//------------------------Fields
 	
@@ -65,6 +65,7 @@ public class MainActivityC extends FragmentActivity {
 				//updateViewPagerView(ListTypeM.getEnumListByLevel(mViewPager.getCurrentItem()).get(0));
 			}
 		});
+
     }
     
     @Override
@@ -114,19 +115,23 @@ public class MainActivityC extends FragmentActivity {
         public Object instantiateItem (ViewGroup container, int position){
         	switch(position){
         	case 0:
-        		mSpecEvListFragment = ListFragmentC.newInstance(ListTypeM.SPECEV);
+        		mSpecEvListFragment = ListFragmentC.newInstance(ListTypeM.SPECEV,
+        				(MainActivityCallbackListenerI)MainActivityC.this);
         		//((DataAdapter)mSpecEvListFragment.getListAdapter()).notifyDataSetChanged();
         		break;
         	case 1:
-        		mSufferingListFragment = ListFragmentC.newInstance(ListTypeM.SUFFERING);
+        		mSufferingListFragment = ListFragmentC.newInstance(ListTypeM.SUFFERING,
+        				(MainActivityCallbackListenerI)MainActivityC.this);
         		//((DataAdapter)mSufferingListFragment.getListAdapter()).notifyDataSetChanged();
         		break;
         	case 2:
-        		mNeedListFragment = ListFragmentC.newInstance(ListTypeM.NEEDS);
+        		mNeedListFragment = ListFragmentC.newInstance(ListTypeM.NEEDS,
+        				(MainActivityCallbackListenerI)MainActivityC.this);
         		//((DataAdapter)mNeedListFragment.getListAdapter()).notifyDataSetChanged();
         		break;
         	case 3:
-        		mKindnessListFragment = ListFragmentC.newInstance(ListTypeM.KINDNESS);
+        		mKindnessListFragment = ListFragmentC.newInstance(ListTypeM.KINDNESS,
+        				(MainActivityCallbackListenerI)MainActivityC.this);
         		//((DataAdapter)mKindnessListFragment.getListAdapter()).notifyDataSetChanged();
         		break;
         	default:
@@ -240,5 +245,10 @@ public class MainActivityC extends FragmentActivity {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void fireGoLeftmostEvent() {
+        mViewPager.setCurrentItem(0, true);
 	}
 }

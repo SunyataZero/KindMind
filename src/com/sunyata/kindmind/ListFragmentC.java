@@ -28,16 +28,18 @@ public class ListFragmentC extends ListFragment{
 	//-------------------Fields and constructor
 	
 	static final String EXTRA_LIST_DATA_ITEM_ID = "EXTRA_LIST_DATA_ITEM_ID";
-	static final String EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE";;
+	static final String EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE";
 	private ListDataM refListData;
 	private ListTypeM refListType;
 	private ToastBehaviour mToastBehaviour;
+	private static MainActivityCallbackListenerI mCallbackListener;
 
-	public static ListFragmentC newInstance(ListTypeM inListType){
+	public static ListFragmentC newInstance(ListTypeM inListType, MainActivityCallbackListenerI inCallbackListener){
 		Bundle tmpArguments = new Bundle();
 		tmpArguments.putString(Utils.LIST_TYPE, inListType.toString());
 		ListFragmentC retListFragment = new ListFragmentC();
 		retListFragment.setArguments(tmpArguments);
+		mCallbackListener = inCallbackListener;
 		return retListFragment;
 	}
 	
@@ -183,6 +185,10 @@ public class ListFragmentC extends ListFragment{
 			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			//-Only done for this Fragment but this is the only place where it is necassary since
 			// the others will be updated when the pager page is changed.
+			
+			//Move back to the left-most position
+			mCallbackListener.fireGoLeftmostEvent();
+			
 			return true;
 
 		case R.id.menu_item_share_experience:

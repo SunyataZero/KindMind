@@ -23,7 +23,11 @@ public class KindModelFactoryM {
 		
 		case SPECEV:
 			retTemporaryList = new ListDataM(ListTypeM.SPECEV, KindModelM.JSON_OBSERVATIONS_SPECEV_FILE_NAME, refContext); //Loads from JSON
-			createAndAddDataItem("Thinking that someone has negative intentions");
+			createAndAddDataItem("Hearing ...");
+			createAndAddDataItem("Seeing ...");
+			createAndAddDataItem("Thinking ...");
+			createAndAddDataItem("Remebering ...");
+			//createAndAddDataItem("Thinking that someone has negative intentions");
 			return retTemporaryList;
 
 		case SUFFERING:
@@ -73,7 +77,7 @@ public class KindModelFactoryM {
 			createAndAddDataItem("Movement, exercise");
 			createAndAddDataItem("Protection");
 			createAndAddDataItem("Rest");
-			createAndAddDataItem("Sexual expression");
+			//createAndAddDataItem("Sexual expression");
 			createAndAddDataItem("Shelter");
 			createAndAddDataItem("Touch");
 			createAndAddDataItem("Water");
@@ -100,11 +104,25 @@ public class KindModelFactoryM {
 
 			//Create and add data items
 			//mKindness.loadData(ListTypeM.KINDNESS, JSON_REQUESTS_KINDNESS_FILE_NAME, mContext);
-			createAndAddDataItem("Thinking about Siiri");
-			createAndAddDataItem("Watching an NVC video");
-			createAndAddDataItem("Expressing feelings and needs");
-			createAndAddDataItem("Sleeping");
-			createAndAddDataItem("Napping");
+			//createAndAddDataItem("Thinking about Siiri");
+			//createAndAddDataItem("Watching an NVC video");
+			//createAndAddDataItem("Sleeping");
+			//createAndAddDataItem("Napping");
+
+			createAndAddDataItem("Expressing OFNR to another");
+			createAndAddDataItem("Concentration on needs");
+			createAndAddDataItem("Translating our thinking");
+
+			createAndAddDataItem("Identifying the place of feelings in the body");
+			createAndAddDataItem("Slowing down");
+			createAndAddDataItem("Counting the breath");
+			createAndAddDataItem("Stretching");
+			createAndAddDataItem("Letting go of tension in the body");
+
+			createAndAddDataItem("Visualization of guardian");
+			createAndAddDataItem("Calling a friend");
+			createAndAddDataItem("Asking a friend for help");
+			createAndAddDataItem("Seeing different ways to react");
 			//-To self, to another person, with or without words
 			return retTemporaryList;
 			
