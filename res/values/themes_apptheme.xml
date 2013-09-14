@@ -23,6 +23,11 @@
 
     <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItemAppTheme</item>
 
+    <!-- Added by Sunyata -->
+    <!-- 
+    <item name="android:actionBarStyle">@style/KindMindActionBar</item>
+     -->
+     
   </style>
 
 </resources>
