@@ -23,10 +23,10 @@ public class KindModelFactoryM {
 		
 		case SPECEV:
 			retTemporaryList = new ListDataM(ListTypeM.SPECEV, KindModelM.JSON_OBSERVATIONS_SPECEV_FILE_NAME, refContext); //Loads from JSON
-			createAndAddDataItem("Hearing ...");
-			createAndAddDataItem("Seeing ...");
-			createAndAddDataItem("Thinking ...");
-			createAndAddDataItem("Remebering ...");
+			createAndAddDataItem("Hearing ... [edit]");
+			createAndAddDataItem("Seeing ... [edit]");
+			createAndAddDataItem("Thinking ... [edit]");
+			createAndAddDataItem("Remebering ... [edit]");
 			//createAndAddDataItem("Thinking that someone has negative intentions");
 			return retTemporaryList;
 
@@ -58,7 +58,7 @@ public class KindModelFactoryM {
 			retTemporaryList = new ListDataM(ListTypeM.KINDNESS, KindModelM.JSON_NEEDS_FILE_NAME, refContext); //Loads from JSON
 			createAndAddDataItem("Choosing dreams/goals/values");
 			createAndAddDataItem("Choosing plans for fulfilling dreams/goals/values");
-			createAndAddDataItem("Celbratation");
+			createAndAddDataItem("Celebratation");
 			createAndAddDataItem("Mourning");
 			createAndAddDataItem("Authenticity");
 			createAndAddDataItem("Creativity");

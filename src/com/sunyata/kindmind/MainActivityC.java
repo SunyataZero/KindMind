@@ -44,6 +44,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        //mViewPager.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
         mViewPager.setOffscreenPageLimit(0);
         //-We are using this becase getAdapter sometimes gives null, for more info, see this link:
         // http://stackoverflow.com/questions/13651262/getactivity-in-arrayadapter-sometimes-returns-null

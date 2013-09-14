@@ -13,6 +13,7 @@
 	    android:focusable="false"
 	    android:padding="12dp"
 	    android:paddingLeft="28dp"
+	    android:textColorHighlight="#ffffff"
     />
 
     <TextView 
@@ -20,8 +21,9 @@
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_toRightOf="@id/feeling_list_item_activeCheckBox"
-	    android:textStyle="bold"
+	    android:textStyle="normal"
 	    android:textSize="18sp"
+	    android:typeface="sans"
 	    android:paddingLeft="4dp"
 	    android:paddingRight="4dp"
     />
