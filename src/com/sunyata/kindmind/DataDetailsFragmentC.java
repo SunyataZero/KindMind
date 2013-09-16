@@ -52,7 +52,6 @@ public class DataDetailsFragmentC extends Fragment {
 		//KindModel.get().getKindActionList().add(mKindAct);
 		UUID tmpId = (UUID)getActivity().getIntent().getSerializableExtra(ListFragmentC.EXTRA_LIST_DATA_ITEM_ID);
 		refListDataItem = KindModelM.get(getActivity()).getListOfType(refListType).getItem(tmpId);
-		
 	}
 	
     @Override
@@ -162,8 +161,17 @@ public class DataDetailsFragmentC extends Fragment {
 	public boolean onOptionsItemSelected(MenuItem inMenuItem){
 		
 		switch (inMenuItem.getItemId()){
-		
+
+
 		case android.R.id.home:
+			/*
+			Intent tmpIntent = new Intent(getActivity(), MainActivityC.class);
+			tmpIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(tmpIntent);
+			//finish();
+			return true;
+			*/
+
 			if(NavUtils.getParentActivityName(getActivity()) != null){
 				NavUtils.navigateUpFromSameTask(getActivity());
 			}

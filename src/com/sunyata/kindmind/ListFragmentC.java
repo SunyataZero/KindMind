@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Address;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -99,6 +100,14 @@ public class ListFragmentC extends ListFragment{
     @Override
     public View onCreateView(LayoutInflater inInflater, ViewGroup inContainer, Bundle inSavedinstanceState){
     	View retView = super.onCreateView(inInflater, inContainer, inSavedinstanceState);
+    	
+    	//View retView = inInflater.inflate(R.layout.activity_fragment, inContainer);
+    	
+    	/*
+    	View tmpFooterView = inInflater.inflate(R.layout.feelings_radiogroup, inContainer, false);
+    	this.getListView().addFooterView(tmpFooterView);
+    	*/
+    	
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     	return retView;
     }
@@ -147,9 +156,6 @@ public class ListFragmentC extends ListFragment{
 	public void onCreateOptionsMenu(Menu inMenu, MenuInflater inMenuInflater){
 		super.onCreateOptionsMenu(inMenu, inMenuInflater);
 		inMenuInflater.inflate(R.menu.actionbarmenu_datalist, inMenu);
-		
-		//[spinner]
-		
 	}
 	
 	@Override
@@ -177,6 +183,7 @@ public class ListFragmentC extends ListFragment{
 		case R.id.menu_item_clear_current_list_selections:
 			KindModelM.get(getActivity()).getListOfType(refListType).clearActivated();
 			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
+			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
 			return true;
 
 		case R.id.menu_item_clear_all_list_selections:
@@ -197,13 +204,14 @@ public class ListFragmentC extends ListFragment{
 					"I am feeling "
 					+ KindModelM.get(getActivity()).getToastString(ListTypeM.SUFFERING)
 					+ ", because i am needing "
-					+ KindModelM.get(getActivity()).getToastString(ListTypeM.NEEDS) + ". "
-					+ "Please help");
+					+ KindModelM.get(getActivity()).getToastString(ListTypeM.NEEDS));
+					//"Please help");
 			return true;
 		
 		case R.id.menu_item_sort_alphabetically:
 			KindModelM.get(getActivity()).getListOfType(refListType).sortAlphabetically();
 			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
+			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
 			return true;
 			
 		case R.id.menu_item_kindsort:
@@ -212,6 +220,7 @@ public class ListFragmentC extends ListFragment{
 			KindModelM.get(getActivity()).getListOfType(refListType).sortWithKindness();
 			//-Refactor: Put the two lines above into one method?
 			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
+			
 			return true;
 		
 		case R.id.menu_item_save_pattern:
@@ -274,11 +283,6 @@ public class ListFragmentC extends ListFragment{
 		@Override
 		public void notifyDataSetChanged(){ //Issue 1: Not called
 			super.notifyDataSetChanged();
-			/*			
-			for(int i = 0; i < this.getCount(); i++){
-				CheckBox tmpActiveCheckBox = (CheckBox)inConvertView.findViewById(R.id.feeling_list_item_activeCheckBox);
-			}
-			*/
 		}
 		
 		//Giving the view for a single list item
@@ -291,7 +295,7 @@ public class ListFragmentC extends ListFragment{
 			
 			ListDataItemM tmpListDataItem = getItem(inPosition);
 
-			CheckBox tmpActiveCheckBox = (CheckBox)inConvertView.findViewById(R.id.feeling_list_item_activeCheckBox);
+			CheckBox tmpActiveCheckBox = (CheckBox)inConvertView.findViewById(R.id.list_item_activeCheckBox);
 			tmpActiveCheckBox.setClickable(false); //We handle this ourselves
 			tmpActiveCheckBox.setChecked(tmpListDataItem.isActive());
 			
@@ -299,7 +303,7 @@ public class ListFragmentC extends ListFragment{
 			inConvertView.setOnClickListener(new CustomOnClickListener(inPosition));
 			inConvertView.setOnLongClickListener(new CustomOnLongClickListener(inPosition));
 			
-			TextView tmpTitleTextView = (TextView)inConvertView.findViewById(R.id.feeling_list_item_titleTextView);
+			TextView tmpTitleTextView = (TextView)inConvertView.findViewById(R.id.list_item_titleTextView);
 			String tmpSortValueStringOnlyForDebug = "";
 			if(BuildConfig.DEBUG){
 				tmpSortValueStringOnlyForDebug = " | " + Utils.formatNumber(tmpListDataItem.getTotalSortValue());
@@ -324,7 +328,7 @@ public class ListFragmentC extends ListFragment{
 				boolean tmpWasChecked = refListData.getItem(mPosition).isActive();
 				boolean tmpIsChecked = !tmpWasChecked;
 
-				((CheckBox)inView.findViewById(R.id.feeling_list_item_activeCheckBox)).setChecked(tmpIsChecked);
+				((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox)).setChecked(tmpIsChecked);
 				refListData.getItem(mPosition).setActive(tmpIsChecked);
 				
 				mToastBehaviour.toast();

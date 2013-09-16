@@ -2,6 +2,8 @@ package com.sunyata.kindmind;
 
 import java.util.Locale;
 
+import android.app.ActionBar;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -10,7 +12,11 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.sunyata.kindmind.ListDataItemM.ListTypeM;
 import com.sunyata.kindmind.ListFragmentC.ListFragmentDataAdapterC;
@@ -21,12 +27,17 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	
 	private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
+    private static int mViewPagerPosition; //Important that this is static since the whole instance of the
+    // class is recreated when going back from the details screens
     private ListFragmentC mSpecEvListFragment;
-    
     private ListFragmentC mSufferingListFragment;
     private ListFragmentC mNeedListFragment;
     private ListFragmentC mKindnessListFragment;
 
+    private ActionBar refActionBar;
+    private MyOnNavigationListener mOnNavigationListener;
+    private ArrayAdapter mKindMindArrayAdapter;
+    
     
     //------------------------Lifecycle methods, including onCreate
     
@@ -51,6 +62,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         //mViewPager.setOffscreenPageLimit(4); //This only partly solves the problem with NPE in onPageScrollStateChanged
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+			
 			@Override
 			public void onPageSelected(int pos) {
 				//updateViewPagerView(ListTypeM.values()[mViewPager.getCurrentItem()]);
@@ -59,15 +71,87 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
 				//updateViewPagerView(ListTypeM.getEnumListByLevel(mViewPager.getCurrentItem()).get(0));
+				
 			}
 			@Override
 			public void onPageScrollStateChanged(int inState) {
 				//onPageSelected seems to be more helpful to use
 				//updateViewPagerView(ListTypeM.getEnumListByLevel(mViewPager.getCurrentItem()).get(0));
+				
+				switch(inState){
+				case ViewPager.SCROLL_STATE_IDLE:
+					//Saving the position (solves the problem in issue #41)
+					mViewPagerPosition = mViewPager.getCurrentItem();
+					break;
+				default:
+					break;
+				}
+				
 			}
 		});
 
+
+        
+        //Setting up the action bar spinner
+        // For more details, please see these links:
+        // https://developer.android.com/reference/android/app/ActionBar.html#setListNavigationCallbacks%28android.widget.SpinnerAdapter,%20android.app.ActionBar.OnNavigationListener%29
+        // https://developer.android.com/reference/android/widget/ArrayAdapter.html#setDropDownViewResource%28int%29
+        refActionBar = this.getActionBar();
+        refActionBar.setDisplayShowTitleEnabled(false);
+        refActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        /*
+        mArraySpinnerAdapter = KindMindArrayAdapter.createFromResource(
+        		this, R.array.spinner_list, android.R.layout.simple_spinner_dropdown_item);
+         */
+        mKindMindArrayAdapter = new KindMindArrayAdapter(this, getResources().getStringArray(R.array.spinner_list));
+        mKindMindArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        
+        mOnNavigationListener = new MyOnNavigationListener();
+        refActionBar.setListNavigationCallbacks(mKindMindArrayAdapter, mOnNavigationListener);
+
+        //refActionBar.
     }
+    
+    private class MyOnNavigationListener implements ActionBar.OnNavigationListener{
+		@Override
+		public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+			//return false;
+			return true;
+		}
+    }
+    
+    private class KindMindArrayAdapter extends ArrayAdapter<String>{
+    	
+    	Context mContext;
+
+		public KindMindArrayAdapter(Context inContext, String[] inItems) {
+			super(inContext, 0, inItems);
+			mContext = inContext;
+		}
+
+		@Override
+		public View getView(int inPosition, View modConvertView, ViewGroup inViewGroup){
+			
+			if(modConvertView == null){
+				modConvertView = LayoutInflater.from(mContext).inflate(android.R.layout.simple_spinner_item , null);
+			}
+			
+			TextView tmpTitle = ((TextView)modConvertView.findViewById(android.R.id.text1));
+			tmpTitle.setText(R.string.app_name);
+			tmpTitle.setTextSize(21);
+			
+			return modConvertView;
+			
+		}
+    	
+    }
+    
+    /*
+	@Override
+	public boolean onOptionsItemSelected(MenuItem inMenuItem){
+		return super.onOptionsItemSelected(inMenuItem);
+	}
+	*/
     
     @Override
     public void onDestroy(){
@@ -78,6 +162,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     public void onResume(){
     	super.onResume();
     	Log.d(Utils.getClassName(), Utils.getMethodName());
+    	
+    	//Solves the problem in issue #41
+    	if(mViewPagerPosition != mViewPager.getCurrentItem()){
+    		mViewPager.setCurrentItem(mViewPagerPosition);
+    	}
     }
     @Override
     public void onPause(){
@@ -191,9 +280,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		switch(inListType){
 		case SPECEV:
 			setTitle(R.string.events_top_title);
-			
-			//[spinner]
-			
 			updateFragmentList(mSpecEvListFragment);
 			break;
 		case SUFFERING:
@@ -212,6 +298,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			Log.e(Utils.getClassName(), "Error in updateViewPagerView: Case not covered");
 			return;
 		}
+		
+		setTitle("KindMind");
 	}
     
 	public void clearActivated(){

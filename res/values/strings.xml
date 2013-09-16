@@ -13,18 +13,24 @@
     <string name="needs_top_title">Needs</string>
     <string name="strategies_top_title">Strategies</string>
      
-    <string name="new_kindact">New</string>
-    <string name="clear_list_selections">Clear List Selections</string>
-    <string name="clear_all_selections">Clear All Selections</string>
+    <string name="new_kindact">New Item</string>
+    <string name="clear_list_selections">Clear Current List Selections</string>
+    <string name="clear_all_selections">Clear All List Selections</string>
     <string name="share_experience">Share Experience</string>
-    <string name="kindact_name_hint">Please enter a kind act \nQuote from the Buddha</string>
     <string name="sort_alphabetically">Sort Alphabetically</string>
-    <string name="sort_by_rank">Sort by Rank</string>
-    <string name="save_pattern">Save</string>
-    <string name="backup">Backup</string>
+    <string name="sort_by_rank">Sort by Rand (KindSort)</string>
+    <string name="save_pattern">Save Pattern</string>
+    <!-- <string name="backup">Backup</string> -->
     <string name="send_as_text_current">Send current list as text</string>
     <string name="send_as_text_all">Send all lists as text</string>
-    
+
+    <string name="kindact_name_hint">Please enter a new value \nQuote from the Buddha</string>
     <string name="delete_button_title">Delete</string>
 
+    <string-array name="spinner_list">
+        <item>Suffering</item>
+        <item>Happiness [not implemented]</item>
+        <item>Neutral feeling [not implemented]</item>
+    </string-array>
+    
 </resources>
