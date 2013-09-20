@@ -30,6 +30,8 @@ public class ListDataItemM{ //implements StorableInJsonI
 	private static final String JSON_ACTIVE = "active";
 	private static final String JSON_LISTTYPE = "listtype";
 	static final String NO_NAME_SET = "no_name_set";
+	
+	private String mActionFilePath = "";
 
 	//Constructor for creating a ListDataItem from the GUI
 	ListDataItemM(ListTypeM inListType) {
@@ -110,6 +112,8 @@ public class ListDataItemM{ //implements StorableInJsonI
 
 	ListTypeM getListType() {return mListType;}
 	
+	String getActionFilePath() {return mActionFilePath;}
+	void setActionFilePath(String inActionFilePath) {mActionFilePath = inActionFilePath;}
 	
 	
 	//--------------------Methods for representing the object in other ways (than by reference)
@@ -140,6 +144,8 @@ public class ListDataItemM{ //implements StorableInJsonI
 		//retJsonObject.put(JSON_HARDCODED, mHardCoded); //boolean
 		return retJsonObject;
 	}
+
+
 
 	
 	//-------------------Other methods

@@ -1,11 +1,13 @@
 package com.sunyata.kindmind;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.location.Address;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,7 +36,8 @@ public class ListFragmentC extends ListFragment{
 	private ListTypeM refListType;
 	private ToastBehaviour mToastBehaviour;
 	private static MainActivityCallbackListenerI mCallbackListener;
-
+	private KindActionBehaviour mKindActionBehaviour;
+	
 	public static ListFragmentC newInstance(ListTypeM inListType, MainActivityCallbackListenerI inCallbackListener){
 		Bundle tmpArguments = new Bundle();
 		tmpArguments.putString(Utils.LIST_TYPE, inListType.toString());
@@ -75,12 +78,25 @@ public class ListFragmentC extends ListFragment{
     	}
     	
 		switch(refListType){
-		case SPECEV:	setToastBehaviour(new NoToast());break;
-		case SUFFERING:	setToastBehaviour(new FeelingsToast());break;
-		case NEEDS:		setToastBehaviour(new NeedsToast());break;
-		case KINDNESS:	setToastBehaviour(new NoToast());break;
+		case SPECEV:
+			setToastBehaviour(new NoToast());
+			setKindActionBehaviour(new OnlyTitleKindAction());
+			break;
+		case SUFFERING:
+			setToastBehaviour(new FeelingsToast());
+			setKindActionBehaviour(new OnlyTitleKindAction());
+			break;
+		case NEEDS:
+			setToastBehaviour(new NeedsToast());
+			setKindActionBehaviour(new OnlyTitleKindAction());
+			break;
+		case KINDNESS:
+			setToastBehaviour(new NoToast());
+			setKindActionBehaviour(new ImageKindAction());
+			break;
 		default:Log.e(Utils.getClassName() ,"Error in onCreate: ListType not covered by switch statement");
 		}
+
     }
     @Override
     public void onPause(){
@@ -200,12 +216,15 @@ public class ListFragmentC extends ListFragment{
 
 		case R.id.menu_item_share_experience:
 			sendAsEmail(
-					"My present experience",
+					"From the Kind Mind (Android app): My present experience",
 					"I am feeling "
 					+ KindModelM.get(getActivity()).getToastString(ListTypeM.SUFFERING)
 					+ ", because i am needing "
-					+ KindModelM.get(getActivity()).getToastString(ListTypeM.NEEDS));
+					+ KindModelM.get(getActivity()).getToastString(ListTypeM.NEEDS)
+					+ "\n\nSent from the Android app Kind Mind, can be found in the google play store");
 					//"Please help");
+			//Asking for help
+			//Asking for empathy (Can you reflect back what you are hearing/reading)
 			return true;
 		
 		case R.id.menu_item_sort_alphabetically:
@@ -333,6 +352,8 @@ public class ListFragmentC extends ListFragment{
 				
 				mToastBehaviour.toast();
 				
+				mKindActionBehaviour.kindAction(refListData.getItem(mPosition).getActionFilePath());
+				
 				/*
 				if (tmpIsChecked){
 					refListData.getItem(mPosition).incrementSingleClickSortValueFromCurrentRun();
@@ -366,6 +387,9 @@ public class ListFragmentC extends ListFragment{
 	
 	interface ToastBehaviour{
 		public void toast();
+	}
+	void setToastBehaviour(ToastBehaviour inToastBehaviour){
+		mToastBehaviour = inToastBehaviour;
 	}
 	
 	class FeelingsToast implements ToastBehaviour{
@@ -411,12 +435,42 @@ public class ListFragmentC extends ListFragment{
 		}
 	}
 	
-	void setToastBehaviour(ToastBehaviour inToastBehaviour){
-		mToastBehaviour = inToastBehaviour;
+	
+	//-------------------KindAction Behaviour [uses the strategy pattern]
+	
+	interface KindActionBehaviour{
+		public void kindAction(String inKindActionFilePath);
+	}
+	void setKindActionBehaviour(KindActionBehaviour inKindActionBehaviour){
+		mKindActionBehaviour = inKindActionBehaviour;
 	}
 	
+	class ImageKindAction implements KindActionBehaviour{
+		@Override
+		public void kindAction(String inKindActionFilePath) {
+			if(inKindActionFilePath == ""){
+				return;
+			}else{
+				Intent tmpIntent = new Intent(Intent.ACTION_VIEW);
+				//tmpIntent.putExtra(Intent.EXTRA_TEXT, "test text using EXTRA_TEXT");
+				tmpIntent.setData(Uri.fromFile(new File(inKindActionFilePath))); //Environment.getExternalStorageDirectory() + "/Dalai Lama_3.jpg"
+				Log.i("Input directory", "Environment.getExternalStorageDirectory(): " + Environment.getExternalStorageDirectory());
+				startActivity(tmpIntent);
+				/*
+				Intent i = new Intent(Intent.ACTION_SEND);
+				i.setType("text/plain");
+				i.putExtra(Intent.EXTRA_SUBJECT, inTitle);
+				i.putExtra(Intent.EXTRA_TEXT, inTextContent);
+				startActivity(i);
+				*/
+			}
+		}
+	}
 	
-	//-------------------
-	
-	
+	class OnlyTitleKindAction implements KindActionBehaviour{
+		@Override
+		public void kindAction(String inKindActionFilePath) {
+			//do nothing
+		}
+	}
 }

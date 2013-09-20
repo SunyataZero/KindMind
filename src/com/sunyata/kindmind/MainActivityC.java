@@ -1,11 +1,13 @@
 package com.sunyata.kindmind;
 
+import java.io.File;
 import java.util.Locale;
 
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -27,16 +29,16 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	
 	private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
-    private static int mViewPagerPosition; //Important that this is static since the whole instance of the
+    private static int sViewPagerPosition; //Important that this is static since the whole instance of the
     // class is recreated when going back from the details screens
-    private ListFragmentC mSpecEvListFragment;
-    private ListFragmentC mSufferingListFragment;
+    private ListFragmentC mObservationListFragment;
+    private ListFragmentC mFeelingListFragment;
     private ListFragmentC mNeedListFragment;
     private ListFragmentC mKindnessListFragment;
 
     private ActionBar refActionBar;
     private MyOnNavigationListener mOnNavigationListener;
-    private ArrayAdapter mKindMindArrayAdapter;
+    private ArrayAdapter<String> mKindMindArrayAdapter;
     
     
     //------------------------Lifecycle methods, including onCreate
@@ -81,7 +83,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				switch(inState){
 				case ViewPager.SCROLL_STATE_IDLE:
 					//Saving the position (solves the problem in issue #41)
-					mViewPagerPosition = mViewPager.getCurrentItem();
+					sViewPagerPosition = mViewPager.getCurrentItem();
 					break;
 				default:
 					break;
@@ -110,13 +112,63 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         refActionBar.setListNavigationCallbacks(mKindMindArrayAdapter, mOnNavigationListener);
 
         //refActionBar.
+        
+        //If the directory does not already exist, create it
+    	
+    	//File tmpBaseDirectory = Environment.getExternalStorageDirectory();
+    	File tmpDirectory = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
+    			+ SettingsM.KIND_MIND_DIRECTORY);
+    	Log.i(Utils.getClassName(), "tmpDirectory = " + tmpDirectory);
+    	boolean tmpDirectoryWasCreatedSuccessfully = tmpDirectory.mkdir();
+    	Log.i(Utils.getClassName(), "tmpDirectoryWasCreatedSuccessfully = " + tmpDirectoryWasCreatedSuccessfully);
     }
     
     private class MyOnNavigationListener implements ActionBar.OnNavigationListener{
+		private static final int SPINNER_SUFFERING = 0;
+		private static final int SPINNER_HAPPINESS = 1;
+		private static final int SPINNER_NEUTRAL = 2;
+
 		@Override
-		public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-			//return false;
-			return true;
+		public boolean onNavigationItemSelected(int inItemPosition, long inItemId) {
+			//The itemid is the same as the itemposition, this seems to be a bug, so we use itemid instead 
+			
+			switch(inItemPosition){
+			case SPINNER_SUFFERING:
+				
+				updateAllFragmentLists();
+				
+				return true;
+			case SPINNER_HAPPINESS:
+				
+				//Load data
+				
+				
+				updateAllFragmentLists();
+				
+				return true;
+			case SPINNER_NEUTRAL:
+				
+				
+				updateAllFragmentLists();
+				
+				return true;
+			default:
+				Log.e(Utils.getClassName(), "Error in MyOnNavigationListener: Case not covered");
+				return false;
+			}
+			/*
+			switch((int)inItemId){
+			case R.string.suffering_spinner_title:
+				return true;
+			case R.string.happiness_spinner_title:
+				return true;
+			case R.string.neutral_spinner_title:
+				return true;
+			default:
+				Log.e(Utils.getClassName(), "Error in MyOnNavigationListener: Case not covered");
+				return false;
+			}
+			*/
 		}
     }
     
@@ -164,8 +216,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	Log.d(Utils.getClassName(), Utils.getMethodName());
     	
     	//Solves the problem in issue #41
-    	if(mViewPagerPosition != mViewPager.getCurrentItem()){
-    		mViewPager.setCurrentItem(mViewPagerPosition);
+    	if(sViewPagerPosition != mViewPager.getCurrentItem()){
+    		mViewPager.setCurrentItem(sViewPagerPosition);
     	}
     }
     @Override
@@ -205,12 +257,12 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         public Object instantiateItem (ViewGroup container, int position){
         	switch(position){
         	case 0:
-        		mSpecEvListFragment = ListFragmentC.newInstance(ListTypeM.SPECEV,
+        		mObservationListFragment = ListFragmentC.newInstance(ListTypeM.SPECEV,
         				(MainActivityCallbackListenerI)MainActivityC.this);
         		//((DataAdapter)mSpecEvListFragment.getListAdapter()).notifyDataSetChanged();
         		break;
         	case 1:
-        		mSufferingListFragment = ListFragmentC.newInstance(ListTypeM.SUFFERING,
+        		mFeelingListFragment = ListFragmentC.newInstance(ListTypeM.SUFFERING,
         				(MainActivityCallbackListenerI)MainActivityC.this);
         		//((DataAdapter)mSufferingListFragment.getListAdapter()).notifyDataSetChanged();
         		break;
@@ -235,8 +287,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         @Override
         public android.support.v4.app.Fragment getItem(int inPosition) {
         	switch (inPosition){
-        		case 0: return mSpecEvListFragment;
-		    	case 1:	return mSufferingListFragment; //mFeelingListFragment; //Has already been created in the constructor
+        		case 0: return mObservationListFragment;
+		    	case 1:	return mFeelingListFragment; //mFeelingListFragment; //Has already been created in the constructor
 				case 2: return mNeedListFragment;
 		    	case 3: return mKindnessListFragment;
 		    	default: Log.e(Utils.getClassName(), "Error in method getItem: case not covered");return null;
@@ -280,11 +332,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		switch(inListType){
 		case SPECEV:
 			setTitle(R.string.events_top_title);
-			updateFragmentList(mSpecEvListFragment);
+			updateFragmentList(mObservationListFragment);
 			break;
 		case SUFFERING:
 			setTitle(R.string.suffering_top_title);
-			updateFragmentList(mSufferingListFragment);
+			updateFragmentList(mFeelingListFragment);
 			break;
 		case NEEDS:
 			setTitle(R.string.needs_top_title);
@@ -309,8 +361,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	public void clearData() { //Called from the test project
 		this.clearActivated();
 		KindModelM.get(this).clearAllDataLists();
-		updateFragmentList(mSpecEvListFragment);
-		updateFragmentList(mSufferingListFragment);
+		updateAllFragmentLists();
+	}
+	void updateAllFragmentLists(){
+		updateFragmentList(mObservationListFragment);
+		updateFragmentList(mFeelingListFragment);
 		updateFragmentList(mNeedListFragment);
 		updateFragmentList(mKindnessListFragment);
 	}

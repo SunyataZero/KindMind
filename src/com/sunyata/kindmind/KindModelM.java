@@ -22,7 +22,8 @@ public class KindModelM {
 	private static KindModelM sKindModel;
 	
 	private ListDataM mSpecEv;
-	private ListDataM mSuffering;
+	private ListDataM mSuffering; //__________-
+	private ListDataM mHappiness;
 	private ListDataM mNeeds;
 	private ListDataM mKindness;
 	//more
@@ -38,7 +39,7 @@ public class KindModelM {
 	static final String JSON_FEELINGS_SUFFERING_FILE_NAME = "feelings_suffering.json";
 	static final String JSON_NEEDS_FILE_NAME = "needs.json";
 	static final String JSON_REQUESTS_KINDNESS_FILE_NAME = "requests_kindness.json";
-	public static final double PATTERN_MULTIPLIER = 10;
+	public static final double PATTERN_MULTIPLIER = 8;
 	
 	private String mToastFeelingsString;
 	private String mToastNeedsString;

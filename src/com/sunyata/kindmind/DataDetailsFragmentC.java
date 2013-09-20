@@ -1,10 +1,17 @@
 package com.sunyata.kindmind;
 
+import java.io.File;
 import java.util.UUID;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.Dialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,6 +25,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.sunyata.kindmind.ListDataItemM.ListTypeM;
+import com.sunyata.kindmind.ListFragmentC.ListFragmentDataAdapterC;
 
 public class DataDetailsFragmentC extends Fragment {
 
@@ -27,6 +35,8 @@ public class DataDetailsFragmentC extends Fragment {
 	private Button mDeleteButton;
 	private ListDataItemM refListDataItem;
 	private ListTypeM refListType;
+	private Button mFileChooserButton;
+
 	
 	static Fragment newInstance(ListTypeM inListType){
 		Bundle tmpArguments = new Bundle();
@@ -112,8 +122,83 @@ public class DataDetailsFragmentC extends Fragment {
 		});
 		//mDeleteButton.remove
 		
+		
+		mFileChooserButton = (Button)v.findViewById(R.id.file_chooser_button);
+		mFileChooserButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				
+				Intent intent = new Intent(getActivity(), FileChooserActivityC.class);
+				intent.putExtra(ListFragmentC.EXTRA_LIST_DATA_ITEM_ID, refListDataItem.getId()); //Extracted in DataDetailsFragmentC
+				intent.putExtra(ListFragmentC.EXTRA_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
+				startActivityForResult(intent, 0); //Calling DataDetailsActivityC
+				
+
+			}
+		});
+		
 		return v;
 	}
+
+	/*
+	private Button mFileChooserButton;
+	private String[] mListOfFiles;
+	private File mPathToFileDirectory;
+	*/
+	
+	
+	
+	
+	///////////////////////////////////////////////////REMOVE
+	//In an Activity
+	private String[] mFileList;
+	private File mPath = new File(Environment.getExternalStorageDirectory()
+		+ "//yourdir//");
+	private String mChosenFile;
+	private static final int DIALOG_LOAD_FILE = 1000;
+
+	private void loadFileList() {
+	    try {
+	        mPath.mkdirs();
+	    }
+	    catch(SecurityException e) {
+	        Log.e("1234", "unable to write on the sd card " + e.toString());
+	    }
+	    if(mPath.exists()) {
+	        mFileList = mPath.list();
+	    }
+	    else {
+	        mFileList= new String[0];
+	    }
+	}
+
+	protected Dialog onCreateDialog(int id) {
+	    Dialog dialog = null;
+	    AlertDialog.Builder builder = new Builder(getActivity());
+
+	    switch(id) {
+	        case DIALOG_LOAD_FILE:
+	            builder.setTitle("Choose your file");
+	            if(mFileList == null) {
+	                Log.e("1234", "Showing file picker before loading the file list");
+	                dialog = builder.create();
+	                return dialog;
+	            }
+	            builder.setItems(mFileList, new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface dialog, int which) {
+	                    mChosenFile = mFileList[which];
+	                    //you can do stuff with the file here too
+	                }
+	            });
+	            break;
+	    }
+	    dialog = builder.show();
+	    return dialog;
+	}
+	///////////////////////////////////////////////////REMOVE
+	
+	
+	
 	
     @Override
     //Important: When a new activity is created, this method is called on a physical device, but not on the emulator

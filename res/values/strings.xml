@@ -26,11 +26,16 @@
 
     <string name="kindact_name_hint">Please enter a new value \nQuote from the Buddha</string>
     <string name="delete_button_title">Delete</string>
+    <string name="file_chooser_button_title">Choice of File</string>
 
+    <string name="suffering_spinner_title">Suffering</string>
+    <string name="happiness_spinner_title">Happiness [not implemented]</string>
+    <string name="neutral_spinner_title">Neutral feeling [not implemented yet]</string>
+    
     <string-array name="spinner_list">
-        <item>Suffering</item>
-        <item>Happiness [not implemented]</item>
-        <item>Neutral feeling [not implemented]</item>
+        <item>@string/suffering_spinner_title</item>
+        <item>@string/happiness_spinner_title</item>
+        <item>@string/neutral_spinner_title</item>
     </string-array>
     
 </resources>
