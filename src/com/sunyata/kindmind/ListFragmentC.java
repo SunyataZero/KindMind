@@ -2,12 +2,14 @@ package com.sunyata.kindmind;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -309,7 +311,7 @@ public class ListFragmentC extends ListFragment{
 		public View getView(int inPosition, View inConvertView, ViewGroup inParent){
 
 			if (inConvertView == null){
-				inConvertView = getActivity().getLayoutInflater().inflate(R.layout.list_item, null);//can pass parent here
+				inConvertView = getActivity().getLayoutInflater().inflate(R.layout.ofnr_list_item, null);//can pass parent here
 			}
 			
 			ListDataItemM tmpListDataItem = getItem(inPosition);
@@ -451,19 +453,27 @@ public class ListFragmentC extends ListFragment{
 			if(inKindActionFilePath == ""){
 				return;
 			}else{
+
 				Intent tmpIntent = new Intent(Intent.ACTION_VIEW);
+				
 				//tmpIntent.putExtra(Intent.EXTRA_TEXT, "test text using EXTRA_TEXT");
 				tmpIntent.setData(Uri.fromFile(new File(inKindActionFilePath))); //Environment.getExternalStorageDirectory() + "/Dalai Lama_3.jpg"
 				//tmpIntent.setType("image/*");
 				Log.i(Utils.getClassName(), "inKindActionFilePath = " + inKindActionFilePath);
-				startActivity(tmpIntent);
-				/*
-				Intent i = new Intent(Intent.ACTION_SEND);
-				i.setType("text/plain");
-				i.putExtra(Intent.EXTRA_SUBJECT, inTitle);
-				i.putExtra(Intent.EXTRA_TEXT, inTextContent);
-				startActivity(i);
-				*/
+				
+				//Verifying that we have at least one app that can handle this intent before starting
+				PackageManager tmpPackageManager = getActivity().getPackageManager();
+				List<ResolveInfo> tmpListOfAllPosibleAcitivtiesForStarting =
+						tmpPackageManager.queryIntentActivities(tmpIntent, 0);
+				if(tmpListOfAllPosibleAcitivtiesForStarting.size() > 0){
+					startActivity(tmpIntent);
+				}else{
+					Toast.makeText(getActivity(),
+							"Currently no app supports this file type on this device, " +
+							"please install an app that supports this operation",
+							Toast.LENGTH_LONG)
+							.show();
+				}
 			}
 		}
 	}

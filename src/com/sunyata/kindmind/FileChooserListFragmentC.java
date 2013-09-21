@@ -15,17 +15,13 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-//ListFragment
-//android.support.v4.app.Fragment
+
 public class FileChooserListFragmentC extends ListFragment {
 	
-	static final String EXTRA_RETURN_VALUE_FROM_FILECHOOSERFRAGMENT = "RETURN_VALUE_FROM_FILECHOOSERFRAGMENT";
+	static final String EXTRA_RETURN_VALUE_FROM_FILE_CHOOSER_FRAGMENT = "RETURN_VALUE_FROM_FILECHOOSERFRAGMENT";
 	
 	public static FileChooserListFragmentC newInstance(){
-		//Bundle tmpArguments = new Bundle();
 		FileChooserListFragmentC retListFragment = new FileChooserListFragmentC();
-		//retListFragment.setArguments(tmpArguments);
-		//mCallbackListener = inCallbackListener;
 		return retListFragment;
 	}
 	
@@ -57,11 +53,8 @@ public class FileChooserListFragmentC extends ListFragment {
     	 * device that is distinct from the protected internal storage
     	 * and can be mounted as a filesystem on a computer."
     	 */
-    	//Environment.getRootDirectory();//Environment.getExternalStorageDirectory();
-    	String[] tmpDirectoryListing = mDirectoryPath.list();
-    	//ArrayList<String> tmpArrayList = (ArrayList<String>)Arrays.asList(tmpDirectoryListing);
-    	List<String> tmpList = Arrays.asList(tmpDirectoryListing);
-    	
+    	//Setting up the path to the directory to be displayed and the adapter
+    	List<String> tmpList = Arrays.asList(mDirectoryPath.list());
     	FileChooserListDataAdapterC adapter = new FileChooserListDataAdapterC(tmpList);
 		setListAdapter(adapter);
     }
@@ -73,22 +66,14 @@ public class FileChooserListFragmentC extends ListFragment {
 		}
 		
 		@Override
-		public void notifyDataSetChanged(){ //Issue 1: Not called
-			super.notifyDataSetChanged();
-		}
-		
-		//Giving the view for a single list item
-		@Override
 		public View getView(int inPosition, View inConvertView, ViewGroup inParent){
-
 			if (inConvertView == null){
 				inConvertView = getActivity().getLayoutInflater().inflate(R.layout.file_list_item, null);
 			}
 			
 			String tmpString = getItem(inPosition);
 
-			//Setting the on click listener for the whole layout
-			inConvertView.setOnClickListener(new CustomOnClickListener(inPosition));
+			inConvertView.setOnClickListener(new CustomOnClickListener());
 			
 			TextView tmpTitleTextView = (TextView)inConvertView.findViewById(R.id.file_list_item_titleTextView);
 			tmpTitleTextView.setText(tmpString);
@@ -97,27 +82,20 @@ public class FileChooserListFragmentC extends ListFragment {
 		}
 
 		private class CustomOnClickListener implements OnClickListener{
-			private int mPosition;
-			public CustomOnClickListener(int inPosition){
-				mPosition = inPosition;
-			}
+			public CustomOnClickListener(){}
 
 			@Override
 			public void onClick(View inView) {
 				
-				String tmpValueToReturn = 
+				String tmpFilePath = 
 						Environment.getExternalStorageDirectory().getAbsolutePath()
 						+ SettingsM.KIND_MIND_DIRECTORY + "/"
 						+ (String)((TextView) inView.findViewById(R.id.file_list_item_titleTextView)).getText();
 
 				Intent tmpIntent = new Intent();
-				tmpIntent.putExtra(EXTRA_RETURN_VALUE_FROM_FILECHOOSERFRAGMENT, tmpValueToReturn);
-						
+				tmpIntent.putExtra(EXTRA_RETURN_VALUE_FROM_FILE_CHOOSER_FRAGMENT, tmpFilePath);
 				getActivity().setResult(Activity.RESULT_OK, tmpIntent);
-
 				getActivity().finish();
-				
-				//((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			}
 		}
 	}

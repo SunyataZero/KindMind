@@ -9,7 +9,7 @@ import com.sunyata.kindmind.ListDataItemM.ListTypeM;
 
 public abstract class SingleFragmentActivityC extends Activity {
 
-	abstract Fragment createFragment(ListTypeM inListType);
+	abstract Fragment createFragment(Object inAttachedData);
 
 	
 	//-----------------Lifecycle methods

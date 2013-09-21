@@ -1,17 +1,11 @@
 package com.sunyata.kindmind;
 
-import java.io.File;
 import java.util.UUID;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
-import android.app.Dialog;
 import android.app.Fragment;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -25,7 +19,6 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.sunyata.kindmind.ListDataItemM.ListTypeM;
-import com.sunyata.kindmind.ListFragmentC.ListFragmentDataAdapterC;
 
 public class DataDetailsFragmentC extends Fragment {
 
@@ -129,12 +122,10 @@ public class DataDetailsFragmentC extends Fragment {
 		mFileChooserButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				
 				Intent intent = new Intent(getActivity(), FileChooserActivityC.class);
-				intent.putExtra(ListFragmentC.EXTRA_LIST_DATA_ITEM_ID, refListDataItem.getId()); //Extracted in DataDetailsFragmentC
+				//intent.putExtra(ListFragmentC.EXTRA_LIST_DATA_ITEM_ID, refListDataItem.getId()); //Extracted in FileChooserFragmentC
 				intent.putExtra(ListFragmentC.EXTRA_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
-				startActivityForResult(intent, REQUEST_FILECHOOSER); //Calling DataDetailsActivityC
-				
+				startActivityForResult(intent, REQUEST_FILECHOOSER); //Calling FileChooserActivityC
 			}
 		});
 		
@@ -148,7 +139,7 @@ public class DataDetailsFragmentC extends Fragment {
 
 			if(inResultCode == Activity.RESULT_OK){
 				String tmpReturnValueFromFileChooserFragment =
-						inIntent.getStringExtra(FileChooserListFragmentC.EXTRA_RETURN_VALUE_FROM_FILECHOOSERFRAGMENT);
+						inIntent.getStringExtra(FileChooserListFragmentC.EXTRA_RETURN_VALUE_FROM_FILE_CHOOSER_FRAGMENT);
 				
 				Log.i(Utils.getClassName(),
 						"tmpReturnValueFromFileChooserFragment = " + tmpReturnValueFromFileChooserFragment);

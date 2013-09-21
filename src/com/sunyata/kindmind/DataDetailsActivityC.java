@@ -10,8 +10,8 @@ public class DataDetailsActivityC extends SingleFragmentActivityC {
 	
 	//The onCreate method in the parent (SingleFragmentActivityC) calls createFragment
 	@Override
-	Fragment createFragment(ListTypeM inListType){ //Fragment
-		refFragment = (Fragment)DataDetailsFragmentC.newInstance(inListType);
+	Fragment createFragment(Object inAttachedData){ //Fragment
+		refFragment = (Fragment)DataDetailsFragmentC.newInstance((ListTypeM)inAttachedData);
 		return refFragment;
 	}
 }
