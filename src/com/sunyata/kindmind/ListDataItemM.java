@@ -29,9 +29,10 @@ public class ListDataItemM{ //implements StorableInJsonI
 	private static final String JSON_NAME = "name";
 	private static final String JSON_ACTIVE = "active";
 	private static final String JSON_LISTTYPE = "listtype";
+	private static final String JSON_FILEORDIRPATH = "filedirpath";
 	static final String NO_NAME_SET = "no_name_set";
 	
-	private String mActionFilePath = "";
+	private String mActionFileOrDirPath = "";
 	
 	
 	//Constructor for creating a ListDataItem from the GUI
@@ -57,6 +58,7 @@ public class ListDataItemM{ //implements StorableInJsonI
 		mName = inJsonObject.getString(JSON_NAME);
 		mListType = ListTypeM.valueOf(inJsonObject.getString(JSON_LISTTYPE));
 		mActive = inJsonObject.getBoolean(JSON_ACTIVE);
+		mActionFileOrDirPath = inJsonObject.getString(JSON_FILEORDIRPATH);
 		//mHardCoded = inJsonObject.getBoolean(JSON_HARDCODED);
 	}
 	
@@ -113,8 +115,8 @@ public class ListDataItemM{ //implements StorableInJsonI
 
 	ListTypeM getListType() {return mListType;}
 	
-	String getActionFilePath() {return mActionFilePath;}
-	void setActionFilePath(String inActionFilePath) {mActionFilePath = inActionFilePath;}
+	String getActionFilePath() {return mActionFileOrDirPath;}
+	void setActionFilePath(String inActionFilePath) {mActionFileOrDirPath = inActionFilePath;}
 	
 	
 	//--------------------Methods for representing the object in other ways (than by reference)
@@ -135,6 +137,7 @@ public class ListDataItemM{ //implements StorableInJsonI
 		JSONObject retJsonObject = new JSONObject();
 		retJsonObject.put(JSON_ID, mId.toString()); //String (from UUID)
 		retJsonObject.put(JSON_NAME, mName); //String
+		retJsonObject.put(JSON_FILEORDIRPATH, mActionFileOrDirPath); //String
 		try{
 			retJsonObject.put(JSON_LISTTYPE, mListType.name()); //String (from ListTypeM) 
 		}catch(Exception e){
