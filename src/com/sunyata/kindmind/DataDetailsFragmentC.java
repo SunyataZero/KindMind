@@ -22,6 +22,7 @@ import com.sunyata.kindmind.ListDataItemM.ListTypeM;
 
 public class DataDetailsFragmentC extends Fragment {
 
+	
 	//----------------------------Fields and singelton get method
 	
 	private EditText mKindActEditText;
@@ -115,8 +116,6 @@ public class DataDetailsFragmentC extends Fragment {
 				//We don't need to notify the adapter (why?)
 			}
 		});
-		//mDeleteButton.remove
-		
 		
 		mFileChooserButton = (Button)v.findViewById(R.id.file_chooser_button);
 		mFileChooserButton.setOnClickListener(new OnClickListener() {
@@ -128,6 +127,11 @@ public class DataDetailsFragmentC extends Fragment {
 				startActivityForResult(intent, REQUEST_FILECHOOSER); //Calling FileChooserActivityC
 			}
 		});
+
+		//Only show this button for the strategies
+		if(refListType != ListTypeM.KINDNESS){
+			mFileChooserButton.setVisibility(View.GONE);
+		}
 		
 		return v;
 	}
@@ -204,6 +208,7 @@ public class DataDetailsFragmentC extends Fragment {
 
 		case android.R.id.home:
 			/*
+			//Alternative approach to closing:
 			Intent tmpIntent = new Intent(getActivity(), MainActivityC.class);
 			tmpIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(tmpIntent);

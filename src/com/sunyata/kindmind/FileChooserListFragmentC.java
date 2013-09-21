@@ -9,6 +9,7 @@ import android.app.ListFragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,8 +42,7 @@ public class FileChooserListFragmentC extends ListFragment {
     }
     private void initialize(){
     	
-    	File mDirectoryPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
-    			+ SettingsM.KIND_MIND_DIRECTORY);
+    	File mDirectoryPath = new File(SettingsM.getKindMindDirectory());
     	/* From the javadoc for getExternalStorageDirectory:
     	 * "Note: don't be confused by the word "external" here.
     	 * This directory can better be thought as media/shared storage.
@@ -72,11 +72,25 @@ public class FileChooserListFragmentC extends ListFragment {
 			}
 			
 			String tmpString = getItem(inPosition);
-
-			inConvertView.setOnClickListener(new CustomOnClickListener());
 			
+			//Setting a prefix that describes if the item that the user is choosing is a file or a directory
+			File tmpFileOrDirectory = new File(SettingsM.getKindMindDirectory() + "/" + tmpString);
+			Log.i(Utils.getClassName(), "tmpFileOrDirectory = " + tmpFileOrDirectory);
+			String tmpDirectoryOrFileString = "";
+			if(tmpFileOrDirectory.isDirectory() == true){
+				tmpDirectoryOrFileString = "Dir:  ";
+			}else{
+				tmpDirectoryOrFileString = "File: ";
+			}
+			TextView tmpDirectoryOrFileTextView = (TextView)inConvertView.findViewById(R.id.file_list_item_directoryOrFile);
+			tmpDirectoryOrFileTextView.setText(tmpDirectoryOrFileString);
+
+			//Setting up the area where the name of the file is
 			TextView tmpTitleTextView = (TextView)inConvertView.findViewById(R.id.file_list_item_titleTextView);
 			tmpTitleTextView.setText(tmpString);
+			
+			//Setting an on click listener for the whole area
+			inConvertView.setOnClickListener(new CustomOnClickListener());
 
 			return inConvertView;
 		}
@@ -88,8 +102,7 @@ public class FileChooserListFragmentC extends ListFragment {
 			public void onClick(View inView) {
 				
 				String tmpFilePath = 
-						Environment.getExternalStorageDirectory().getAbsolutePath()
-						+ SettingsM.KIND_MIND_DIRECTORY + "/"
+						SettingsM.getKindMindDirectory() + "/"
 						+ (String)((TextView) inView.findViewById(R.id.file_list_item_titleTextView)).getText();
 
 				Intent tmpIntent = new Intent();

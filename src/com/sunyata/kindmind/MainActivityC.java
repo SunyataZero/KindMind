@@ -116,8 +116,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         //If the directory does not already exist, create it
     	
     	//File tmpBaseDirectory = Environment.getExternalStorageDirectory();
-    	File tmpDirectory = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
-    			+ SettingsM.KIND_MIND_DIRECTORY);
+    	File tmpDirectory = new File(SettingsM.getKindMindDirectory());
     	Log.i(Utils.getClassName(), "tmpDirectory = " + tmpDirectory);
     	boolean tmpDirectoryWasCreatedSuccessfully = tmpDirectory.mkdir();
     	Log.i(Utils.getClassName(), "tmpDirectoryWasCreatedSuccessfully = " + tmpDirectoryWasCreatedSuccessfully);

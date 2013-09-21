@@ -2,7 +2,9 @@ package com.sunyata.kindmind;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -450,31 +452,56 @@ public class ListFragmentC extends ListFragment{
 	class ImageKindAction implements KindActionBehaviour{
 		@Override
 		public void kindAction(String inKindActionFilePath) {
+			Log.i(Utils.getClassName(), "inKindActionFilePath = " + inKindActionFilePath);
+			
 			if(inKindActionFilePath == ""){
 				return;
 			}else{
-
-				Intent tmpIntent = new Intent(Intent.ACTION_VIEW);
 				
+				File tmpFileOrDirectoryFromString = new File(inKindActionFilePath);
 				//tmpIntent.putExtra(Intent.EXTRA_TEXT, "test text using EXTRA_TEXT");
-				tmpIntent.setData(Uri.fromFile(new File(inKindActionFilePath))); //Environment.getExternalStorageDirectory() + "/Dalai Lama_3.jpg"
-				//tmpIntent.setType("image/*");
-				Log.i(Utils.getClassName(), "inKindActionFilePath = " + inKindActionFilePath);
 				
-				//Verifying that we have at least one app that can handle this intent before starting
-				PackageManager tmpPackageManager = getActivity().getPackageManager();
-				List<ResolveInfo> tmpListOfAllPosibleAcitivtiesForStarting =
-						tmpPackageManager.queryIntentActivities(tmpIntent, 0);
-				if(tmpListOfAllPosibleAcitivtiesForStarting.size() > 0){
-					startActivity(tmpIntent);
+				Log.i(Utils.getClassName(), "tmpFileOrDirectoryFromString.isDirectory() = "
+						+ tmpFileOrDirectoryFromString.isDirectory());
+				if(tmpFileOrDirectoryFromString.isDirectory()){
+					this.doRandomKindActionFromSetOfFiles(tmpFileOrDirectoryFromString);
 				}else{
-					Toast.makeText(getActivity(),
-							"Currently no app supports this file type on this device, " +
-							"please install an app that supports this operation",
-							Toast.LENGTH_LONG)
-							.show();
+					this.doKindAction(tmpFileOrDirectoryFromString);
 				}
 			}
+		}
+		private void doKindAction(File inFileFromString){
+			Log.i(Utils.getClassName(), "inFileFromString = " + inFileFromString);
+			
+			Intent tmpIntent = new Intent(Intent.ACTION_VIEW);
+			tmpIntent.setData(Uri.fromFile(inFileFromString));
+			
+			//Verifying that we have at least one app that can handle this intent before starting
+			PackageManager tmpPackageManager = getActivity().getPackageManager();
+			List<ResolveInfo> tmpListOfAllPosibleAcitivtiesForStarting =
+					tmpPackageManager.queryIntentActivities(tmpIntent, 0);
+			if(tmpListOfAllPosibleAcitivtiesForStarting.size() > 0){
+				startActivity(tmpIntent);
+			}else{
+				Toast.makeText(getActivity(),
+						"Currently no app supports this file type on this device, " +
+						"please install an app that supports this operation",
+						Toast.LENGTH_LONG)
+						.show();
+			}
+		}
+		private void doRandomKindActionFromSetOfFiles(File inDirectoryFromString){
+			Log.i(Utils.getClassName(), "inDirectoryFromString = " + inDirectoryFromString);
+			
+			String[] tmpListOfFilesInDirectory = inDirectoryFromString.list();
+			Random tmpRandomNumberGenerator = new Random();
+			int tmpNumberOfFilesInDirectory = tmpListOfFilesInDirectory.length;
+			int tmpRandomNumber = tmpRandomNumberGenerator.nextInt(tmpNumberOfFilesInDirectory);
+			
+			File tmpRandomlyGivenFile = new File(
+					inDirectoryFromString + "/"
+					+ tmpListOfFilesInDirectory[tmpRandomNumber]);
+			this.doKindAction(tmpRandomlyGivenFile);
 		}
 	}
 	

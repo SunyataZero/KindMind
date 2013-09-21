@@ -1,5 +1,11 @@
 package com.sunyata.kindmind;
 
+import android.os.Environment;
+
 public class SettingsM {
-	static final String KIND_MIND_DIRECTORY = "/KindMind";
+	
+	static String getKindMindDirectory(){
+		return Environment.getExternalStorageDirectory().getAbsolutePath() + "/KindMind";
+	}
+	
 }
