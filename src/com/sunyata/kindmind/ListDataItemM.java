@@ -32,7 +32,8 @@ public class ListDataItemM{ //implements StorableInJsonI
 	static final String NO_NAME_SET = "no_name_set";
 	
 	private String mActionFilePath = "";
-
+	
+	
 	//Constructor for creating a ListDataItem from the GUI
 	ListDataItemM(ListTypeM inListType) {
 		mId = UUID.randomUUID();
@@ -144,6 +145,8 @@ public class ListDataItemM{ //implements StorableInJsonI
 		//retJsonObject.put(JSON_HARDCODED, mHardCoded); //boolean
 		return retJsonObject;
 	}
+
+
 
 
 

@@ -19,6 +19,7 @@ public abstract class SingleFragmentActivityC extends Activity {
 		super.onCreate(savedInstanceState);
 		Log.d(Utils.getClassName(), Utils.getMethodName());
 		
+		//TODO: Remove
 		ListTypeM tmpListType = ListTypeM.valueOf(
 				(getIntent().getSerializableExtra(ListFragmentC.EXTRA_LIST_TYPE))
 				.toString());

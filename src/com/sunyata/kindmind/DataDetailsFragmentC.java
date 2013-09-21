@@ -36,6 +36,8 @@ public class DataDetailsFragmentC extends Fragment {
 	private ListDataItemM refListDataItem;
 	private ListTypeM refListType;
 	private Button mFileChooserButton;
+	
+	static final int REQUEST_FILECHOOSER = 1;
 
 	
 	static Fragment newInstance(ListTypeM inListType){
@@ -131,75 +133,36 @@ public class DataDetailsFragmentC extends Fragment {
 				Intent intent = new Intent(getActivity(), FileChooserActivityC.class);
 				intent.putExtra(ListFragmentC.EXTRA_LIST_DATA_ITEM_ID, refListDataItem.getId()); //Extracted in DataDetailsFragmentC
 				intent.putExtra(ListFragmentC.EXTRA_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
-				startActivityForResult(intent, 0); //Calling DataDetailsActivityC
+				startActivityForResult(intent, REQUEST_FILECHOOSER); //Calling DataDetailsActivityC
 				
-
 			}
 		});
 		
 		return v;
 	}
+	
+	@Override
+	public void onActivityResult(int inRequestCode, int inResultCode, Intent inIntent){
+		
+		if(inRequestCode == REQUEST_FILECHOOSER){
 
-	/*
-	private Button mFileChooserButton;
-	private String[] mListOfFiles;
-	private File mPathToFileDirectory;
-	*/
-	
-	
-	
-	
-	///////////////////////////////////////////////////REMOVE
-	//In an Activity
-	private String[] mFileList;
-	private File mPath = new File(Environment.getExternalStorageDirectory()
-		+ "//yourdir//");
-	private String mChosenFile;
-	private static final int DIALOG_LOAD_FILE = 1000;
+			if(inResultCode == Activity.RESULT_OK){
+				String tmpReturnValueFromFileChooserFragment =
+						inIntent.getStringExtra(FileChooserListFragmentC.EXTRA_RETURN_VALUE_FROM_FILECHOOSERFRAGMENT);
+				
+				Log.i(Utils.getClassName(),
+						"tmpReturnValueFromFileChooserFragment = " + tmpReturnValueFromFileChooserFragment);
+				
+				refListDataItem.setActionFilePath(tmpReturnValueFromFileChooserFragment);
+				
+			}else{
+				Log.e(Utils.getClassName(),"Error in onActivityResult(): inResultCode was not RESULT_OK");
+			}
 
-	private void loadFileList() {
-	    try {
-	        mPath.mkdirs();
-	    }
-	    catch(SecurityException e) {
-	        Log.e("1234", "unable to write on the sd card " + e.toString());
-	    }
-	    if(mPath.exists()) {
-	        mFileList = mPath.list();
-	    }
-	    else {
-	        mFileList= new String[0];
-	    }
+		}
+		
 	}
 
-	protected Dialog onCreateDialog(int id) {
-	    Dialog dialog = null;
-	    AlertDialog.Builder builder = new Builder(getActivity());
-
-	    switch(id) {
-	        case DIALOG_LOAD_FILE:
-	            builder.setTitle("Choose your file");
-	            if(mFileList == null) {
-	                Log.e("1234", "Showing file picker before loading the file list");
-	                dialog = builder.create();
-	                return dialog;
-	            }
-	            builder.setItems(mFileList, new DialogInterface.OnClickListener() {
-	                public void onClick(DialogInterface dialog, int which) {
-	                    mChosenFile = mFileList[which];
-	                    //you can do stuff with the file here too
-	                }
-	            });
-	            break;
-	    }
-	    dialog = builder.show();
-	    return dialog;
-	}
-	///////////////////////////////////////////////////REMOVE
-	
-	
-	
-	
     @Override
     //Important: When a new activity is created, this method is called on a physical device, but not on the emulator
     public void onDestroy(){
@@ -267,4 +230,10 @@ public class DataDetailsFragmentC extends Fragment {
 		}
 		
 	}
+
+
+	//----------------------------Other methods
+	
+
+	
 }

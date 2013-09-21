@@ -1,22 +1,25 @@
 package com.sunyata.kindmind;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import android.app.Activity;
 import android.app.ListFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.TextView;
 //ListFragment
 //android.support.v4.app.Fragment
 public class FileChooserListFragmentC extends ListFragment {
+	
+	static final String EXTRA_RETURN_VALUE_FROM_FILECHOOSERFRAGMENT = "RETURN_VALUE_FROM_FILECHOOSERFRAGMENT";
 	
 	public static FileChooserListFragmentC newInstance(){
 		//Bundle tmpArguments = new Bundle();
@@ -25,14 +28,6 @@ public class FileChooserListFragmentC extends ListFragment {
 		//mCallbackListener = inCallbackListener;
 		return retListFragment;
 	}
-	
-	/*
-	@Override
-	public View onCreateView(LayoutInflater inInflater, ViewGroup inParent, Bundle inSavedInstanceState){
-		View v = inInflater.inflate(R.layout.fragment_filechooser_experimental, inParent, false);
-		return v;
-	}
-	*/
 	
 	@Override
 	public View onCreateView(LayoutInflater inInflater, ViewGroup inParent, Bundle inSavedInstanceState){
@@ -52,17 +47,15 @@ public class FileChooserListFragmentC extends ListFragment {
     	
     	File mDirectoryPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
     			+ SettingsM.KIND_MIND_DIRECTORY);
-    	
-    	//mDirectoryPath.
-    	/*
-    	 * Note: don't be confused by the word "external" here.
+    	/* From the javadoc for getExternalStorageDirectory:
+    	 * "Note: don't be confused by the word "external" here.
     	 * This directory can better be thought as media/shared storage.
     	 * It is a filesystem that can hold a relatively large amount of
     	 * data and that is shared across all applications (does not
     	 * enforce permissions). Traditionally this is an SD card,
     	 * but it may also be implemented as built-in storage in a
     	 * device that is distinct from the protected internal storage
-    	 * and can be mounted as a filesystem on a computer.
+    	 * and can be mounted as a filesystem on a computer."
     	 */
     	//Environment.getRootDirectory();//Environment.getExternalStorageDirectory();
     	String[] tmpDirectoryListing = mDirectoryPath.list();
@@ -89,25 +82,20 @@ public class FileChooserListFragmentC extends ListFragment {
 		public View getView(int inPosition, View inConvertView, ViewGroup inParent){
 
 			if (inConvertView == null){
-				inConvertView = getActivity().getLayoutInflater().inflate(R.layout.list_item, null);//can pass parent here
+				inConvertView = getActivity().getLayoutInflater().inflate(R.layout.file_list_item, null);
 			}
 			
 			String tmpString = getItem(inPosition);
 
-			CheckBox tmpActiveCheckBox = (CheckBox)inConvertView.findViewById(R.id.list_item_activeCheckBox);
-			tmpActiveCheckBox.setClickable(false); //We handle this ourselves
-			tmpActiveCheckBox.setChecked(true);
+			//Setting the on click listener for the whole layout
+			inConvertView.setOnClickListener(new CustomOnClickListener(inPosition));
 			
-			//Setting the on click and on long click listeners for the whole layout
-			//inConvertView.setOnClickListener(new CustomOnClickListener(inPosition));
-			//inConvertView.setOnLongClickListener(new CustomOnLongClickListener(inPosition));
-			
-			TextView tmpTitleTextView = (TextView)inConvertView.findViewById(R.id.list_item_titleTextView);
+			TextView tmpTitleTextView = (TextView)inConvertView.findViewById(R.id.file_list_item_titleTextView);
 			tmpTitleTextView.setText(tmpString);
 
 			return inConvertView;
 		}
-		/*
+
 		private class CustomOnClickListener implements OnClickListener{
 			private int mPosition;
 			public CustomOnClickListener(int inPosition){
@@ -116,37 +104,21 @@ public class FileChooserListFragmentC extends ListFragment {
 
 			@Override
 			public void onClick(View inView) {
-				boolean tmpWasChecked = refListData.getItem(mPosition).isActive();
-				boolean tmpIsChecked = !tmpWasChecked;
+				
+				String tmpValueToReturn = 
+						Environment.getExternalStorageDirectory().getAbsolutePath()
+						+ SettingsM.KIND_MIND_DIRECTORY + "/"
+						+ (String)((TextView) inView.findViewById(R.id.file_list_item_titleTextView)).getText();
 
-				((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox)).setChecked(tmpIsChecked);
-				refListData.getItem(mPosition).setActive(tmpIsChecked);
+				Intent tmpIntent = new Intent();
+				tmpIntent.putExtra(EXTRA_RETURN_VALUE_FROM_FILECHOOSERFRAGMENT, tmpValueToReturn);
+						
+				getActivity().setResult(Activity.RESULT_OK, tmpIntent);
+
+				getActivity().finish();
 				
-				mToastBehaviour.toast();
-				
-				mKindActionBehaviour.kindAction(refListData.getItem(mPosition).getActionFilePath());
-				
-				((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
+				//((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			}
 		}
-		private class CustomOnLongClickListener implements OnLongClickListener{
-			private int mPosition;
-			public CustomOnLongClickListener(int inPosition){
-				mPosition = inPosition;
-			}
-			@Override
-			public boolean onLongClick(View inView) {
-				
-				ListDataItemM tmpListDataItem = ListFragmentDataAdapterC.this.getItem(mPosition);
-				
-				Intent intent = new Intent(getActivity(), DataDetailsActivityC.class);
-				intent.putExtra(EXTRA_LIST_DATA_ITEM_ID, tmpListDataItem.getId()); //Extracted in DataDetailsFragmentC
-				intent.putExtra(EXTRA_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
-				startActivityForResult(intent, 0); //Calling DataDetailsActivityC
-				
-				return false;
-			}
-		}
-		*/
 	}
 }

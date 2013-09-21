@@ -454,7 +454,8 @@ public class ListFragmentC extends ListFragment{
 				Intent tmpIntent = new Intent(Intent.ACTION_VIEW);
 				//tmpIntent.putExtra(Intent.EXTRA_TEXT, "test text using EXTRA_TEXT");
 				tmpIntent.setData(Uri.fromFile(new File(inKindActionFilePath))); //Environment.getExternalStorageDirectory() + "/Dalai Lama_3.jpg"
-				Log.i("Input directory", "Environment.getExternalStorageDirectory(): " + Environment.getExternalStorageDirectory());
+				//tmpIntent.setType("image/*");
+				Log.i(Utils.getClassName(), "inKindActionFilePath = " + inKindActionFilePath);
 				startActivity(tmpIntent);
 				/*
 				Intent i = new Intent(Intent.ACTION_SEND);
