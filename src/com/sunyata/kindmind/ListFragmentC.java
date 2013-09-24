@@ -2,7 +2,6 @@ package com.sunyata.kindmind;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -200,12 +199,13 @@ public class ListFragmentC extends ListFragment{
 			
 			return true;
 		
+			/*
 		case R.id.menu_item_clear_current_list_selections:
 			KindModelM.get(getActivity()).getListOfType(refListType).clearActivated();
 			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
 			return true;
-
+			 */
 		case R.id.menu_item_clear_all_list_selections:
 			//KindModelM.get(getActivity()).clearActivatedForAllLists();
 			((MainActivityC)getActivity()).clearActivated();
@@ -243,6 +243,7 @@ public class ListFragmentC extends ListFragment{
 			KindModelM.get(getActivity()).getListOfType(refListType).sortWithKindness();
 			//-Refactor: Put the two lines above into one method?
 			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
+			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
 			
 			return true;
 		

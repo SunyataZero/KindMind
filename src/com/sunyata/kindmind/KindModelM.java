@@ -23,7 +23,7 @@ public class KindModelM {
 	
 	private ListDataM mSpecEv;
 	private ListDataM mSuffering; //__________-
-	private ListDataM mHappiness;
+	//private ListDataM mHappiness;
 	private ListDataM mNeeds;
 	private ListDataM mKindness;
 	//more

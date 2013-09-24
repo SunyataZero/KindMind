@@ -58,7 +58,12 @@ public class ListDataItemM{ //implements StorableInJsonI
 		mName = inJsonObject.getString(JSON_NAME);
 		mListType = ListTypeM.valueOf(inJsonObject.getString(JSON_LISTTYPE));
 		mActive = inJsonObject.getBoolean(JSON_ACTIVE);
-		mActionFileOrDirPath = inJsonObject.getString(JSON_FILEORDIRPATH);
+		try{
+			mActionFileOrDirPath = inJsonObject.getString(JSON_FILEORDIRPATH);
+		}catch(Exception e){
+			Log.w(Utils.getClassName(), "Warning in ListDataItemM JSON constructor: JSON_FILEORDIRPATH not found" +
+					"in JSON file, JSON_FILEORDIRPATH was added around version 0.4-alpha");
+		}
 		//mHardCoded = inJsonObject.getBoolean(JSON_HARDCODED);
 	}
 	

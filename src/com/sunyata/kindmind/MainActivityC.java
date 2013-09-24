@@ -7,7 +7,6 @@ import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -388,6 +387,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				}
 			}
 		});
+		tmpListFragment.getListView().setSelectionFromTop(0, 0);
+		//.smoothScrollToPositionFromTop(0, 0);
+		//.smoothScrollToPosition(0);//Scroll to the top of the list
 	}
 
 	@Override
