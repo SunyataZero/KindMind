@@ -5,6 +5,7 @@
 package com.sunyata.kindmind;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.UUID;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,6 +34,30 @@ public class ListDataItemM{ //implements StorableInJsonI
 	static final String NO_NAME_SET = "no_name_set";
 	
 	private String mActionFileOrDirPath = "";
+
+	//private ListDataItemNotificationM mNotification;
+	private boolean mIsNotificationOn = false;
+	private int mHourOfDay = -1;
+	private int mMinute = -1;
+
+	void setUserTime(int inHourOfDay, int inMinute){
+		mHourOfDay = inHourOfDay;
+		mMinute = inMinute;
+	}
+	long getUserTimeInMilliSeconds() {
+		Calendar c = Calendar.getInstance();
+
+		c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH),
+				mHourOfDay, mMinute, 0);
+		long retTimeInMilliSeconds = c.getTimeInMillis();
+
+		return retTimeInMilliSeconds;
+	}
+	/*
+	void setIsNotificationOn(boolean inIsNotificationOn){
+		mIsNotificationOn = inIsNotificationOn;
+	}
+	*/
 	
 	
 	//Constructor for creating a ListDataItem from the GUI
@@ -156,20 +181,12 @@ public class ListDataItemM{ //implements StorableInJsonI
 
 
 
-
+	//-------------------Other methods
 
 	
-	//-------------------Other methods
-	/*
-	void incrementSingleClickSortValueFromCurrentRun(){
-		mSortValueSingleClickFromCurrentGui++;
-		
-		//Updating the total sort value
-		mSortValueTotal++;
+	/*	
+	private class ListDataItemNotificationM{
 	}
-
-	public double getSingleClickSortValueFromCurrentRun() {
-		return mSortValueSingleClickFromCurrentGui;
-	}
-	 */
+	*/
+	
 }

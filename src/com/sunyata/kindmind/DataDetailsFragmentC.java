@@ -1,14 +1,21 @@
 package com.sunyata.kindmind;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -16,11 +23,14 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 
 import com.sunyata.kindmind.ListDataItemM.ListTypeM;
 
-public class DataDetailsFragmentC extends Fragment {
+public class DataDetailsFragmentC extends Fragment implements TimePickerFragmentC.OnTimeSetListenerI{
 
 	
 	//----------------------------Fields and singelton get method
@@ -30,9 +40,10 @@ public class DataDetailsFragmentC extends Fragment {
 	private ListDataItemM refListDataItem;
 	private ListTypeM refListType;
 	private Button mFileChooserButton;
+	private CheckBox mNotificationCheckBox;
+	private Button mTimePickerButton;
 	
 	static final int REQUEST_FILECHOOSER = 1;
-
 	
 	static Fragment newInstance(ListTypeM inListType){
 		Bundle tmpArguments = new Bundle();
@@ -127,14 +138,68 @@ public class DataDetailsFragmentC extends Fragment {
 				startActivityForResult(intent, REQUEST_FILECHOOSER); //Calling FileChooserActivityC
 			}
 		});
-
-		//Only show this button for the strategies
 		if(refListType != ListTypeM.KINDNESS){
+			//Only show this button for the strategies
 			mFileChooserButton.setVisibility(View.GONE);
 		}
 		
+		//TODO: Add checkbox for background service
+		mNotificationCheckBox = (CheckBox)v.findViewById(R.id.notification_checkbox);
+		mNotificationCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+			@Override
+			public void onCheckedChanged(CompoundButton inCompoundButton, boolean inChecked) {
+				DataDetailsFragmentC.this.changeServiceNotification(inChecked);
+			}
+		});
+		
+		mTimePickerButton = (Button)v.findViewById(R.id.time_picker_button);
+		mTimePickerButton.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) { //Alt: Using the xml property "android:onClick"
+				DialogFragment tmpTimePickerFragment = TimePickerFragmentC.newInstance(DataDetailsFragmentC.this);
+				tmpTimePickerFragment.show(getFragmentManager(), "TimePicker");
+			}
+		});
 		return v;
 	}
+	@Override
+	public void fireOnTimeSetEvent(int inHourOfDay, int inMinute) {
+		refListDataItem.setUserTime(inHourOfDay, inMinute);
+		this.changeServiceNotification(mNotificationCheckBox.isChecked());
+	}
+	void changeServiceNotification(boolean inChecked){
+		if(refListDataItem.getUserTimeInMilliSeconds() >= 0){
+			NotificationServiceC.setServiceNotification(
+					getActivity().getApplicationContext(), 0, inChecked,
+					refListDataItem.getUserTimeInMilliSeconds(),
+					AlarmManager.INTERVAL_DAY);
+		}else{
+			return;
+		}
+		
+		//refListDataItem.getTimeInMilliSeconds()
+		//Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis()
+		Log.d(Utils.getClassName(), "(new Date()).toString() = " + (new Date()).toString());
+		Log.d(Utils.getClassName(), "(new Date()).getTime() = " + (new Date()).getTime());
+		Log.d(Utils.getClassName(), "System.currentTimeMillis() = " + System.currentTimeMillis());
+		
+		
+		Log.d(Utils.getClassName(), "Calendar.getInstance().getTimeInMillis()" + Calendar.getInstance().getTimeInMillis());
+		Log.d(Utils.getClassName(), "Calendar.getInstance(TimeZone.getDefault()).getTimeInMillis(), Locale.getDefault() = "
+				+ Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault()).getTimeInMillis());
+
+		//Log.d(Utils.getClassName(), "TimeZone.getDefault() = " + TimeZone.getDefault().toString());
+		Log.d(Utils.getClassName(), "refListDataItem.getTimeInMilliSeconds() = " + refListDataItem.getUserTimeInMilliSeconds());
+		
+		
+		/*
+		if(inChecked == true){
+			Intent tmpIntent = new Intent(getActivity(), NotificationServiceC.class);
+			getActivity().startService(tmpIntent);
+		}
+		*/
+	}
+	
 	
 	@Override
 	public void onActivityResult(int inRequestCode, int inResultCode, Intent inIntent){
@@ -158,6 +223,8 @@ public class DataDetailsFragmentC extends Fragment {
 		
 	}
 
+
+	
     @Override
     //Important: When a new activity is created, this method is called on a physical device, but not on the emulator
     public void onDestroy(){
@@ -226,6 +293,8 @@ public class DataDetailsFragmentC extends Fragment {
 		}
 		
 	}
+
+
 
 
 	//----------------------------Other methods

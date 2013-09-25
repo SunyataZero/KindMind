@@ -33,6 +33,7 @@
             android:name="com.sunyata.kindmind.FileChooserActivityC"
             android:label="@string/app_name">
         </activity>
+        <service android:name=".NotificationServiceC"></service>
     </application>
 
 </manifest>
