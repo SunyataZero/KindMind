@@ -6,9 +6,13 @@ package com.sunyata.kindmind;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.app.AlarmManager;
 import android.util.Log;
 
 public class ListDataItemM{ //implements StorableInJsonI
@@ -36,6 +40,7 @@ public class ListDataItemM{ //implements StorableInJsonI
 	private String mActionFileOrDirPath = "";
 
 	//private ListDataItemNotificationM mNotification;
+	private NotificationServiceC mNotificationService = null;
 	private boolean mIsNotificationOn = false;
 	private int mHourOfDay = -1;
 	private int mMinute = -1;
@@ -46,11 +51,16 @@ public class ListDataItemM{ //implements StorableInJsonI
 	}
 	long getUserTimeInMilliSeconds() {
 		Calendar c = Calendar.getInstance();
-
 		c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH),
 				mHourOfDay, mMinute, 0);
 		long retTimeInMilliSeconds = c.getTimeInMillis();
-
+		
+		//Check if the set time is previously in the same day..
+		if(retTimeInMilliSeconds < Calendar.getInstance().getTimeInMillis()){
+			//..if so we add another day to the result
+			retTimeInMilliSeconds = retTimeInMilliSeconds + 24 * 3600 * 1000;
+		}
+		
 		return retTimeInMilliSeconds;
 	}
 	/*
@@ -182,7 +192,6 @@ public class ListDataItemM{ //implements StorableInJsonI
 
 
 	//-------------------Other methods
-
 	
 	/*	
 	private class ListDataItemNotificationM{

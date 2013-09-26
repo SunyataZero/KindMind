@@ -11,17 +11,13 @@ import android.widget.TimePicker;
 
 public class TimePickerFragmentC extends DialogFragment implements TimePickerDialog.OnTimeSetListener{
 
-	//private int mHourOfDay;
-	//private int mMinute;
 	static OnTimeSetListenerI mOnTimeSetListener;
 	
-	//static
 	static TimePickerFragmentC newInstance(OnTimeSetListenerI inOnTimeSetListener){
 		mOnTimeSetListener = inOnTimeSetListener;
 		return new TimePickerFragmentC();
 	}
 	
-
 	@Override
 	public Dialog onCreateDialog(Bundle inSavedInstanceState){
 		
@@ -35,13 +31,9 @@ public class TimePickerFragmentC extends DialogFragment implements TimePickerDia
 	
 	@Override
 	public void onTimeSet(TimePicker inView, int inHourOfDay, int inMinute) {
-		//mHourOfDay = inHourOfDay;
-		//mMinute = inMinute;
 		mOnTimeSetListener.fireOnTimeSetEvent(inHourOfDay, inMinute);
 	}
 	interface OnTimeSetListenerI{
 		void fireOnTimeSetEvent(int inHourOfDay, int inMinute);
 	}
-	//int getHourOfDay(){return mHourOfDay;}
-	//int getMinute(){return mMinute;}
 }

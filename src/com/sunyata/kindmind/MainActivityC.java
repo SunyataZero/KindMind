@@ -91,8 +91,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			}
 		});
 
-
-        
         //Setting up the action bar spinner
         // For more details, please see these links:
         // https://developer.android.com/reference/android/app/ActionBar.html#setListNavigationCallbacks%28android.widget.SpinnerAdapter,%20android.app.ActionBar.OnNavigationListener%29
@@ -110,15 +108,14 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         mOnNavigationListener = new MyOnNavigationListener();
         refActionBar.setListNavigationCallbacks(mKindMindArrayAdapter, mOnNavigationListener);
 
-        //refActionBar.
-        
         //If the directory does not already exist, create it
-    	
-    	//File tmpBaseDirectory = Environment.getExternalStorageDirectory();
     	File tmpDirectory = new File(SettingsM.getKindMindDirectory());
     	Log.i(Utils.getClassName(), "tmpDirectory = " + tmpDirectory);
     	boolean tmpDirectoryWasCreatedSuccessfully = tmpDirectory.mkdir();
     	Log.i(Utils.getClassName(), "tmpDirectoryWasCreatedSuccessfully = " + tmpDirectoryWasCreatedSuccessfully);
+    	//File tmpBaseDirectory = Environment.getExternalStorageDirectory();
+    	
+
     }
     
     private class MyOnNavigationListener implements ActionBar.OnNavigationListener{

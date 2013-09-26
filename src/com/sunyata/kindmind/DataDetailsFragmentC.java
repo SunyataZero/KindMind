@@ -148,7 +148,7 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 		mNotificationCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener(){
 			@Override
 			public void onCheckedChanged(CompoundButton inCompoundButton, boolean inChecked) {
-				DataDetailsFragmentC.this.changeServiceNotification(inChecked);
+				DataDetailsFragmentC.this.changeNotificationService(inChecked);
 			}
 		});
 		
@@ -165,9 +165,9 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 	@Override
 	public void fireOnTimeSetEvent(int inHourOfDay, int inMinute) {
 		refListDataItem.setUserTime(inHourOfDay, inMinute);
-		this.changeServiceNotification(mNotificationCheckBox.isChecked());
+		this.changeNotificationService(mNotificationCheckBox.isChecked());
 	}
-	void changeServiceNotification(boolean inChecked){
+	void changeNotificationService(boolean inChecked){
 		if(refListDataItem.getUserTimeInMilliSeconds() >= 0){
 			NotificationServiceC.setServiceNotification(
 					getActivity().getApplicationContext(), 0, inChecked,
@@ -176,30 +176,7 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 		}else{
 			return;
 		}
-		
-		//refListDataItem.getTimeInMilliSeconds()
-		//Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis()
-		Log.d(Utils.getClassName(), "(new Date()).toString() = " + (new Date()).toString());
-		Log.d(Utils.getClassName(), "(new Date()).getTime() = " + (new Date()).getTime());
-		Log.d(Utils.getClassName(), "System.currentTimeMillis() = " + System.currentTimeMillis());
-		
-		
-		Log.d(Utils.getClassName(), "Calendar.getInstance().getTimeInMillis()" + Calendar.getInstance().getTimeInMillis());
-		Log.d(Utils.getClassName(), "Calendar.getInstance(TimeZone.getDefault()).getTimeInMillis(), Locale.getDefault() = "
-				+ Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault()).getTimeInMillis());
-
-		//Log.d(Utils.getClassName(), "TimeZone.getDefault() = " + TimeZone.getDefault().toString());
-		Log.d(Utils.getClassName(), "refListDataItem.getTimeInMilliSeconds() = " + refListDataItem.getUserTimeInMilliSeconds());
-		
-		
-		/*
-		if(inChecked == true){
-			Intent tmpIntent = new Intent(getActivity(), NotificationServiceC.class);
-			getActivity().startService(tmpIntent);
-		}
-		*/
 	}
-	
 	
 	@Override
 	public void onActivityResult(int inRequestCode, int inResultCode, Intent inIntent){
@@ -222,8 +199,6 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 		}
 		
 	}
-
-
 	
     @Override
     //Important: When a new activity is created, this method is called on a physical device, but not on the emulator

@@ -298,7 +298,7 @@ public class ListFragmentC extends ListFragment{
 	
 	//-------------------Adapter that listens to button clicks
     
-	class ListFragmentDataAdapterC extends ArrayAdapter<ListDataItemM>{
+	class ListFragmentDataAdapterC extends ArrayAdapter<ListDataItemM> {
 		
 		public ListFragmentDataAdapterC(ArrayList<ListDataItemM> inListData){
 			super(getActivity(), android.R.layout.simple_list_item_1, inListData);

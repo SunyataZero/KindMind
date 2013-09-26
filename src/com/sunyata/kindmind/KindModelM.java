@@ -62,6 +62,10 @@ public class KindModelM {
 		mPatternList = new ArrayList<PatternM>();
 		//this.clearDataLists();
 		this.loadPatternListsFromJsonFiles();
+		
+    	//Loading all notification services [assuming that all ListDataItems have been loaded]
+		//mSpecEv.loadNotifications();
+		
 	}
 	
 	//Singelton get method
