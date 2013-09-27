@@ -1,9 +1,5 @@
 package com.sunyata.kindmind;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 import java.util.UUID;
 
 import android.app.Activity;
@@ -15,7 +11,6 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -94,11 +89,11 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 			getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 		
+		
 		mKindActEditText = (EditText)v.findViewById(R.id.kindact_name);
 		if(refListDataItem.getName().equals(ListDataItemM.NO_NAME_SET) == false){
 			mKindActEditText.setText(refListDataItem.getName());
 		}
-		
 		mKindActEditText.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -118,6 +113,7 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 			}
 		});
 		
+		
 		mDeleteButton = (Button)v.findViewById(R.id.delete_button);
 		mDeleteButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -128,7 +124,14 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 			}
 		});
 		
+		
 		mFileChooserButton = (Button)v.findViewById(R.id.file_chooser_button);
+		if(refListType != ListTypeM.KINDNESS){
+			//Only show this button for the strategies
+			mFileChooserButton.setVisibility(View.GONE);
+		}
+		
+		
 		mFileChooserButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -138,21 +141,30 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 				startActivityForResult(intent, REQUEST_FILECHOOSER); //Calling FileChooserActivityC
 			}
 		});
+
+		
+		mNotificationCheckBox = (CheckBox)v.findViewById(R.id.notification_checkbox);
 		if(refListType != ListTypeM.KINDNESS){
 			//Only show this button for the strategies
-			mFileChooserButton.setVisibility(View.GONE);
+			mNotificationCheckBox.setVisibility(View.GONE);
 		}
-		
-		//TODO: Add checkbox for background service
-		mNotificationCheckBox = (CheckBox)v.findViewById(R.id.notification_checkbox);
+		Log.i(Utils.getClassName(), "refListDataItem.isNotificationActive() = "
+				+ refListDataItem.isNotificationActive());
+		mNotificationCheckBox.setChecked(refListDataItem.isNotificationActive());
+		//-TODO: Is this the most helpful way?
 		mNotificationCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener(){
 			@Override
 			public void onCheckedChanged(CompoundButton inCompoundButton, boolean inChecked) {
-				DataDetailsFragmentC.this.changeNotificationService(inChecked);
+				DataDetailsFragmentC.this.changeNotificationService();
 			}
 		});
+
 		
 		mTimePickerButton = (Button)v.findViewById(R.id.time_picker_button);
+		if(refListType != ListTypeM.KINDNESS){
+			//Only show this button for the strategies
+			mTimePickerButton.setVisibility(View.GONE);
+		}
 		mTimePickerButton.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) { //Alt: Using the xml property "android:onClick"
@@ -160,22 +172,29 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 				tmpTimePickerFragment.show(getFragmentManager(), "TimePicker");
 			}
 		});
+
+		
 		return v;
 	}
 	@Override
 	public void fireOnTimeSetEvent(int inHourOfDay, int inMinute) {
 		refListDataItem.setUserTime(inHourOfDay, inMinute);
-		this.changeNotificationService(mNotificationCheckBox.isChecked());
+		this.changeNotificationService();
 	}
-	void changeNotificationService(boolean inChecked){
-		if(refListDataItem.getUserTimeInMilliSeconds() >= 0){
-			NotificationServiceC.setServiceNotification(
-					getActivity().getApplicationContext(), 0, inChecked,
-					refListDataItem.getUserTimeInMilliSeconds(),
-					AlarmManager.INTERVAL_DAY);
+	void changeNotificationService(){
+		refListDataItem.setNotificationActive(mNotificationCheckBox.isChecked());
+		
+		//if(refListDataItem.isNotificationActive() == true){
+		BootCompletedReceiverC.setServiceNotification(
+				getActivity().getApplicationContext(), 0,
+				refListDataItem.isNotificationActive(),
+				refListDataItem.getUserTimeInMilliSeconds(),
+				AlarmManager.INTERVAL_DAY);
+		/*
 		}else{
 			return;
 		}
+		*/
 	}
 	
 	@Override

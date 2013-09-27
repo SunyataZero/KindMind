@@ -28,9 +28,9 @@ public class Utils {
 		String tmpClassWithPackage = Thread.currentThread().getStackTrace()[3].getClassName();
 		String[] tmpSplitString = tmpClassWithPackage.split("\\."); //NOTE: Regular experssion so "." means "all"
 		//String tmpOrganization = tmpSplitString[tmpSplitString.length-3];
-		String tmpProject = tmpSplitString[tmpSplitString.length-2];
+		//String tmpProject = tmpSplitString[tmpSplitString.length-2];
 		String tmpComponent = tmpSplitString[tmpSplitString.length-1];
-		return tmpProject + "." + tmpComponent;
+		return tmpComponent;
 	}
 	
 	

@@ -22,6 +22,7 @@ public class TimePickerFragmentC extends DialogFragment implements TimePickerDia
 	public Dialog onCreateDialog(Bundle inSavedInstanceState){
 		
 		Calendar tmpCalendar = Calendar.getInstance();
+		//TODO: Set the time which is stored in ListDataItemM
 		int tmpHour = tmpCalendar.get(Calendar.HOUR_OF_DAY);
 		int tmpMinute = tmpCalendar.get(Calendar.MINUTE);
 		
