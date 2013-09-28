@@ -185,8 +185,8 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 		refListDataItem.setNotificationActive(mNotificationCheckBox.isChecked());
 		
 		//if(refListDataItem.isNotificationActive() == true){
-		BootCompletedReceiverC.setServiceNotification(
-				getActivity().getApplicationContext(), 0,
+		NotificationServiceC.setServiceNotificationSingle(
+				getActivity().getApplicationContext(),
 				refListDataItem.isNotificationActive(),
 				refListDataItem.getUserTimeInMilliSeconds(),
 				AlarmManager.INTERVAL_DAY);

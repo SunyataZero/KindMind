@@ -42,4 +42,15 @@ public class Utils {
 		return "" + tmpBigDecimal;
 	}
 	
+	/*
+	static int sTemporaryInternalIdentifier = 0;
+	static String getTemporaryInternalIdentifier(){
+		sTemporaryInternalIdentifier++;
+		return String.valueOf(sTemporaryInternalIdentifier);
+	}
+	*/
+	static int sTemporaryInternalIdentifier = 0;
+	static int getTemporaryInternalIdentifier(){
+		return sTemporaryInternalIdentifier++;
+	}
 }
