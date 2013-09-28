@@ -41,16 +41,4 @@ public class Utils {
 		tmpBigDecimal = tmpBigDecimal.setScale(2, BigDecimal.ROUND_UP);
 		return "" + tmpBigDecimal;
 	}
-	
-	/*
-	static int sTemporaryInternalIdentifier = 0;
-	static String getTemporaryInternalIdentifier(){
-		sTemporaryInternalIdentifier++;
-		return String.valueOf(sTemporaryInternalIdentifier);
-	}
-	*/
-	static int sTemporaryInternalIdentifier = 0;
-	static int getTemporaryInternalIdentifier(){
-		return sTemporaryInternalIdentifier++;
-	}
 }

@@ -2,8 +2,7 @@ package com.sunyata.kindmind;
 
 import java.util.ArrayList;
 import java.util.Date;
-
-import com.sunyata.kindmind.ListDataItemM.ListTypeM;
+import java.util.UUID;
 
 import android.app.AlarmManager;
 import android.app.IntentService;
@@ -12,15 +11,18 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.support.v4.app.NotificationCompat;//for api lvl 15 and downwards
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import com.sunyata.kindmind.ListDataItemM.ListTypeM;
+//NotificationCompat is for api lvl 15 and downwards
 
 public class NotificationServiceC extends IntentService {
 
 	private static final String TAG = "NotificationServiceC";
 	static final String PREFERENCES_NOTIFICATION_LIST = "NotificationList";
-	private static final String NOTIFICATION_STACK_COUNTER = "NotificationStackCounter";
+	private static final String NOTIFICATION_UUID = "NotificationUUID";
+	private static final String NOTIFICATION_TITLE = "NotificationTitle";
 
 	public NotificationServiceC() {
 		super(TAG);
@@ -32,43 +34,36 @@ public class NotificationServiceC extends IntentService {
 		
 		PendingIntent tmpPendingIntent = PendingIntent.getActivity(
 				this, 0, new Intent(this, MainActivityC.class), 0);
-		//-Please note: Request code not used by Android
-		//-TODO: Possibly change class or change so that the file associated is shown
+		//-Please note: Request code not used by the class (see the documentation)
 		
-		int tmpNotificationStackCounter = inIntent.getIntExtra(NOTIFICATION_STACK_COUNTER, -1);
-		if(tmpNotificationStackCounter == -1){
-			Log.e(Utils.getClassName(), "Error in method onHandleIntent: NOTIFICATION_STACK_COUNTER not set");
-		}
+		String tmpUuidStringFromListDataItem = inIntent.getStringExtra(NOTIFICATION_UUID);
+		String tmpTitleStringFromListDataItem = inIntent.getStringExtra(NOTIFICATION_TITLE);
 
 		Notification tmpNotification = new NotificationCompat.Builder(this)
-		.setTicker("Ticker text " + tmpNotificationStackCounter)
-		.setSmallIcon(R.drawable.kindmind_icon)
-		.setContentTitle("Content title " + tmpNotificationStackCounter)
-		.setContentText("Content text" + tmpNotificationStackCounter)
-		.setContentIntent(tmpPendingIntent)
-		.setAutoCancel(true)
-		.build();
-
+				.setTicker("Ticker text " + tmpTitleStringFromListDataItem)
+				.setSmallIcon(R.drawable.kindmind_icon)
+				.setContentTitle("Content title " + tmpTitleStringFromListDataItem)
+				.setContentText("Content text" + tmpTitleStringFromListDataItem)
+				.setContentIntent(tmpPendingIntent)
+				.setAutoCancel(true)
+				.build();
 		
 		NotificationManager tmpNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-		tmpNotificationManager.notify(tmpNotificationStackCounter, tmpNotification); //TODO: Change the 0
+		tmpNotificationManager.notify(tmpUuidStringFromListDataItem, 0, tmpNotification); //TODO: Change the 0
 	}
 	
 	static void setServiceNotificationSingle(
 			Context inContext, boolean inIsActive,
-			long inUserTimeInMillseconds, long inIntervalInMilliseconds){
+			long inUserTimeInMillseconds, long inIntervalInMilliseconds,
+			UUID inListDataItemUUID, String inListDataItemName){
 		
 		Intent tmpIntent = new Intent(inContext, NotificationServiceC.class);
-		/*
-		Intent tmpIntent = new Intent(
-				null, Uri.parse(Long.toString(Utils.getTemporaryInternalIdentifier())),
-				inContext, NotificationServiceC.class);
-		*/
-		tmpIntent.setData(Uri.parse(Long.toString(Utils.getTemporaryInternalIdentifier())));
-		tmpIntent.putExtra(NOTIFICATION_STACK_COUNTER, Utils.getTemporaryInternalIdentifier());
+		tmpIntent.setType(inListDataItemUUID.toString());
+		//-This is what makes the intents differ
+		tmpIntent.putExtra(NOTIFICATION_UUID, inListDataItemUUID.toString());
+		tmpIntent.putExtra(NOTIFICATION_TITLE, inListDataItemName);
+
 		PendingIntent tmpPendingIntentToRepeat = PendingIntent.getService(inContext, 0, tmpIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
-		//PendingIntent.FLAG_UPDATE_CURRENT
-		//Intent.FLAG_ACTIVITY_NEW_TASK
 		
 		AlarmManager tmpAlarmManager = (AlarmManager)inContext.getSystemService(Context.ALARM_SERVICE);
 		
@@ -78,7 +73,6 @@ public class NotificationServiceC extends IntentService {
 					tmpPendingIntentToRepeat);
 			//-PLEASE NOTE: Initial time inUserTimeInMillseconds is not modified with TimeZone.getDefault().getRawOffset()
 			// in spite of the documentation for AlarmManager.RTC which indicates that UTC is used.
-
 		}else{
 			tmpAlarmManager.cancel(tmpPendingIntentToRepeat);
 			tmpPendingIntentToRepeat.cancel();
@@ -86,21 +80,15 @@ public class NotificationServiceC extends IntentService {
 	}
 	
 	static void setServiceNotificationAll(Context inContext){
-
-		//Load data from JSON files
 		ArrayList<ListDataItemM> tmpList = loadDataFromJson(
 				ListTypeM.KINDNESS, KindModelM.JSON_REQUESTS_KINDNESS_FILE_NAME, inContext);
-		
-		//TODO Is this too much computation for the onReceive method? Maybe putting this on another thread?
 		for(ListDataItemM ldi : tmpList){
 			NotificationServiceC.setServiceNotificationSingle(
 					inContext, ldi.isNotificationActive(), ldi.getUserTimeInMilliSeconds(),
-					AlarmManager.INTERVAL_DAY);
-			//-TODO: Change the 0
+					AlarmManager.INTERVAL_DAY, ldi.getId(), ldi.getName());
 			Log.i(Utils.getClassName(), "ldi.isNotificationActive() = " + ldi.isNotificationActive());
 		}
 	}
-	
 	//TODO: Remove this method and use the one in ListDataM instead?
 	static private ArrayList<ListDataItemM> loadDataFromJson(ListTypeM inListType, String inFileName, Context inContext) {
 		JsonSerializerM tmpJsonSerializer = new JsonSerializerM(inContext, inFileName);

@@ -184,17 +184,13 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 	void changeNotificationService(){
 		refListDataItem.setNotificationActive(mNotificationCheckBox.isChecked());
 		
-		//if(refListDataItem.isNotificationActive() == true){
 		NotificationServiceC.setServiceNotificationSingle(
 				getActivity().getApplicationContext(),
 				refListDataItem.isNotificationActive(),
 				refListDataItem.getUserTimeInMilliSeconds(),
-				AlarmManager.INTERVAL_DAY);
-		/*
-		}else{
-			return;
-		}
-		*/
+				AlarmManager.INTERVAL_DAY,
+				refListDataItem.getId(),
+				refListDataItem.getName());
 	}
 	
 	@Override
@@ -220,7 +216,8 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 	}
 	
     @Override
-    //Important: When a new activity is created, this method is called on a physical device, but not on the emulator
+    //When a new activity is created, this method is called on a physical device, but not on
+    // the emulator, maybe because of "don't keep activities"?
     public void onDestroy(){
     	super.onDestroy();
     	Log.d(Utils.getClassName(), Utils.getMethodName());
@@ -288,11 +285,6 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 		
 	}
 
-
-
-
 	//----------------------------Other methods
-	
-
 	
 }
