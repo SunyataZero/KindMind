@@ -19,9 +19,7 @@ import android.util.Log;
 public class NotificationServiceC extends IntentService {
 
 	private static final String TAG = "NotificationServiceC";
-	//private static ArrayList<UUID> refIdList;
 	static final String PREFERENCES_NOTIFICATION_LIST = "NotificationList";
-	//private static int sNotificationStackCounter = 0; //Used both as notification id and 
 	private static final String NOTIFICATION_STACK_COUNTER = "NotificationStackCounter";
 
 	public NotificationServiceC() {
@@ -61,6 +59,12 @@ public class NotificationServiceC extends IntentService {
 			long inUserTimeInMillseconds, long inIntervalInMilliseconds){
 		
 		Intent tmpIntent = new Intent(inContext, NotificationServiceC.class);
+		/*
+		Intent tmpIntent = new Intent(
+				null, Uri.parse(Long.toString(Utils.getTemporaryInternalIdentifier())),
+				inContext, NotificationServiceC.class);
+		*/
+		tmpIntent.setData(Uri.parse(Long.toString(Utils.getTemporaryInternalIdentifier())));
 		tmpIntent.putExtra(NOTIFICATION_STACK_COUNTER, Utils.getTemporaryInternalIdentifier());
 		PendingIntent tmpPendingIntentToRepeat = PendingIntent.getService(inContext, 0, tmpIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
 		//PendingIntent.FLAG_UPDATE_CURRENT

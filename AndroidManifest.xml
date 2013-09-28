@@ -34,8 +34,7 @@
             android:name="com.sunyata.kindmind.FileChooserActivityC"
             android:label="@string/app_name">
         </activity>
-        <service android:name=".NotificationServiceC">
-        </service>
+        <service android:name=".NotificationServiceC"></service>
         <receiver android:name=".BootCompletedReceiverC">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
