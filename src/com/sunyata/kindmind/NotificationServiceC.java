@@ -90,7 +90,7 @@ public class NotificationServiceC extends IntentService {
 		}
 	}
 	//TODO: Remove this method and use the one in ListDataM instead?
-	static private ArrayList<ListDataItemM> loadDataFromJson(ListTypeM inListType, String inFileName, Context inContext) {
+	static ArrayList<ListDataItemM> loadDataFromJson(ListTypeM inListType, String inFileName, Context inContext) {
 		JsonSerializerM tmpJsonSerializer = new JsonSerializerM(inContext, inFileName);
 		ArrayList<ListDataItemM> retList;
 		try{

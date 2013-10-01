@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sunyata.kindmind"
     android:versionCode="10"
-    android:versionName="0.5.0_alpha" >
+    android:versionName="0.6.0_alpha" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -40,5 +40,15 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <receiver android:name="KindMindAppWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/kindmind_appwidget_info"/>
+        </receiver>
+        <service
+            android:name="KindMindRemoteViewsService"
+            android:permission="android.permission.BIND_REMOTEVIEWS">
+        </service>
     </application>
 </manifest>
