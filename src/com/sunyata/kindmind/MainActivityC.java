@@ -319,7 +319,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 
 		KindModelM.get(getApplicationContext()).loadPatternListsFromJsonFiles();
 		KindModelM.get(getApplicationContext()).updateSortValuesForListType(inListType);
-		KindModelM.get(getApplicationContext()).getListOfType(inListType).sortWithKindness();
+		//KindModelM.get(getApplicationContext()).getListOfType(inListType).sortWithKindness();
 		//-Sort with Kindness has been chosen here instead of alphabeta since prioritize giving the user
 		// quick access to the most important information
 
@@ -350,12 +350,12 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	}
     
 	public void clearActivated(){
-		KindModelM.get(this).clearActivatedForAllLists();
+		//KindModelM.get(this).clearActivatedForAllLists();
 	}
 	
 	public void clearData() { //Called from the test project
 		this.clearActivated();
-		KindModelM.get(this).clearAllDataLists();
+		//KindModelM.get(this).clearAllDataLists();
 		updateAllFragmentLists();
 	}
 	void updateAllFragmentLists(){

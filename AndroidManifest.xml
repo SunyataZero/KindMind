@@ -50,5 +50,10 @@
             android:name="KindMindRemoteViewsService"
             android:permission="android.permission.BIND_REMOTEVIEWS">
         </service>
+        <provider
+            android:name=".contentprovider.ListContentProvider"
+            android:authorities="com.sunyata.kindmind.provider"
+            android:exported="false" >
+        </provider>
     </application>
 </manifest>

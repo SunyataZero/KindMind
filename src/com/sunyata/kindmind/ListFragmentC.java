@@ -9,9 +9,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,19 +26,20 @@ import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sunyata.kindmind.ListDataItemM.ListTypeM;
 
-public class ListFragmentC extends ListFragment{
+public class ListFragmentC extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 //will later on extend an abstract class
 	
 	//-------------------Fields and constructor
 	
 	static final String EXTRA_LIST_DATA_ITEM_ID = "EXTRA_LIST_DATA_ITEM_ID";
 	static final String EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE";
-	private ListDataM refListData;
+	private ListTableM refListData;
 	private ListTypeM refListType;
 	private ToastBehaviour mToastBehaviour;
 	private static MainActivityCallbackListenerI mCallbackListener;
@@ -51,12 +55,68 @@ public class ListFragmentC extends ListFragment{
 	}
 	
 	
+	
+	//-------------------Methods for LoaderManager.LoaderCallbacks<Cursor>
+	
+	private SimpleCursorAdapter mCursorAdapter;
+	
+	@Override
+	public android.support.v4.content.Loader<Cursor> onCreateLoader(int inId,
+			Bundle inArguments) {
+
+		//TODO: Update?
+		
+		String[] tmpProjection = {ListTableM.COLUMN_ID, ListTableM.COLUMN_NAME};
+		CursorLoader retCursorLoader = new CursorLoader(
+				getActivity(), ListContentProviderM.CONTENT_URI, tmpProjection, null, null, null);
+		
+		return retCursorLoader;
+	}
+
+
+	@Override
+	public void onLoadFinished(android.support.v4.content.Loader<Cursor> inCursorLoader,
+			Cursor inCursor) {
+
+		//TODO: Update?
+
+		mCursorAdapter.swapCursor(inCursor);
+		
+	}
+	@Override
+	public void onLoaderReset(android.support.v4.content.Loader<Cursor> arg0) {
+
+		//TODO: Update?
+		
+		mCursorAdapter.swapCursor(null);
+	}
+	
+	
+	private void updateListWithNewData(){
+		
+		String[] tmpDatabaseFrom = {ListTableM.COLUMN_NAME};
+		int[] tmpDatabaseTo = {R.id.list_item_titleTextView};
+		
+		getLoaderManager().initLoader(0, null, this);
+		//-PLEASE NOTE: using the non-support LoaderManager import gives an error
+		
+		mCursorAdapter = new SimpleCursorAdapter(
+				getActivity(), R.layout.ofnr_list_item, null,
+				tmpDatabaseFrom, tmpDatabaseTo, 0);
+
+		setListAdapter(mCursorAdapter);
+	}
+	
+	
 	//-------------------Lifecycle methods
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setRetainInstance(true);
+		
+		updateListWithNewData();
+		
 		setHasOptionsMenu(true);
 	}
     //Important: When a new activity is created, this method is called on a physical device, but not on the emulator
@@ -120,13 +180,6 @@ public class ListFragmentC extends ListFragment{
     public View onCreateView(LayoutInflater inInflater, ViewGroup inContainer, Bundle inSavedinstanceState){
     	View retView = super.onCreateView(inInflater, inContainer, inSavedinstanceState);
     	
-    	//View retView = inInflater.inflate(R.layout.activity_fragment, inContainer);
-    	
-    	/*
-    	View tmpFooterView = inInflater.inflate(R.layout.feelings_radiogroup, inContainer, false);
-    	this.getListView().addFooterView(tmpFooterView);
-    	*/
-    	
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     	return retView;
     }
@@ -141,14 +194,9 @@ public class ListFragmentC extends ListFragment{
     public void onActivityCreated(Bundle inSavedInstanceState){
     	super.onActivityCreated(inSavedInstanceState);
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
-
-    	this.initialize();
-    }
-    private void initialize(){
-    	refListType = ListTypeM.valueOf(this.getArguments().getString(Utils.LIST_TYPE));
-		refListData = KindModelM.get(getActivity()).getListOfType(refListType);
-		ListFragmentDataAdapterC adapter = new ListFragmentDataAdapterC(refListData.getListOfData());
-		setListAdapter(adapter);
+    	
+    	updateListWithNewData();
+    	
     }
     @Override
     public void onAttach(Activity inActivity){
@@ -184,8 +232,8 @@ public class ListFragmentC extends ListFragment{
 		
 		case R.id.menu_item_new_listitem:
 			ListDataItemM tmpNewListDataItem = new ListDataItemM(refListType);
-			boolean tmpCreatedSuccessfully =
-					KindModelM.get(getActivity()).getListOfType(refListType).addItem(tmpNewListDataItem, true);
+			boolean tmpCreatedSuccessfully = true; //TODO Change
+					//KindModelM.get(getActivity()).getListOfType(refListType).addItem(tmpNewListDataItem, true);
 			if(!tmpCreatedSuccessfully){
 				Log.e(Utils.getClassName(), "Error in onOptionsItemSelected: Could not add ListDataItem to list");
 			}
@@ -195,19 +243,11 @@ public class ListFragmentC extends ListFragment{
 			intent.putExtra(EXTRA_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
 			startActivityForResult(intent, 0); //Calling DataDetailsActivityC
 			
-			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
+			//((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			
 			return true;
 		
-			/*
-		case R.id.menu_item_clear_current_list_selections:
-			KindModelM.get(getActivity()).getListOfType(refListType).clearActivated();
-			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
-			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
-			return true;
-			 */
 		case R.id.menu_item_clear_all_list_selections:
-			//KindModelM.get(getActivity()).clearActivatedForAllLists();
 			((MainActivityC)getActivity()).clearActivated();
 			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			//-Only done for this Fragment but this is the only place where it is necassary since
@@ -219,6 +259,7 @@ public class ListFragmentC extends ListFragment{
 			return true;
 
 		case R.id.menu_item_share_experience:
+			/*
 			sendAsEmail(
 					"From the Kind Mind (Android app): My present experience",
 					"I am feeling "
@@ -229,57 +270,40 @@ public class ListFragmentC extends ListFragment{
 					//"Please help");
 			//Asking for help
 			//Asking for empathy (Can you reflect back what you are hearing/reading)
+		*/
 			return true;
 		
 		case R.id.menu_item_sort_alphabetically:
+			/*
 			KindModelM.get(getActivity()).getListOfType(refListType).sortAlphabetically();
 			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
+			*/
 			return true;
 			
 		case R.id.menu_item_kindsort:
+			/*
 			KindModelM.get(getActivity()).loadPatternListsFromJsonFiles();
 			KindModelM.get(getActivity()).updateSortValuesForListType(refListType);
 			KindModelM.get(getActivity()).getListOfType(refListType).sortWithKindness();
 			//-Refactor: Put the two lines above into one method?
 			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
-			
+			*/
 			return true;
+		
 		
 		case R.id.menu_item_save_pattern:
 			KindModelM.get(getActivity()).savePatternListToJson();
 			return true;
 			
-/*
-		case R.id.menu_item_backup:
-			Intent tmpBackupIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-			tmpBackupIntent.setType("text/plain");
-			tmpBackupIntent.putExtra(Intent.EXTRA_SUBJECT, "KindMind backup of JSON files");
-			ArrayList<Uri> tmpUriList = new ArrayList<Uri>();
-			File[] tmpFileListArray = getActivity().getFilesDir().listFiles();
-			for(File file : tmpFileListArray){
-				file.setReadable(true);
-				tmpUriList.add(Uri.fromFile(file));
-			}
-			tmpBackupIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, tmpUriList);
-			try{
-				startActivity(tmpBackupIntent);
-			}catch(ActivityNotFoundException e){
-				Log.w(Utils.getClassName(),
-						"Warning in onOptionsItemSelected, case R.id.menu_item_backup: "
-						+ "No email program installed");
-			}
-			return true;
-*/
-			
 		case R.id.menu_item_send_as_text_current:
-			sendAsEmail("KindMind list as text", refListData.toFormattedString());
+			//sendAsEmail("KindMind list as text", refListData.toFormattedString());
 			return true;
 			
 		case R.id.menu_item_send_as_text_all:
-			String tmpAllListAsText = KindModelM.get(getActivity()).getFormattedStringWithAllLists();
-			sendAsEmail("KindMind all lists as text", tmpAllListAsText);
+			//String tmpAllListAsText = KindModelM.get(getActivity()).getFormattedStringWithAllLists();
+			//sendAsEmail("KindMind all lists as text", tmpAllListAsText);
 			return true;
 			
 		default:
@@ -349,6 +373,8 @@ public class ListFragmentC extends ListFragment{
 
 			@Override
 			public void onClick(View inView) {
+				
+				/*
 				boolean tmpWasChecked = refListData.getItem(mPosition).isActive();
 				boolean tmpIsChecked = !tmpWasChecked;
 
@@ -359,12 +385,9 @@ public class ListFragmentC extends ListFragment{
 				
 				mKindActionBehaviour.kindAction(refListData.getItem(mPosition).getActionFilePath());
 				
-				/*
-				if (tmpIsChecked){
-					refListData.getItem(mPosition).incrementSingleClickSortValueFromCurrentRun();
-				}
-				*/
 				((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
+								 */
+
 			}
 		}
 		private class CustomOnLongClickListener implements OnLongClickListener{
@@ -399,13 +422,16 @@ public class ListFragmentC extends ListFragment{
 	
 	class FeelingsToast implements ToastBehaviour{
 		@Override
+		
 		public void toast() {
+			/*
 			String tmpToastFeelingsString = KindModelM.get(getActivity()).getToastString(ListTypeM.SUFFERING);
 			if(tmpToastFeelingsString.length() > 0){
 				Toast.makeText(
 						getActivity(), "I am feeling " + tmpToastFeelingsString, Toast.LENGTH_LONG)
 						.show();
 			}
+			*/
 		}
 	}
 	
@@ -413,6 +439,7 @@ public class ListFragmentC extends ListFragment{
 		@Override
 		public void toast() {
 
+			/*
 			String tmpToastFeelingsString = KindModelM.get(getActivity()).getToastString(ListTypeM.SUFFERING);
 			String tmpToastNeedsString = KindModelM.get(getActivity()).getToastString(ListTypeM.NEEDS);
 			
@@ -430,6 +457,7 @@ public class ListFragmentC extends ListFragment{
 			}else{
 					//Do nothing
 			}
+			*/
 		}
 	}
 	
@@ -512,4 +540,5 @@ public class ListFragmentC extends ListFragment{
 			//do nothing
 		}
 	}
+
 }

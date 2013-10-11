@@ -10,19 +10,19 @@ public class KindModelFactoryM {
 
 	private Context refContext;
 	private ListTypeM refTemporaryListType;
-	private ListDataM retTemporaryList;
+	private ListTableM retTemporaryList;
 	
 	KindModelFactoryM(Context inContext){
 		refContext = inContext;
 	}
 	
-	ListDataM createListData(ListTypeM inListType){
+	ListTableM createListData(ListTypeM inListType){
 		refTemporaryListType = inListType;
 		
 		switch(inListType){
 		
 		case SPECEV:
-			retTemporaryList = new ListDataM(ListTypeM.SPECEV, KindModelM.JSON_OBSERVATIONS_SPECEV_FILE_NAME, refContext); //Loads from JSON
+			//retTemporaryList = new ListTableM(ListTypeM.SPECEV, KindModelM.JSON_OBSERVATIONS_SPECEV_FILE_NAME, refContext); //Loads from JSON
 			createAndAddDataItem("Hearing ... [edit]");
 			createAndAddDataItem("Seeing ... [edit]");
 			createAndAddDataItem("Thinking ... [edit]");
@@ -31,7 +31,7 @@ public class KindModelFactoryM {
 			return retTemporaryList;
 
 		case SUFFERING:
-			retTemporaryList = new ListDataM(ListTypeM.KINDNESS, KindModelM.JSON_FEELINGS_SUFFERING_FILE_NAME, refContext); //Loads from JSON
+			//retTemporaryList = new ListTableM(ListTypeM.KINDNESS, KindModelM.JSON_FEELINGS_SUFFERING_FILE_NAME, refContext); //Loads from JSON
 			createAndAddDataItem("Angry");
 			createAndAddDataItem("Annoyed");
 			createAndAddDataItem("Concerned");
@@ -55,7 +55,7 @@ public class KindModelFactoryM {
 			return retTemporaryList;
 			
 		case NEEDS:
-			retTemporaryList = new ListDataM(ListTypeM.KINDNESS, KindModelM.JSON_NEEDS_FILE_NAME, refContext); //Loads from JSON
+			//retTemporaryList = new ListTableM(ListTypeM.KINDNESS, KindModelM.JSON_NEEDS_FILE_NAME, refContext); //Loads from JSON
 			createAndAddDataItem("Choosing dreams/goals/values");
 			createAndAddDataItem("Choosing plans for fulfilling dreams/goals/values");
 			createAndAddDataItem("Celebratation");
@@ -77,7 +77,6 @@ public class KindModelFactoryM {
 			createAndAddDataItem("Movement, exercise");
 			createAndAddDataItem("Protection");
 			createAndAddDataItem("Rest");
-			//createAndAddDataItem("Sexual expression");
 			createAndAddDataItem("Shelter");
 			createAndAddDataItem("Touch");
 			createAndAddDataItem("Water");
@@ -100,7 +99,7 @@ public class KindModelFactoryM {
 		case KINDNESS:
 			
 			//Set list type and ListData
-			retTemporaryList = new ListDataM(ListTypeM.KINDNESS, KindModelM.JSON_REQUESTS_KINDNESS_FILE_NAME, refContext); //Loads from JSON
+			//retTemporaryList = new ListTableM(ListTypeM.KINDNESS, KindModelM.JSON_REQUESTS_KINDNESS_FILE_NAME, refContext); //Loads from JSON
 
 			//Create and add data items
 			//mKindness.loadData(ListTypeM.KINDNESS, JSON_REQUESTS_KINDNESS_FILE_NAME, mContext);
@@ -137,8 +136,7 @@ public class KindModelFactoryM {
 	private boolean createAndAddDataItem(String inName){
 		boolean retAddedSuccessfully;
 		ListDataItemM tmpNewItem = new ListDataItemM(inName, refTemporaryListType); //Last value is deprecated
-		//retList.addItem
-		retAddedSuccessfully = retTemporaryList.addItem(tmpNewItem, false);
-		return retAddedSuccessfully;
+		//retAddedSuccessfully = retTemporaryList.addItem(tmpNewItem, false);
+		return true; //<---------TODO: update
 	}
 }

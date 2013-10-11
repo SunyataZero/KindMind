@@ -80,6 +80,7 @@ public class NotificationServiceC extends IntentService {
 	}
 	
 	static void setServiceNotificationAll(Context inContext){
+		/*
 		ArrayList<ListDataItemM> tmpList = loadDataFromJson(
 				ListTypeM.KINDNESS, KindModelM.JSON_REQUESTS_KINDNESS_FILE_NAME, inContext);
 		for(ListDataItemM ldi : tmpList){
@@ -88,11 +89,13 @@ public class NotificationServiceC extends IntentService {
 					AlarmManager.INTERVAL_DAY, ldi.getId(), ldi.getName());
 			Log.i(Utils.getClassName(), "ldi.isNotificationActive() = " + ldi.isNotificationActive());
 		}
+		*/
 	}
 	//TODO: Remove this method and use the one in ListDataM instead?
 	static ArrayList<ListDataItemM> loadDataFromJson(ListTypeM inListType, String inFileName, Context inContext) {
+		ArrayList<ListDataItemM> retList = new ArrayList<ListDataItemM>();
+		/*
 		JsonSerializerM tmpJsonSerializer = new JsonSerializerM(inContext, inFileName);
-		ArrayList<ListDataItemM> retList;
 		try{
 			Log.i(Utils.getClassName(), "Try loading from JSON file");
 			retList = tmpJsonSerializer.loadData();
@@ -101,6 +104,7 @@ public class NotificationServiceC extends IntentService {
 			retList = new ArrayList<ListDataItemM>();
 			//-This will happen when we don't have any file yet
 		}
+		*/
 		return retList;
 	}
 }

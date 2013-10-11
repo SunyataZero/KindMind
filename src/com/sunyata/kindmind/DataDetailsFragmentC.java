@@ -1,12 +1,11 @@
 package com.sunyata.kindmind;
 
-import java.util.UUID;
-
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
@@ -17,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -60,10 +60,8 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 		
 		refListType = ListTypeM.valueOf(this.getArguments().getString(Utils.LIST_TYPE));
 		
-		//mKindAct = new KindActM();
-		//KindModel.get().getKindActionList().add(mKindAct);
-		UUID tmpId = (UUID)getActivity().getIntent().getSerializableExtra(ListFragmentC.EXTRA_LIST_DATA_ITEM_ID);
-		refListDataItem = KindModelM.get(getActivity()).getListOfType(refListType).getItem(tmpId);
+		//UUID tmpId = (UUID)getActivity().getIntent().getSerializableExtra(ListFragmentC.EXTRA_LIST_DATA_ITEM_ID);
+		//refListDataItem = KindModelM.get(getActivity()).getListOfType(refListType).getItem(tmpId);
 	}
 	
     @Override
@@ -72,10 +70,14 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
     	Log.d(Utils.getClassName(), Utils.getMethodName());
     	
     	//Saving the newly created list data item
+    	//TODO: Write to PATTERNS table
+    	
+    	/*
     	ListDataM tmpListData = KindModelM.get(getActivity()).getListOfType(refListType);
     	if(tmpListData != null && refListType != null){
     		tmpListData.saveToJson(true);
     	}
+    	*/
     }
 	
 	@Override
@@ -118,7 +120,10 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 		mDeleteButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				KindModelM.get(getActivity()).getListOfType(refListType).delete(refListDataItem);
+				AdapterContextMenuInfo info; 
+				
+				Uri tmpDeleteUri = Uri.parse(ListContentProviderM.CONTENT_URI + "/" + refListDataItem.getId());
+				getActivity().getContentResolver().delete(tmpDeleteUri, null, null);
 				getActivity().finish();
 				//We don't need to notify the adapter (why?)
 			}

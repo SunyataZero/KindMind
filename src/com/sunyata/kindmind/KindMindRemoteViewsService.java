@@ -74,11 +74,11 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 	@Override
 	public void onCreate() {
 		Log.i(Utils.getClassName(), "onCreate()");
-		
+
+		/*
 		refList = NotificationServiceC.loadDataFromJson(
 				ListTypeM.KINDNESS, KindModelM.JSON_REQUESTS_KINDNESS_FILE_NAME, mContext);
-		//for(ListDataItemM ldi : tmpList){}
-		
+		*/
 	}
 
 	@Override
