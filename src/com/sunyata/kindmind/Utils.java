@@ -2,8 +2,6 @@ package com.sunyata.kindmind;
 
 import java.math.BigDecimal;
 
-import com.sunyata.kindmind.ListDataItemM.ListTypeM;
-
 public class Utils {
 
 	public static final String LIST_TYPE = "LIST_TYPE";

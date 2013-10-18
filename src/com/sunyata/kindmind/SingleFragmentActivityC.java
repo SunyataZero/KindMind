@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
 import android.util.Log;
-import com.sunyata.kindmind.ListDataItemM.ListTypeM;
 
 public abstract class SingleFragmentActivityC extends Activity {
 

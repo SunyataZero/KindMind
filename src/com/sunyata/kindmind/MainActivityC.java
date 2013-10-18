@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Locale;
 
 import android.app.ActionBar;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,8 +20,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.sunyata.kindmind.ListDataItemM.ListTypeM;
-import com.sunyata.kindmind.ListFragmentC.ListFragmentDataAdapterC;
+import com.sunyata.kindmind.contentprovider.ListContentProviderM;
 
 public class MainActivityC extends FragmentActivity implements MainActivityCallbackListenerI{
 
@@ -98,10 +98,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         refActionBar = this.getActionBar();
         refActionBar.setDisplayShowTitleEnabled(false);
         refActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        /*
-        mArraySpinnerAdapter = KindMindArrayAdapter.createFromResource(
-        		this, R.array.spinner_list, android.R.layout.simple_spinner_dropdown_item);
-         */
+
         mKindMindArrayAdapter = new KindMindArrayAdapter(this, getResources().getStringArray(R.array.spinner_list));
         mKindMindArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         
@@ -113,8 +110,20 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	Log.i(Utils.getClassName(), "tmpDirectory = " + tmpDirectory);
     	boolean tmpDirectoryWasCreatedSuccessfully = tmpDirectory.mkdir();
     	Log.i(Utils.getClassName(), "tmpDirectoryWasCreatedSuccessfully = " + tmpDirectoryWasCreatedSuccessfully);
-    	//File tmpBaseDirectory = Environment.getExternalStorageDirectory();
+
     	
+    	
+    	ContentValues tmpContentValuesToInsert;
+
+    	tmpContentValuesToInsert = new ContentValues();
+    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, "MainActivityC_1");
+    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LISTTYPE, ListTypeM.SUFFERING.toString());
+		getContentResolver().insert(ListContentProviderM.CONTENT_URI, tmpContentValuesToInsert);
+		
+    	tmpContentValuesToInsert = new ContentValues();
+    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, "MainActivityC_2");
+    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LISTTYPE, ListTypeM.NEEDS.toString());
+		getContentResolver().insert(ListContentProviderM.CONTENT_URI, tmpContentValuesToInsert);
 
     }
     
@@ -135,9 +144,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				return true;
 			case SPINNER_HAPPINESS:
 				
-				//Load data
-				
-				
 				updateAllFragmentLists();
 				
 				return true;
@@ -151,19 +157,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				Log.e(Utils.getClassName(), "Error in MyOnNavigationListener: Case not covered");
 				return false;
 			}
-			/*
-			switch((int)inItemId){
-			case R.string.suffering_spinner_title:
-				return true;
-			case R.string.happiness_spinner_title:
-				return true;
-			case R.string.neutral_spinner_title:
-				return true;
-			default:
-				Log.e(Utils.getClassName(), "Error in MyOnNavigationListener: Case not covered");
-				return false;
-			}
-			*/
 		}
     }
     
@@ -193,13 +186,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	
     }
     
-    /*
-	@Override
-	public boolean onOptionsItemSelected(MenuItem inMenuItem){
-		return super.onOptionsItemSelected(inMenuItem);
-	}
-	*/
-    
     @Override
     public void onDestroy(){
     	super.onDestroy();
@@ -219,7 +205,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     public void onPause(){
     	super.onPause();
     	Log.d(Utils.getClassName(), Utils.getMethodName());
-        //mFeelingListFragment.toString();
     }
     @Override
     public void onStart(){
@@ -366,6 +351,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	}
 	ListFragmentC tmpListFragment = null; //Has to be put outside for it to be accessible inside the Runnable
 	private void updateFragmentList(ListFragmentC inListFragment){
+		/*
 		tmpListFragment = inListFragment;
 		if(tmpListFragment == null){
 			return;
@@ -385,8 +371,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			}
 		});
 		tmpListFragment.getListView().setSelectionFromTop(0, 0);
-		//.smoothScrollToPositionFromTop(0, 0);
-		//.smoothScrollToPosition(0);//Scroll to the top of the list
+		*/
 	}
 
 	@Override

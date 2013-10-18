@@ -23,16 +23,16 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 
-import com.sunyata.kindmind.ListDataItemM.ListTypeM;
+import com.sunyata.kindmind.contentprovider.ListContentProviderM;
 
-public class DataDetailsFragmentC extends Fragment implements TimePickerFragmentC.OnTimeSetListenerI{
+public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.OnTimeSetListenerI{
 
 	
 	//----------------------------Fields and singelton get method
 	
 	private EditText mKindActEditText;
 	private Button mDeleteButton;
-	private ListDataItemM refListDataItem;
+	private ItemM refListDataItem;
 	private ListTypeM refListType;
 	private Button mFileChooserButton;
 	private CheckBox mNotificationCheckBox;
@@ -43,7 +43,7 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 	static Fragment newInstance(ListTypeM inListType){
 		Bundle tmpArguments = new Bundle();
 		tmpArguments.putString(Utils.LIST_TYPE, inListType.toString());
-		Fragment retFragment = new DataDetailsFragmentC(); //"Implicit" constructor used
+		Fragment retFragment = new DetailsFragmentC(); //"Implicit" constructor used
 		retFragment.setArguments(tmpArguments);
 		return retFragment;
 	}
@@ -93,7 +93,7 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 		
 		
 		mKindActEditText = (EditText)v.findViewById(R.id.kindact_name);
-		if(refListDataItem.getName().equals(ListDataItemM.NO_NAME_SET) == false){
+		if(refListDataItem.getName().equals(ItemM.NO_NAME_SET) == false){
 			mKindActEditText.setText(refListDataItem.getName());
 		}
 		mKindActEditText.addTextChangedListener(new TextWatcher() {
@@ -160,7 +160,7 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 		mNotificationCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener(){
 			@Override
 			public void onCheckedChanged(CompoundButton inCompoundButton, boolean inChecked) {
-				DataDetailsFragmentC.this.changeNotificationService();
+				DetailsFragmentC.this.changeNotificationService();
 			}
 		});
 
@@ -173,7 +173,7 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
 		mTimePickerButton.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) { //Alt: Using the xml property "android:onClick"
-				DialogFragment tmpTimePickerFragment = TimePickerFragmentC.newInstance(DataDetailsFragmentC.this);
+				DialogFragment tmpTimePickerFragment = TimePickerFragmentC.newInstance(DetailsFragmentC.this);
 				tmpTimePickerFragment.show(getFragmentManager(), "TimePicker");
 			}
 		});
@@ -265,29 +265,16 @@ public class DataDetailsFragmentC extends Fragment implements TimePickerFragment
     
 	@Override
 	public boolean onOptionsItemSelected(MenuItem inMenuItem){
-		
 		switch (inMenuItem.getItemId()){
-
-
 		case android.R.id.home:
-			/*
-			//Alternative approach to closing:
-			Intent tmpIntent = new Intent(getActivity(), MainActivityC.class);
-			tmpIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(tmpIntent);
-			//finish();
-			return true;
-			*/
 
 			if(NavUtils.getParentActivityName(getActivity()) != null){
 				NavUtils.navigateUpFromSameTask(getActivity());
 			}
 			return true;
-			
 		default:
 			return super.onOptionsItemSelected(inMenuItem);
 		}
-		
 	}
 
 	//----------------------------Other methods

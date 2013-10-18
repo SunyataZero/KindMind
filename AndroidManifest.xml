@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.sunyata.kindmind.DataDetailsActivityC"
+            android:name="com.sunyata.kindmind.DetailsActivityC"
             android:label="@string/app_name">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".MainActivityC" />
         </activity>
@@ -51,9 +51,9 @@
             android:permission="android.permission.BIND_REMOTEVIEWS">
         </service>
         <provider
-            android:name=".contentprovider.ListContentProvider"
-            android:authorities="com.sunyata.kindmind.provider"
-            android:exported="false" >
+            android:name=".contentprovider.ListContentProviderM"
+            android:authorities="com.sunyata.kindmind.provider" >
         </provider>
+        <!-- android:exported="false" -->
     </application>
 </manifest>

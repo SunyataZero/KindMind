@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import android.content.Context;
 
-import com.sunyata.kindmind.ListDataItemM.ListTypeM;
-
 public class KindModelM {
 
 	//-------------------------Fields and constructor (private) plus singleton get method
@@ -27,12 +25,9 @@ public class KindModelM {
 	
 	private Context mContext;
 
-	private KindModelFactoryM mFactory;
-
 	//private singleton constructor
 	private KindModelM(Context inApplicationContext){
 		mContext = inApplicationContext;
-		mFactory = new KindModelFactoryM(mContext);
 
 		/*
 		mSpecEv = mFactory.createListData(ListTypeM.SPECEV);
@@ -66,18 +61,18 @@ public class KindModelM {
 		
 		/*
 		//Clear all the temporary click values
-		for(ListDataItemM guiLdi : this.getListOfType(inListType).getListOfData()){
+		for(ItemM guiLdi : this.getListOfType(inListType).getListOfData()){
 			guiLdi.setTempNumberOfTimesThisItemOccursInListOfPatterns(0);
 		}
 		
 		//First we check the number of times that each of the items in our current list (inTypeList) occurs in
 		// the list of patterns and use this to do a simple update.
 		for(PatternM p : mPatternList){
-			ArrayList<ListDataItemM> tmpPattern = p.get();
-			for(ListDataItemM i : tmpPattern){
+			ArrayList<ItemM> tmpPattern = p.get();
+			for(ItemM i : tmpPattern){
 				if(i.getListType() == inListType){
 					//Search for the ListDataItem using the id
-					ListDataItemM refDataItem = this.getListOfType(inListType).getItem(i.getId());
+					ItemM refDataItem = this.getListOfType(inListType).getItem(i.getId());
 					if(refDataItem != null){
 						refDataItem.incrementTempNumberOfTimesThisItemOccursInListOfPatterns();
 					}
@@ -97,8 +92,8 @@ public class KindModelM {
 			}
 			//..go through each activated element in previous gui lists to see if it is represented
 			//-in the current pattern
-			prevGuiLdiList: for(ListDataItemM prevGuiLdi : this.getCombinedListOfActivatedDataUntilInVal(inListType)){
-				for(ListDataItemM patternLdi : p.get()){
+			prevGuiLdiList: for(ItemM prevGuiLdi : this.getCombinedListOfActivatedDataUntilInVal(inListType)){
+				for(ItemM patternLdi : p.get()){
 					if(prevGuiLdi.getId().equals(patternLdi.getId())){
 						tmpNumberOfMatchesBtwGuiAndPatternLdi++;
 						continue prevGuiLdiList;
@@ -109,9 +104,9 @@ public class KindModelM {
 		}
 
 		//..and now we use these values to set the new sort values (please note the order of the for statements)
-		guiList: for(ListDataItemM guiLdi : this.getListOfType(inListType).getListOfData()){ //Whole list is used
+		guiList: for(ItemM guiLdi : this.getListOfType(inListType).getListOfData()){ //Whole list is used
 			for(PatternM p : mPatternList){
-				for(ListDataItemM patternLdi : p.get()){
+				for(ItemM patternLdi : p.get()){
 					if(patternLdi.getId().equals(guiLdi.getId())){ //Only update the ones that we have in the patterns list
 						guiLdi.setTotalSortValue(
 								guiLdi.getTempNumberOfTimesThisItemOccursInListOfPatterns()
@@ -131,7 +126,7 @@ public class KindModelM {
 	//----------------------JSON methods
 	
 	void savePatternListToJson() {
-		ArrayList<ListDataItemM> tmpPatternToSave = new ArrayList<ListDataItemM>();
+		ArrayList<ItemM> tmpPatternToSave = new ArrayList<ItemM>();
 		
 		//Get all the activated items from the whole list
 		
@@ -151,7 +146,7 @@ public class KindModelM {
 			if(f.getName().contains("pattern")){
 				try{
 					JsonSerializerM tmpJsonSerializer = new JsonSerializerM(mContext, f.getName());
-					//ArrayList<ListDataItemM> tmpListToAdd = tmpJsonSerializer.loadData(ListTypeM.PATTERNS);
+					//ArrayList<ItemM> tmpListToAdd = tmpJsonSerializer.loadData(ListTypeM.PATTERNS);
 					PatternM tmpNewPatternToAdd = new PatternM(
 							tmpJsonSerializer.loadData());
 					mPatternList.add(tmpNewPatternToAdd);

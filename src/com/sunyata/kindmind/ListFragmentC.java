@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -30,7 +31,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.sunyata.kindmind.ListDataItemM.ListTypeM;
+import com.sunyata.kindmind.contentprovider.ListContentProviderM;
 
 public class ListFragmentC extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 //will later on extend an abstract class
@@ -39,7 +40,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	static final String EXTRA_LIST_DATA_ITEM_ID = "EXTRA_LIST_DATA_ITEM_ID";
 	static final String EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE";
-	private ListTableM refListData;
 	private ListTypeM refListType;
 	private ToastBehaviour mToastBehaviour;
 	private static MainActivityCallbackListenerI mCallbackListener;
@@ -66,9 +66,11 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
 		//TODO: Update?
 		
-		String[] tmpProjection = {ListTableM.COLUMN_ID, ListTableM.COLUMN_NAME};
+		String[] tmpProjection = {ItemTableM.COLUMN_ID, ItemTableM.COLUMN_NAME};
+		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + "=" + ListTypeM.SUFFERING.toString();
 		CursorLoader retCursorLoader = new CursorLoader(
 				getActivity(), ListContentProviderM.CONTENT_URI, tmpProjection, null, null, null);
+		//selection, selectionargs, sortorder
 		
 		return retCursorLoader;
 	}
@@ -94,7 +96,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	private void updateListWithNewData(){
 		
-		String[] tmpDatabaseFrom = {ListTableM.COLUMN_NAME};
+		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME};
 		int[] tmpDatabaseTo = {R.id.list_item_titleTextView};
 		
 		getLoaderManager().initLoader(0, null, this);
@@ -136,10 +138,13 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	
     	//this.initialize();
     	
+    	/*
     	if(getListAdapter() != null){
         	((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
     	}
+    	*/
     	
+    	/*
 		switch(refListType){
 		case SPECEV:
 			setToastBehaviour(new NoToast());
@@ -159,6 +164,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			break;
 		default:Log.e(Utils.getClassName() ,"Error in onCreate: ListType not covered by switch statement");
 		}
+		*/
 
     }
     @Override
@@ -231,15 +237,15 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		switch (inMenuItem.getItemId()){
 		
 		case R.id.menu_item_new_listitem:
-			ListDataItemM tmpNewListDataItem = new ListDataItemM(refListType);
+			//ItemM tmpNewListDataItem = new ItemM(refListType);
 			boolean tmpCreatedSuccessfully = true; //TODO Change
 					//KindModelM.get(getActivity()).getListOfType(refListType).addItem(tmpNewListDataItem, true);
 			if(!tmpCreatedSuccessfully){
 				Log.e(Utils.getClassName(), "Error in onOptionsItemSelected: Could not add ListDataItem to list");
 			}
 			
-			Intent intent = new Intent(getActivity(), DataDetailsActivityC.class);
-			intent.putExtra(EXTRA_LIST_DATA_ITEM_ID, tmpNewListDataItem.getId()); //Extracted in DataDetailsFragmentC
+			Intent intent = new Intent(getActivity(), DetailsActivityC.class);
+			//intent.putExtra(EXTRA_LIST_DATA_ITEM_ID, tmpNewListDataItem.getId()); //Extracted in DataDetailsFragmentC
 			intent.putExtra(EXTRA_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
 			startActivityForResult(intent, 0); //Calling DataDetailsActivityC
 			
@@ -279,6 +285,20 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
 			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
 			*/
+			
+			
+			//Add some start data to the database
+	    	ContentValues tmpContentValuesToInsert = new ContentValues();
+	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, "name_test_1");
+	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_LISTTYPE, "feelings");
+	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_ACTIVE, 0);
+	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_FILEORDIRPATH, "/");
+	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_NOTIFICATIONACTIVE, 0);
+	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_NOTIFICATIONTIME, 0);
+	    	
+			getActivity().getContentResolver().insert(ListContentProviderM.CONTENT_URI, tmpContentValuesToInsert);
+
+			
 			return true;
 			
 		case R.id.menu_item_kindsort:
@@ -322,9 +342,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	//-------------------Adapter that listens to button clicks
     
-	class ListFragmentDataAdapterC extends ArrayAdapter<ListDataItemM> {
+	class ListFragmentDataAdapterC extends ArrayAdapter<ItemM> {
 		
-		public ListFragmentDataAdapterC(ArrayList<ListDataItemM> inListData){
+		public ListFragmentDataAdapterC(ArrayList<ItemM> inListData){
 			super(getActivity(), android.R.layout.simple_list_item_1, inListData);
 		}
 		
@@ -341,7 +361,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 				inConvertView = getActivity().getLayoutInflater().inflate(R.layout.ofnr_list_item, null);//can pass parent here
 			}
 			
-			ListDataItemM tmpListDataItem = getItem(inPosition);
+			ItemM tmpListDataItem = getItem(inPosition);
 
 			CheckBox tmpActiveCheckBox = (CheckBox)inConvertView.findViewById(R.id.list_item_activeCheckBox);
 			tmpActiveCheckBox.setClickable(false); //We handle this ourselves
@@ -398,9 +418,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			@Override
 			public boolean onLongClick(View inView) {
 				
-				ListDataItemM tmpListDataItem = ListFragmentDataAdapterC.this.getItem(mPosition);
+				ItemM tmpListDataItem = ListFragmentDataAdapterC.this.getItem(mPosition);
 				
-				Intent intent = new Intent(getActivity(), DataDetailsActivityC.class);
+				Intent intent = new Intent(getActivity(), DetailsActivityC.class);
 				intent.putExtra(EXTRA_LIST_DATA_ITEM_ID, tmpListDataItem.getId()); //Extracted in DataDetailsFragmentC
 				intent.putExtra(EXTRA_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
 				startActivityForResult(intent, 0); //Calling DataDetailsActivityC

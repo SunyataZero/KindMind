@@ -1,66 +1,20 @@
 package com.sunyata.kindmind;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.provider.BaseColumns;
-import android.util.Log;
+public class ItemManagerM {
 
-import com.sunyata.kindmind.ListDataItemM.ListTypeM;
+	
+	
+	//------------------------------Enum for type of list
+	
 
-public class ListTableM {
-
-	static final String TABLE_LIST = "list"; 
-	static final String COLUMN_ID = BaseColumns._ID;
-	static final String COLUMN_NAME = "name";
-	static final String COLUMN_LISTTYPE = "listtype";
-	static final String COLUMN_ACTIVE = "active";
-	static final String COLUMN_FILEORDIRPATH = "fileordirpath";
-	static final String COLUMN_NOTIFICATIONACTIVE = "notificationactive";
-	static final String COLUMN_NOTIFICATIONTIME = "notificationtime";
-	//Please remember to update the verifyColumns method and the updrade method when we add new columns
-	
-	private static final String CREATE_DATABASE =
-			"CREATE TABLE " + TABLE_LIST + "("
-			+ COLUMN_ID + "INTEGER PRIMARY KEY AUTOINCREMENT, "
-			+ COLUMN_NAME + " STRING NOT NULL "
-			+ COLUMN_LISTTYPE + " STRING NOT NULL "
-			+ COLUMN_ACTIVE + " INTEGER NOT NULL "
-			+ COLUMN_FILEORDIRPATH + " STRING "
-			+ COLUMN_NOTIFICATIONACTIVE + " INTEGER NOT NULL "
-			+ COLUMN_NOTIFICATIONTIME + " INTEGER"
-			+ ");";
-	
-	static void onCreate(SQLiteDatabase inDataBase){
-		inDataBase.execSQL(CREATE_DATABASE);
-	}
-	
-	static void onUpgrade(SQLiteDatabase inDataBase, int inOldVersion, int inNewVersion){
-		
-		Log.w(Utils.getClassName(), "Upgrade removed the database with a previous version and created a new one, " +
-				"all data was deleted");
-		
-		inDataBase.execSQL("DROP TABLE IF EXISTS " + TABLE_LIST);
-		onCreate(inDataBase);
-		/*TODO: Change this method
-		 * 1. Backup
-		 * and/or
-		 * 2. Write upgrade code
-		 */
-	}
-	
-	//======================================================================================================
-	
 	
 	//Often called after getListOfActivatedData in KindModel
-	ArrayList<ListDataItemM> getListOfActivatedData() {
-		ArrayList<ListDataItemM> retActivatedData = new ArrayList<ListDataItemM>();
+	ArrayList<ItemM> getListOfActivatedData() {
+		ArrayList<ItemM> retActivatedData = new ArrayList<ItemM>();
 		/*
 		for(ListDataItemM ld : mList){
 			if (ld.isActive()){
@@ -194,9 +148,9 @@ public class ListTableM {
 	}
 	*/
 	
-	class KindComparator implements Comparator<ListDataItemM>{
+	class KindComparator implements Comparator<ItemM>{
 		@Override
-		public int compare(ListDataItemM lhs, ListDataItemM rhs) {
+		public int compare(ItemM lhs, ItemM rhs) {
 			
 			//First sort by which list data items are activated
 			if(lhs.isActive() == false && rhs.isActive() == true){
@@ -261,7 +215,7 @@ public class ListTableM {
 	*/
 
 	//Recursive method
-	private String getFormattedStringOfActivatedDataListItems(List<ListDataItemM> inList) {
+	private String getFormattedStringOfActivatedDataListItems(List<ItemM> inList) {
 		if(inList.size() == 0){
 			return "";
 		}else if(inList.size() == 1){
@@ -344,5 +298,7 @@ public class ListTableM {
 	}
 	*/
 
+	
+	
 	
 }

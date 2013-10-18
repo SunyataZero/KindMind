@@ -13,8 +13,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-
-import com.sunyata.kindmind.ListDataItemM.ListTypeM;
 //NotificationCompat is for api lvl 15 and downwards
 
 public class NotificationServiceC extends IntentService {
@@ -81,9 +79,9 @@ public class NotificationServiceC extends IntentService {
 	
 	static void setServiceNotificationAll(Context inContext){
 		/*
-		ArrayList<ListDataItemM> tmpList = loadDataFromJson(
+		ArrayList<ItemM> tmpList = loadDataFromJson(
 				ListTypeM.KINDNESS, KindModelM.JSON_REQUESTS_KINDNESS_FILE_NAME, inContext);
-		for(ListDataItemM ldi : tmpList){
+		for(ItemM ldi : tmpList){
 			NotificationServiceC.setServiceNotificationSingle(
 					inContext, ldi.isNotificationActive(), ldi.getUserTimeInMilliSeconds(),
 					AlarmManager.INTERVAL_DAY, ldi.getId(), ldi.getName());
@@ -92,8 +90,8 @@ public class NotificationServiceC extends IntentService {
 		*/
 	}
 	//TODO: Remove this method and use the one in ListDataM instead?
-	static ArrayList<ListDataItemM> loadDataFromJson(ListTypeM inListType, String inFileName, Context inContext) {
-		ArrayList<ListDataItemM> retList = new ArrayList<ListDataItemM>();
+	static ArrayList<ItemM> loadDataFromJson(ListTypeM inListType, String inFileName, Context inContext) {
+		ArrayList<ItemM> retList = new ArrayList<ItemM>();
 		/*
 		JsonSerializerM tmpJsonSerializer = new JsonSerializerM(inContext, inFileName);
 		try{
@@ -101,7 +99,7 @@ public class NotificationServiceC extends IntentService {
 			retList = tmpJsonSerializer.loadData();
 			Log.i(Utils.getClassName(), "Done loading from JSON file");
 		}catch(Exception e){
-			retList = new ArrayList<ListDataItemM>();
+			retList = new ArrayList<ItemM>();
 			//-This will happen when we don't have any file yet
 		}
 		*/

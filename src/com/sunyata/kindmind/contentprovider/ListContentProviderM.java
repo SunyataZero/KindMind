@@ -1,7 +1,7 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.contentprovider;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -11,8 +11,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.provider.BaseColumns;
 import android.text.TextUtils;
+
+import com.sunyata.kindmind.DatabaseHelperM;
+import com.sunyata.kindmind.ItemTableM;
 
 public class ListContentProviderM extends ContentProvider {
 
@@ -54,14 +56,14 @@ public class ListContentProviderM extends ContentProvider {
 		verifyColumns(inProjection);
 
 		SQLiteQueryBuilder tmpQueryBuilder = new SQLiteQueryBuilder();
-		tmpQueryBuilder.setTables(ListTableM.TABLE_LIST);
+		tmpQueryBuilder.setTables(ItemTableM.TABLE_LIST);
 		
 		switch(sUriMatcher.match(inUri)){
 		case LIST:
 			break;
 		case LIST_ITEM_ID:
 			//Adding the column id from the uri to the where SQL statement
-			tmpQueryBuilder.appendWhere(ListTableM.COLUMN_ID + "=" + inUri.getLastPathSegment());
+			tmpQueryBuilder.appendWhere(ItemTableM.COLUMN_ID + "=" + inUri.getLastPathSegment());
 			break;
 		default:
 			throw new IllegalArgumentException("Error in method query(): Unknown URI: " + inUri);
@@ -106,7 +108,7 @@ public class ListContentProviderM extends ContentProvider {
 		
 		switch(sUriMatcher.match(inUri)){
 		case LIST:
-			tmpInsertRowId = tmpSQLiteDatabase.insert(ListTableM.TABLE_LIST, null, inContentValues);
+			tmpInsertRowId = tmpSQLiteDatabase.insert(ItemTableM.TABLE_LIST, null, inContentValues);
 			break;
 		default:
 			throw new IllegalArgumentException("Error in method insert(): Unknown URI: " + inUri);
@@ -130,16 +132,16 @@ public class ListContentProviderM extends ContentProvider {
 		switch(sUriMatcher.match(inUri)){
 		case LIST:
 			tmpNumberOfRowsDeleted = tmpSQLiteDatabase.delete(
-					ListTableM.TABLE_LIST, inSelection, inSelectionArguments);
+					ItemTableM.TABLE_LIST, inSelection, inSelectionArguments);
 			break;
 		case LIST_ITEM_ID:
 			String tmpDeleteIdFromUri = inUri.getLastPathSegment(); //Q: Why a String?
 			if(TextUtils.isEmpty(inSelection)){
 				tmpNumberOfRowsDeleted = tmpSQLiteDatabase.delete(
-						ListTableM.TABLE_LIST, ListTableM.COLUMN_ID + "=" + tmpDeleteIdFromUri, null);
+						ItemTableM.TABLE_LIST, ItemTableM.COLUMN_ID + "=" + tmpDeleteIdFromUri, null);
 			}else{
 				tmpNumberOfRowsDeleted = tmpSQLiteDatabase.delete(
-						ListTableM.TABLE_LIST, ListTableM.COLUMN_ID + "=" + tmpDeleteIdFromUri +
+						ItemTableM.TABLE_LIST, ItemTableM.COLUMN_ID + "=" + tmpDeleteIdFromUri +
 						" and " + inSelection, inSelectionArguments);
 			}
 			break;
@@ -165,17 +167,17 @@ public class ListContentProviderM extends ContentProvider {
 		switch(sUriMatcher.match(inUri)){
 		case LIST:
 			tmpNumberOfRowsUpdated = tmpSQLiteDatabase.update(
-					ListTableM.TABLE_LIST, inContentValues, inSelection, inSelectionArguments);
+					ItemTableM.TABLE_LIST, inContentValues, inSelection, inSelectionArguments);
 			break;
 		case LIST_ITEM_ID:
 			String tmpUpdateIdFromUri = inUri.getLastPathSegment();
 			if(TextUtils.isEmpty(inSelection)){
 				tmpNumberOfRowsUpdated = tmpSQLiteDatabase.update(
-						ListTableM.TABLE_LIST, inContentValues, ListTableM.COLUMN_ID + "=" + tmpUpdateIdFromUri,
+						ItemTableM.TABLE_LIST, inContentValues, ItemTableM.COLUMN_ID + "=" + tmpUpdateIdFromUri,
 						null);
 			}else{
 				tmpNumberOfRowsUpdated = tmpSQLiteDatabase.update(
-						ListTableM.TABLE_LIST, inContentValues, ListTableM.COLUMN_ID + "=" + tmpUpdateIdFromUri
+						ItemTableM.TABLE_LIST, inContentValues, ItemTableM.COLUMN_ID + "=" + tmpUpdateIdFromUri
 						+ " and " + inSelection, inSelectionArguments);
 			}
 		default:
@@ -191,17 +193,18 @@ public class ListContentProviderM extends ContentProvider {
 	
 	private void verifyColumns(String[] inProjectedColumnsAsArray){
 		
-		ArrayList<String> tmpAvailableColumns = new ArrayList<String>();
-		tmpAvailableColumns.add(ListTableM.COLUMN_ID);
-		tmpAvailableColumns.add(ListTableM.COLUMN_NAME);
-		tmpAvailableColumns.add(ListTableM.COLUMN_LISTTYPE);
-		tmpAvailableColumns.add(ListTableM.COLUMN_ACTIVE);
-		tmpAvailableColumns.add(ListTableM.COLUMN_FILEORDIRPATH);
-		tmpAvailableColumns.add(ListTableM.COLUMN_NOTIFICATIONACTIVE);
-		tmpAvailableColumns.add(ListTableM.COLUMN_NOTIFICATIONTIME);
+		HashSet<String> tmpAvailableColumns = new HashSet<String>();
+		tmpAvailableColumns.add(ItemTableM.COLUMN_ID);
+		tmpAvailableColumns.add(ItemTableM.COLUMN_NAME);
+		tmpAvailableColumns.add(ItemTableM.COLUMN_LISTTYPE);
+		tmpAvailableColumns.add(ItemTableM.COLUMN_ACTIVE);
+		tmpAvailableColumns.add(ItemTableM.COLUMN_FILEORDIRPATH);
+		tmpAvailableColumns.add(ItemTableM.COLUMN_NOTIFICATIONACTIVE);
+		tmpAvailableColumns.add(ItemTableM.COLUMN_NOTIFICATIONTIME);
 
 		if(inProjectedColumnsAsArray != null){
-			ArrayList<String> tmpProjectedColumns = (ArrayList<String>) Arrays.asList(inProjectedColumnsAsArray);
+			HashSet<String> tmpProjectedColumns = new HashSet<String>(Arrays.asList(inProjectedColumnsAsArray));
+			//.class Arrays.asList(inProjectedColumnsAsArray);
 			if(!tmpAvailableColumns.containsAll(tmpProjectedColumns)){
 				throw new IllegalArgumentException(
 						"Error in method verifyColumns: Projection contains unknown columns");

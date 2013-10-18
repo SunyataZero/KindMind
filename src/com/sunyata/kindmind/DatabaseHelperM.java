@@ -4,14 +4,17 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.BaseColumns;
+import android.util.Log;
 
 public class DatabaseHelperM extends SQLiteOpenHelper{
 
 	private static final String DATABASE_NAME = "kindmind.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 3;
 	
 
-	
+
+
 	
 	
 	public DatabaseHelperM(Context inContext) {
@@ -20,14 +23,18 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 
 	@Override
 	public void onCreate(SQLiteDatabase inDatabase) {
-		ListTableM.onCreate(inDatabase);
+		ItemTableM.onCreate(inDatabase);
 	}
 
 	@Override
-	public void onUpgrade(SQLiteDatabase inDataBase, int inOldVersion, int inNewVersion) {
-		ListTableM.onUpgrade(inDataBase, inOldVersion, inNewVersion);
+	public void onUpgrade(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
+		ItemTableM.onUpgrade(inDatabase, inOldVersion, inNewVersion);
 	}
 	
 	
+
+
+
+
 	
 }

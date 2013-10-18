@@ -1,18 +1,17 @@
 package com.sunyata.kindmind;
 
 import java.util.ArrayList;
-import com.sunyata.kindmind.ListDataItemM.ListTypeM;
 
 public class PatternM{
 	
 	//-----------------------Fields and constructor
 
-	ArrayList<ListDataItemM> mList;
+	ArrayList<ItemM> mList;
 	private double mRelevance;
 	private int mCurrentPosition = 0;
 	
-	public PatternM(ArrayList<ListDataItemM> inList){
-		//mList = new ArrayList<ListDataItemM>();
+	public PatternM(ArrayList<ItemM> inList){
+		//mList = new ArrayList<ItemM>();
 		mList = inList;
 		//mIterator = new ListDataItemIterator(mList);
 	}
@@ -20,11 +19,11 @@ public class PatternM{
 	
 	//-----------------------Get and set
 	
-	public ArrayList<ListDataItemM> get(){return mList;}
+	public ArrayList<ItemM> get(){return mList;}
 	
-	public ArrayList<ListDataItemM> getUntilInVal(ListTypeM inListType) {
-		ArrayList<ListDataItemM> retArrayList = new ArrayList<ListDataItemM>();
-		for(ListDataItemM ldi : mList){
+	public ArrayList<ItemM> getUntilInVal(ListTypeM inListType) {
+		ArrayList<ItemM> retArrayList = new ArrayList<ItemM>();
+		for(ItemM ldi : mList){
 			if(ldi.getListType().getLevel() < inListType.getLevel()){
 				retArrayList.add(ldi);
 			}

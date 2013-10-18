@@ -8,8 +8,6 @@ import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
-import com.sunyata.kindmind.ListDataItemM.ListTypeM;
-
 public class KindMindRemoteViewsService extends RemoteViewsService {
 
 	@Override
@@ -21,7 +19,7 @@ public class KindMindRemoteViewsService extends RemoteViewsService {
 
 class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory{
 
-	ArrayList<ListDataItemM> refList;
+	ArrayList<ItemM> refList;
 	Context mContext;
 	
 	KindMindRemoteViewsFactory(Context inContext, Intent inIntent){
