@@ -28,7 +28,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	
 	private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
-    private static int sViewPagerPosition; //Important that this is static since the whole instance of the
+    private static int sViewPagerPosition;
+    //-Important that this is static since the whole instance of the
     // class is recreated when going back from the details screens
     private ListFragmentC mObservationListFragment;
     private ListFragmentC mFeelingListFragment;
@@ -99,31 +100,26 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         refActionBar.setDisplayShowTitleEnabled(false);
         refActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 
-        mKindMindArrayAdapter = new KindMindArrayAdapter(this, getResources().getStringArray(R.array.spinner_list));
+        mKindMindArrayAdapter = new KindMindArrayAdapter(
+        		this, getResources().getStringArray(R.array.spinner_list));
         mKindMindArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         
         mOnNavigationListener = new MyOnNavigationListener();
         refActionBar.setListNavigationCallbacks(mKindMindArrayAdapter, mOnNavigationListener);
 
+        //TODO: Direcoty is not created, please fix or find another way to choose files
         //If the directory does not already exist, create it
-    	File tmpDirectory = new File(SettingsM.getKindMindDirectory());
+    	File tmpDirectory = new File(Utils.getKindMindDirectory());
     	Log.i(Utils.getClassName(), "tmpDirectory = " + tmpDirectory);
     	boolean tmpDirectoryWasCreatedSuccessfully = tmpDirectory.mkdir();
-    	Log.i(Utils.getClassName(), "tmpDirectoryWasCreatedSuccessfully = " + tmpDirectoryWasCreatedSuccessfully);
+    	Log.i(Utils.getClassName(),
+    			"tmpDirectoryWasCreatedSuccessfully = " + tmpDirectoryWasCreatedSuccessfully);
 
     	
-    	
-    	ContentValues tmpContentValuesToInsert;
+    	if(Utils.isFirstTimeApplicationStarted(this) == true){
+    		Utils.createAllStartupItems(this);
+    	}
 
-    	tmpContentValuesToInsert = new ContentValues();
-    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, "MainActivityC_1");
-    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LISTTYPE, ListTypeM.SUFFERING.toString());
-		getContentResolver().insert(ListContentProviderM.CONTENT_URI, tmpContentValuesToInsert);
-		
-    	tmpContentValuesToInsert = new ContentValues();
-    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, "MainActivityC_2");
-    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LISTTYPE, ListTypeM.NEEDS.toString());
-		getContentResolver().insert(ListContentProviderM.CONTENT_URI, tmpContentValuesToInsert);
 
     }
     
@@ -302,7 +298,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		//NOTE: CANNOT CALL getListAdapter() ON THE FRAGMENT FROM HERE BECAUSE THE
 		//FRAGMENT'S ONACTIVITYCREATED METHOD HAS NOT SET UP THE FRAGMENT WITH THE ADAPTER.
 
-		KindModelM.get(getApplicationContext()).loadPatternListsFromJsonFiles();
+		//KindModelM.get(getApplicationContext()).loadPatternListsFromJsonFiles();
 		KindModelM.get(getApplicationContext()).updateSortValuesForListType(inListType);
 		//KindModelM.get(getApplicationContext()).getListOfType(inListType).sortWithKindness();
 		//-Sort with Kindness has been chosen here instead of alphabeta since prioritize giving the user

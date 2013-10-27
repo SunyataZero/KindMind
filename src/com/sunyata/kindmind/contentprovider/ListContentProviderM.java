@@ -23,7 +23,7 @@ public class ListContentProviderM extends ContentProvider {
 	private static final int LIST = 1;
 	private static final int LIST_ITEM_ID = 2;
 
-	private static final String AUTHORITY = "com.sunyata.kindmind.provider";
+	private static final String AUTHORITY = "com.sunyata.kindmind.contentprovider";
 	private static final String LIST_BASE_PATH = "list";
 	
 	private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -66,7 +66,7 @@ public class ListContentProviderM extends ContentProvider {
 			tmpQueryBuilder.appendWhere(ItemTableM.COLUMN_ID + "=" + inUri.getLastPathSegment());
 			break;
 		default:
-			throw new IllegalArgumentException("Error in method query(): Unknown URI: " + inUri);
+			throw new IllegalArgumentException("Error in method ListContentProviderM.query(): Unknown URI: " + inUri);
 		}
 		
 		SQLiteDatabase tmpSQLiteDatabase = mDatabaseHelper.getWritableDatabase();
@@ -111,13 +111,13 @@ public class ListContentProviderM extends ContentProvider {
 			tmpInsertRowId = tmpSQLiteDatabase.insert(ItemTableM.TABLE_LIST, null, inContentValues);
 			break;
 		default:
-			throw new IllegalArgumentException("Error in method insert(): Unknown URI: " + inUri);
+			throw new IllegalArgumentException("Error in method ListContentProviderM.insert(): Unknown URI: " + inUri);
 		}
 		
 		getContext().getContentResolver().notifyChange(inUri, null);
 		//-From the documentation: "CursorAdapter objects will get this notification."
 
-		return Uri.parse(LIST_BASE_PATH + "/" + tmpInsertRowId);
+		return Uri.parse(CONTENT_URI + "/" + tmpInsertRowId); //LIST_BASE_PATH //CONTENT_URI
 	}
 
 	
@@ -146,7 +146,7 @@ public class ListContentProviderM extends ContentProvider {
 			}
 			break;
 		default:
-			throw new IllegalArgumentException("Error in method delete(): Unknown URI: " + inUri);
+			throw new IllegalArgumentException("Error in method ListContentProviderM.delete(): Unknown URI: " + inUri);
 		}
 		
 		getContext().getContentResolver().notifyChange(inUri, null);
@@ -180,8 +180,9 @@ public class ListContentProviderM extends ContentProvider {
 						ItemTableM.TABLE_LIST, inContentValues, ItemTableM.COLUMN_ID + "=" + tmpUpdateIdFromUri
 						+ " and " + inSelection, inSelectionArguments);
 			}
+			break;
 		default:
-			throw new IllegalArgumentException("Error in method delete(): Unknown URI: " + inUri);
+			throw new IllegalArgumentException("Error in method ListContentProviderM.update(): Unknown URI: " + inUri);
 		}
 		
 		getContext().getContentResolver().notifyChange(inUri, null);
@@ -199,8 +200,7 @@ public class ListContentProviderM extends ContentProvider {
 		tmpAvailableColumns.add(ItemTableM.COLUMN_LISTTYPE);
 		tmpAvailableColumns.add(ItemTableM.COLUMN_ACTIVE);
 		tmpAvailableColumns.add(ItemTableM.COLUMN_FILEORDIRPATH);
-		tmpAvailableColumns.add(ItemTableM.COLUMN_NOTIFICATIONACTIVE);
-		tmpAvailableColumns.add(ItemTableM.COLUMN_NOTIFICATIONTIME);
+		tmpAvailableColumns.add(ItemTableM.COLUMN_NOTIFICATION);
 
 		if(inProjectedColumnsAsArray != null){
 			HashSet<String> tmpProjectedColumns = new HashSet<String>(Arrays.asList(inProjectedColumnsAsArray));

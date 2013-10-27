@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.DialogFragment;
 import android.app.Fragment;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -23,14 +25,12 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 
-import com.sunyata.kindmind.contentprovider.ListContentProviderM;
-
 public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.OnTimeSetListenerI{
 
 	
 	//----------------------------Fields and singelton get method
 	
-	private EditText mKindActEditText;
+	private EditText mItemEditText;
 	private Button mDeleteButton;
 	private ItemM refListDataItem;
 	private ListTypeM refListType;
@@ -38,11 +38,15 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 	private CheckBox mNotificationCheckBox;
 	private Button mTimePickerButton;
 	
+	private Uri refItemUri; //Used to identify the item (table row)
+	
 	static final int REQUEST_FILECHOOSER = 1;
 	
-	static Fragment newInstance(ListTypeM inListType){
+	static Fragment newInstance(Object inAttachedData){
 		Bundle tmpArguments = new Bundle();
-		tmpArguments.putString(Utils.LIST_TYPE, inListType.toString());
+		tmpArguments.putString(ListFragmentC.EXTRA_ITEM_URI, inAttachedData.toString());
+		//-inAttachedData contains the URI that identifies the item
+		//-inAttachedData comes from SingleFragmentActivity (and not directly from ListFragmentC)
 		Fragment retFragment = new DetailsFragmentC(); //"Implicit" constructor used
 		retFragment.setArguments(tmpArguments);
 		return retFragment;
@@ -58,7 +62,8 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 		setRetainInstance(true);
 		setHasOptionsMenu(true); //for the up navigation button
 		
-		refListType = ListTypeM.valueOf(this.getArguments().getString(Utils.LIST_TYPE));
+		//refListType = ListTypeM.valueOf(this.getArguments().getString(Utils.LIST_TYPE));
+		
 		
 		//UUID tmpId = (UUID)getActivity().getIntent().getSerializableExtra(ListFragmentC.EXTRA_LIST_DATA_ITEM_ID);
 		//refListDataItem = KindModelM.get(getActivity()).getListOfType(refListType).getItem(tmpId);
@@ -68,16 +73,6 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     public void onPause(){
     	super.onPause();
     	Log.d(Utils.getClassName(), Utils.getMethodName());
-    	
-    	//Saving the newly created list data item
-    	//TODO: Write to PATTERNS table
-    	
-    	/*
-    	ListDataM tmpListData = KindModelM.get(getActivity()).getListOfType(refListType);
-    	if(tmpListData != null && refListType != null){
-    		tmpListData.saveToJson(true);
-    	}
-    	*/
     }
 	
 	@Override
@@ -92,16 +87,55 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 		}
 		
 		
-		mKindActEditText = (EditText)v.findViewById(R.id.kindact_name);
+		String tmpArgumentsString = this.getArguments().getString(ListFragmentC.EXTRA_ITEM_URI);
+		refItemUri = Uri.parse(tmpArgumentsString);
+		
+
+		
+		String[] tmpProjection = {ItemTableM.COLUMN_LISTTYPE, ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_NOTIFICATION};
+		Cursor tmpCursor = getActivity().getApplicationContext().getContentResolver().query(refItemUri, tmpProjection, null, null, null);
+		
+		boolean tmpCursorIsNotEmpty = tmpCursor.moveToFirst();
+		
+		refListType = ListTypeM.valueOf(
+				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_LISTTYPE)));
+		//-Please note: We need to move the cursor to the first position before using .getString()
+		
+		if(!tmpCursorIsNotEmpty){
+			Log.e(Utils.getClassName(), "Error in method fillDataFromContentProvider: Cursor is empty");
+			getActivity().finish();
+			return v;
+		}
+
+		refListType = ListTypeM.valueOf(
+				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_LISTTYPE)));
+
+
+		
+		
+		
+		
+		
+		mItemEditText = (EditText)v.findViewById(R.id.kindact_name);
+		/*
 		if(refListDataItem.getName().equals(ItemM.NO_NAME_SET) == false){
 			mKindActEditText.setText(refListDataItem.getName());
 		}
-		mKindActEditText.addTextChangedListener(new TextWatcher() {
+		*/
+		mItemEditText.setText(
+				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME)));
+
+
+		
+		mItemEditText.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 
 				try{
-					refListDataItem.setName(s.toString());
+					ContentValues tmpContentValues = new ContentValues();
+					tmpContentValues.put(ItemTableM.COLUMN_NAME, s.toString());
+					getActivity().getContentResolver().update(refItemUri, tmpContentValues, null, null);
+					//refListDataItem.setName(s.toString());
 				}catch(NullPointerException npe){
 					Log.e(Utils.getClassName(), "NullPointerException in method onTextChanged");
 				}
@@ -122,8 +156,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 			public void onClick(View v) {
 				AdapterContextMenuInfo info; 
 				
-				Uri tmpDeleteUri = Uri.parse(ListContentProviderM.CONTENT_URI + "/" + refListDataItem.getId());
-				getActivity().getContentResolver().delete(tmpDeleteUri, null, null);
+				getActivity().getContentResolver().delete(refItemUri, null, null);
 				getActivity().finish();
 				//We don't need to notify the adapter (why?)
 			}
@@ -135,8 +168,6 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 			//Only show this button for the strategies
 			mFileChooserButton.setVisibility(View.GONE);
 		}
-		
-		
 		mFileChooserButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -147,22 +178,24 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 			}
 		});
 
-		
+
 		mNotificationCheckBox = (CheckBox)v.findViewById(R.id.notification_checkbox);
 		if(refListType != ListTypeM.KINDNESS){
 			//Only show this button for the strategies
 			mNotificationCheckBox.setVisibility(View.GONE);
 		}
-		Log.i(Utils.getClassName(), "refListDataItem.isNotificationActive() = "
-				+ refListDataItem.isNotificationActive());
-		mNotificationCheckBox.setChecked(refListDataItem.isNotificationActive());
-		//-TODO: Is this the most helpful way?
 		mNotificationCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener(){
 			@Override
 			public void onCheckedChanged(CompoundButton inCompoundButton, boolean inChecked) {
 				DetailsFragmentC.this.changeNotificationService();
 			}
 		});
+		
+		long tmpNotificationTwoInOne = Integer.parseInt(
+				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION)));
+		//-2nd value not used yet, but may be in the future
+		mNotificationCheckBox.setChecked(tmpNotificationTwoInOne != -1);
+
 
 		
 		mTimePickerButton = (Button)v.findViewById(R.id.time_picker_button);
@@ -180,6 +213,31 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 
 		
 		return v;
+	}
+	private void fillDataFromContentProvider(){
+
+		String[] tmpProjection = {ItemTableM.COLUMN_LISTTYPE, ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_NOTIFICATION};
+		Cursor tmpCursor = getActivity().getApplicationContext().getContentResolver().query(refItemUri, tmpProjection, null, null, null);
+		
+		boolean tmpCursorIsNotEmpty = tmpCursor.moveToFirst();
+		if(!tmpCursorIsNotEmpty){
+			Log.e(Utils.getClassName(), "Error in method fillDataFromContentProvider: Cursor is empty");
+			getActivity().finish();
+			return;
+		}
+
+		refListType = ListTypeM.valueOf(
+				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_LISTTYPE)));
+
+		mItemEditText.setText(
+				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME)));
+
+		long tmpNotificationTwoInOne = Integer.parseInt(
+				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION)));
+		mNotificationCheckBox.setChecked(tmpNotificationTwoInOne != -1);
+		
+		//2nd value not used yet, but may be in the future
+		
 	}
 	@Override
 	public void fireOnTimeSetEvent(int inHourOfDay, int inMinute) {
@@ -210,10 +268,12 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 				Log.i(Utils.getClassName(),
 						"tmpReturnValueFromFileChooserFragment = " + tmpReturnValueFromFileChooserFragment);
 				
-				refListDataItem.setActionFilePath(tmpReturnValueFromFileChooserFragment);
+				ContentValues tmpContentValues = new ContentValues();
+				tmpContentValues.put(ItemTableM.COLUMN_FILEORDIRPATH, tmpReturnValueFromFileChooserFragment);
+				getActivity().getContentResolver().update(refItemUri, tmpContentValues, null, null);
 				
 			}else{
-				Log.e(Utils.getClassName(),"Error in onActivityResult(): inResultCode was not RESULT_OK");
+				Log.w(Utils.getClassName(),"Warning in onActivityResult(): inResultCode was not RESULT_OK");
 			}
 
 		}

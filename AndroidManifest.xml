@@ -52,8 +52,8 @@
         </service>
         <provider
             android:name=".contentprovider.ListContentProviderM"
-            android:authorities="com.sunyata.kindmind.provider" >
+            android:authorities="com.sunyata.kindmind.contentprovider"
+            android:exported="false" >
         </provider>
-        <!-- android:exported="false" -->
     </application>
 </manifest>

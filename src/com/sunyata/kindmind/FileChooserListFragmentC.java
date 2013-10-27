@@ -41,7 +41,7 @@ public class FileChooserListFragmentC extends ListFragment {
     }
     private void initialize(){
     	
-    	File mDirectoryPath = new File(SettingsM.getKindMindDirectory());
+    	File mDirectoryPath = new File(Utils.getKindMindDirectory());
     	/* From the javadoc for getExternalStorageDirectory:
     	 * "Note: don't be confused by the word "external" here.
     	 * This directory can better be thought as media/shared storage.
@@ -54,6 +54,11 @@ public class FileChooserListFragmentC extends ListFragment {
     	 */
     	//Setting up the path to the directory to be displayed and the adapter
     	List<String> tmpList = Arrays.asList(mDirectoryPath.list());
+    	if(tmpList == null || tmpList.size() == 0){
+    		Log.w(Utils.getClassName(), "No files in directory or directory not present");
+    		getActivity().finish();
+    		return;
+    	}
     	FileChooserListDataAdapterC adapter = new FileChooserListDataAdapterC(tmpList);
 		setListAdapter(adapter);
     }
@@ -73,7 +78,7 @@ public class FileChooserListFragmentC extends ListFragment {
 			String tmpString = getItem(inPosition);
 			
 			//Setting a prefix that describes if the item that the user is choosing is a file or a directory
-			File tmpFileOrDirectory = new File(SettingsM.getKindMindDirectory() + "/" + tmpString);
+			File tmpFileOrDirectory = new File(Utils.getKindMindDirectory() + "/" + tmpString);
 			Log.i(Utils.getClassName(), "tmpFileOrDirectory = " + tmpFileOrDirectory);
 			String tmpDirectoryOrFileString = "";
 			if(tmpFileOrDirectory.isDirectory() == true){
@@ -101,7 +106,7 @@ public class FileChooserListFragmentC extends ListFragment {
 			public void onClick(View inView) {
 				
 				String tmpFilePath = 
-						SettingsM.getKindMindDirectory() + "/"
+						Utils.getKindMindDirectory() + "/"
 						+ (String)((TextView) inView.findViewById(R.id.file_list_item_titleTextView)).getText();
 
 				Intent tmpIntent = new Intent();

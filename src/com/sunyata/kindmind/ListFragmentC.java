@@ -7,10 +7,12 @@ import java.util.Random;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -23,8 +25,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.SimpleCursorAdapter;
@@ -38,7 +42,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	//-------------------Fields and constructor
 	
-	static final String EXTRA_LIST_DATA_ITEM_ID = "EXTRA_LIST_DATA_ITEM_ID";
+	static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
 	static final String EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE";
 	private ListTypeM refListType;
 	private ToastBehaviour mToastBehaviour;
@@ -46,10 +50,13 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	private KindActionBehaviour mKindActionBehaviour;
 	
 	public static ListFragmentC newInstance(ListTypeM inListType, MainActivityCallbackListenerI inCallbackListener){
-		Bundle tmpArguments = new Bundle();
-		tmpArguments.putString(Utils.LIST_TYPE, inListType.toString());
+		//Bundle tmpArguments = new Bundle();
+		//tmpArguments.putString(Utils.LIST_TYPE, inListType.toString());
+		
 		ListFragmentC retListFragment = new ListFragmentC();
-		retListFragment.setArguments(tmpArguments);
+		retListFragment.refListType = inListType;
+		//retListFragment.setArguments(tmpArguments);
+		
 		mCallbackListener = inCallbackListener;
 		return retListFragment;
 	}
@@ -61,15 +68,18 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	private SimpleCursorAdapter mCursorAdapter;
 	
 	@Override
-	public android.support.v4.content.Loader<Cursor> onCreateLoader(int inId,
-			Bundle inArguments) {
+	public android.support.v4.content.Loader<Cursor> onCreateLoader(int inId, Bundle inArguments) {
 
 		//TODO: Update?
 		
+		//refListType = ListTypeM.valueOf(getArguments().getString(EXTRA_LIST_TYPE));
+		
 		String[] tmpProjection = {ItemTableM.COLUMN_ID, ItemTableM.COLUMN_NAME};
-		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + "=" + ListTypeM.SUFFERING.toString();
+		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
+		String[] tmpSelectionArguments = {refListType.toString()};
 		CursorLoader retCursorLoader = new CursorLoader(
-				getActivity(), ListContentProviderM.CONTENT_URI, tmpProjection, null, null, null);
+				getActivity(), ListContentProviderM.CONTENT_URI, tmpProjection,
+				tmpSelection, tmpSelectionArguments, null);
 		//selection, selectionargs, sortorder
 		
 		return retCursorLoader;
@@ -77,8 +87,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
 
 	@Override
-	public void onLoadFinished(android.support.v4.content.Loader<Cursor> inCursorLoader,
-			Cursor inCursor) {
+	public void onLoadFinished(android.support.v4.content.Loader<Cursor> inCursorLoader, Cursor inCursor) {
 
 		//TODO: Update?
 
@@ -120,6 +129,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		updateListWithNewData();
 		
 		setHasOptionsMenu(true);
+		
+		//refListType = ListTypeM.valueOf(getArguments().getString(EXTRA_LIST_TYPE));
 	}
     //Important: When a new activity is created, this method is called on a physical device, but not on the emulator
     @Override
@@ -144,7 +155,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	}
     	*/
     	
-    	/*
+
 		switch(refListType){
 		case SPECEV:
 			setToastBehaviour(new NoToast());
@@ -164,7 +175,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			break;
 		default:Log.e(Utils.getClassName() ,"Error in onCreate: ListType not covered by switch statement");
 		}
-		*/
+
 
     }
     @Override
@@ -201,9 +212,64 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	super.onActivityCreated(inSavedInstanceState);
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     	
-    	updateListWithNewData();
+    	this.updateListWithNewData();
     	
+    	
+    	super.getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> adapter, View v, int position, long id) {
+
+				Uri tmpUri = Uri.parse(ListContentProviderM.CONTENT_URI + "/" + id);
+				Intent intent = new Intent(getActivity(), DetailsActivityC.class);
+				String tmpExtraString = tmpUri.toString();
+				intent.putExtra(EXTRA_ITEM_URI, tmpExtraString); //Extracted in DataDetailsFragmentC
+				startActivityForResult(intent, 0); //Calling DataDetailsActivityC
+				
+				return false;
+			}
+		});
+    	
+    	super.getListView().setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> adapter, View inView, int inPosition, long inId) {
+				
+				CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox));
+				
+				tmpCheckBox.toggle();
+
+				Uri tmpUri = Uri.parse(ListContentProviderM.CONTENT_URI + "/" + inId);
+				ContentValues tmpContentValues = new ContentValues();
+				tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpCheckBox.isChecked());
+				//-Boolean stored as 0 (false) or 1 (true)
+				getActivity().getContentResolver().update(tmpUri, tmpContentValues, null, null);
+				
+				
+				mToastBehaviour.toast(); //Också för när man klickar på själva checkboxen
+				
+				Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, null);
+				tmpCursor.moveToFirst();
+				String tmpFilePath = tmpCursor.getString(
+						tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));
+				mKindActionBehaviour.kindAction(tmpFilePath);
+				
+				/*
+				boolean tmpWasChecked = refListData.getItem(mPosition).isActive();
+				boolean tmpIsChecked = !tmpWasChecked;
+
+				((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox)).setChecked(tmpIsChecked);
+				refListData.getItem(mPosition).setActive(tmpIsChecked);
+				
+				mToastBehaviour.toast();
+				
+				mKindActionBehaviour.kindAction(refListData.getItem(mPosition).getActionFilePath());
+				
+				((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
+				*/
+			}
+    	});
     }
+
+	
     @Override
     public void onAttach(Activity inActivity){
     	super.onAttach(inActivity);
@@ -238,15 +304,29 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		case R.id.menu_item_new_listitem:
 			//ItemM tmpNewListDataItem = new ItemM(refListType);
-			boolean tmpCreatedSuccessfully = true; //TODO Change
+			//boolean tmpCreatedSuccessfully = true; //TODO Change
 					//KindModelM.get(getActivity()).getListOfType(refListType).addItem(tmpNewListDataItem, true);
+			/*
 			if(!tmpCreatedSuccessfully){
 				Log.e(Utils.getClassName(), "Error in onOptionsItemSelected: Could not add ListDataItem to list");
 			}
-			
+			*/
+			ContentValues tmpContentValuesToInsert = new ContentValues();
+	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, "no_name_set");
+	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LISTTYPE, refListType.toString());
+	    	Uri tmpUriOfNewlyAddedItem =
+	    			getActivity().getContentResolver().insert(
+	    			ListContentProviderM.CONTENT_URI, tmpContentValuesToInsert);
+	    	//PLEASE NOTE: We use URIs instead of IDs for identifying items (since we don't connect directly to thd DB)
+	    	
 			Intent intent = new Intent(getActivity(), DetailsActivityC.class);
-			//intent.putExtra(EXTRA_LIST_DATA_ITEM_ID, tmpNewListDataItem.getId()); //Extracted in DataDetailsFragmentC
-			intent.putExtra(EXTRA_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
+			
+			//mCursorAdapter.getItemId()
+			
+			String tmpExtraString = tmpUriOfNewlyAddedItem.toString();
+			intent.putExtra(EXTRA_ITEM_URI, tmpExtraString);
+			//-Extracted in SingleFragmentActivityC and sent to DataDetailsFragmentC
+			////intent.putExtra(EXTRA_LIST_TYPE, ListTypeM.SUFFERING.toString()); //Extracted in SingleFragmentActivityC
 			startActivityForResult(intent, 0); //Calling DataDetailsActivityC
 			
 			//((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
@@ -288,15 +368,16 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			
 			
 			//Add some start data to the database
-	    	ContentValues tmpContentValuesToInsert = new ContentValues();
-	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, "name_test_1");
+	    	ContentValues tmpContentValuesToInsert2 = new ContentValues();
+	    	tmpContentValuesToInsert2.put(ItemTableM.COLUMN_NAME, "name_test_1");
+	    	getActivity().getContentResolver().insert(ListContentProviderM.CONTENT_URI, tmpContentValuesToInsert2);
 	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_LISTTYPE, "feelings");
 	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_ACTIVE, 0);
 	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_FILEORDIRPATH, "/");
 	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_NOTIFICATIONACTIVE, 0);
 	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_NOTIFICATIONTIME, 0);
 	    	
-			getActivity().getContentResolver().insert(ListContentProviderM.CONTENT_URI, tmpContentValuesToInsert);
+			
 
 			
 			return true;
@@ -314,7 +395,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		
 		case R.id.menu_item_save_pattern:
-			KindModelM.get(getActivity()).savePatternListToJson();
+			//KindModelM.get(getActivity()).savePatternListToJson();
 			return true;
 			
 		case R.id.menu_item_send_as_text_current:
@@ -342,6 +423,14 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	//-------------------Adapter that listens to button clicks
     
+	/*
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id){
+		
+	}
+	*/
+	
+	
 	class ListFragmentDataAdapterC extends ArrayAdapter<ItemM> {
 		
 		public ListFragmentDataAdapterC(ArrayList<ItemM> inListData){
@@ -369,7 +458,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			
 			//Setting the on click and on long click listeners for the whole layout
 			inConvertView.setOnClickListener(new CustomOnClickListener(inPosition));
-			inConvertView.setOnLongClickListener(new CustomOnLongClickListener(inPosition));
+			//inConvertView.setOnLongClickListener(new CustomOnLongClickListener(inPosition));
 			
 			TextView tmpTitleTextView = (TextView)inConvertView.findViewById(R.id.list_item_titleTextView);
 			String tmpSortValueStringOnlyForDebug = "";
@@ -410,24 +499,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
 			}
 		}
-		private class CustomOnLongClickListener implements OnLongClickListener{
-			private int mPosition;
-			public CustomOnLongClickListener(int inPosition){
-				mPosition = inPosition;
-			}
-			@Override
-			public boolean onLongClick(View inView) {
-				
-				ItemM tmpListDataItem = ListFragmentDataAdapterC.this.getItem(mPosition);
-				
-				Intent intent = new Intent(getActivity(), DetailsActivityC.class);
-				intent.putExtra(EXTRA_LIST_DATA_ITEM_ID, tmpListDataItem.getId()); //Extracted in DataDetailsFragmentC
-				intent.putExtra(EXTRA_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
-				startActivityForResult(intent, 0); //Calling DataDetailsActivityC
-				
-				return false;
-			}
-		}
 	}
 
 	
@@ -444,14 +515,12 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		@Override
 		
 		public void toast() {
-			/*
 			String tmpToastFeelingsString = KindModelM.get(getActivity()).getToastString(ListTypeM.SUFFERING);
 			if(tmpToastFeelingsString.length() > 0){
 				Toast.makeText(
 						getActivity(), "I am feeling " + tmpToastFeelingsString, Toast.LENGTH_LONG)
 						.show();
 			}
-			*/
 		}
 	}
 	
@@ -522,15 +591,90 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		private void doKindAction(File inFileFromString){
 			Log.i(Utils.getClassName(), "inFileFromString = " + inFileFromString);
 			
+			/*
+			//Ok, works well!
+			Intent tmpIntent = new Intent(Intent.ACTION_DIAL);
+			tmpIntent.setData(Uri.parse("tel:123"));
+			*/
+
+			AudioManager tmpAudioManager = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
+
+			String tmpTypeString = "*/*";
+			
+			if(
+					inFileFromString.toString().endsWith(".jpg")||
+					inFileFromString.toString().endsWith(".jpeg")||
+					inFileFromString.toString().endsWith(".png")||
+					inFileFromString.toString().endsWith(".gif")){
+				tmpTypeString = "image/*";
+			}else if(
+					inFileFromString.toString().endsWith(".ogg")||
+					inFileFromString.toString().endsWith(".mp3")){
+
+				if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
+					/*
+					isWiredHeadsetOn is used even though it is deprecated:
+					"
+					This method was deprecated in API level 14.
+					Use only to check is a headset is connected or not.
+					"
+					http://stackoverflow.com/questions/2764733/android-checking-if-headphones-are-plugged-in
+					 */
+					
+					Log.w(Utils.getClassName(),
+							"Not playing audio since headset is not connected or speaker phone is on");
+					Toast.makeText(
+							getActivity(),
+							"Not playing audio since headset is not connected or speaker phone is on",
+							Toast.LENGTH_LONG)
+									.show();
+					return;
+				}
+				
+				tmpTypeString = "audio/*";
+				
+			}else if(
+					inFileFromString.toString().endsWith(".mp4")||
+					inFileFromString.toString().endsWith(".avi")){
+				
+				if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
+					Log.w(Utils.getClassName(),
+							"Not playing video since headset is not connected or speaker phone is on");
+					Toast.makeText(
+							getActivity(),
+							"Not playing video since headset is not connected or speaker phone is on",
+							Toast.LENGTH_LONG)
+									.show();
+					return;
+				}
+
+				
+				tmpTypeString = "video/*";
+				
+			}else{
+				//do nothing, meaning that we will continue with "*/*"
+			}
+			
 			Intent tmpIntent = new Intent(Intent.ACTION_VIEW);
-			tmpIntent.setData(Uri.fromFile(inFileFromString));
+			Uri tmpUri = Uri.fromFile(inFileFromString);
+			//tmpIntent.setData(tmpUri); //doesn't work
+			tmpIntent.setDataAndType(tmpUri, tmpTypeString);
+			//-NOTE: THIS IS OK, BUT NOT WHEN SPLITTING DATA AND TYPE
+			
+			/*
+			TODO:
+			choice of file
+			choice of number/contact (nerd book)
+			choice online url
+			future: pinterest api, other apis
+			*/
 			
 			//Verifying that we have at least one app that can handle this intent before starting
-			PackageManager tmpPackageManager = getActivity().getPackageManager();
+			PackageManager tmpPackageManager = getActivity().getApplicationContext().getPackageManager();
 			List<ResolveInfo> tmpListOfAllPosibleAcitivtiesForStarting =
 					tmpPackageManager.queryIntentActivities(tmpIntent, 0);
 			if(tmpListOfAllPosibleAcitivtiesForStarting.size() > 0){
-				startActivity(tmpIntent);
+				getActivity().startActivity(tmpIntent);
 			}else{
 				Toast.makeText(getActivity(),
 						"Currently no app supports this file type on this device, " +

@@ -18,17 +18,13 @@ public abstract class SingleFragmentActivityC extends Activity {
 		super.onCreate(savedInstanceState);
 		Log.d(Utils.getClassName(), Utils.getMethodName());
 		
-		//TODO: Remove
-		ListTypeM tmpListType = ListTypeM.valueOf(
-				(getIntent().getSerializableExtra(ListFragmentC.EXTRA_LIST_TYPE))
-				.toString());
-		
 		setContentView(R.layout.activity_fragment);
 		FragmentManager fm = getFragmentManager();
 		Fragment fragment = fm.findFragmentById(R.id.fragmentContainer);
 		
 		if(fragment == null){
-			fragment = createFragment(tmpListType); //Calling the abstract method
+			fragment = createFragment(getIntent().getSerializableExtra(ListFragmentC.EXTRA_ITEM_URI));
+			//-Calling the abstract method
 			fm.beginTransaction()
 				.add(R.id.fragmentContainer, fragment)
 				.commit();

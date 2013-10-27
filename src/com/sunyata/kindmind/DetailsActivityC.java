@@ -9,7 +9,7 @@ public class DetailsActivityC extends SingleFragmentActivityC {
 	//The onCreate method in the parent (SingleFragmentActivityC) calls createFragment
 	@Override
 	Fragment createFragment(Object inAttachedData){ //Fragment
-		refFragment = (Fragment)DetailsFragmentC.newInstance((ListTypeM)inAttachedData);
+		refFragment = (Fragment)DetailsFragmentC.newInstance(inAttachedData);
 		return refFragment;
 	}
 }

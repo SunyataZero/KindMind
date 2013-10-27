@@ -10,10 +10,8 @@ import android.util.Log;
 public class DatabaseHelperM extends SQLiteOpenHelper{
 
 	private static final String DATABASE_NAME = "kindmind.db";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 7;
 	
-
-
 
 	
 	
@@ -33,8 +31,4 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 	
 	
 
-
-
-
-	
 }

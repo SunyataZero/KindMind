@@ -12,8 +12,11 @@ public class ItemTableM {
 	public static final String COLUMN_LISTTYPE = "listtype";
 	public static final String COLUMN_ACTIVE = "active";
 	public static final String COLUMN_FILEORDIRPATH = "fileordirpath";
-	public static final String COLUMN_NOTIFICATIONACTIVE = "notificationactive";
-	public static final String COLUMN_NOTIFICATIONTIME = "notificationtime";
+	//public static final String COLUMN_NOTIFICATIONACTIVE = "notificationactive";
+	//public static final String COLUMN_NOTIFICATIONTIME = "notificationtime";
+	public static final String COLUMN_NOTIFICATION = "notification";
+	//-Contains both active or not, and the time, not active is stored as -1
+	
 	//Please remember to update the verifyColumns method and the updrade method when we add new columns
 	
 	
@@ -23,9 +26,9 @@ public class ItemTableM {
 			+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ COLUMN_NAME + " TEXT NOT NULL DEFAULT 'no_name_set', "
 			+ COLUMN_LISTTYPE + " TEXT NOT NULL DEFAULT 'SUFFERING', " //TODO: remove default
-			+ COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT -1, "
+			+ COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT 0, " //0 as default since this is false
 			+ COLUMN_FILEORDIRPATH + " TEXT NOT NULL DEFAULT -1, "
-			+ COLUMN_NOTIFICATIONTIME + " INTEGER NOT NULL DEFAULT -1"
+			+ COLUMN_NOTIFICATION + " INTEGER NOT NULL DEFAULT -1"
 			+ ");";
 		//TODO: NOT NULL
 	//+ COLUMN_NOTIFICATIONACTIVE + " INTEGER, "
