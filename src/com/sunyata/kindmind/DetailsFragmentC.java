@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.DialogFragment;
 import android.app.Fragment;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -34,13 +37,24 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 	private Button mDeleteButton;
 	private ItemM refListDataItem;
 	private ListTypeM refListType;
-	private Button mFileChooserButton;
+	private Button mImageFileChooserButton;
+	private Button mAudioFileChooserButton;
+	private Button mVideoFileChooserButton;
+	private Button mCustomFileChooserButton;
+	private Button mContactChooserButton;
+	private Button mBookmarkChooserButton;
 	private CheckBox mNotificationCheckBox;
 	private Button mTimePickerButton;
 	
 	private Uri refItemUri; //Used to identify the item (table row)
 	
-	static final int REQUEST_FILECHOOSER = 1;
+	
+	static final int REQUEST_IMAGEFILECHOOSER = 11;
+	static final int REQUEST_AUDIOFILECHOOSER = 12;
+	static final int REQUEST_VIDEOFILECHOOSER = 13;
+	static final int REQUEST_CUSTOMFILECHOOSER = 14;
+	static final int REQUEST_CONTACTCHOOSER = 21;
+	static final int REQUEST_BOOKMARKCHOOSER = 31;
 	
 	static Fragment newInstance(Object inAttachedData){
 		Bundle tmpArguments = new Bundle();
@@ -163,21 +177,71 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 		});
 		
 		
-		mFileChooserButton = (Button)v.findViewById(R.id.file_chooser_button);
+		
+		
+		mImageFileChooserButton = (Button)v.findViewById(R.id.image_file_chooser_button);
+		mAudioFileChooserButton = (Button)v.findViewById(R.id.audio_file_chooser_button);
+		mVideoFileChooserButton = (Button)v.findViewById(R.id.video_file_chooser_button);
+		mCustomFileChooserButton = (Button)v.findViewById(R.id.custom_file_chooser_button);
+		mContactChooserButton = (Button)v.findViewById(R.id.contact_chooser_button);
+		mBookmarkChooserButton = (Button)v.findViewById(R.id.bookmark_chooser_button);
+		
 		if(refListType != ListTypeM.KINDNESS){
-			//Only show this button for the strategies
-			mFileChooserButton.setVisibility(View.GONE);
+			mImageFileChooserButton.setVisibility(View.GONE);
+			mAudioFileChooserButton.setVisibility(View.GONE);
+			mVideoFileChooserButton.setVisibility(View.GONE);
+			mCustomFileChooserButton.setVisibility(View.GONE);
+			mContactChooserButton.setVisibility(View.GONE);
+			mBookmarkChooserButton.setVisibility(View.GONE);
 		}
-		mFileChooserButton.setOnClickListener(new OnClickListener() {
+		
+		mCustomFileChooserButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(getActivity(), FileChooserActivityC.class);
-				//intent.putExtra(ListFragmentC.EXTRA_LIST_DATA_ITEM_ID, refListDataItem.getId()); //Extracted in FileChooserFragmentC
 				intent.putExtra(ListFragmentC.EXTRA_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
-				startActivityForResult(intent, REQUEST_FILECHOOSER); //Calling FileChooserActivityC
+				startActivityForResult(intent, REQUEST_CUSTOMFILECHOOSER); //Calling FileChooserActivityC
 			}
 		});
 
+		mImageFileChooserButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent tmpIntent = new Intent(
+						Intent.ACTION_PICK,
+						android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+				startActivityForResult(tmpIntent, REQUEST_IMAGEFILECHOOSER);
+			}
+		});
+		
+		//TODO: Audio
+		
+		//TODO: Video
+		
+		mContactChooserButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent tmpIntent = new Intent(
+						Intent.ACTION_PICK,
+						ContactsContract.Contacts.CONTENT_URI);
+				startActivityForResult(tmpIntent, REQUEST_CONTACTCHOOSER);
+			}
+		});
+		
+		mBookmarkChooserButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				/*
+				Intent tmpIntent = new Intent(
+						Intent.ACTION_PICK,
+						android.provider.Browser.BOOKMARKS_URI);
+						*/
+				Intent tmpIntent = new Intent(Intent.ACTION_PICK);
+				//tmpIntent.setComponent(new ComponentName("com.android.browser","com.android.browser.BrowserBookmarksPage"));
+				startActivityForResult(tmpIntent, REQUEST_BOOKMARKCHOOSER);
+			}
+		});
+		
 
 		mNotificationCheckBox = (CheckBox)v.findViewById(R.id.notification_checkbox);
 		if(refListType != ListTypeM.KINDNESS){
@@ -259,25 +323,41 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 	@Override
 	public void onActivityResult(int inRequestCode, int inResultCode, Intent inIntent){
 		
-		if(inRequestCode == REQUEST_FILECHOOSER){
-
-			if(inResultCode == Activity.RESULT_OK){
-				String tmpReturnValueFromFileChooserFragment =
-						inIntent.getStringExtra(FileChooserListFragmentC.EXTRA_RETURN_VALUE_FROM_FILE_CHOOSER_FRAGMENT);
-				
-				Log.i(Utils.getClassName(),
-						"tmpReturnValueFromFileChooserFragment = " + tmpReturnValueFromFileChooserFragment);
-				
-				ContentValues tmpContentValues = new ContentValues();
-				tmpContentValues.put(ItemTableM.COLUMN_FILEORDIRPATH, tmpReturnValueFromFileChooserFragment);
-				getActivity().getContentResolver().update(refItemUri, tmpContentValues, null, null);
-				
-			}else{
-				Log.w(Utils.getClassName(),"Warning in onActivityResult(): inResultCode was not RESULT_OK");
-			}
-
+		String tmpFilePath = "";
+		
+		if(inResultCode != Activity.RESULT_OK){
+			Log.w(Utils.getClassName(),"Warning in onActivityResult(): inResultCode was not RESULT_OK");
+			return;
 		}
 		
+		switch(inRequestCode){
+		case REQUEST_IMAGEFILECHOOSER:
+			tmpFilePath = Utils.getFilePathFromIntent(getActivity(), inIntent);
+			break;
+		case REQUEST_AUDIOFILECHOOSER:
+			tmpFilePath = Utils.getFilePathFromIntent(getActivity(), inIntent);
+			break;
+		case REQUEST_VIDEOFILECHOOSER:
+			tmpFilePath = Utils.getFilePathFromIntent(getActivity(), inIntent);
+			break;
+		case REQUEST_CUSTOMFILECHOOSER:
+			tmpFilePath = inIntent.getStringExtra(FileChooserFragmentC.EXTRA_RETURN_VALUE_FROM_FILE_CHOOSER_FRAGMENT);
+			//Log.i(Utils.getClassName(),"tmpReturnValueFromFileChooserFragment = " + tmpReturnValueFromFileChooserFragment);
+			break;
+		case REQUEST_CONTACTCHOOSER:
+			
+			break;
+		case REQUEST_BOOKMARKCHOOSER:
+			
+			break;
+		}
+		
+		if(tmpFilePath != ""){
+			ContentValues tmpContentValues = new ContentValues();
+			tmpContentValues.put(ItemTableM.COLUMN_FILEORDIRPATH, tmpFilePath);
+			getActivity().getContentResolver().update(refItemUri, tmpContentValues, null, null);
+		}
+			
 	}
 	
     @Override

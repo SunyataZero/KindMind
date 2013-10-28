@@ -16,12 +16,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class FileChooserListFragmentC extends ListFragment {
+public class FileChooserFragmentC extends ListFragment {
 	
 	static final String EXTRA_RETURN_VALUE_FROM_FILE_CHOOSER_FRAGMENT = "RETURN_VALUE_FROM_FILECHOOSERFRAGMENT";
 	
-	public static FileChooserListFragmentC newInstance(){
-		FileChooserListFragmentC retListFragment = new FileChooserListFragmentC();
+	public static FileChooserFragmentC newInstance(){
+		FileChooserFragmentC retListFragment = new FileChooserFragmentC();
 		return retListFragment;
 	}
 	

@@ -10,7 +10,9 @@ public class FileChooserActivityC extends SingleFragmentActivityC {
 	//The onCreate method in the parent (SingleFragmentActivityC) calls createFragment
 	@Override
 	Fragment createFragment(Object inAttachedData){
-		refFragment = (Fragment)FileChooserListFragmentC.newInstance(); //Attached data is not used in this subclass
+		refFragment = (Fragment)FileChooserFragmentC.newInstance(); //Attached data is not used in this subclass
 		return refFragment;
 	}
+	
+	
 }

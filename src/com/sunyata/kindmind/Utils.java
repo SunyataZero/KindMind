@@ -4,8 +4,12 @@ import java.math.BigDecimal;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import com.sunyata.kindmind.contentprovider.ListContentProviderM;
@@ -84,7 +88,18 @@ public class Utils {
 				"Added " + inColumnName + " with type " + inListType.toString() + " to the database");
 	}
 	
-	
-	
-	
+	static String getFilePathFromIntent(Context inContext, Intent inIntent){
+		Uri tmpUri = inIntent.getData();
+		String retFilePath = "";
+		Cursor tmpCursor = null;
+		try{
+			tmpCursor = inContext.getContentResolver().query(tmpUri, null, null, null, null);
+			tmpCursor.moveToFirst();
+			retFilePath = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+		}finally{
+			tmpCursor.close();
+		}
+		return retFilePath;
+	}
+
 }
