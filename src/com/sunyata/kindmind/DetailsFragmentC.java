@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
@@ -55,6 +56,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 	static final int REQUEST_CUSTOMFILECHOOSER = 14;
 	static final int REQUEST_CONTACTCHOOSER = 21;
 	static final int REQUEST_BOOKMARKCHOOSER = 31;
+	private static final String EXTRA_RETURN_VALUE_FROM_EXTERNAL_CONTACT_CHOOSER = "asdf";
 	
 	static Fragment newInstance(Object inAttachedData){
 		Bundle tmpArguments = new Bundle();
@@ -231,14 +233,9 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 		mBookmarkChooserButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				/*
-				Intent tmpIntent = new Intent(
-						Intent.ACTION_PICK,
-						android.provider.Browser.BOOKMARKS_URI);
-						*/
-				Intent tmpIntent = new Intent(Intent.ACTION_PICK);
-				//tmpIntent.setComponent(new ComponentName("com.android.browser","com.android.browser.BrowserBookmarksPage"));
-				startActivityForResult(tmpIntent, REQUEST_BOOKMARKCHOOSER);
+				Intent intent = new Intent(getActivity(), BookmarkChooserActivityC.class);
+				intent.putExtra(ListFragmentC.EXTRA_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
+				startActivityForResult(intent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
 			}
 		});
 		
@@ -278,31 +275,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 		
 		return v;
 	}
-	private void fillDataFromContentProvider(){
 
-		String[] tmpProjection = {ItemTableM.COLUMN_LISTTYPE, ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_NOTIFICATION};
-		Cursor tmpCursor = getActivity().getApplicationContext().getContentResolver().query(refItemUri, tmpProjection, null, null, null);
-		
-		boolean tmpCursorIsNotEmpty = tmpCursor.moveToFirst();
-		if(!tmpCursorIsNotEmpty){
-			Log.e(Utils.getClassName(), "Error in method fillDataFromContentProvider: Cursor is empty");
-			getActivity().finish();
-			return;
-		}
-
-		refListType = ListTypeM.valueOf(
-				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_LISTTYPE)));
-
-		mItemEditText.setText(
-				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME)));
-
-		long tmpNotificationTwoInOne = Integer.parseInt(
-				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION)));
-		mNotificationCheckBox.setChecked(tmpNotificationTwoInOne != -1);
-		
-		//2nd value not used yet, but may be in the future
-		
-	}
 	@Override
 	public void fireOnTimeSetEvent(int inHourOfDay, int inMinute) {
 		refListDataItem.setUserTime(inHourOfDay, inMinute);
@@ -341,14 +314,41 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 			tmpFilePath = Utils.getFilePathFromIntent(getActivity(), inIntent);
 			break;
 		case REQUEST_CUSTOMFILECHOOSER:
-			tmpFilePath = inIntent.getStringExtra(FileChooserFragmentC.EXTRA_RETURN_VALUE_FROM_FILE_CHOOSER_FRAGMENT);
+			tmpFilePath = inIntent.getStringExtra(
+					FileChooserFragmentC.EXTRA_RETURN_VALUE_FROM_FILE_CHOOSER_FRAGMENT);
 			//Log.i(Utils.getClassName(),"tmpReturnValueFromFileChooserFragment = " + tmpReturnValueFromFileChooserFragment);
 			break;
 		case REQUEST_CONTACTCHOOSER:
 			
+			//Uri tmpReturnedUri = inIntent.getData().getPath();
+			//String tmpReturnedUriAsStringPath = inIntent.getData().getPath();
+			//String[] tmpProjection = new String[] {ContactsContract.Contacts.};
+			/*
+			 * tmpFilePath = inIntent.getStringExtra(
+			 * DetailsFragmentC.EXTRA_RETURN_VALUE_FROM_EXTERNAL_CONTACT_CHOOSER);
+			 */
+			
+			/*
+			 * Alternative solution:
+			 * http://stackoverflow.com/questions/4275167/how-to-open-a-contact-card-in-android-by-id
+			 */
+			
+			Cursor tmpCursor = getActivity().getContentResolver().query(
+					inIntent.getData(), null, null, null, null);
+			if(tmpCursor.getCount() == 0){
+				tmpCursor.close();
+				return;
+			}
+			tmpCursor.moveToFirst();
+			Uri tmpLookupUri = Uri.withAppendedPath(
+					Contacts.CONTENT_LOOKUP_URI,
+					tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ContactsContract.Contacts.LOOKUP_KEY)));
+			tmpFilePath = tmpLookupUri.toString();
+			tmpCursor.close();
 			break;
 		case REQUEST_BOOKMARKCHOOSER:
-			
+			tmpFilePath = inIntent.getStringExtra(
+					BookmarkChooserFragmentC.EXTRA_RETURN_VALUE_FROM_BOOKMARK_CHOOSER_FRAGMENT);
 			break;
 		}
 		
@@ -367,42 +367,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     	super.onDestroy();
     	Log.d(Utils.getClassName(), Utils.getMethodName());
     }
-    @Override
-    public void onResume(){
-    	super.onResume();
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
-    }
-    @Override
-    public void onStart(){
-    	super.onStart();
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
-    }
-    @Override
-    public void onStop(){
-    	super.onStop();
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
-    }
-    @Override
-    public void onDestroyView(){
-    	super.onDestroyView();
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
-    }
-    @Override
-    public void onActivityCreated(Bundle inSavedInstanceState){
-    	super.onActivityCreated(inSavedInstanceState);
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
-    }
-    @Override
-    public void onAttach(Activity inActivity){
-    	super.onAttach(inActivity);
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
-    }
-    @Override
-    public void onDetach(){
-    	super.onDetach();
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
-    }
-    
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem inMenuItem){
 		switch (inMenuItem.getItemId()){

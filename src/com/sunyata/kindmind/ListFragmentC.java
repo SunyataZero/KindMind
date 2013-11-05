@@ -70,18 +70,13 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	@Override
 	public android.support.v4.content.Loader<Cursor> onCreateLoader(int inId, Bundle inArguments) {
 
-		//TODO: Update?
-		
-		//refListType = ListTypeM.valueOf(getArguments().getString(EXTRA_LIST_TYPE));
-		
 		String[] tmpProjection = {ItemTableM.COLUMN_ID, ItemTableM.COLUMN_NAME};
 		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
 		String[] tmpSelectionArguments = {refListType.toString()};
 		CursorLoader retCursorLoader = new CursorLoader(
-				getActivity(), ListContentProviderM.CONTENT_URI, tmpProjection,
-				tmpSelection, tmpSelectionArguments, null);
-		//selection, selectionargs, sortorder
-		
+				getActivity(), ListContentProviderM.CONTENT_URI,
+				tmpProjection, tmpSelection, tmpSelectionArguments, null);
+
 		return retCursorLoader;
 	}
 
@@ -157,21 +152,21 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	
 
 		switch(refListType){
-		case SPECEV:
+		case EVENT:
 			setToastBehaviour(new NoToast());
-			setKindActionBehaviour(new OnlyTitleKindAction());
+			setKindActionBehaviour(new OnlyTitleKindActionBehaviour());
 			break;
 		case SUFFERING:
 			setToastBehaviour(new FeelingsToast());
-			setKindActionBehaviour(new OnlyTitleKindAction());
+			setKindActionBehaviour(new OnlyTitleKindActionBehaviour());
 			break;
 		case NEEDS:
 			setToastBehaviour(new NeedsToast());
-			setKindActionBehaviour(new OnlyTitleKindAction());
+			setKindActionBehaviour(new OnlyTitleKindActionBehaviour());
 			break;
 		case KINDNESS:
 			setToastBehaviour(new NoToast());
-			setKindActionBehaviour(new ImageKindAction());
+			setKindActionBehaviour(new MediaFileKindActionBehaviour());
 			break;
 		default:Log.e(Utils.getClassName() ,"Error in onCreate: ListType not covered by switch statement");
 		}
@@ -179,31 +174,11 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
     }
     @Override
-    public void onPause(){
-    	super.onPause();
-    	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
-    }
-    @Override
-    public void onStart(){
-    	super.onStart();
-    	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
-    }
-    @Override
-    public void onStop(){
-    	super.onStop();
-    	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
-    }
-    @Override
     public View onCreateView(LayoutInflater inInflater, ViewGroup inContainer, Bundle inSavedinstanceState){
     	View retView = super.onCreateView(inInflater, inContainer, inSavedinstanceState);
     	
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     	return retView;
-    }
-    @Override
-    public void onDestroyView(){
-    	super.onDestroyView();
-    	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     }
 	//We get to onActivityCreated after onAttach and onCreateView.
     //Alternatively after onAttach, onCreate and onCreateView
@@ -252,19 +227,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 						tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));
 				mKindActionBehaviour.kindAction(tmpFilePath);
 				
-				/*
-				boolean tmpWasChecked = refListData.getItem(mPosition).isActive();
-				boolean tmpIsChecked = !tmpWasChecked;
-
-				((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox)).setChecked(tmpIsChecked);
-				refListData.getItem(mPosition).setActive(tmpIsChecked);
-				
-				mToastBehaviour.toast();
-				
-				mKindActionBehaviour.kindAction(refListData.getItem(mPosition).getActionFilePath());
-				
-				((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
-				*/
 			}
     	});
     }
@@ -567,7 +529,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		mKindActionBehaviour = inKindActionBehaviour;
 	}
 	
-	class ImageKindAction implements KindActionBehaviour{
+	class MediaFileKindActionBehaviour implements KindActionBehaviour{
 		@Override
 		public void kindAction(String inKindActionFilePath) {
 			Log.i(Utils.getClassName(), "inKindActionFilePath = " + inKindActionFilePath);
@@ -575,20 +537,18 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			if(inKindActionFilePath == ""){
 				return;
 			}else{
-				
 				File tmpFileOrDirectoryFromString = new File(inKindActionFilePath);
-				//tmpIntent.putExtra(Intent.EXTRA_TEXT, "test text using EXTRA_TEXT");
 				
 				Log.i(Utils.getClassName(), "tmpFileOrDirectoryFromString.isDirectory() = "
 						+ tmpFileOrDirectoryFromString.isDirectory());
 				if(tmpFileOrDirectoryFromString.isDirectory()){
 					this.doRandomKindActionFromSetOfFiles(tmpFileOrDirectoryFromString);
 				}else{
-					this.doKindAction(tmpFileOrDirectoryFromString);
+					this.doKindAction(inKindActionFilePath);
 				}
 			}
 		}
-		private void doKindAction(File inFileFromString){
+		private void doKindAction(String inFileFromString){
 			Log.i(Utils.getClassName(), "inFileFromString = " + inFileFromString);
 			
 			/*
@@ -598,69 +558,88 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			*/
 
 			AudioManager tmpAudioManager = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
-
 			String tmpTypeString = "*/*";
 			
-			if(
-					inFileFromString.toString().endsWith(".jpg")||
-					inFileFromString.toString().endsWith(".jpeg")||
-					inFileFromString.toString().endsWith(".png")||
-					inFileFromString.toString().endsWith(".gif")){
-				tmpTypeString = "image/*";
-			}else if(
-					inFileFromString.toString().endsWith(".ogg")||
-					inFileFromString.toString().endsWith(".mp3")){
+			Intent tmpIntent;
+			Uri tmpUri;
+			File tmpFileOrDirectoryFromString;
+			
+			if(inFileFromString.toString().startsWith("content://")){ //==========Contacts==========
+				
+				tmpIntent = new Intent(Intent.ACTION_VIEW);
+				tmpUri = Uri.parse(inFileFromString);
+				//tmpIntent.setData(tmpUri); //doesn't work
+				tmpIntent.setDataAndType(tmpUri, tmpTypeString);
+				//-NOTE: THIS IS OK, BUT SPLITTING DATA AND TYPE DOES NOT WORK
 
-				if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
-					/*
+			}else if(inFileFromString.toString().startsWith("http://")){
+
+				tmpIntent = new Intent(Intent.ACTION_VIEW);
+				tmpUri = Uri.parse(inFileFromString);
+				//tmpIntent.setData(tmpUri); //doesn't work
+				tmpIntent.setDataAndType(tmpUri, tmpTypeString);
+				//-NOTE: THIS IS OK, BUT SPLITTING DATA AND TYPE DOES NOT WOR
+				
+			}else{ //==========Media files==========
+
+				tmpFileOrDirectoryFromString = new File(inFileFromString);
+				
+				if(
+						inFileFromString.toString().endsWith(".jpg")||
+						inFileFromString.toString().endsWith(".jpeg")||
+						inFileFromString.toString().endsWith(".png")||
+						inFileFromString.toString().endsWith(".gif")){
+					tmpTypeString = "image/*";
+				}else if(
+						inFileFromString.toString().endsWith(".ogg")||
+						inFileFromString.toString().endsWith(".mp3")){
+
+					if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
+						/*
 					isWiredHeadsetOn is used even though it is deprecated:
 					"
 					This method was deprecated in API level 14.
 					Use only to check is a headset is connected or not.
 					"
 					http://stackoverflow.com/questions/2764733/android-checking-if-headphones-are-plugged-in
-					 */
-					
-					Log.w(Utils.getClassName(),
-							"Not playing audio since headset is not connected or speaker phone is on");
-					Toast.makeText(
-							getActivity(),
-							"Not playing audio since headset is not connected or speaker phone is on",
-							Toast.LENGTH_LONG)
-									.show();
-					return;
-				}
-				
-				tmpTypeString = "audio/*";
-				
-			}else if(
-					inFileFromString.toString().endsWith(".mp4")||
-					inFileFromString.toString().endsWith(".avi")){
-				
-				if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
-					Log.w(Utils.getClassName(),
-							"Not playing video since headset is not connected or speaker phone is on");
-					Toast.makeText(
-							getActivity(),
-							"Not playing video since headset is not connected or speaker phone is on",
-							Toast.LENGTH_LONG)
-									.show();
-					return;
-				}
+						 */
+						Toast.makeText(
+								getActivity(),
+								"Not playing audio since headset is not connected or speaker phone is on",
+								Toast.LENGTH_LONG)
+								.show();
+						return;
+					}
 
+					tmpTypeString = "audio/*";
+
+				}else if(
+						inFileFromString.toString().endsWith(".mp4")||
+						inFileFromString.toString().endsWith(".avi")){
+					if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
+						Toast.makeText(
+								getActivity(),
+								"Not playing video since headset is not connected or speaker phone is on",
+								Toast.LENGTH_LONG)
+								.show();
+						return;
+					}
+
+					tmpTypeString = "video/*";
+
+				}else{
+					//Continue with "*/*"
+				}
 				
-				tmpTypeString = "video/*";
+				tmpIntent = new Intent(Intent.ACTION_VIEW);
+				tmpUri = Uri.fromFile(tmpFileOrDirectoryFromString);
+				//tmpIntent.setData(tmpUri); //doesn't work
+				tmpIntent.setDataAndType(tmpUri, tmpTypeString);
+				//-NOTE: THIS IS OK, BUT SPLITTING DATA AND TYPE DOES NOT WORK
 				
-			}else{
-				//do nothing, meaning that we will continue with "*/*"
 			}
 			
-			Intent tmpIntent = new Intent(Intent.ACTION_VIEW);
-			Uri tmpUri = Uri.fromFile(inFileFromString);
-			//tmpIntent.setData(tmpUri); //doesn't work
-			tmpIntent.setDataAndType(tmpUri, tmpTypeString);
-			//-NOTE: THIS IS OK, BUT NOT WHEN SPLITTING DATA AND TYPE
-			
+
 			/*
 			TODO:
 			choice of file
@@ -674,13 +653,14 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			List<ResolveInfo> tmpListOfAllPosibleAcitivtiesForStarting =
 					tmpPackageManager.queryIntentActivities(tmpIntent, 0);
 			if(tmpListOfAllPosibleAcitivtiesForStarting.size() > 0){
+				//===================Starting the activity===================
 				getActivity().startActivity(tmpIntent);
 			}else{
 				Toast.makeText(getActivity(),
 						"Currently no app supports this file type on this device, " +
 						"please install an app that supports this operation",
 						Toast.LENGTH_LONG)
-						.show();
+								.show();
 			}
 		}
 		private void doRandomKindActionFromSetOfFiles(File inDirectoryFromString){
@@ -694,11 +674,11 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			File tmpRandomlyGivenFile = new File(
 					inDirectoryFromString + "/"
 					+ tmpListOfFilesInDirectory[tmpRandomNumber]);
-			this.doKindAction(tmpRandomlyGivenFile);
+			this.doKindAction(tmpRandomlyGivenFile.toString());
 		}
 	}
 	
-	class OnlyTitleKindAction implements KindActionBehaviour{
+	class OnlyTitleKindActionBehaviour implements KindActionBehaviour{
 		@Override
 		public void kindAction(String inKindActionFilePath) {
 			//do nothing

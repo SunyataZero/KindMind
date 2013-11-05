@@ -233,7 +233,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         public Object instantiateItem (ViewGroup container, int position){
         	switch(position){
         	case 0:
-        		mObservationListFragment = ListFragmentC.newInstance(ListTypeM.SPECEV,
+        		mObservationListFragment = ListFragmentC.newInstance(ListTypeM.EVENT,
         				(MainActivityCallbackListenerI)MainActivityC.this);
         		//((DataAdapter)mSpecEvListFragment.getListAdapter()).notifyDataSetChanged();
         		break;
@@ -306,7 +306,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 
 		//Setting the name and updating
 		switch(inListType){
-		case SPECEV:
+		case EVENT:
 			setTitle(R.string.events_top_title);
 			updateFragmentList(mObservationListFragment);
 			break;

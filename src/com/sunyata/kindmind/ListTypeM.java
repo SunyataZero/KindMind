@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import android.util.Log;
 
 enum ListTypeM{
-	SPECEV		(0),
+	EVENT		(0),
 	SUFFERING	(1),
 	//HAPPINESS	(1),
 	NEEDS		(2),
@@ -21,7 +21,7 @@ enum ListTypeM{
 	public static ArrayList<ListTypeM> getEnumListByLevel(int inLevel){
 		ArrayList<ListTypeM> retArrayList = new ArrayList<ListTypeM>();
 		switch(inLevel){
-		case 0: retArrayList.add(ListTypeM.SPECEV); break;
+		case 0: retArrayList.add(ListTypeM.EVENT); break;
 		case 1: retArrayList.add(ListTypeM.SUFFERING); break;//retArrayList.add(ListTypeM.HAPPINESS);
 		case 2: retArrayList.add(ListTypeM.NEEDS); break;
 		case 3: retArrayList.add(ListTypeM.KINDNESS); break;

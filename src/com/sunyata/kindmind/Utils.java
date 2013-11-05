@@ -69,7 +69,7 @@ public class Utils {
 		
     	ContentValues tmpContentValuesToInsert;
 
-    	createStartupItem(inContext, ListTypeM.SPECEV, "Negative thinking");
+    	createStartupItem(inContext, ListTypeM.EVENT, "Negative thinking");
     	createStartupItem(inContext, ListTypeM.SUFFERING, "Tired");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Rest");
     	createStartupItem(inContext, ListTypeM.KINDNESS, "Napping");
