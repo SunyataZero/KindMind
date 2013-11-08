@@ -1,10 +1,11 @@
 package com.sunyata.kindmind;
 
+import java.util.Calendar;
+
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.DialogFragment;
 import android.app.Fragment;
-import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -12,7 +13,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
-import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -36,7 +36,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 	
 	private EditText mItemEditText;
 	private Button mDeleteButton;
-	private ItemM refListDataItem;
+	//private ItemM refListDataItem;
 	private ListTypeM refListType;
 	private Button mImageFileChooserButton;
 	private Button mAudioFileChooserButton;
@@ -252,7 +252,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 			}
 		});
 		
-		long tmpNotificationTwoInOne = Integer.parseInt(
+		long tmpNotificationTwoInOne = Long.parseLong(
 				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION)));
 		//-2nd value not used yet, but may be in the future
 		mNotificationCheckBox.setChecked(tmpNotificationTwoInOne != -1);
@@ -278,19 +278,25 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 
 	@Override
 	public void fireOnTimeSetEvent(int inHourOfDay, int inMinute) {
-		refListDataItem.setUserTime(inHourOfDay, inMinute);
+		////refListDataItem.setUserTime(inHourOfDay, inMinute);
+		
+		Calendar c = Calendar.getInstance();
+		c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH),
+				inHourOfDay, inMinute, 0);
+		long tmpTimeInMilliSeconds = c.getTimeInMillis();
+		
+		ContentValues tmpContentValues = new ContentValues();
+		tmpContentValues.put(ItemTableM.COLUMN_NOTIFICATION, tmpTimeInMilliSeconds);
+		getActivity().getContentResolver().update(refItemUri, tmpContentValues, null, null);
+		
 		this.changeNotificationService();
 	}
 	void changeNotificationService(){
-		refListDataItem.setNotificationActive(mNotificationCheckBox.isChecked());
-		
+
 		NotificationServiceC.setServiceNotificationSingle(
 				getActivity().getApplicationContext(),
-				refListDataItem.isNotificationActive(),
-				refListDataItem.getUserTimeInMilliSeconds(),
-				AlarmManager.INTERVAL_DAY,
-				refListDataItem.getId(),
-				refListDataItem.getName());
+				refItemUri,
+				AlarmManager.INTERVAL_DAY);
 	}
 	
 	@Override

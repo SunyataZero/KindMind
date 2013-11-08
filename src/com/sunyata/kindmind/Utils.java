@@ -101,5 +101,26 @@ public class Utils {
 		}
 		return retFilePath;
 	}
+	
+	static boolean isNotificationActive(Context inContext, Uri inItemUri) throws Exception{
+		Cursor tmpCursor = inContext.getContentResolver().query(inItemUri, null, null, null, null);
+		if(tmpCursor.getCount() == 0){
+			tmpCursor.close();
+			throw new Exception("Error in Utils.isNotificationActive: Cursor empty");
+		}
+		tmpCursor.moveToFirst();
+		
+		boolean retItemNotificationIsActive = true;
+		long tmpItemTimeInMilliSeconds = tmpCursor.getLong(
+				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
+		if(tmpItemTimeInMilliSeconds == -1 ){
+			retItemNotificationIsActive = false;
+		}
+		
+		tmpCursor.close();
+		return retItemNotificationIsActive;
+	}
+	
+	
 
 }
