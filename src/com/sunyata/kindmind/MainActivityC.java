@@ -1,12 +1,14 @@
 package com.sunyata.kindmind;
 
 import java.io.File;
+import java.util.Calendar;
 import java.util.Locale;
 
 import android.app.ActionBar;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -19,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sunyata.kindmind.contentprovider.ListContentProviderM;
 
@@ -39,7 +42,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     private ActionBar refActionBar;
     private MyOnNavigationListener mOnNavigationListener;
     private ArrayAdapter<String> mKindMindArrayAdapter;
-    
     
     //------------------------Lifecycle methods, including onCreate
     
@@ -119,7 +121,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	if(Utils.isFirstTimeApplicationStarted(this) == true){
     		Utils.createAllStartupItems(this);
     	}
-
 
     }
     
@@ -219,6 +220,39 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	}
 	
 	
+    @Override
+    public void onSaveInstanceState(Bundle outBundle){
+    	super.onSaveInstanceState(outBundle);
+    	Log.d(Utils.getClassName(), Utils.getMethodName());
+    	
+    	this.savePatternToDatabase();
+    }
+    private void savePatternToDatabase(){
+    	
+		Cursor tmpItemCursor = this.getContentResolver().query(
+				ListContentProviderM.LIST_CONTENT_URI, null, null, null, null);
+		
+		for(tmpItemCursor.moveToFirst(); tmpItemCursor.isAfterLast() == false; tmpItemCursor.moveToNext()){
+		
+			if(Utils.sqlToBoolean(tmpItemCursor, ItemTableM.COLUMN_ACTIVE)){
+
+				//Saving to pattern
+				ContentValues tmpInsertContentValues = new ContentValues();
+				long tmpItemId = tmpItemCursor.getInt(
+						tmpItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
+				tmpInsertContentValues.put(PatternTableM.COLUMN_ITEM_REFERENCE, tmpItemId);
+				tmpInsertContentValues.put(PatternTableM.COLUMN_TIME, Calendar.getInstance().getTimeInMillis());
+				this.getContentResolver().insert(
+						ListContentProviderM.PATTERN_CONTENT_URI, tmpInsertContentValues);
+			}
+		}
+
+		Toast.makeText(this, "KindMind pattern saved", Toast.LENGTH_LONG).show();
+		
+		tmpItemCursor.close();
+    }
+	
+    
 	//-------------------Pager adapter
 	
     /**
@@ -298,12 +332,13 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		//NOTE: CANNOT CALL getListAdapter() ON THE FRAGMENT FROM HERE BECAUSE THE
 		//FRAGMENT'S ONACTIVITYCREATED METHOD HAS NOT SET UP THE FRAGMENT WITH THE ADAPTER.
 
-		//KindModelM.get(getApplicationContext()).loadPatternListsFromJsonFiles();
-		KindModelM.get(getApplicationContext()).updateSortValuesForListType(inListType);
-		//KindModelM.get(getApplicationContext()).getListOfType(inListType).sortWithKindness();
-		//-Sort with Kindness has been chosen here instead of alphabeta since prioritize giving the user
-		// quick access to the most important information
-
+		////////KindModelM.get(getApplicationContext()).updateSortValuesForListType(inListType);
+		//////////KindModelM.get(getApplicationContext()).getListOfType(inListType).sortWithKindness();
+		
+		//Sorting the whole list for all the different types in one go
+		String tmpSortOrder = ItemTableM.COLUMN_KINDSORTVALUE;
+		getContentResolver().query(ListContentProviderM.LIST_CONTENT_URI, null, null, null, tmpSortOrder);
+		
 		//Setting the name and updating
 		switch(inListType){
 		case EVENT:
@@ -374,4 +409,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	public void fireGoLeftmostEvent() {
         mViewPager.setCurrentItem(0, true);
 	}
+}
+
+enum SortTypeM{
+	Kindness,
+	Alphabetical;
 }

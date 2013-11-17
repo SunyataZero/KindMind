@@ -1,12 +1,13 @@
 package com.sunyata.kindmind;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 
 import com.sunyata.kindmind.contentprovider.ListContentProviderM;
@@ -61,8 +62,50 @@ public class KindModelM {
 	
 	//-------------------------Algorithm / update methods
 	
+	//TODO: Change to sort all lists at the same time?
+	
 	//This methods updates the update sort values for each item in the list where we are at the moment
 	void updateSortValuesForListType(ListTypeM inListType){
+
+
+		Cursor tmpItemCursor = mContext.getContentResolver().query(
+				ListContentProviderM.LIST_CONTENT_URI, null, null, null, null);
+
+		Cursor tmpPatternCursor = null;
+		//= mContext.getContentResolver().query(ListContentProviderM.PATTERN_CONTENT_URI, null, null, null, null);
+		int tmpNumberOfMatches = 0;
+		long tmpItemId;
+		String tmpPatternSelection;
+		ContentValues tmpContentValueForUpdate;
+		
+		for(tmpItemCursor.moveToFirst(); tmpItemCursor.isAfterLast() == false; tmpItemCursor.moveToNext()){
+			tmpItemId = tmpItemCursor.getInt(
+					tmpItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
+			tmpPatternSelection = ItemTableM.COLUMN_ID + "=" + "'" + tmpItemId + "'";
+			
+			tmpPatternCursor = mContext.getContentResolver().query(
+					ListContentProviderM.PATTERN_CONTENT_URI, null, tmpPatternSelection, null, null);
+
+			for(tmpPatternCursor.moveToFirst(); tmpPatternCursor.isAfterLast() == false; tmpPatternCursor.moveToNext()){
+				tmpNumberOfMatches++;
+			}
+
+
+			tmpContentValueForUpdate = new ContentValues();
+			tmpContentValueForUpdate.put(ItemTableM.COLUMN_KINDSORTVALUE, tmpNumberOfMatches);
+			Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + tmpItemId);
+			mContext.getContentResolver().update(tmpUri, tmpContentValueForUpdate, null, null);
+
+			/*
+			Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + tmpItemId);
+			ContentValues tmpContentValues = new ContentValues();
+			tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, 1);
+			//-Boolean stored as 0 (false) or 1 (true)
+			mContext.getContentResolver().update(tmpUri, tmpContentValues, null, null);
+			*/
+		}
+		
+
 		
 		/*
 		//Clear all the temporary click values
@@ -123,15 +166,18 @@ public class KindModelM {
 			//If we could find no match for the gui list data item, we simply set the sort value to the click value
 			guiLdi.setTotalSortValue(guiLdi.getTempNumberOfTimesThisItemOccursInListOfPatterns());
 		}
+		
 		*/
+		
+		tmpItemCursor.close();
+		if(tmpPatternCursor != null){
+			tmpPatternCursor.close();
+		}
 	}
-
 	
 	
 	
 	//=======================================MOVED FROM ListDataM=============================================
-	
-	
 	
 	
 	
@@ -268,13 +314,14 @@ public class KindModelM {
 
 
 	//-----------Sorting
-
+/*
 	//Please note that the calculation of the values used for sorting is done in another place
-	/*
 	void sortWithKindness(){
+		
+		mContext.getContentResolver().
+		
 		Collections.sort(mList, new KindComparator());
 	}
-	*/
 	
 	class KindComparator implements Comparator<ItemM>{
 		@Override
@@ -297,7 +344,7 @@ public class KindModelM {
 			}
 		}
 	}
-
+*/
 	/*
 	void sortAlphabetically(){
 		Collections.sort(mList, new AlphaBetaComparator());
@@ -350,7 +397,7 @@ public class KindModelM {
 				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + inListType.toString() + "'";
 		//-Please note that we are adding ' signs around the String
 		Cursor tmpCursor = mContext.getContentResolver().query(
-				ListContentProviderM.CONTENT_URI, null, tmpSelection, null, null);
+				ListContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, null);
 		for(tmpCursor.moveToFirst(); tmpCursor.isAfterLast() == false; tmpCursor.moveToNext()){
 			//add name to return list
 			String tmpStringToAdd = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));

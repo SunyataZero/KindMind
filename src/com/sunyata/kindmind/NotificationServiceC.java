@@ -102,7 +102,7 @@ public class NotificationServiceC extends IntentService {
 		long tmpNotification = -1;
 		Uri tmpItemUri = null;
 		Cursor tmpCursor = inContext.getContentResolver().query(
-				ListContentProviderM.CONTENT_URI, null, null, null, null);
+				ListContentProviderM.LIST_CONTENT_URI, null, null, null, null);
 		if(tmpCursor.getCount() == 0){
 			tmpCursor.close();
 			return;
@@ -110,7 +110,7 @@ public class NotificationServiceC extends IntentService {
 		for(tmpCursor.moveToFirst(); tmpCursor.isAfterLast() == false; tmpCursor.moveToNext()){
 			tmpNotification = tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
 			tmpItemUri = Uri.withAppendedPath(
-					ListContentProviderM.CONTENT_URI,
+					ListContentProviderM.LIST_CONTENT_URI,
 					"/" +
 					(tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID))));
 			if(tmpNotification > -1){

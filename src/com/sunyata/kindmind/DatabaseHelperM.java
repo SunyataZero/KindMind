@@ -10,9 +10,7 @@ import android.util.Log;
 public class DatabaseHelperM extends SQLiteOpenHelper{
 
 	private static final String DATABASE_NAME = "kindmind.db";
-	private static final int DATABASE_VERSION = 7;
-	
-
+	private static final int DATABASE_VERSION = 18;
 	
 	
 	public DatabaseHelperM(Context inContext) {
@@ -22,13 +20,12 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 	@Override
 	public void onCreate(SQLiteDatabase inDatabase) {
 		ItemTableM.onCreate(inDatabase);
+		PatternTableM.onCreate(inDatabase);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
 		ItemTableM.onUpgrade(inDatabase, inOldVersion, inNewVersion);
+		PatternTableM.onUpgrade(inDatabase, inOldVersion, inNewVersion);
 	}
-	
-	
-
 }

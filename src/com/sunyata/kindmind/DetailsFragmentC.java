@@ -201,7 +201,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(getActivity(), FileChooserActivityC.class);
-				intent.putExtra(ListFragmentC.EXTRA_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
+				intent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
 				startActivityForResult(intent, REQUEST_CUSTOMFILECHOOSER); //Calling FileChooserActivityC
 			}
 		});
@@ -234,7 +234,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(getActivity(), BookmarkChooserActivityC.class);
-				intent.putExtra(ListFragmentC.EXTRA_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
+				intent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
 				startActivityForResult(intent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
 			}
 		});
@@ -272,7 +272,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 			}
 		});
 
-		
+		tmpCursor.close();
 		return v;
 	}
 

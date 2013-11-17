@@ -83,7 +83,7 @@ public class Utils {
 		ContentValues tmpContentValuesToInsert = new ContentValues();
     	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LISTTYPE, inListType.toString());
     	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, inColumnName);
-    	inContext.getContentResolver().insert(ListContentProviderM.CONTENT_URI, tmpContentValuesToInsert);
+    	inContext.getContentResolver().insert(ListContentProviderM.LIST_CONTENT_URI, tmpContentValuesToInsert);
 		Log.i(Utils.getClassName(),
 				"Added " + inColumnName + " with type " + inListType.toString() + " to the database");
 	}
@@ -102,25 +102,34 @@ public class Utils {
 		return retFilePath;
 	}
 	
-	static boolean isNotificationActive(Context inContext, Uri inItemUri) throws Exception{
+/*
+	static boolean sqlToBoolean(Context inContext, Uri inItemUri, String inColumn, int inFalseAsInt)
+			throws Exception{
 		Cursor tmpCursor = inContext.getContentResolver().query(inItemUri, null, null, null, null);
 		if(tmpCursor.getCount() == 0){
 			tmpCursor.close();
-			throw new Exception("Error in Utils.isNotificationActive: Cursor empty");
+			throw new Exception("Error in Utils.sqlToBoolean: Cursor empty");
 		}
 		tmpCursor.moveToFirst();
 		
 		boolean retItemNotificationIsActive = true;
 		long tmpItemTimeInMilliSeconds = tmpCursor.getLong(
-				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
-		if(tmpItemTimeInMilliSeconds == -1 ){
+				tmpCursor.getColumnIndexOrThrow(inColumn));
+		if(tmpItemTimeInMilliSeconds == inFalseAsInt ){
 			retItemNotificationIsActive = false;
 		}
 		
 		tmpCursor.close();
 		return retItemNotificationIsActive;
 	}
+	*/
 	
-	
-
+	static boolean sqlToBoolean(Cursor inCursor, String inColumn){
+		long tmpItemIsActiveInteger = inCursor.getLong(inCursor.getColumnIndexOrThrow(inColumn));
+		if(tmpItemIsActiveInteger == 0 ){
+			return false;
+		}else{
+			return true;
+		}
+	}
 }

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants" >
     
     <CheckBox 
         android:id="@+id/list_item_activeCheckBox"
@@ -11,10 +12,12 @@
 	    android:layout_alignParentLeft="true"
 	    android:enabled="true"
 	    android:focusable="false"
+	    android:clickable="false"
 	    android:padding="16dp"
 	    android:layout_marginLeft="8dp"
 	    android:textColorHighlight="#ffffff"
     />
+    <!-- Please note this important property above: android:clickable -->
     <LinearLayout 
         android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
@@ -32,15 +35,13 @@
 		    android:paddingRight="4dp"
 	    />
 	    <TextView 
-	        android:id="@+id/list_item_similarItemsTextView"
+	        android:id="@+id/list_item_tagsTextView"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:textStyle="normal"
-		    android:textSize="0.01sp"
+		    android:textSize="12sp"
 		    android:paddingLeft="4dp"
 		    android:paddingRight="4dp"
 	    /> <!-- NOTE: 12.5sp set in code -->
     </LinearLayout>
-
-    
 </RelativeLayout>

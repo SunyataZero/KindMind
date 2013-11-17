@@ -1,7 +1,6 @@
 package com.sunyata.kindmind;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -29,10 +28,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sunyata.kindmind.contentprovider.ListContentProviderM;
@@ -43,11 +40,11 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	//-------------------Fields and constructor
 	
 	static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
-	static final String EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE";
-	private ListTypeM refListType;
-	private ToastBehaviour mToastBehaviour;
-	private static MainActivityCallbackListenerI mCallbackListener;
-	private KindActionBehaviour mKindActionBehaviour;
+	static final String EXTRA_AND_BUNDLE_LIST_TYPE = "EXTRA_LIST_TYPE";
+	private ListTypeM refListType; //Saved in onSaveInstanceState
+	private ToastBehaviour mToastBehaviour; //Not saved, but set in onResume
+	private static MainActivityCallbackListenerI mCallbackListener; //Does not have to be saved since it's static
+	private KindActionBehaviour mKindActionBehaviour; //Not saved, but set in onResume
 	
 	public static ListFragmentC newInstance(ListTypeM inListType, MainActivityCallbackListenerI inCallbackListener){
 		//Bundle tmpArguments = new Bundle();
@@ -70,15 +67,18 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	@Override
 	public android.support.v4.content.Loader<Cursor> onCreateLoader(int inId, Bundle inArguments) {
 
-		String[] tmpProjection = {ItemTableM.COLUMN_ID, ItemTableM.COLUMN_NAME};
+		String[] tmpProjection = {ItemTableM.COLUMN_ID, ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_TAGS};
 		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
 		String[] tmpSelectionArguments = {refListType.toString()};
+		//-TODO: There is an error here when restarting the app if leaving it for a while 
 		CursorLoader retCursorLoader = new CursorLoader(
-				getActivity(), ListContentProviderM.CONTENT_URI,
+				getActivity(), ListContentProviderM.LIST_CONTENT_URI,
 				tmpProjection, tmpSelection, tmpSelectionArguments, null);
 
 		return retCursorLoader;
 	}
+	
+
 
 
 	@Override
@@ -99,9 +99,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	
 	private void updateListWithNewData(){
-		
-		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME};
-		int[] tmpDatabaseTo = {R.id.list_item_titleTextView};
+		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_TAGS}; //, ItemTableM.COLUMN_TAGS
+		int[] tmpDatabaseTo = {R.id.list_item_titleTextView, R.id.list_item_tagsTextView}; //, R.id.list_item_tagsTextView
 		
 		getLoaderManager().initLoader(0, null, this);
 		//-PLEASE NOTE: using the non-support LoaderManager import gives an error
@@ -117,8 +116,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	//-------------------Lifecycle methods
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState){
-		super.onCreate(savedInstanceState);
+	public void onCreate(Bundle inSavedInstanceState){
+		super.onCreate(inSavedInstanceState);
 		setRetainInstance(true);
 		
 		updateListWithNewData();
@@ -126,6 +125,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		setHasOptionsMenu(true);
 		
 		//refListType = ListTypeM.valueOf(getArguments().getString(EXTRA_LIST_TYPE));
+		if(inSavedInstanceState != null){
+			refListType = ListTypeM.valueOf(inSavedInstanceState.getString(EXTRA_AND_BUNDLE_LIST_TYPE));
+		}
 	}
     //Important: When a new activity is created, this method is called on a physical device, but not on the emulator
     @Override
@@ -194,7 +196,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			@Override
 			public boolean onItemLongClick(AdapterView<?> adapter, View v, int position, long id) {
 
-				Uri tmpUri = Uri.parse(ListContentProviderM.CONTENT_URI + "/" + id);
+				Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + id);
 				Intent intent = new Intent(getActivity(), DetailsActivityC.class);
 				String tmpExtraString = tmpUri.toString();
 				intent.putExtra(EXTRA_ITEM_URI, tmpExtraString); //Extracted in DataDetailsFragmentC
@@ -203,7 +205,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 				return false;
 			}
 		});
-    	
+
     	super.getListView().setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> adapter, View inView, int inPosition, long inId) {
@@ -212,9 +214,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 				
 				tmpCheckBox.toggle();
 
-				Uri tmpUri = Uri.parse(ListContentProviderM.CONTENT_URI + "/" + inId);
+				Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + inId);
 				ContentValues tmpContentValues = new ContentValues();
-				tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpCheckBox.isChecked());
+				tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpCheckBox.isChecked() ? 1 : 0); // ? 1 : 0
 				//-Boolean stored as 0 (false) or 1 (true)
 				getActivity().getContentResolver().update(tmpUri, tmpContentValues, null, null);
 				
@@ -227,11 +229,20 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 						tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));
 				mKindActionBehaviour.kindAction(tmpFilePath);
 				
+				tmpCursor.close();
 			}
     	});
+    	
+    	/*
+    	super.getListView().setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View inView) {
+				Log.e(Utils.getClassName(), Utils.getMethodName());
+			}
+    	});
+    	*/
     }
 
-	
     @Override
     public void onAttach(Activity inActivity){
     	super.onAttach(inActivity);
@@ -242,12 +253,13 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	super.onDetach();
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     }
-    //Please note that the loading is done in onCreate()
+    //Please note that the loading is done in onCreate(), onCreateView() and onActivityCreated()
     @Override
-    public void onSaveInstanceState(Bundle inBundle){
-    	super.onSaveInstanceState(inBundle);
+    public void onSaveInstanceState(Bundle outBundle){
+    	super.onSaveInstanceState(outBundle);
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
-    	//Saving the UI details to a bundle
+    	
+    	outBundle.putString(EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
     }
 
     
@@ -278,7 +290,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LISTTYPE, refListType.toString());
 	    	Uri tmpUriOfNewlyAddedItem =
 	    			getActivity().getContentResolver().insert(
-	    			ListContentProviderM.CONTENT_URI, tmpContentValuesToInsert);
+	    			ListContentProviderM.LIST_CONTENT_URI, tmpContentValuesToInsert);
 	    	//PLEASE NOTE: We use URIs instead of IDs for identifying items (since we don't connect directly to thd DB)
 	    	
 			Intent intent = new Intent(getActivity(), DetailsActivityC.class);
@@ -297,7 +309,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		case R.id.menu_item_clear_all_list_selections:
 			((MainActivityC)getActivity()).clearActivated();
-			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
+			///////////////((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
+			this.getListAdapter().notify();
 			//-Only done for this Fragment but this is the only place where it is necassary since
 			// the others will be updated when the pager page is changed.
 			
@@ -322,39 +335,33 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		
 		case R.id.menu_item_sort_alphabetically:
-			/*
-			KindModelM.get(getActivity()).getListOfType(refListType).sortAlphabetically();
-			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
-			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
-			*/
-			
-			
-			//Add some start data to the database
-	    	ContentValues tmpContentValuesToInsert2 = new ContentValues();
-	    	tmpContentValuesToInsert2.put(ItemTableM.COLUMN_NAME, "name_test_1");
-	    	getActivity().getContentResolver().insert(ListContentProviderM.CONTENT_URI, tmpContentValuesToInsert2);
-	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_LISTTYPE, "feelings");
-	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_ACTIVE, 0);
-	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_FILEORDIRPATH, "/");
-	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_NOTIFICATIONACTIVE, 0);
-	    	//tmpContentValuesToInsert.put(ListTableM.COLUMN_NOTIFICATIONTIME, 0);
 	    	
+			//Sorting the whole list for all the different types in one go
+			Cursor tmpCursorWithAlphaBetaOrdering = getActivity().getContentResolver().query(
+					ListContentProviderM.LIST_CONTENT_URI, null, null, null, ItemTableM.COLUMN_NAME);
+			mCursorAdapter.changeCursor(tmpCursorWithAlphaBetaOrdering);
+			((SimpleCursorAdapter)super.getListAdapter()).notifyDataSetChanged();
 			
+			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
 
-			
+			//Cursor not closed since it's referencing the cursor we use
 			return true;
 			
 		case R.id.menu_item_kindsort:
-			/*
-			KindModelM.get(getActivity()).loadPatternListsFromJsonFiles();
+
 			KindModelM.get(getActivity()).updateSortValuesForListType(refListType);
-			KindModelM.get(getActivity()).getListOfType(refListType).sortWithKindness();
-			//-Refactor: Put the two lines above into one method?
-			((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
+			
+			
+			//Sorting the whole list for all the different types in one go
+			Cursor tmpCursorWithKindSortOrdering = getActivity().getContentResolver().query(
+					ListContentProviderM.LIST_CONTENT_URI, null, null, null, ItemTableM.COLUMN_KINDSORTVALUE);
+			mCursorAdapter.changeCursor(tmpCursorWithKindSortOrdering);
+			((SimpleCursorAdapter)super.getListAdapter()).notifyDataSetChanged();
+			
 			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
-			*/
+
+			//Cursor not closed since it's referencing the cursor we use
 			return true;
-		
 		
 		case R.id.menu_item_save_pattern:
 			//KindModelM.get(getActivity()).savePatternListToJson();
@@ -382,87 +389,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		startActivity(i);
 	}
 	
-	
-	//-------------------Adapter that listens to button clicks
-    
-	/*
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id){
-		
-	}
-	*/
-	
-	
-	class ListFragmentDataAdapterC extends ArrayAdapter<ItemM> {
-		
-		public ListFragmentDataAdapterC(ArrayList<ItemM> inListData){
-			super(getActivity(), android.R.layout.simple_list_item_1, inListData);
-		}
-		
-		@Override
-		public void notifyDataSetChanged(){ //Issue 1: Not called
-			super.notifyDataSetChanged();
-		}
-		
-		//Giving the view for a single list item
-		@Override
-		public View getView(int inPosition, View inConvertView, ViewGroup inParent){
-
-			if (inConvertView == null){
-				inConvertView = getActivity().getLayoutInflater().inflate(R.layout.ofnr_list_item, null);//can pass parent here
-			}
-			
-			ItemM tmpListDataItem = getItem(inPosition);
-
-			CheckBox tmpActiveCheckBox = (CheckBox)inConvertView.findViewById(R.id.list_item_activeCheckBox);
-			tmpActiveCheckBox.setClickable(false); //We handle this ourselves
-			tmpActiveCheckBox.setChecked(tmpListDataItem.isActive());
-			
-			//Setting the on click and on long click listeners for the whole layout
-			inConvertView.setOnClickListener(new CustomOnClickListener(inPosition));
-			//inConvertView.setOnLongClickListener(new CustomOnLongClickListener(inPosition));
-			
-			TextView tmpTitleTextView = (TextView)inConvertView.findViewById(R.id.list_item_titleTextView);
-			String tmpSortValueStringOnlyForDebug = "";
-			if(BuildConfig.DEBUG){
-				tmpSortValueStringOnlyForDebug = " | " + Utils.formatNumber(tmpListDataItem.getTotalSortValue());
-			}
-			tmpTitleTextView.setText(tmpListDataItem.getName() + tmpSortValueStringOnlyForDebug);
-
-			/*
-			TextView tmpSimilarItemsTextView = (TextView)inConvertView.findViewById(R.id.feeling_list_item_similarItemsTextView);
-			tmpSimilarItemsTextView.setText(tmpListDataItem.getSimilar());
-			*/
-			
-			return inConvertView;
-		}
-		private class CustomOnClickListener implements OnClickListener{
-			private int mPosition;
-			public CustomOnClickListener(int inPosition){
-				mPosition = inPosition;
-			}
-
-			@Override
-			public void onClick(View inView) {
-				
-				/*
-				boolean tmpWasChecked = refListData.getItem(mPosition).isActive();
-				boolean tmpIsChecked = !tmpWasChecked;
-
-				((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox)).setChecked(tmpIsChecked);
-				refListData.getItem(mPosition).setActive(tmpIsChecked);
-				
-				mToastBehaviour.toast();
-				
-				mKindActionBehaviour.kindAction(refListData.getItem(mPosition).getActionFilePath());
-				
-				((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
-								 */
-
-			}
-		}
-	}
-
 	
 	//-------------------Toast Behaviour [uses the Strategy pattern]
 	
