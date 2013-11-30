@@ -12,8 +12,17 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 	private static final String DATABASE_NAME = "kindmind.db";
 	private static final int DATABASE_VERSION = 18;
 	
+	private static DatabaseHelperM sDatabaseHelper;
 	
-	public DatabaseHelperM(Context inContext) {
+	//Singelton get method
+	static DatabaseHelperM get(Context inContext){
+		if (sDatabaseHelper == null){
+			sDatabaseHelper = new DatabaseHelperM(inContext.getApplicationContext());
+		}
+		return sDatabaseHelper;
+	}
+	
+	private DatabaseHelperM(Context inContext) {
 		super(inContext, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 

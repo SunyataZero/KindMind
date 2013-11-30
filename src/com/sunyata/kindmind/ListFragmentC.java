@@ -32,7 +32,6 @@ import android.widget.CheckBox;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
-import com.sunyata.kindmind.contentprovider.ListContentProviderM;
 
 public class ListFragmentC extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 //will later on extend an abstract class
@@ -337,8 +336,10 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		case R.id.menu_item_sort_alphabetically:
 	    	
 			//Sorting the whole list for all the different types in one go
+			String tmpSelectionWithAlphaBetaOrdering =
+					ItemTableM.COLUMN_LISTTYPE + "=" + "'" + this.refListType.toString() + "'";
 			Cursor tmpCursorWithAlphaBetaOrdering = getActivity().getContentResolver().query(
-					ListContentProviderM.LIST_CONTENT_URI, null, null, null, ItemTableM.COLUMN_NAME);
+					ListContentProviderM.LIST_CONTENT_URI, null, tmpSelectionWithAlphaBetaOrdering, null, ItemTableM.COLUMN_NAME);
 			mCursorAdapter.changeCursor(tmpCursorWithAlphaBetaOrdering);
 			((SimpleCursorAdapter)super.getListAdapter()).notifyDataSetChanged();
 			
@@ -351,10 +352,12 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
 			KindModelM.get(getActivity()).updateSortValuesForListType(refListType);
 			
-			
 			//Sorting the whole list for all the different types in one go
+			String tmpSelectionWithKindSortOrdering =
+					ItemTableM.COLUMN_LISTTYPE + "=" + "'" + this.refListType.toString() + "'";
 			Cursor tmpCursorWithKindSortOrdering = getActivity().getContentResolver().query(
-					ListContentProviderM.LIST_CONTENT_URI, null, null, null, ItemTableM.COLUMN_KINDSORTVALUE);
+					ListContentProviderM.LIST_CONTENT_URI, null,
+					tmpSelectionWithKindSortOrdering, null, ItemTableM.COLUMN_KINDSORTVALUE);
 			mCursorAdapter.changeCursor(tmpCursorWithKindSortOrdering);
 			((SimpleCursorAdapter)super.getListAdapter()).notifyDataSetChanged();
 			

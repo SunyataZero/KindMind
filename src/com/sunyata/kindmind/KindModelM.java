@@ -7,10 +7,10 @@ import java.util.Locale;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
 
-import com.sunyata.kindmind.contentprovider.ListContentProviderM;
 
 public class KindModelM {
 
@@ -68,6 +68,11 @@ public class KindModelM {
 	void updateSortValuesForListType(ListTypeM inListType){
 
 
+		SQLiteDatabase tmpSQLiteDatabase = DatabaseHelperM.get(mContext).getWritableDatabase();
+				//ListContentProviderM.getDatabaseHelper().getWritableDatabase();
+		tmpSQLiteDatabase.beginTransaction();
+
+
 		Cursor tmpItemCursor = mContext.getContentResolver().query(
 				ListContentProviderM.LIST_CONTENT_URI, null, null, null, null);
 
@@ -77,35 +82,44 @@ public class KindModelM {
 		long tmpItemId;
 		String tmpPatternSelection;
 		ContentValues tmpContentValueForUpdate;
-		
-		for(tmpItemCursor.moveToFirst(); tmpItemCursor.isAfterLast() == false; tmpItemCursor.moveToNext()){
-			tmpItemId = tmpItemCursor.getInt(
-					tmpItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
-			tmpPatternSelection = ItemTableM.COLUMN_ID + "=" + "'" + tmpItemId + "'";
-			
-			tmpPatternCursor = mContext.getContentResolver().query(
-					ListContentProviderM.PATTERN_CONTENT_URI, null, tmpPatternSelection, null, null);
+		Uri tmpUri;
 
-			for(tmpPatternCursor.moveToFirst(); tmpPatternCursor.isAfterLast() == false; tmpPatternCursor.moveToNext()){
-				tmpNumberOfMatches++;
+		try{
+
+			for(tmpItemCursor.moveToFirst(); tmpItemCursor.isAfterLast() == false; tmpItemCursor.moveToNext()){
+				tmpItemId = tmpItemCursor.getInt(
+						tmpItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
+				tmpPatternSelection = ItemTableM.COLUMN_ID + "=" + "'" + tmpItemId + "'";
+
+				tmpPatternCursor = mContext.getContentResolver().query(
+						ListContentProviderM.PATTERN_CONTENT_URI, null, tmpPatternSelection, null, null);
+
+				for(tmpPatternCursor.moveToFirst(); tmpPatternCursor.isAfterLast() == false; tmpPatternCursor.moveToNext()){
+					tmpNumberOfMatches++;
+				}
+
+
+				tmpContentValueForUpdate = new ContentValues();
+				tmpContentValueForUpdate.put(ItemTableM.COLUMN_KINDSORTVALUE, tmpNumberOfMatches);
+				//tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + tmpItemId);
+				//mContext.getContentResolver().update(tmpUri, tmpContentValueForUpdate, null, null);
+				tmpSQLiteDatabase.update(
+						ItemTableM.TABLE_ITEM, tmpContentValueForUpdate, ItemTableM.COLUMN_ID + "=" + tmpItemId, null);
 			}
 
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			tmpSQLiteDatabase.setTransactionSuccessful();
+			tmpSQLiteDatabase.endTransaction();
+			/////TODO: getContext().getContentResolver().notifyChange(tmpUri, null);
 
-			tmpContentValueForUpdate = new ContentValues();
-			tmpContentValueForUpdate.put(ItemTableM.COLUMN_KINDSORTVALUE, tmpNumberOfMatches);
-			Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + tmpItemId);
-			mContext.getContentResolver().update(tmpUri, tmpContentValueForUpdate, null, null);
-
-			/*
-			Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + tmpItemId);
-			ContentValues tmpContentValues = new ContentValues();
-			tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, 1);
-			//-Boolean stored as 0 (false) or 1 (true)
-			mContext.getContentResolver().update(tmpUri, tmpContentValues, null, null);
-			*/
 		}
-		
 
+		tmpItemCursor.close();
+		if(tmpPatternCursor != null){
+			tmpPatternCursor.close();
+		}
 		
 		/*
 		//Clear all the temporary click values
@@ -169,10 +183,7 @@ public class KindModelM {
 		
 		*/
 		
-		tmpItemCursor.close();
-		if(tmpPatternCursor != null){
-			tmpPatternCursor.close();
-		}
+
 	}
 	
 	

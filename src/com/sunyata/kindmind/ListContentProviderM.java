@@ -1,4 +1,4 @@
-package com.sunyata.kindmind.contentprovider;
+package com.sunyata.kindmind;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -12,10 +12,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
-
-import com.sunyata.kindmind.DatabaseHelperM;
-import com.sunyata.kindmind.ItemTableM;
-import com.sunyata.kindmind.PatternTableM;
 
 public class ListContentProviderM extends ContentProvider {
 
@@ -38,7 +34,6 @@ public class ListContentProviderM extends ContentProvider {
 		sUriMatcher.addURI(AUTHORITY, PATTERN_BASE_PATH, PATTERN);
 	}
 	
-	//public
 	public static final Uri LIST_CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + LIST_BASE_PATH);
 	public static final String LIST_CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/list";
 	public static final String LIST_CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/list_item";
@@ -46,11 +41,17 @@ public class ListContentProviderM extends ContentProvider {
 	public static final Uri PATTERN_CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + PATTERN_BASE_PATH);
 	//public static final String PATTERN_CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/pattern";
 	
+	/*
+	//Please note: Not public, only used inside the application
+	static DatabaseHelperM getDatabaseHelper(){
+		return mDatabaseHelper;
+	}
+	*/
 	
 	@Override
 	public boolean onCreate() {
 		
-		mDatabaseHelper = new DatabaseHelperM(getContext());
+		mDatabaseHelper = DatabaseHelperM.get(getContext());
 		
 		return false;
 		//-TODO: Change to true when the provider is working. In the tutorial it is false (why?)
@@ -59,7 +60,7 @@ public class ListContentProviderM extends ContentProvider {
 	
 	
 	@Override
-	synchronized public Cursor query(
+	public Cursor query(
 			Uri inUri, String[] inProjection, String inSelection, String[] inSelectionArgs, String inSortOrder) {
 
 		verifyColumns(inUri, inProjection);
@@ -113,7 +114,7 @@ public class ListContentProviderM extends ContentProvider {
 
 
 	@Override
-	synchronized public Uri insert(Uri inUri, ContentValues inContentValues) {
+	public Uri insert(Uri inUri, ContentValues inContentValues) {
 		
 		SQLiteDatabase tmpSQLiteDatabase = mDatabaseHelper.getWritableDatabase();
 		
@@ -142,7 +143,7 @@ public class ListContentProviderM extends ContentProvider {
 
 	
 	@Override
-	synchronized public int delete(Uri inUri, String inSelection, String[] inSelectionArguments) {
+	public int delete(Uri inUri, String inSelection, String[] inSelectionArguments) {
 
 		SQLiteDatabase tmpSQLiteDatabase = mDatabaseHelper.getWritableDatabase();
 		
@@ -182,7 +183,7 @@ public class ListContentProviderM extends ContentProvider {
 
 
 	@Override
-	synchronized public int update(
+	public int update(
 			Uri inUri, ContentValues inContentValues, String inSelection, String[] inSelectionArguments) {
 		SQLiteDatabase tmpSQLiteDatabase = mDatabaseHelper.getWritableDatabase();
 		

@@ -3,7 +3,6 @@ package com.sunyata.kindmind;
 import java.util.ArrayList;
 import java.util.Date;
 
-import com.sunyata.kindmind.contentprovider.ListContentProviderM;
 
 import android.app.AlarmManager;
 import android.app.IntentService;

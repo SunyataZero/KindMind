@@ -23,7 +23,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.sunyata.kindmind.contentprovider.ListContentProviderM;
 
 public class MainActivityC extends FragmentActivity implements MainActivityCallbackListenerI{
 

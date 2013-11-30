@@ -12,7 +12,6 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.sunyata.kindmind.contentprovider.ListContentProviderM;
 
 public class Utils {
 
