@@ -16,13 +16,13 @@
         android:id="@+id/menu_item_kindsort"
         android:icon="@android:drawable/ic_menu_sort_by_size"
         android:title="@string/sort_by_rank"
-        android:showAsAction="always" />
+        android:showAsAction="ifRoom" />
     
     <item
         android:id="@+id/menu_item_save_pattern"
-        android:icon="@android:drawable/ic_menu_save"
+        android:icon="@android:drawable/ic_cab_done_holo_dark"
         android:title="@string/save_pattern"
-        android:showAsAction="ifRoom" />
+        android:showAsAction="always" />
 
     <item
         android:id="@+id/menu_item_share_experience"
