@@ -9,6 +9,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -23,7 +24,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 public class MainActivityC extends FragmentActivity implements MainActivityCallbackListenerI{
 
 	//------------------------Fields
@@ -33,7 +33,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     private static int sViewPagerPosition;
     //-Important that this is static since the whole instance of the
     // class is recreated when going back from the details screens
-    private ListFragmentC mObservationListFragment;
     private ListFragmentC mFeelingListFragment;
     private ListFragmentC mNeedListFragment;
     private ListFragmentC mKindnessListFragment;
@@ -60,7 +59,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         mViewPager.setAdapter(mSectionsPagerAdapter);
         //mViewPager.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
         mViewPager.setOffscreenPageLimit(0);
-        //-We are using this becase getAdapter sometimes gives null, for more info, see this link:
+        //-Using this becase getAdapter sometimes gives null, for more info, see this link:
         // http://stackoverflow.com/questions/13651262/getactivity-in-arrayadapter-sometimes-returns-null
         //mViewPager.setOffscreenPageLimit(4); //This only partly solves the problem with NPE in onPageScrollStateChanged
 
@@ -135,18 +134,18 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			switch(inItemPosition){
 			case SPINNER_SUFFERING:
 				
-				updateAllFragmentLists();
+				//updateAllFragmentLists();
 				
 				return true;
 			case SPINNER_HAPPINESS:
 				
-				updateAllFragmentLists();
+				//updateAllFragmentLists();
 				
 				return true;
 			case SPINNER_NEUTRAL:
 				
 				
-				updateAllFragmentLists();
+				//updateAllFragmentLists();
 				
 				return true;
 			default:
@@ -224,10 +223,184 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	super.onSaveInstanceState(outBundle);
     	Log.d(Utils.getClassName(), Utils.getMethodName());
     	
-    	this.savePatternToDatabase();
+    	//this.savePatternToDatabase();
     }
-    private void savePatternToDatabase(){
-    	
+
+	
+    
+	//-------------------Pager adapter
+	
+    /**
+     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+     * one of the sections/tabs/pages.
+     */
+    class SectionsPagerAdapter extends FragmentStatePagerAdapter {
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+        @Override
+        public Object instantiateItem (ViewGroup container, int position){
+        	switch(position){
+        	/*
+        	case 0:
+        		mObservationListFragment = ListFragmentC.newInstance(ListTypeM.EVENT,
+        				(MainActivityCallbackListenerI)MainActivityC.this);
+        		//((DataAdapter)mSpecEvListFragment.getListAdapter()).notifyDataSetChanged();
+        		break;
+        	*/
+        	case 0:
+        		mFeelingListFragment = ListFragmentC.newInstance(ListTypeM.SUFFERING,
+        				(MainActivityCallbackListenerI)MainActivityC.this);
+        		//((DataAdapter)mSufferingListFragment.getListAdapter()).notifyDataSetChanged();
+        		break;
+        	case 1:
+        		mNeedListFragment = ListFragmentC.newInstance(ListTypeM.NEEDS,
+        				(MainActivityCallbackListenerI)MainActivityC.this);
+        		//((DataAdapter)mNeedListFragment.getListAdapter()).notifyDataSetChanged();
+        		break;
+        	case 2:
+        		mKindnessListFragment = ListFragmentC.newInstance(ListTypeM.KINDNESS,
+        				(MainActivityCallbackListenerI)MainActivityC.this);
+        		//((DataAdapter)mKindnessListFragment.getListAdapter()).notifyDataSetChanged();
+        		break;
+        	default:
+        		Log.e(Utils.getClassName(), "Error in instantiateItem: Case not covered");
+        		break;
+        	}
+        	
+        	return super.instantiateItem(container, position);
+        }
+        //getItem is called to instantiate the page for the given position.
+        @Override
+        public android.support.v4.app.Fragment getItem(int inPosition) {
+        	switch (inPosition){
+        		//case 0: return mObservationListFragment;
+		    	case 0:	return mFeelingListFragment; //mFeelingListFragment; //Has already been created in the constructor
+				case 1: return mNeedListFragment;
+		    	case 2: return mKindnessListFragment;
+		    	default: Log.e(Utils.getClassName(), "Error in method getItem: case not covered");return null;
+        	}
+        }
+        @Override
+        public int getCount() {
+            return 3;
+        }
+        @Override
+        public CharSequence getPageTitle(int inPosition) {
+            Locale l = Locale.getDefault();
+            switch (inPosition) {
+            	//case 0: return getString(R.string.observations_pager_title).toUpperCase(l);
+                case 0: return getString(R.string.feelings_pager_title).toUpperCase(l);
+                case 1: return getString(R.string.needs_pager_title).toUpperCase(l);
+                case 2: return getString(R.string.requests_pager_title).toUpperCase(l);
+            }
+            return null;
+        }
+    }
+
+    
+    //----------------------Update methods
+    
+	void updateViewPagerView(ListTypeM inListType){
+		//NOTE: CANNOT CALL getListAdapter() ON THE FRAGMENT FROM HERE BECAUSE THE
+		// FRAGMENT'S ONACTIVITYCREATED METHOD HAS NOT SET UP THE FRAGMENT WITH THE ADAPTER.
+
+		////////KindModelM.get(getApplicationContext()).updateSortValuesForListType(inListType);
+		//////////KindModelM.get(getApplicationContext()).getListOfType(inListType).sortWithKindness();
+		
+		//Sorting the whole list for all the different types in one go
+		String tmpSortOrder = ItemTableM.COLUMN_KINDSORTVALUE;
+		getContentResolver().query(ListContentProviderM.LIST_CONTENT_URI, null, null, null, tmpSortOrder);
+		
+		//Setting the name and updating
+		switch(inListType){
+		/*
+		case EVENT:
+			setTitle(R.string.events_top_title);
+			updateFragmentList(mObservationListFragment);
+			break;
+		*/
+		case SUFFERING:
+			setTitle(R.string.suffering_top_title);
+			//updateFragmentList(mFeelingListFragment);
+			//mFeelingListFragment.updateListWithNewData();
+			mFeelingListFragment.restartLoader();
+			break;
+		case NEEDS:
+			setTitle(R.string.needs_top_title);
+			//updateFragmentList(mNeedListFragment);
+			//mNeedListFragment.updateListWithNewData();
+			mNeedListFragment.restartLoader();
+			break;
+		case KINDNESS:
+			setTitle(R.string.strategies_top_title);
+			//updateFragmentList(mKindnessListFragment);
+			//mKindnessListFragment.updateListWithNewData();
+			mKindnessListFragment.restartLoader();
+			break;
+		default:
+			Log.e(Utils.getClassName(), "Error in updateViewPagerView: Case not covered");
+			return;
+		}
+		
+		setTitle(R.string.app_name);
+	}
+    
+	public void clearActivated(){
+		//KindModelM.get(this).clearActivatedForAllLists();
+		
+		ContentValues tmpContentValueForUpdate = new ContentValues();
+		tmpContentValueForUpdate.put(ItemTableM.COLUMN_ACTIVE, 0); //0 means false
+		Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI.toString());
+		this.getContentResolver().update(
+				tmpUri, tmpContentValueForUpdate, null, null);
+	}
+	
+	void updateAllFragmentLists(){
+		updateFragmentList(mFeelingListFragment);
+		updateFragmentList(mNeedListFragment);
+		updateFragmentList(mKindnessListFragment);
+	}
+	ListFragmentC tmpListFragment = null; //Has to be put outside for it to be accessible inside the Runnable
+	private void updateFragmentList(ListFragmentC inListFragment){
+		/*
+		tmpListFragment = inListFragment;
+		if(tmpListFragment == null){
+			return;
+		}
+		if(tmpListFragment.getListAdapter() == null){
+			return;
+		}
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				try{
+					//((ListFragmentDataAdapterC)tmpListFragment.getListAdapter()).notifyDataSetChanged();
+					//tmpListFragment.getListView().invalidateViews();
+					tmpListFragment.updateListWithNewData();
+				}catch(Exception e){
+					Log.w(Utils.getClassName(), "Error in updateFragmentList: " + e.getMessage());
+				}
+			}
+		});
+		tmpListFragment.getListView().setSelectionFromTop(0, 0);
+		*/
+	}
+
+	
+	//----------------------Callback methods
+	
+	@Override
+	public void fireGoLeftmostEvent() {
+        mViewPager.setCurrentItem(0, true);
+	}
+	@Override
+	public void fireUpdateAllListsEvent() {
+		this.clearActivated();
+		//mFeelingListFragment.updateListWithNewData();
+	}
+	@Override
+	public void fireSavePatternEvent() {
 		Cursor tmpItemCursor = this.getContentResolver().query(
 				ListContentProviderM.LIST_CONTENT_URI, null, null, null, null);
 		
@@ -249,168 +422,5 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		Toast.makeText(this, "KindMind pattern saved", Toast.LENGTH_LONG).show();
 		
 		tmpItemCursor.close();
-    }
-	
-    
-	//-------------------Pager adapter
-	
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    class SectionsPagerAdapter extends FragmentStatePagerAdapter {
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-        @Override
-        public Object instantiateItem (ViewGroup container, int position){
-        	switch(position){
-        	case 0:
-        		mObservationListFragment = ListFragmentC.newInstance(ListTypeM.EVENT,
-        				(MainActivityCallbackListenerI)MainActivityC.this);
-        		//((DataAdapter)mSpecEvListFragment.getListAdapter()).notifyDataSetChanged();
-        		break;
-        	case 1:
-        		mFeelingListFragment = ListFragmentC.newInstance(ListTypeM.SUFFERING,
-        				(MainActivityCallbackListenerI)MainActivityC.this);
-        		//((DataAdapter)mSufferingListFragment.getListAdapter()).notifyDataSetChanged();
-        		break;
-        	case 2:
-        		mNeedListFragment = ListFragmentC.newInstance(ListTypeM.NEEDS,
-        				(MainActivityCallbackListenerI)MainActivityC.this);
-        		//((DataAdapter)mNeedListFragment.getListAdapter()).notifyDataSetChanged();
-        		break;
-        	case 3:
-        		mKindnessListFragment = ListFragmentC.newInstance(ListTypeM.KINDNESS,
-        				(MainActivityCallbackListenerI)MainActivityC.this);
-        		//((DataAdapter)mKindnessListFragment.getListAdapter()).notifyDataSetChanged();
-        		break;
-        	default:
-        		Log.e(Utils.getClassName(), "Error in instantiateItem: Case not covered");
-        		break;
-        	}
-        	
-        	return super.instantiateItem(container, position);
-        }
-        //getItem is called to instantiate the page for the given position.
-        @Override
-        public android.support.v4.app.Fragment getItem(int inPosition) {
-        	switch (inPosition){
-        		case 0: return mObservationListFragment;
-		    	case 1:	return mFeelingListFragment; //mFeelingListFragment; //Has already been created in the constructor
-				case 2: return mNeedListFragment;
-		    	case 3: return mKindnessListFragment;
-		    	default: Log.e(Utils.getClassName(), "Error in method getItem: case not covered");return null;
-        	}
-        }
-        @Override
-        public int getCount() {
-            return 4;
-        }
-        @Override
-        public CharSequence getPageTitle(int inPosition) {
-            Locale l = Locale.getDefault();
-            switch (inPosition) {
-            	case 0:
-            		return getString(R.string.observations_pager_title).toUpperCase(l);
-                case 1:
-                    return getString(R.string.feelings_pager_title).toUpperCase(l);
-                case 2:
-                    return getString(R.string.needs_pager_title).toUpperCase(l);
-                case 3:
-                    return getString(R.string.requests_pager_title).toUpperCase(l);
-            }
-            return null;
-        }
-    }
-
-    
-    //----------------------Other methods
-    
-	void updateViewPagerView(ListTypeM inListType){
-		//NOTE: CANNOT CALL getListAdapter() ON THE FRAGMENT FROM HERE BECAUSE THE
-		//FRAGMENT'S ONACTIVITYCREATED METHOD HAS NOT SET UP THE FRAGMENT WITH THE ADAPTER.
-
-		////////KindModelM.get(getApplicationContext()).updateSortValuesForListType(inListType);
-		//////////KindModelM.get(getApplicationContext()).getListOfType(inListType).sortWithKindness();
-		
-		//Sorting the whole list for all the different types in one go
-		String tmpSortOrder = ItemTableM.COLUMN_KINDSORTVALUE;
-		getContentResolver().query(ListContentProviderM.LIST_CONTENT_URI, null, null, null, tmpSortOrder);
-		
-		//Setting the name and updating
-		switch(inListType){
-		case EVENT:
-			setTitle(R.string.events_top_title);
-			updateFragmentList(mObservationListFragment);
-			break;
-		case SUFFERING:
-			setTitle(R.string.suffering_top_title);
-			updateFragmentList(mFeelingListFragment);
-			break;
-		case NEEDS:
-			setTitle(R.string.needs_top_title);
-			updateFragmentList(mNeedListFragment);
-			break;
-		case KINDNESS:
-			setTitle(R.string.strategies_top_title);
-			updateFragmentList(mKindnessListFragment);
-			break;
-		default:
-			Log.e(Utils.getClassName(), "Error in updateViewPagerView: Case not covered");
-			return;
-		}
-		
-		setTitle("KindMind");
 	}
-    
-	public void clearActivated(){
-		//KindModelM.get(this).clearActivatedForAllLists();
-	}
-	
-	public void clearData() { //Called from the test project
-		this.clearActivated();
-		//KindModelM.get(this).clearAllDataLists();
-		updateAllFragmentLists();
-	}
-	void updateAllFragmentLists(){
-		updateFragmentList(mObservationListFragment);
-		updateFragmentList(mFeelingListFragment);
-		updateFragmentList(mNeedListFragment);
-		updateFragmentList(mKindnessListFragment);
-	}
-	ListFragmentC tmpListFragment = null; //Has to be put outside for it to be accessible inside the Runnable
-	private void updateFragmentList(ListFragmentC inListFragment){
-		/*
-		tmpListFragment = inListFragment;
-		if(tmpListFragment == null){
-			return;
-		}
-		if(tmpListFragment.getListAdapter() == null){
-			return;
-		}
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				try{
-					((ListFragmentDataAdapterC)tmpListFragment.getListAdapter()).notifyDataSetChanged();
-					tmpListFragment.getListView().invalidateViews();
-				}catch(Exception e){
-					Log.w(Utils.getClassName(), "Error in updateFragmentList: " + e.getMessage());
-				}
-			}
-		});
-		tmpListFragment.getListView().setSelectionFromTop(0, 0);
-		*/
-	}
-
-	@Override
-	public void fireGoLeftmostEvent() {
-        mViewPager.setCurrentItem(0, true);
-	}
-}
-
-enum SortTypeM{
-	Kindness,
-	Alphabetical;
 }

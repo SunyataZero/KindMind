@@ -20,7 +20,7 @@ public class ListContentProviderM extends ContentProvider {
 	private static final String AUTHORITY = "com.sunyata.kindmind.contentprovider";
 
 	private static final String LIST_BASE_PATH = "list";
-	private static final int LIST = 11;
+	static final int LIST = 11;
 	private static final int LIST_ITEM_ID = 12;
 
 	private static final String PATTERN_BASE_PATH = "pattern";

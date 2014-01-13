@@ -7,23 +7,23 @@
         android:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/menu_item_clear_all_list_selections"
-        android:icon="@drawable/ic_menu_clear_playlist"
-        android:title="@string/clear_all_selections"
-        android:showAsAction="ifRoom" />
-        
-    <item
         android:id="@+id/menu_item_kindsort"
         android:icon="@android:drawable/ic_menu_sort_by_size"
         android:title="@string/sort_by_rank"
-        android:showAsAction="ifRoom" />
+        android:showAsAction="never" />
     
     <item
         android:id="@+id/menu_item_save_pattern"
-        android:icon="@android:drawable/ic_cab_done_holo_dark"
+        android:icon="@drawable/ic_cab_done_holo_dark"
         android:title="@string/save_pattern"
         android:showAsAction="always" />
 
+    <item
+        android:id="@+id/menu_item_clear_all_list_selections"
+        android:icon="@drawable/ic_menu_clear_playlist"
+        android:title="@string/clear_all_selections"
+        android:showAsAction="never" />
+    
     <item
         android:id="@+id/menu_item_share_experience"
         android:icon="@android:drawable/ic_menu_share"

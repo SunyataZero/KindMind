@@ -23,7 +23,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -31,7 +30,6 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CheckBox;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
-
 
 public class ListFragmentC extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 //will later on extend an abstract class
@@ -58,7 +56,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	}
 	
 	
-	
 	//-------------------Methods for LoaderManager.LoaderCallbacks<Cursor>
 	
 	private SimpleCursorAdapter mCursorAdapter;
@@ -76,32 +73,22 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
 		return retCursorLoader;
 	}
-	
-
-
-
 	@Override
 	public void onLoadFinished(android.support.v4.content.Loader<Cursor> inCursorLoader, Cursor inCursor) {
-
 		//TODO: Update?
-
 		mCursorAdapter.swapCursor(inCursor);
-		
 	}
 	@Override
 	public void onLoaderReset(android.support.v4.content.Loader<Cursor> arg0) {
-
 		//TODO: Update?
-		
 		mCursorAdapter.swapCursor(null);
 	}
 	
-	
-	private void updateListWithNewData(){
-		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_TAGS}; //, ItemTableM.COLUMN_TAGS
-		int[] tmpDatabaseTo = {R.id.list_item_titleTextView, R.id.list_item_tagsTextView}; //, R.id.list_item_tagsTextView
+	void fillListWithNewData(){
+		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_TAGS}; //, ItemTableM.COLUMN_ACTIVE
+		int[] tmpDatabaseTo = {R.id.list_item_titleTextView, R.id.list_item_tagsTextView}; //, R.id.list_item_activeCheckBox
 		
-		getLoaderManager().initLoader(0, null, this);
+		getLoaderManager().initLoader(0, null, this); //restartloader
 		//-PLEASE NOTE: using the non-support LoaderManager import gives an error
 		
 		mCursorAdapter = new SimpleCursorAdapter(
@@ -110,6 +97,13 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
 		setListAdapter(mCursorAdapter);
 	}
+	void restartLoader(){
+		//getLoaderManager().restartLoader(0, null, this);
+		//getLoaderManager().initLoader(0, null, this);
+		//mCursorAdapter.notifyDataSetChanged();
+		//setListShown(true);
+		//asdf
+	}
 	
 	
 	//-------------------Lifecycle methods
@@ -117,10 +111,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	@Override
 	public void onCreate(Bundle inSavedInstanceState){
 		super.onCreate(inSavedInstanceState);
+		
 		setRetainInstance(true);
-		
-		updateListWithNewData();
-		
+		fillListWithNewData();
 		setHasOptionsMenu(true);
 		
 		//refListType = ListTypeM.valueOf(getArguments().getString(EXTRA_LIST_TYPE));
@@ -143,20 +136,13 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	super.onResume();
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     	
-    	//this.initialize();
-    	
-    	/*
-    	if(getListAdapter() != null){
-        	((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
-    	}
-    	*/
-    	
-
 		switch(refListType){
+		/*
 		case EVENT:
 			setToastBehaviour(new NoToast());
 			setKindActionBehaviour(new OnlyTitleKindActionBehaviour());
 			break;
+			*/
 		case SUFFERING:
 			setToastBehaviour(new FeelingsToast());
 			setKindActionBehaviour(new OnlyTitleKindActionBehaviour());
@@ -171,8 +157,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			break;
 		default:Log.e(Utils.getClassName() ,"Error in onCreate: ListType not covered by switch statement");
 		}
-
-
     }
     @Override
     public View onCreateView(LayoutInflater inInflater, ViewGroup inContainer, Bundle inSavedinstanceState){
@@ -188,8 +172,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	super.onActivityCreated(inSavedInstanceState);
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     	
-    	this.updateListWithNewData();
-    	
+    	this.fillListWithNewData();
     	
     	super.getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
@@ -231,17 +214,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 				tmpCursor.close();
 			}
     	});
-    	
-    	/*
-    	super.getListView().setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View inView) {
-				Log.e(Utils.getClassName(), Utils.getMethodName());
-			}
-    	});
-    	*/
     }
-
     @Override
     public void onAttach(Activity inActivity){
     	super.onAttach(inActivity);
@@ -276,14 +249,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		switch (inMenuItem.getItemId()){
 		
 		case R.id.menu_item_new_listitem:
-			//ItemM tmpNewListDataItem = new ItemM(refListType);
-			//boolean tmpCreatedSuccessfully = true; //TODO Change
-					//KindModelM.get(getActivity()).getListOfType(refListType).addItem(tmpNewListDataItem, true);
-			/*
-			if(!tmpCreatedSuccessfully){
-				Log.e(Utils.getClassName(), "Error in onOptionsItemSelected: Could not add ListDataItem to list");
-			}
-			*/
 			ContentValues tmpContentValuesToInsert = new ContentValues();
 	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, "no_name_set");
 	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LISTTYPE, refListType.toString());
@@ -294,27 +259,10 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	    	
 			Intent intent = new Intent(getActivity(), DetailsActivityC.class);
 			
-			//mCursorAdapter.getItemId()
-			
 			String tmpExtraString = tmpUriOfNewlyAddedItem.toString();
 			intent.putExtra(EXTRA_ITEM_URI, tmpExtraString);
 			//-Extracted in SingleFragmentActivityC and sent to DataDetailsFragmentC
-			////intent.putExtra(EXTRA_LIST_TYPE, ListTypeM.SUFFERING.toString()); //Extracted in SingleFragmentActivityC
 			startActivityForResult(intent, 0); //Calling DataDetailsActivityC
-			
-			//((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
-			
-			return true;
-		
-		case R.id.menu_item_clear_all_list_selections:
-			((MainActivityC)getActivity()).clearActivated();
-			///////////////((ListFragmentDataAdapterC)getListAdapter()).notifyDataSetChanged();
-			this.getListAdapter().notify();
-			//-Only done for this Fragment but this is the only place where it is necassary since
-			// the others will be updated when the pager page is changed.
-			
-			//Move back to the left-most position
-			mCallbackListener.fireGoLeftmostEvent();
 			
 			return true;
 
@@ -367,7 +315,21 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		
 		case R.id.menu_item_save_pattern:
+			mCallbackListener.fireGoLeftmostEvent();
+			mCallbackListener.fireUpdateAllListsEvent();
+			mCallbackListener.fireSavePatternEvent();
 			//KindModelM.get(getActivity()).savePatternListToJson();
+			return true;
+			
+		case R.id.menu_item_clear_all_list_selections:
+			//-Clears and goes left, but without saving
+			//mCallbackListener.fireGoLeftmostEvent();
+			//mCallbackListener.fireUpdateAllListsEvent();
+			
+			//getLoaderManager().restartLoader(0, null, this);
+			this.fillListWithNewData();
+			mCursorAdapter.notifyDataSetChanged();
+			
 			return true;
 			
 		case R.id.menu_item_send_as_text_current:

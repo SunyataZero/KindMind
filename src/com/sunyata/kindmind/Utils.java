@@ -44,34 +44,38 @@ public class Utils {
 	}
 	
 	
-	//--------------------Other
-	
-	public static String formatNumber(double inValue) {
-		BigDecimal tmpBigDecimal = new BigDecimal(inValue);
-		tmpBigDecimal = tmpBigDecimal.setScale(2, BigDecimal.ROUND_UP);
-		return "" + tmpBigDecimal;
-	}
+	//--------------------Adding new items to the lists
 	
 	public static boolean isFirstTimeApplicationStarted(Context inContext){
 		boolean retVal = PreferenceManager.getDefaultSharedPreferences(inContext).getBoolean(
-				PREF_IS_FIRST_TIME_APP_STARTED, true);
+				PREF_IS_FIRST_TIME_APP_STARTED, true); //Default is true (if no value has been written)
 		return retVal;
 	}
-
-	static String getKindMindDirectory(){
-		return Environment.getExternalStorageDirectory().getAbsolutePath() + "/KindMind";
-		//return Environment.getRootDirectory().getAbsolutePath() + "/KindMind";
-	}
-
 	public static void createAllStartupItems(Context inContext) {
 		// TODO Auto-generated method stub
 		
     	ContentValues tmpContentValuesToInsert;
 
-    	createStartupItem(inContext, ListTypeM.EVENT, "Negative thinking");
+    	createStartupItem(inContext, ListTypeM.SUFFERING, "Sad");
+    	createStartupItem(inContext, ListTypeM.SUFFERING, "Angry");
+    	createStartupItem(inContext, ListTypeM.SUFFERING, "Nervous");
     	createStartupItem(inContext, ListTypeM.SUFFERING, "Tired");
+    	createStartupItem(inContext, ListTypeM.SUFFERING, "Dissapointed");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Rest");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Napping");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Connection");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Peace");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Love");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Sustinence");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Air");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Safety");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Trust");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Understanding");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Freedom");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Creativity");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Contribution");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Fun");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Movement");
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Following the breath");
 		
     	PreferenceManager.getDefaultSharedPreferences(inContext)
     			.edit()
@@ -85,6 +89,20 @@ public class Utils {
     	inContext.getContentResolver().insert(ListContentProviderM.LIST_CONTENT_URI, tmpContentValuesToInsert);
 		Log.i(Utils.getClassName(),
 				"Added " + inColumnName + " with type " + inListType.toString() + " to the database");
+	}
+	
+	
+	//--------------------Other
+	
+	public static String formatNumber(double inValue) {
+		BigDecimal tmpBigDecimal = new BigDecimal(inValue);
+		tmpBigDecimal = tmpBigDecimal.setScale(2, BigDecimal.ROUND_UP);
+		return "" + tmpBigDecimal;
+	}
+
+	static String getKindMindDirectory(){
+		return Environment.getExternalStorageDirectory().getAbsolutePath() + "/KindMind";
+		//return Environment.getRootDirectory().getAbsolutePath() + "/KindMind";
 	}
 	
 	static String getFilePathFromIntent(Context inContext, Intent inIntent){

@@ -98,7 +98,6 @@ public class KindModelM {
 					tmpNumberOfMatches++;
 				}
 
-
 				tmpContentValueForUpdate = new ContentValues();
 				tmpContentValueForUpdate.put(ItemTableM.COLUMN_KINDSORTVALUE, tmpNumberOfMatches);
 				//tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + tmpItemId);
