@@ -15,6 +15,8 @@ import android.util.Log;
 
 public class Utils {
 
+	//TODO: Log
+	
 	public static final String LIST_TYPE = "LIST_TYPE";
 	
 	public static final String PREF_IS_FIRST_TIME_APP_STARTED = "IsFirstTimeApplicationStarted";
@@ -56,11 +58,11 @@ public class Utils {
 		
     	ContentValues tmpContentValuesToInsert;
 
-    	createStartupItem(inContext, ListTypeM.SUFFERING, "Sad");
-    	createStartupItem(inContext, ListTypeM.SUFFERING, "Angry");
-    	createStartupItem(inContext, ListTypeM.SUFFERING, "Nervous");
-    	createStartupItem(inContext, ListTypeM.SUFFERING, "Tired");
-    	createStartupItem(inContext, ListTypeM.SUFFERING, "Dissapointed");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Sad");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Angry");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Nervous");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Tired");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Dissapointed");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Rest");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Connection");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Peace");
@@ -75,7 +77,7 @@ public class Utils {
     	createStartupItem(inContext, ListTypeM.NEEDS, "Contribution");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Fun");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Movement");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Following the breath");
+    	createStartupItem(inContext, ListTypeM.ACTIONS, "Following the breath");
 		
     	PreferenceManager.getDefaultSharedPreferences(inContext)
     			.edit()
@@ -148,5 +150,13 @@ public class Utils {
 		}else{
 			return true;
 		}
+	}
+	
+	static int getListItemCount(Context inContext, ListTypeM inListType){
+		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
+		String[] tmpSelectionArguments = {inListType.toString()};
+		Cursor tmpCursor = inContext.getContentResolver().query(
+				ListContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, null);
+		return tmpCursor.getCount();
 	}
 }

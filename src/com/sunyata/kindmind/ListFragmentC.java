@@ -28,9 +28,49 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CheckBox;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
+/*
+ * Overview: ListFragmentC can show a list of items (each list item corresponding to a row in the SQL database)
+ * 
+ * Details: 
+ * 
+ * Implements: 
+ * 
+ * Extends: 
+ * 
+ * Used in: 
+ * 
+ * Uses app internal: 
+ * 
+ * Uses Android lib: *ListView*, ListFragment, LoaderManager, CursorLoader
+ *  http://developer.android.com/reference/android/widget/ListView.html
+ *  https://developer.android.com/reference/android/support/v4/app/ListFragment.html
+ *  https://developer.android.com/reference/android/support/v4/app/LoaderManager.html
+ *  https://developer.android.com/reference/android/support/v4/content/CursorLoader.html
+ * 
+ * In: 
+ * 
+ * Out: 
+ * 
+ * Does: 
+ * 
+ * Shows user: 
+ * 
+ * Notes: *Support classes are used*
+ *  import android.support.v4.app.ListFragment;
+ *  import android.support.v4.app.LoaderManager;
+ *  import android.support.v4.content.CursorLoader;
+ *  The reason for this is that the ViewPager only is available in a support version and is not compatible
+ *  with other versions
+ * 
+ * Improvements: 
+ * 
+ * Documentation: 
+ * 
+ */
 public class ListFragmentC extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 //will later on extend an abstract class
 	
@@ -38,83 +78,324 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
 	static final String EXTRA_AND_BUNDLE_LIST_TYPE = "EXTRA_LIST_TYPE";
-	private ListTypeM refListType; //Saved in onSaveInstanceState
-	private ToastBehaviour mToastBehaviour; //Not saved, but set in onResume
-	private static MainActivityCallbackListenerI mCallbackListener; //Does not have to be saved since it's static
-	private KindActionBehaviour mKindActionBehaviour; //Not saved, but set in onResume
+	private ListTypeM refListType; //-Saved in onSaveInstanceState
+	private ToastBehaviour mToastBehaviour; //-Not saved, but set in onResume
+	private static MainActivityCallbackListenerI sCallbackListener; //-Does not have to be saved since it's static
+	private ActionBehaviour mActionBehaviour; //-Not saved, but set in onResume
 	
 	public static ListFragmentC newInstance(ListTypeM inListType, MainActivityCallbackListenerI inCallbackListener){
-		//Bundle tmpArguments = new Bundle();
-		//tmpArguments.putString(Utils.LIST_TYPE, inListType.toString());
-		
 		ListFragmentC retListFragment = new ListFragmentC();
 		retListFragment.refListType = inListType;
-		//retListFragment.setArguments(tmpArguments);
-		
-		mCallbackListener = inCallbackListener;
+		sCallbackListener = inCallbackListener;
 		return retListFragment;
 	}
 	
 	
-	//-------------------Methods for LoaderManager.LoaderCallbacks<Cursor>
-	
-	private SimpleCursorAdapter mCursorAdapter;
-	
-	@Override
-	public android.support.v4.content.Loader<Cursor> onCreateLoader(int inId, Bundle inArguments) {
+	//-------------------Adapter
 
-		String[] tmpProjection = {ItemTableM.COLUMN_ID, ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_TAGS};
+	public class CustomCursorAdapter extends SimpleCursorAdapter{
+
+		public CustomCursorAdapter(Context context, int layout, Cursor c,
+				String[] from, int[] to, int flags) {
+			super(context, layout, c, from, to, flags);
+		}
+
+		
+		/*
+		 * Overview: getView is overridden so that we can update the status of the checkboxes in the list
+		 * 
+		 * Details: 
+		 * 
+		 * Used in: 
+		 * 
+		 * Uses app internal: 
+		 * 
+		 * Uses Android lib: 
+		 * 
+		 * In: 
+		 * 
+		 * Out: 
+		 * 
+		 * Does: 
+		 * 
+		 * Shows user: 
+		 * 
+		 * Notes: 
+		 * 
+		 * Improvements: 
+		 * 
+		 * Documentation: 
+		 * 
+		 */
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent){
+			
+			//If we have not drawn the view before we first update the view by calling the super method
+			if(convertView == null){
+				convertView = super.getView(position, convertView, parent);
+			}
+			
+	    	//Getting the SQL cursor..
+	    	Cursor tmpCursor = super.getCursor();
+	    	
+	    	//..moving to the current position (position in database is matched by position in gui list)
+	    	tmpCursor.moveToPosition(position);
+
+    		//Setting status of the checkbox (checked / not checked)..
+    		long tmpActive = Long.parseLong(
+    				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)));
+    		CheckBox tmpCheckBox = ((CheckBox)convertView.findViewById(R.id.list_item_activeCheckBox));
+    		if (tmpCheckBox != null){
+        		tmpCheckBox.setChecked(tmpActive != 0);
+    		}
+    		
+    		//..the other child views of this view are changed by the mapping done by SimpleCursorAdapter
+			return convertView;
+		}
+
+		
+		/*
+		 * Overview: getViewTypeCount returns the number of different types of elements for the list
+		 * Details: This information is used by the Loader (<- verify this), if the number is lower than
+		 *  the number of items in the list Android can reuse the item view for repainting at a lower
+		 *  performance cost. We can still see different names and the reason is that the Loader knows about
+		 *  the name (see method onCreateLoader in ListFragmentC).
+		 * In our case we have chosen to return the total number of elements because we otherwise run into
+		 *  a problem for the checkboxes which can't be included in the onCreateLoader mapping. The problem
+		 *  shows itself in a strange way: After we have checked one checkbox and then scrolls down, we can
+		 *  see another checked checkbox in the same relative position.
+		 * Used: getViewTypeCount is called after the setListAdapter call:
+			ListFragmentC$CustomCursorAdapter.getViewTypeCount() line: 172	
+			ListView.setAdapter(ListAdapter) line: 466	
+			ListFragmentC(ListFragment).setListAdapter(ListAdapter) line: 182	
+			ListFragmentC.updateListWithNewData() line: 267	
+		 * Out: The number of distinct views
+		 * Notes: Please note that super.getCount() can not be used here (as suggested in threads on stackoverflow)
+		 *  since the Loader has not finished when the call to this method is made. (In the cases where it is
+		 *  presented loaders are not used, only adapters)
+		 * This method is used in conjunction with getItemViewType (see below)
+		 * Improvements: 
+		 * 1. This may be a more efficient solution:
+		 *  http://www.lalit3686.blogspot.in/2012/06/today-i-am-going-to-show-how-to-deal.html
+		 *  We may end up having to use this solution since we need to solve the problem of showing the
+		 *  checkmarks in the first place (after database loading and before any click has been done)
+		 * 2. An alternative solution (very popular: 37+ votes) is presented by Vikas Patidar on StackOverflow:
+		 *  http://stackoverflow.com/questions/4803756/android-cursoradapter-listview-and-checkbox
+		 */
+		@Override
+		public int getViewTypeCount(){
+			return Utils.getListItemCount(ListFragmentC.this.getActivity(), ListFragmentC.this.refListType);
+		}
+		@Override
+		public int getItemViewType(int inPosition){
+			return inPosition;
+		}
+		
+	}
+
+	
+	//-------------------Loader methods
+	//A very good example is available at the top of this page: http://developer.android.com/reference/android/app/LoaderManager.html
+	
+	private CustomCursorAdapter mCursorAdapter;
+	
+	/*
+	 * Overview: onCreateLoader creates the CursorLoader
+	 * Used in: Override method created "when needed" by _________
+	 * Uses Android lib: CursorLoader
+	 * Notes: The id "inIdUnused" is not used since we only have one loader.
+	 * Documentation: 
+	 * http://developer.android.com/reference/android/app/LoaderManager.LoaderCallbacks.html#onCreateLoader%28int,%20android.os.Bundle%29
+	 */
+	@Override
+	public android.support.v4.content.Loader<Cursor> onCreateLoader(int inIdUnused, Bundle inArgumentsUnused) {
+		//Setup of variables used for selecting the database colums of rows (for the creation of the CursorLoader)
+		String[] tmpProjection = {ItemTableM.COLUMN_ID, ItemTableM.COLUMN_NAME,
+				ItemTableM.COLUMN_TAGS, ItemTableM.COLUMN_ACTIVE};
 		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
 		String[] tmpSelectionArguments = {refListType.toString()};
 		//-TODO: There is an error here when restarting the app if leaving it for a while 
+
+		//Creating the CursorLoader
 		CursorLoader retCursorLoader = new CursorLoader(
 				getActivity(), ListContentProviderM.LIST_CONTENT_URI,
 				tmpProjection, tmpSelection, tmpSelectionArguments, null);
-
 		return retCursorLoader;
 	}
 	@Override
 	public void onLoadFinished(android.support.v4.content.Loader<Cursor> inCursorLoader, Cursor inCursor) {
-		//TODO: Update?
 		mCursorAdapter.swapCursor(inCursor);
+		Log.i(Utils.getClassName(), "onLoadFinished: mCursorAdapter.getCount() = " + mCursorAdapter.getCount());
+		Log.i(Utils.getClassName(), "onLoadFinished: Utils.getListItemCount(...) = "
+				+ Utils.getListItemCount(this.getActivity(), this.refListType));
 	}
 	@Override
-	public void onLoaderReset(android.support.v4.content.Loader<Cursor> arg0) {
-		//TODO: Update?
+	public void onLoaderReset(android.support.v4.content.Loader<Cursor> inCursorUnused) {
 		mCursorAdapter.swapCursor(null);
+		
+
 	}
 	
-	void fillListWithNewData(){
+	/* ***UNCLEAR WHEN THIS METHOD WILL BE CALLED***
+	 * Overview: Fills the data from the database into the loader
+	 * 
+	 * Details: 
+	 * 
+	 * Used in:
+	 * 1. When the activity for this class is created
+	 * 2. PENDING 
+	 * 3. PENDING 
+	 * 
+	 * Uses Android lib: SimpleCursorAdapter, setListAdapter, initLoader
+	 * 
+	 * Notes: 
+	 * IMPORTANT: It's important that the state of the checkboxes is synched with the database
+	 * Improvements: 
+	 * 
+	 * Documentation: 
+	 * 
+	 */
+	void updateListWithNewData(){
+		//Creating the SimpleCursorAdapter for the specified database columns linked to the specified GUI views..
 		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_TAGS}; //, ItemTableM.COLUMN_ACTIVE
 		int[] tmpDatabaseTo = {R.id.list_item_titleTextView, R.id.list_item_tagsTextView}; //, R.id.list_item_activeCheckBox
-		
-		getLoaderManager().initLoader(0, null, this); //restartloader
-		//-PLEASE NOTE: using the non-support LoaderManager import gives an error
-		
-		mCursorAdapter = new SimpleCursorAdapter(
+		mCursorAdapter = new CustomCursorAdapter(
 				getActivity(), R.layout.ofnr_list_item, null,
 				tmpDatabaseFrom, tmpDatabaseTo, 0);
+		
+		//..use this CursorAdapter as the adapter for this ListFragment
+		super.setListAdapter(mCursorAdapter);
+		Log.i(Utils.getClassName(), "mCursorAdapter.getCount() = " + mCursorAdapter.getCount());
+		
+		//Creating (or re-creating) the loader 
+		getLoaderManager().initLoader(0, null, this);
+		//-PLEASE NOTE: using the non-support LoaderManager import gives an error
+		//-initLoader seems to be preferrable to restartLoader
+		
 
-		setListAdapter(mCursorAdapter);
+		
 	}
+
+	/*
 	void restartLoader(){
 		//getLoaderManager().restartLoader(0, null, this);
 		//getLoaderManager().initLoader(0, null, this);
 		//mCursorAdapter.notifyDataSetChanged();
 		//setListShown(true);
-		//asdf
 	}
+	*/
 	
 	
 	//-------------------Lifecycle methods
+	//onActivityCreated has been moved to the loader and adapter section.
+	
+	//We get to onActivityCreated after onAttach and onCreateView.
+    //Alternatively after onAttach, onCreate and onCreateView
+    @Override
+    public void onActivityCreated(Bundle inSavedInstanceState){
+    	super.onActivityCreated(inSavedInstanceState);
+    	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
+    	
+		super.setRetainInstance(true);
+		///super.setEmptyText("List is empty, please click the add item button");
+		super.setHasOptionsMenu(true);
+		this.updateListWithNewData();
+
+
+    	
+    	super.getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> adapter, View v, int position, long id) {
+
+				Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + id);
+				Intent intent = new Intent(getActivity(), DetailsActivityC.class);
+				String tmpExtraString = tmpUri.toString();
+				intent.putExtra(EXTRA_ITEM_URI, tmpExtraString); //Extracted in DataDetailsFragmentC
+				startActivityForResult(intent, 0); //Calling DataDetailsActivityC
+				
+				return false;
+			}
+		});
+
+    	/*
+    	super.getListView().setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> adapter, View inView, int inPosition, long inId) {
+				
+				
+				//POSITION NOT USED, maybe this is the reason for double checks?//
+				
+				
+				CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox));
+				
+				tmpCheckBox.toggle();
+
+				Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + inId);
+				ContentValues tmpContentValues = new ContentValues();
+				tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpCheckBox.isChecked() ? 1 : 0); // ? 1 : 0
+				//-Boolean stored as 0 (false) or 1 (true)
+				getActivity().getContentResolver().update(tmpUri, tmpContentValues, null, null);
+				
+				
+				mToastBehaviour.toast(); //Också för när man klickar på själva checkboxen
+				
+				Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, null);
+				tmpCursor.moveToFirst();
+				String tmpFilePath = tmpCursor.getString(
+						tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));
+				mActionBehaviour.kindAction(tmpFilePath);
+				
+				tmpCursor.close();
+			}
+    	});
+    	*/
+    }
+    
+    @Override
+    public void onListItemClick(ListView l, View inView, int pos, long inId){
+    	super.onListItemClick(l, inView, pos, inId);
+    	
+    	//Switching the checkbox off/on (depending on the state)
+		CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox));
+		
+		//tmpCheckBox.setOnCheckedChangeListener(null);
+		tmpCheckBox.toggle();
+		//tmpCheckBox.setOnCheckedChangeListener(null);
+
+		//Updating the database value
+		Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + inId);
+		ContentValues tmpContentValues = new ContentValues();
+		tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpCheckBox.isChecked() ? 1 : 0);
+		//-PLEASE NOTE: Now confirmed that only this one (right one) value is being updated, so this part is working
+		// (what is left is the viewing of the data
+		//-Boolean stored as 0 (false) or 1 (true)
+		getActivity().getContentResolver().update(tmpUri, tmpContentValues, null, null);
+		
+		//Showing a toast
+		mToastBehaviour.toast();
+
+		//Doing the action associated with the list item that was clicked
+		Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, null);
+		tmpCursor.moveToFirst();
+		String tmpFilePath = tmpCursor.getString(
+				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));
+		mActionBehaviour.kindAction(tmpFilePath);
+		
+		mCursorAdapter.notifyDataSetChanged();
+		
+		tmpCursor.close();
+		
+		
+		
+
+    }
 	
 	@Override
 	public void onCreate(Bundle inSavedInstanceState){
 		super.onCreate(inSavedInstanceState);
 		
-		setRetainInstance(true);
-		fillListWithNewData();
-		setHasOptionsMenu(true);
+
+		///super.setListShown(false);
 		
 		//refListType = ListTypeM.valueOf(getArguments().getString(EXTRA_LIST_TYPE));
 		if(inSavedInstanceState != null){
@@ -143,17 +424,17 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			setKindActionBehaviour(new OnlyTitleKindActionBehaviour());
 			break;
 			*/
-		case SUFFERING:
+		case FEELINGS:
 			setToastBehaviour(new FeelingsToast());
-			setKindActionBehaviour(new OnlyTitleKindActionBehaviour());
+			setActionBehaviour(new OnlyTitleActionBehaviour());
 			break;
 		case NEEDS:
 			setToastBehaviour(new NeedsToast());
-			setKindActionBehaviour(new OnlyTitleKindActionBehaviour());
+			setActionBehaviour(new OnlyTitleActionBehaviour());
 			break;
-		case KINDNESS:
+		case ACTIONS:
 			setToastBehaviour(new NoToast());
-			setKindActionBehaviour(new MediaFileKindActionBehaviour());
+			setActionBehaviour(new MediaFileActionBehaviour());
 			break;
 		default:Log.e(Utils.getClassName() ,"Error in onCreate: ListType not covered by switch statement");
 		}
@@ -165,56 +446,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     	return retView;
     }
-	//We get to onActivityCreated after onAttach and onCreateView.
-    //Alternatively after onAttach, onCreate and onCreateView
-    @Override
-    public void onActivityCreated(Bundle inSavedInstanceState){
-    	super.onActivityCreated(inSavedInstanceState);
-    	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
-    	
-    	this.fillListWithNewData();
-    	
-    	super.getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
-			@Override
-			public boolean onItemLongClick(AdapterView<?> adapter, View v, int position, long id) {
 
-				Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + id);
-				Intent intent = new Intent(getActivity(), DetailsActivityC.class);
-				String tmpExtraString = tmpUri.toString();
-				intent.putExtra(EXTRA_ITEM_URI, tmpExtraString); //Extracted in DataDetailsFragmentC
-				startActivityForResult(intent, 0); //Calling DataDetailsActivityC
-				
-				return false;
-			}
-		});
-
-    	super.getListView().setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> adapter, View inView, int inPosition, long inId) {
-				
-				CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox));
-				
-				tmpCheckBox.toggle();
-
-				Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + inId);
-				ContentValues tmpContentValues = new ContentValues();
-				tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpCheckBox.isChecked() ? 1 : 0); // ? 1 : 0
-				//-Boolean stored as 0 (false) or 1 (true)
-				getActivity().getContentResolver().update(tmpUri, tmpContentValues, null, null);
-				
-				
-				mToastBehaviour.toast(); //Också för när man klickar på själva checkboxen
-				
-				Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, null);
-				tmpCursor.moveToFirst();
-				String tmpFilePath = tmpCursor.getString(
-						tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));
-				mKindActionBehaviour.kindAction(tmpFilePath);
-				
-				tmpCursor.close();
-			}
-    	});
-    }
     @Override
     public void onAttach(Activity inActivity){
     	super.onAttach(inActivity);
@@ -315,9 +547,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		
 		case R.id.menu_item_save_pattern:
-			mCallbackListener.fireGoLeftmostEvent();
-			mCallbackListener.fireUpdateAllListsEvent();
-			mCallbackListener.fireSavePatternEvent();
+			sCallbackListener.fireGoLeftmostEvent();
+			sCallbackListener.fireUpdateAllListsEvent();
+			sCallbackListener.fireSavePatternEvent();
 			//KindModelM.get(getActivity()).savePatternListToJson();
 			return true;
 			
@@ -327,7 +559,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			//mCallbackListener.fireUpdateAllListsEvent();
 			
 			//getLoaderManager().restartLoader(0, null, this);
-			this.fillListWithNewData();
+			this.updateListWithNewData();
 			mCursorAdapter.notifyDataSetChanged();
 			
 			return true;
@@ -368,7 +600,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		@Override
 		
 		public void toast() {
-			String tmpToastFeelingsString = KindModelM.get(getActivity()).getToastString(ListTypeM.SUFFERING);
+			String tmpToastFeelingsString = KindModelM.get(getActivity()).getToastString(ListTypeM.FEELINGS);
 			if(tmpToastFeelingsString.length() > 0){
 				Toast.makeText(
 						getActivity(), "I am feeling " + tmpToastFeelingsString, Toast.LENGTH_LONG)
@@ -411,16 +643,16 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	}
 	
 	
-	//-------------------KindAction Behaviour [uses the strategy pattern]
+	//-------------------Action Behaviour [uses the strategy pattern]
 	
-	interface KindActionBehaviour{
+	interface ActionBehaviour{
 		public void kindAction(String inKindActionFilePath);
 	}
-	void setKindActionBehaviour(KindActionBehaviour inKindActionBehaviour){
-		mKindActionBehaviour = inKindActionBehaviour;
+	void setActionBehaviour(ActionBehaviour inKindActionBehaviour){
+		mActionBehaviour = inKindActionBehaviour;
 	}
 	
-	class MediaFileKindActionBehaviour implements KindActionBehaviour{
+	class MediaFileActionBehaviour implements ActionBehaviour{
 		@Override
 		public void kindAction(String inKindActionFilePath) {
 			Log.i(Utils.getClassName(), "inKindActionFilePath = " + inKindActionFilePath);
@@ -569,7 +801,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		}
 	}
 	
-	class OnlyTitleKindActionBehaviour implements KindActionBehaviour{
+	class OnlyTitleActionBehaviour implements ActionBehaviour{
 		@Override
 		public void kindAction(String inKindActionFilePath) {
 			//do nothing

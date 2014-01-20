@@ -28,18 +28,19 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 
 	//------------------------Fields
 	
-	private SectionsPagerAdapter mSectionsPagerAdapter;
+	private CustomPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     private static int sViewPagerPosition;
     //-Important that this is static since the whole instance of the
     // class is recreated when going back from the details screens
     private ListFragmentC mFeelingListFragment;
     private ListFragmentC mNeedListFragment;
-    private ListFragmentC mKindnessListFragment;
+    private ListFragmentC mActionListFragment;
 
     private ActionBar refActionBar;
     private MyOnNavigationListener mOnNavigationListener;
     private ArrayAdapter<String> mKindMindArrayAdapter;
+    
     
     //------------------------Lifecycle methods, including onCreate
     
@@ -52,7 +53,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         setContentView(R.layout.activity_main);
         
         // Create the adapter that will return a fragment for each of the sections of the app.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        mSectionsPagerAdapter = new CustomPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -234,8 +235,10 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    class SectionsPagerAdapter extends FragmentStatePagerAdapter {
-        public SectionsPagerAdapter(FragmentManager fm) {
+    //TODO: Try changing back to FragmentPagerAdapter since this is prefferred for a small fixed number
+    // of tabs according to the documentation.
+    class CustomPagerAdapter extends FragmentStatePagerAdapter {
+        public CustomPagerAdapter(FragmentManager fm) {
             super(fm);
         }
         @Override
@@ -249,7 +252,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         		break;
         	*/
         	case 0:
-        		mFeelingListFragment = ListFragmentC.newInstance(ListTypeM.SUFFERING,
+        		mFeelingListFragment = ListFragmentC.newInstance(ListTypeM.FEELINGS,
         				(MainActivityCallbackListenerI)MainActivityC.this);
         		//((DataAdapter)mSufferingListFragment.getListAdapter()).notifyDataSetChanged();
         		break;
@@ -259,7 +262,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         		//((DataAdapter)mNeedListFragment.getListAdapter()).notifyDataSetChanged();
         		break;
         	case 2:
-        		mKindnessListFragment = ListFragmentC.newInstance(ListTypeM.KINDNESS,
+        		mActionListFragment = ListFragmentC.newInstance(ListTypeM.ACTIONS,
         				(MainActivityCallbackListenerI)MainActivityC.this);
         		//((DataAdapter)mKindnessListFragment.getListAdapter()).notifyDataSetChanged();
         		break;
@@ -277,7 +280,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         		//case 0: return mObservationListFragment;
 		    	case 0:	return mFeelingListFragment; //mFeelingListFragment; //Has already been created in the constructor
 				case 1: return mNeedListFragment;
-		    	case 2: return mKindnessListFragment;
+		    	case 2: return mActionListFragment;
 		    	default: Log.e(Utils.getClassName(), "Error in method getItem: case not covered");return null;
         	}
         }
@@ -320,23 +323,23 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			updateFragmentList(mObservationListFragment);
 			break;
 		*/
-		case SUFFERING:
-			setTitle(R.string.suffering_top_title);
+		case FEELINGS:
+			setTitle(R.string.feelings_top_title);
 			//updateFragmentList(mFeelingListFragment);
-			//mFeelingListFragment.updateListWithNewData();
-			mFeelingListFragment.restartLoader();
+			mFeelingListFragment.updateListWithNewData();
+			//mFeelingListFragment.restartLoader();
 			break;
 		case NEEDS:
 			setTitle(R.string.needs_top_title);
 			//updateFragmentList(mNeedListFragment);
-			//mNeedListFragment.updateListWithNewData();
-			mNeedListFragment.restartLoader();
+			mNeedListFragment.updateListWithNewData();
+			//mNeedListFragment.restartLoader();
 			break;
-		case KINDNESS:
-			setTitle(R.string.strategies_top_title);
+		case ACTIONS:
+			setTitle(R.string.actions_top_title);
 			//updateFragmentList(mKindnessListFragment);
-			//mKindnessListFragment.updateListWithNewData();
-			mKindnessListFragment.restartLoader();
+			mActionListFragment.updateListWithNewData();
+			//mActionListFragment.restartLoader();
 			break;
 		default:
 			Log.e(Utils.getClassName(), "Error in updateViewPagerView: Case not covered");
@@ -359,7 +362,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	void updateAllFragmentLists(){
 		updateFragmentList(mFeelingListFragment);
 		updateFragmentList(mNeedListFragment);
-		updateFragmentList(mKindnessListFragment);
+		updateFragmentList(mActionListFragment);
 	}
 	ListFragmentC tmpListFragment = null; //Has to be put outside for it to be accessible inside the Runnable
 	private void updateFragmentList(ListFragmentC inListFragment){

@@ -380,10 +380,10 @@ public class KindModelM {
 		
 		String mToastFeelingsString;
 		switch(inListType){
-		case SUFFERING:
+		case FEELINGS:
 			mToastFeelingsString =
 					getFormattedStringOfActivatedDataListItems(
-					getListOfNamesForActivatedData(ListTypeM.SUFFERING))
+					getListOfNamesForActivatedData(ListTypeM.FEELINGS))
 					.toLowerCase(Locale.getDefault());
 			return mToastFeelingsString;
 		
