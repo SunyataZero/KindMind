@@ -5,6 +5,8 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import android.app.ActionBar;
+import android.app.ActionBar.Tab;
+import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -36,11 +38,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     private ListFragmentC mFeelingListFragment;
     private ListFragmentC mNeedListFragment;
     private ListFragmentC mActionListFragment;
-
     private ActionBar refActionBar;
-    private MyOnNavigationListener mOnNavigationListener;
-    private ArrayAdapter<String> mKindMindArrayAdapter;
-    
     
     //------------------------Lifecycle methods, including onCreate
     
@@ -51,6 +49,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         super.onCreate(savedInstanceState);
         Log.d(Utils.getClassName(), Utils.getMethodName());
         setContentView(R.layout.activity_main);
+        
+        setTitle(R.string.app_name);
         
         // Create the adapter that will return a fragment for each of the sections of the app.
         mSectionsPagerAdapter = new CustomPagerAdapter(getSupportFragmentManager());
@@ -65,22 +65,16 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         //mViewPager.setOffscreenPageLimit(4); //This only partly solves the problem with NPE in onPageScrollStateChanged
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-			
 			@Override
 			public void onPageSelected(int pos) {
-				//updateViewPagerView(ListTypeM.values()[mViewPager.getCurrentItem()]);
-				updateViewPagerView(ListTypeM.getEnumListByLevel(mViewPager.getCurrentItem()).get(0));
+				///updateViewPagerView(ListTypeM.getEnumListByLevel(mViewPager.getCurrentItem()).get(0));
+				getActionBar().setSelectedNavigationItem(pos);
 			}
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				//updateViewPagerView(ListTypeM.getEnumListByLevel(mViewPager.getCurrentItem()).get(0));
-				
 			}
 			@Override
 			public void onPageScrollStateChanged(int inState) {
-				//onPageSelected seems to be more helpful to use
-				//updateViewPagerView(ListTypeM.getEnumListByLevel(mViewPager.getCurrentItem()).get(0));
-				
 				switch(inState){
 				case ViewPager.SCROLL_STATE_IDLE:
 					//Saving the position (solves the problem in issue #41)
@@ -89,7 +83,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				default:
 					break;
 				}
-				
 			}
 		});
 
@@ -98,15 +91,24 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         // https://developer.android.com/reference/android/app/ActionBar.html#setListNavigationCallbacks%28android.widget.SpinnerAdapter,%20android.app.ActionBar.OnNavigationListener%29
         // https://developer.android.com/reference/android/widget/ArrayAdapter.html#setDropDownViewResource%28int%29
         refActionBar = this.getActionBar();
-        refActionBar.setDisplayShowTitleEnabled(false);
-        refActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        refActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        ActionBar.TabListener tmpTabListener = new ActionBar.TabListener() {
+			@Override
+			public void onTabSelected(Tab tab, FragmentTransaction ft) {
+				mViewPager.setCurrentItem(tab.getPosition());
+			}
+			@Override
+			public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+			}
+			@Override
+			public void onTabReselected(Tab tab, FragmentTransaction ft) {
+			}
+        };
+        refActionBar.addTab(refActionBar.newTab().setText(R.string.feelings_title).setTabListener(tmpTabListener));
+        refActionBar.addTab(refActionBar.newTab().setText(R.string.needs_title).setTabListener(tmpTabListener));
+        refActionBar.addTab(refActionBar.newTab().setText(R.string.kindness_title).setTabListener(tmpTabListener));
+        //TODO: Adding a number to show the number of checked items. We can use getResources().getString(id)
 
-        mKindMindArrayAdapter = new KindMindArrayAdapter(
-        		this, getResources().getStringArray(R.array.spinner_list));
-        mKindMindArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        
-        mOnNavigationListener = new MyOnNavigationListener();
-        refActionBar.setListNavigationCallbacks(mKindMindArrayAdapter, mOnNavigationListener);
 
         //TODO: Direcoty is not created, please fix or find another way to choose files
         //If the directory does not already exist, create it
@@ -122,65 +124,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	}
 
     }
-    
-    private class MyOnNavigationListener implements ActionBar.OnNavigationListener{
-		private static final int SPINNER_SUFFERING = 0;
-		private static final int SPINNER_HAPPINESS = 1;
-		private static final int SPINNER_NEUTRAL = 2;
 
-		@Override
-		public boolean onNavigationItemSelected(int inItemPosition, long inItemId) {
-			//The itemid is the same as the itemposition, this seems to be a bug, so we use itemid instead 
-			
-			switch(inItemPosition){
-			case SPINNER_SUFFERING:
-				
-				//updateAllFragmentLists();
-				
-				return true;
-			case SPINNER_HAPPINESS:
-				
-				//updateAllFragmentLists();
-				
-				return true;
-			case SPINNER_NEUTRAL:
-				
-				
-				//updateAllFragmentLists();
-				
-				return true;
-			default:
-				Log.e(Utils.getClassName(), "Error in MyOnNavigationListener: Case not covered");
-				return false;
-			}
-		}
-    }
-    
-    private class KindMindArrayAdapter extends ArrayAdapter<String>{
-    	
-    	Context mContext;
-
-		public KindMindArrayAdapter(Context inContext, String[] inItems) {
-			super(inContext, 0, inItems);
-			mContext = inContext;
-		}
-
-		@Override
-		public View getView(int inPosition, View modConvertView, ViewGroup inViewGroup){
-			
-			if(modConvertView == null){
-				modConvertView = LayoutInflater.from(mContext).inflate(android.R.layout.simple_spinner_item , null);
-			}
-			
-			TextView tmpTitle = ((TextView)modConvertView.findViewById(android.R.id.text1));
-			tmpTitle.setText(R.string.app_name);
-			tmpTitle.setTextSize(21);
-			
-			return modConvertView;
-			
-		}
-    	
-    }
     
     @Override
     public void onDestroy(){
@@ -244,13 +188,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         @Override
         public Object instantiateItem (ViewGroup container, int position){
         	switch(position){
-        	/*
-        	case 0:
-        		mObservationListFragment = ListFragmentC.newInstance(ListTypeM.EVENT,
-        				(MainActivityCallbackListenerI)MainActivityC.this);
-        		//((DataAdapter)mSpecEvListFragment.getListAdapter()).notifyDataSetChanged();
-        		break;
-        	*/
         	case 0:
         		mFeelingListFragment = ListFragmentC.newInstance(ListTypeM.FEELINGS,
         				(MainActivityCallbackListenerI)MainActivityC.this);
@@ -292,10 +229,10 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         public CharSequence getPageTitle(int inPosition) {
             Locale l = Locale.getDefault();
             switch (inPosition) {
-            	//case 0: return getString(R.string.observations_pager_title).toUpperCase(l);
-                case 0: return getString(R.string.feelings_pager_title).toUpperCase(l);
-                case 1: return getString(R.string.needs_pager_title).toUpperCase(l);
-                case 2: return getString(R.string.requests_pager_title).toUpperCase(l);
+            	//TODO: Remove?
+                case 0: return getString(R.string.feelings_title).toUpperCase(l);
+                case 1: return getString(R.string.needs_title).toUpperCase(l);
+                case 2: return getString(R.string.kindness_title).toUpperCase(l);
             }
             return null;
         }
@@ -324,19 +261,19 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			break;
 		*/
 		case FEELINGS:
-			setTitle(R.string.feelings_top_title);
+			setTitle(R.string.feelings_title);
 			//updateFragmentList(mFeelingListFragment);
 			mFeelingListFragment.updateListWithNewData();
 			//mFeelingListFragment.restartLoader();
 			break;
 		case NEEDS:
-			setTitle(R.string.needs_top_title);
+			setTitle(R.string.needs_title);
 			//updateFragmentList(mNeedListFragment);
 			mNeedListFragment.updateListWithNewData();
 			//mNeedListFragment.restartLoader();
 			break;
 		case ACTIONS:
-			setTitle(R.string.actions_top_title);
+			setTitle(R.string.kindness_title);
 			//updateFragmentList(mKindnessListFragment);
 			mActionListFragment.updateListWithNewData();
 			//mActionListFragment.restartLoader();

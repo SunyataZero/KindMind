@@ -3,22 +3,16 @@
 
     <string name="app_name">KindMind</string>
     
-    <string name="observations_pager_title">Observations</string>
-    <string name="feelings_pager_title">Feelings</string>
-    <string name="needs_pager_title">Needs</string>
-    <string name="requests_pager_title">Requests</string>
+    <string name="feelings_title">Feelings</string>
+    <string name="needs_title">Needs</string>
+    <string name="kindness_title">Kindness</string>
     
-    <!-- <string name="events_top_title">Events</string> -->
-    <string name="feelings_top_title">Suffering</string>
-    <string name="needs_top_title">Needs</string>
-    <string name="actions_top_title">Strategies</string>
-     
     <string name="new_action">New Item</string>
     <string name="clear_list_selections">Clear Current List Selections</string>
     <string name="clear_all_selections">Clear All List Selections</string>
     <string name="share_experience">Share Experience</string>
     <string name="sort_alphabetically">Sort Alphabetically</string>
-    <string name="sort_by_rank">Sort by Rand (KindSort)</string>
+    <string name="sort_by_rank">Sort by Rank (KindSort)</string>
     <string name="save_pattern">Save Pattern</string>
     <!-- <string name="backup">Backup</string> -->
     <string name="send_as_text_current">Send current list as text</string>
@@ -27,15 +21,16 @@
     <string name="listitem_name_hint">Please enter a new list item title</string> <!-- \nQuote from the Buddha -->
     <string name="delete_button_title">Delete</string>
 
+    <!-- 
     <string name="suffering_spinner_title">Suffering</string>
     <string name="happiness_spinner_title">Happiness [not implemented]</string>
     <string name="neutral_spinner_title">Neutral feeling [not implemented yet]</string>
-    
     <string-array name="spinner_list">
         <item>@string/suffering_spinner_title</item>
         <item>@string/happiness_spinner_title</item>
         <item>@string/neutral_spinner_title</item>
     </string-array>
+     -->
     
     <string name="file_chooser_title">Choose on of the following ____</string>
     <string name="image_file_chooser_button_title">Image</string>

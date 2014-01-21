@@ -264,6 +264,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     			}
     		});
     	}
+    	
     	tmpCursor.close();
     	return v;
     }
@@ -322,6 +323,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 					Contacts.CONTENT_LOOKUP_URI,
 					tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ContactsContract.Contacts.LOOKUP_KEY)));
 			tmpFilePath = tmpLookupUri.toString();
+			
 			tmpCursor.close();
 			break;
 		case REQUEST_BOOKMARKCHOOSER:

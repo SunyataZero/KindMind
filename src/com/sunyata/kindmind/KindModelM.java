@@ -65,7 +65,7 @@ public class KindModelM {
 	//TODO: Change to sort all lists at the same time?
 	
 	//This methods updates the update sort values for each item in the list where we are at the moment
-	void updateSortValuesForListType(ListTypeM inListType){
+	void updateSortValuesForListType(Context inContext, ListTypeM inListType){
 
 
 		SQLiteDatabase tmpSQLiteDatabase = DatabaseHelperM.get(mContext).getWritableDatabase();
@@ -82,7 +82,6 @@ public class KindModelM {
 		long tmpItemId;
 		String tmpPatternSelection;
 		ContentValues tmpContentValueForUpdate;
-		Uri tmpUri;
 
 		try{
 
@@ -111,8 +110,9 @@ public class KindModelM {
 		}finally{
 			tmpSQLiteDatabase.setTransactionSuccessful();
 			tmpSQLiteDatabase.endTransaction();
+			
 			/////TODO: getContext().getContentResolver().notifyChange(tmpUri, null);
-
+			inContext.getContentResolver().notifyChange(tmpUri, null);
 		}
 
 		tmpItemCursor.close();
@@ -413,6 +413,7 @@ public class KindModelM {
 			String tmpStringToAdd = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
 			retActivatedData.add(tmpStringToAdd);
 		}
+		
 		tmpCursor.close();
 		return retActivatedData;
 	}

@@ -25,7 +25,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CheckBox;
 import android.widget.ListView;
@@ -103,45 +102,43 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		/*
 		 * Overview: getView is overridden so that we can update the status of the checkboxes in the list
-		 * 
-		 * Details: 
-		 * 
-		 * Used in: 
-		 * 
-		 * Uses app internal: 
-		 * 
-		 * Uses Android lib: 
-		 * 
-		 * In: 
-		 * 
-		 * Out: 
-		 * 
-		 * Does: 
-		 * 
-		 * Shows user: 
-		 * 
-		 * Notes: 
-		 * 
-		 * Improvements: 
-		 * 
-		 * Documentation: 
-		 * 
+		 * In: position is the position in the list
+		 *  convertView is a reference to the (parent) view that we get the checkbox view from;
+		 *  parent is the parent of the list item (so it is the "grand parent" of the checkbox);
+		 * Out: The updated View
+		 * Does: Updates the checkbox child view inside a list item view
+		 * Notes: A long time was spent on this method and it has been saved in the cloud as well as
+		 *  part of the CustomCursorAdapter
+		 * The cursor will remain open, we will get an error if we try to close it:
+			01-21 20:55:18.033: E/AndroidRuntime(6357): FATAL EXCEPTION: main
+			01-21 20:55:18.033: E/AndroidRuntime(6357): java.lang.IllegalStateException: attempt to re-open an already-closed object: android.database.sqlite.SQLiteQuery (mSql = SELECT _id, name, tags, active FROM item WHERE (listtype = ?)) 
+			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.sqlite.SQLiteClosable.acquireReference(SQLiteClosable.java:33)
+			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.sqlite.SQLiteQuery.fillWindow(SQLiteQuery.java:82)
+			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.sqlite.SQLiteCursor.fillWindow(SQLiteCursor.java:164)
+			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.sqlite.SQLiteCursor.onMove(SQLiteCursor.java:147)
+			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.AbstractCursor.moveToPosition(AbstractCursor.java:178)
+			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.CursorWrapper.moveToPosition(CursorWrapper.java:162)
+			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.widget.CursorAdapter.getView(CursorAdapter.java:241)
+			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at com.sunyata.kindmind.ListFragmentC$CustomCursorAdapter.getView(ListFragmentC.java:120)
 		 */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent){
 			
 			//If we have not drawn the view before we first update the view by calling the super method
+			
 			if(convertView == null){
 				convertView = super.getView(position, convertView, parent);
 			}
 			
 	    	//Getting the SQL cursor..
-	    	Cursor tmpCursor = super.getCursor();
+	    	Cursor tmpCursor = getCursor();
 	    	
 	    	//..moving to the current position (position in database is matched by position in gui list)
 	    	tmpCursor.moveToPosition(position);
 
-    		//Setting status of the checkbox (checked / not checked)..
+    		//Setting status of the checkbox (checked / not checked)
+	    	// The other child views of this view have already been changed by the mapping done by SimpleCursorAdapter
+	    	// above in the super.getView() method
     		long tmpActive = Long.parseLong(
     				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)));
     		CheckBox tmpCheckBox = ((CheckBox)convertView.findViewById(R.id.list_item_activeCheckBox));
@@ -149,7 +146,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
         		tmpCheckBox.setChecked(tmpActive != 0);
     		}
     		
-    		//..the other child views of this view are changed by the mapping done by SimpleCursorAdapter
+    		//PLEASE NOTE: Cursor not closed
 			return convertView;
 		}
 
@@ -173,6 +170,12 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		 * Notes: Please note that super.getCount() can not be used here (as suggested in threads on stackoverflow)
 		 *  since the Loader has not finished when the call to this method is made. (In the cases where it is
 		 *  presented loaders are not used, only adapters)
+		 * The check against < 1 is done because of the following problem (only seen on physical device):
+		01-20 22:24:26.398: E/AndroidRuntime(25136): java.lang.IllegalArgumentException: Can't have a viewTypeCount < 1
+		01-20 22:24:26.398: E/AndroidRuntime(25136): 	at android.widget.AbsListView$RecycleBin.setViewTypeCount(AbsListView.java:5817)
+		01-20 22:24:26.398: E/AndroidRuntime(25136): 	at android.widget.ListView.setAdapter(ListView.java:466)
+		01-20 22:24:26.398: E/AndroidRuntime(25136): 	at android.support.v4.app.ListFragment.setListAdapter(ListFragment.java:182)
+		01-20 22:24:26.398: E/AndroidRuntime(25136): 	at com.sunyata.kindmind.ListFragmentC.updateListWithNewData(ListFragmentC.java:253)
 		 * This method is used in conjunction with getItemViewType (see below)
 		 * Improvements: 
 		 * 1. This may be a more efficient solution:
@@ -184,7 +187,12 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		 */
 		@Override
 		public int getViewTypeCount(){
-			return Utils.getListItemCount(ListFragmentC.this.getActivity(), ListFragmentC.this.refListType);
+			int retViewTypeCount = Utils.getListItemCount(
+					ListFragmentC.this.getActivity(), ListFragmentC.this.refListType);
+			if(retViewTypeCount < 1){
+				retViewTypeCount = 1;
+			}
+			return retViewTypeCount;
 		}
 		@Override
 		public int getItemViewType(int inPosition){
@@ -195,9 +203,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
 	
 	//-------------------Loader methods
-	//A very good example is available at the top of this page: http://developer.android.com/reference/android/app/LoaderManager.html
+	//A very good example is available at the top of the following page: http://developer.android.com/reference/android/app/LoaderManager.html
 	
-	private CustomCursorAdapter mCursorAdapter;
+	private CustomCursorAdapter mCustomCursorAdapter;
 	
 	/*
 	 * Overview: onCreateLoader creates the CursorLoader
@@ -224,14 +232,14 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	}
 	@Override
 	public void onLoadFinished(android.support.v4.content.Loader<Cursor> inCursorLoader, Cursor inCursor) {
-		mCursorAdapter.swapCursor(inCursor);
-		Log.i(Utils.getClassName(), "onLoadFinished: mCursorAdapter.getCount() = " + mCursorAdapter.getCount());
+		mCustomCursorAdapter.swapCursor(inCursor);
+		Log.i(Utils.getClassName(), "onLoadFinished: mCursorAdapter.getCount() = " + mCustomCursorAdapter.getCount());
 		Log.i(Utils.getClassName(), "onLoadFinished: Utils.getListItemCount(...) = "
 				+ Utils.getListItemCount(this.getActivity(), this.refListType));
 	}
 	@Override
 	public void onLoaderReset(android.support.v4.content.Loader<Cursor> inCursorUnused) {
-		mCursorAdapter.swapCursor(null);
+		mCustomCursorAdapter.swapCursor(null);
 		
 
 	}
@@ -259,20 +267,28 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		//Creating the SimpleCursorAdapter for the specified database columns linked to the specified GUI views..
 		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_TAGS}; //, ItemTableM.COLUMN_ACTIVE
 		int[] tmpDatabaseTo = {R.id.list_item_titleTextView, R.id.list_item_tagsTextView}; //, R.id.list_item_activeCheckBox
-		mCursorAdapter = new CustomCursorAdapter(
+		
+		/*
+		if(mCustomCursorAdapter != null && mCustomCursorAdapter.getCursor() != null){
+			mCustomCursorAdapter.getCursor().close(); //-experimental
+		}
+		*/
+		
+
+		
+		mCustomCursorAdapter = new CustomCursorAdapter(
 				getActivity(), R.layout.ofnr_list_item, null,
 				tmpDatabaseFrom, tmpDatabaseTo, 0);
 		
+		
 		//..use this CursorAdapter as the adapter for this ListFragment
-		super.setListAdapter(mCursorAdapter);
-		Log.i(Utils.getClassName(), "mCursorAdapter.getCount() = " + mCursorAdapter.getCount());
+		super.setListAdapter(mCustomCursorAdapter);
+		Log.i(Utils.getClassName(), "mCursorAdapter.getCount() = " + mCustomCursorAdapter.getCount());
 		
 		//Creating (or re-creating) the loader 
 		getLoaderManager().initLoader(0, null, this);
 		//-PLEASE NOTE: using the non-support LoaderManager import gives an error
 		//-initLoader seems to be preferrable to restartLoader
-		
-
 		
 	}
 
@@ -301,8 +317,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		super.setHasOptionsMenu(true);
 		this.updateListWithNewData();
 
-
-    	
     	super.getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> adapter, View v, int position, long id) {
@@ -317,37 +331,12 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			}
 		});
 
+    	//Alternative to onListItemClick below where we can access the adapter:
     	/*
     	super.getListView().setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> adapter, View inView, int inPosition, long inId) {
-				
-				
-				//POSITION NOT USED, maybe this is the reason for double checks?//
-				
-				
-				CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox));
-				
-				tmpCheckBox.toggle();
-
-				Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + inId);
-				ContentValues tmpContentValues = new ContentValues();
-				tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpCheckBox.isChecked() ? 1 : 0); // ? 1 : 0
-				//-Boolean stored as 0 (false) or 1 (true)
-				getActivity().getContentResolver().update(tmpUri, tmpContentValues, null, null);
-				
-				
-				mToastBehaviour.toast(); //Också för när man klickar på själva checkboxen
-				
-				Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, null);
-				tmpCursor.moveToFirst();
-				String tmpFilePath = tmpCursor.getString(
-						tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));
-				mActionBehaviour.kindAction(tmpFilePath);
-				
-				tmpCursor.close();
-			}
-    	});
+			[...]
     	*/
     }
     
@@ -381,28 +370,24 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));
 		mActionBehaviour.kindAction(tmpFilePath);
 		
-		mCursorAdapter.notifyDataSetChanged();
+		mCustomCursorAdapter.notifyDataSetChanged();
 		
 		tmpCursor.close();
-		
-		
-		
-
     }
 	
 	@Override
 	public void onCreate(Bundle inSavedInstanceState){
 		super.onCreate(inSavedInstanceState);
-		
-
-		///super.setListShown(false);
-		
-		//refListType = ListTypeM.valueOf(getArguments().getString(EXTRA_LIST_TYPE));
 		if(inSavedInstanceState != null){
 			refListType = ListTypeM.valueOf(inSavedInstanceState.getString(EXTRA_AND_BUNDLE_LIST_TYPE));
 		}
 	}
-    //Important: When a new activity is created, this method is called on a physical device, but not on the emulator
+    @Override
+    public void onStop(){
+    	super.onStop();
+    	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
+    }
+    //PLEASE NOTE: When a new activity is created, this method is called on a physical device, but not on the emulator
     @Override
     public void onDestroy(){
     	super.onDestroy();
@@ -418,12 +403,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     	
 		switch(refListType){
-		/*
-		case EVENT:
-			setToastBehaviour(new NoToast());
-			setKindActionBehaviour(new OnlyTitleKindActionBehaviour());
-			break;
-			*/
 		case FEELINGS:
 			setToastBehaviour(new FeelingsToast());
 			setActionBehaviour(new OnlyTitleActionBehaviour());
@@ -436,17 +415,16 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			setToastBehaviour(new NoToast());
 			setActionBehaviour(new MediaFileActionBehaviour());
 			break;
-		default:Log.e(Utils.getClassName() ,"Error in onCreate: ListType not covered by switch statement");
+		default:
+			Log.e(Utils.getClassName() ,"Error in onCreate: ListType not covered by switch statement");
 		}
     }
     @Override
     public View onCreateView(LayoutInflater inInflater, ViewGroup inContainer, Bundle inSavedinstanceState){
     	View retView = super.onCreateView(inInflater, inContainer, inSavedinstanceState);
-    	
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     	return retView;
     }
-
     @Override
     public void onAttach(Activity inActivity){
     	super.onAttach(inActivity);
@@ -463,6 +441,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	super.onSaveInstanceState(outBundle);
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     	
+    	//Saving the list type
     	outBundle.putString(EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
     }
 
@@ -520,12 +499,12 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 					ItemTableM.COLUMN_LISTTYPE + "=" + "'" + this.refListType.toString() + "'";
 			Cursor tmpCursorWithAlphaBetaOrdering = getActivity().getContentResolver().query(
 					ListContentProviderM.LIST_CONTENT_URI, null, tmpSelectionWithAlphaBetaOrdering, null, ItemTableM.COLUMN_NAME);
-			mCursorAdapter.changeCursor(tmpCursorWithAlphaBetaOrdering);
+			mCustomCursorAdapter.changeCursor(tmpCursorWithAlphaBetaOrdering);
 			((SimpleCursorAdapter)super.getListAdapter()).notifyDataSetChanged();
 			
 			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
 
-			//Cursor not closed since it's referencing the cursor we use
+			tmpCursorWithAlphaBetaOrdering.close();
 			return true;
 			
 		case R.id.menu_item_kindsort:
@@ -538,12 +517,12 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			Cursor tmpCursorWithKindSortOrdering = getActivity().getContentResolver().query(
 					ListContentProviderM.LIST_CONTENT_URI, null,
 					tmpSelectionWithKindSortOrdering, null, ItemTableM.COLUMN_KINDSORTVALUE);
-			mCursorAdapter.changeCursor(tmpCursorWithKindSortOrdering);
+			mCustomCursorAdapter.changeCursor(tmpCursorWithKindSortOrdering);
 			((SimpleCursorAdapter)super.getListAdapter()).notifyDataSetChanged();
 			
 			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
 
-			//Cursor not closed since it's referencing the cursor we use
+			tmpCursorWithKindSortOrdering.close();
 			return true;
 		
 		case R.id.menu_item_save_pattern:
@@ -560,7 +539,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			
 			//getLoaderManager().restartLoader(0, null, this);
 			this.updateListWithNewData();
-			mCursorAdapter.notifyDataSetChanged();
+			mCustomCursorAdapter.notifyDataSetChanged();
 			
 			return true;
 			
@@ -613,8 +592,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		@Override
 		public void toast() {
 
-			/*
-			String tmpToastFeelingsString = KindModelM.get(getActivity()).getToastString(ListTypeM.SUFFERING);
+			String tmpToastFeelingsString = KindModelM.get(getActivity()).getToastString(ListTypeM.FEELINGS);
 			String tmpToastNeedsString = KindModelM.get(getActivity()).getToastString(ListTypeM.NEEDS);
 			
 			if(tmpToastFeelingsString.length() > 0 & tmpToastNeedsString.length() > 0){
@@ -631,7 +609,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			}else{
 					//Do nothing
 			}
-			*/
 		}
 	}
 	

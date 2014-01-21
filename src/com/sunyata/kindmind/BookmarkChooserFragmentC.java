@@ -56,7 +56,8 @@ public class BookmarkChooserFragmentC extends ListFragment {
 				tmpDatabaseFrom, tmpDatabaseTo, 0);
 		
 		setListAdapter(mCursorAdapter);
-
+		
+		tmpCursor.close();
 	}
 	
 	@Override

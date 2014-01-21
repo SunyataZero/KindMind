@@ -12,7 +12,6 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
 
-
 public class Utils {
 
 	//TODO: Log
@@ -56,8 +55,6 @@ public class Utils {
 	public static void createAllStartupItems(Context inContext) {
 		// TODO Auto-generated method stub
 		
-    	ContentValues tmpContentValuesToInsert;
-
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Sad");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Angry");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Nervous");
@@ -153,10 +150,23 @@ public class Utils {
 	}
 	
 	static int getListItemCount(Context inContext, ListTypeM inListType){
+		int retCount;
 		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
 		String[] tmpSelectionArguments = {inListType.toString()};
 		Cursor tmpCursor = inContext.getContentResolver().query(
 				ListContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, null);
-		return tmpCursor.getCount();
+		retCount = tmpCursor.getCount();
+		tmpCursor.close();
+		/* -PLEASE NOTE: This cursor has to be closed (why this and not others?) otherwise we will
+		 *  get four of the following warning log messages:
+		 * 01-21 21:08:32.975: W/CursorWrapperInner(7757): Cursor finalized without prior close()
+		 *  According to Diane Hackborn:
+		 *  "A content provider is created when its hosting process is created, and remains around for as long
+		 *  as the process does, so there is no need to close the database -- it will get closed as part of the
+		 *  kernel cleaning up the process's resources when the process is killed."
+		 *  http://stackoverflow.com/questions/4547461/closing-the-database-in-a-contentprovider
+		 *  We have also tried leaving other cursors open and have seen no problems there 
+		 */
+		return retCount;
 	}
 }
