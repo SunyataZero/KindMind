@@ -39,6 +39,10 @@ public class ListContentProviderM extends ContentProvider {
 	public static final String LIST_CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/list_item";
 	
 	public static final Uri PATTERN_CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + PATTERN_BASE_PATH);
+	
+	
+	static String sSortType = ItemTableM.COLUMN_KINDSORTVALUE;
+	
 	//public static final String PATTERN_CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/pattern";
 	
 	/*
@@ -92,7 +96,11 @@ public class ListContentProviderM extends ContentProvider {
 		//  same database if it already has been created
 		
 		Cursor retCursor = tmpQueryBuilder.query(
-				tmpSQLiteDatabase, inProjection, inSelection, inSelectionArgs, null, null, inSortOrder);
+				tmpSQLiteDatabase, inProjection, inSelection, inSelectionArgs, null, null, sSortType);//ItemTableM.COLUMN_NAME
+		/*
+		 * Why can't we use Utils.sSortType here? according do the debgging we have the expected value in Utils.sSortType,
+		 *  but it only works ok when setting the value here.
+		 */
 		
 		retCursor.setNotificationUri(getContext().getContentResolver(), inUri);
 		//-Please note that this differs from the update that is done in (for example) the insert method

@@ -82,6 +82,10 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	private static MainActivityCallbackListenerI sCallbackListener; //-Does not have to be saved since it's static
 	private ActionBehaviour mActionBehaviour; //-Not saved, but set in onResume
 	
+	
+	private static String mSortType = ItemTableM.COLUMN_KINDSORTVALUE;
+	
+	
 	public static ListFragmentC newInstance(ListTypeM inListType, MainActivityCallbackListenerI inCallbackListener){
 		ListFragmentC retListFragment = new ListFragmentC();
 		retListFragment.refListType = inListType;
@@ -123,8 +127,11 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		 */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent){
+			//return super.getView(position, convertView, parent);
 			
 			//If we have not drawn the view before we first update the view by calling the super method
+			
+			synchronized(parent){
 			
 			if(convertView == null){
 				convertView = super.getView(position, convertView, parent);
@@ -148,6 +155,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     		
     		//PLEASE NOTE: Cursor not closed
 			return convertView;
+			}
 		}
 
 		
@@ -227,7 +235,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		//Creating the CursorLoader
 		CursorLoader retCursorLoader = new CursorLoader(
 				getActivity(), ListContentProviderM.LIST_CONTENT_URI,
-				tmpProjection, tmpSelection, tmpSelectionArguments, null);
+				tmpProjection, tmpSelection, tmpSelectionArguments, ListContentProviderM.sSortType);
 		return retCursorLoader;
 	}
 	@Override
@@ -364,7 +372,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		mToastBehaviour.toast();
 
 		//Doing the action associated with the list item that was clicked
-		Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, null);
+		Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, ListContentProviderM.sSortType);
 		tmpCursor.moveToFirst();
 		String tmpFilePath = tmpCursor.getString(
 				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));
@@ -372,7 +380,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		mCustomCursorAdapter.notifyDataSetChanged();
 		
-		tmpCursor.close();
+		//tmpCursor.close();
     }
 	
 	@Override
@@ -497,32 +505,80 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			//Sorting the whole list for all the different types in one go
 			String tmpSelectionWithAlphaBetaOrdering =
 					ItemTableM.COLUMN_LISTTYPE + "=" + "'" + this.refListType.toString() + "'";
+			ListContentProviderM.sSortType = ItemTableM.COLUMN_NAME;
 			Cursor tmpCursorWithAlphaBetaOrdering = getActivity().getContentResolver().query(
-					ListContentProviderM.LIST_CONTENT_URI, null, tmpSelectionWithAlphaBetaOrdering, null, ItemTableM.COLUMN_NAME);
+					ListContentProviderM.LIST_CONTENT_URI, null,
+					tmpSelectionWithAlphaBetaOrdering, null,
+					ListContentProviderM.sSortType);
+
 			mCustomCursorAdapter.changeCursor(tmpCursorWithAlphaBetaOrdering);
-			((SimpleCursorAdapter)super.getListAdapter()).notifyDataSetChanged();
+			getListView().setAdapter(mCustomCursorAdapter);
+			//-PLEASE NOTE: We need this line, and it was hard to find this info. It was found here:
+			// http://stackoverflow.com/questions/8213200/android-listview-update-with-simplecursoradapter
+			
+			
+			/*
+			//TODO: Try to remove this
+			
+			getActivity().getContentResolver().notifyChange(ListContentProviderM.LIST_CONTENT_URI, null);
+
+			((CustomCursorAdapter)super.getListAdapter()).notifyDataSetChanged();
+			
+			getLoaderManager().restartLoader(0, null, this);
+			//getLoaderManager().initLoader(0, null, this);
+			
+			getLoaderManager().getLoader(0).reset();
+			getLoaderManager().getLoader(0).stopLoading();
+			getLoaderManager().getLoader(0).startLoading();
+			
+			getListView().refreshDrawableState();
+			getListView().invalidate();
+			getListView().invalidateViews();
+			*/
+			
+			
+			
+			
+			//this.updateListWithNewData();
+			//getLoaderManager().initLoader(0, null, this);
+			
+			/*
+			synchronized (this.getLoaderManager()){
+				this.getLoaderManager().notify();
+			}
+			*/
+			
 			
 			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
 
-			tmpCursorWithAlphaBetaOrdering.close();
+			//PLEASE NOTE: We don't close the cursor here
 			return true;
 			
 		case R.id.menu_item_kindsort:
 
-			KindModelM.get(getActivity()).updateSortValuesForListType(refListType);
+			KindModelM.get(getActivity()).updateSortValuesForListType(this.getActivity(), refListType);
 			
 			//Sorting the whole list for all the different types in one go
 			String tmpSelectionWithKindSortOrdering =
 					ItemTableM.COLUMN_LISTTYPE + "=" + "'" + this.refListType.toString() + "'";
+			ListContentProviderM.sSortType = ItemTableM.COLUMN_KINDSORTVALUE;
 			Cursor tmpCursorWithKindSortOrdering = getActivity().getContentResolver().query(
 					ListContentProviderM.LIST_CONTENT_URI, null,
-					tmpSelectionWithKindSortOrdering, null, ItemTableM.COLUMN_KINDSORTVALUE);
+					tmpSelectionWithKindSortOrdering, null,
+					ListContentProviderM.sSortType);
 			mCustomCursorAdapter.changeCursor(tmpCursorWithKindSortOrdering);
 			((SimpleCursorAdapter)super.getListAdapter()).notifyDataSetChanged();
 			
-			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
+			getListView().smoothScrollToPosition(0); //-Scroll to the top of the list
 
-			tmpCursorWithKindSortOrdering.close();
+			/* PLEASE NOTE: We don't close the cursor here since if we do that we will get the following:
+				01-21 21:45:28.546: E/AndroidRuntime(3173): FATAL EXCEPTION: main
+				01-21 21:45:28.546: E/AndroidRuntime(3173): android.database.StaleDataException: Attempting to access a closed CursorWindow.Most probable cause: cursor is deactivated prior to calling this method.
+				01-21 21:45:28.546: E/AndroidRuntime(3173): 	at android.database.AbstractWindowedCursor.checkPosition(AbstractWindowedCursor.java:139)
+				01-21 21:45:28.546: E/AndroidRuntime(3173): 	at android.database.AbstractWindowedCursor.getString(AbstractWindowedCursor.java:50)
+				01-21 21:45:28.546: E/AndroidRuntime(3173): 	at android.database.CursorWrapper.getString(CursorWrapper.java:114)
+				01-21 21:45:28.546: E/AndroidRuntime(3173): 	at com.sunyata.kindmind.ListFragmentC$CustomCursorAdapter.getView(ListFragmentC.java:143)
+			 */
 			return true;
 		
 		case R.id.menu_item_save_pattern:

@@ -116,7 +116,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     	//Getting the SQL cursor for the list item URI
     	String[] tmpProjection = {ItemTableM.COLUMN_LISTTYPE, ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_NOTIFICATION};
     	Cursor tmpCursor = getActivity().getApplicationContext().getContentResolver().query(
-    			refItemUri, tmpProjection, null, null, null);
+    			refItemUri, tmpProjection, null, null, ListContentProviderM.sSortType);
     	boolean tmpCursorIsNotEmpty = tmpCursor.moveToFirst();
     	if(!tmpCursorIsNotEmpty){
     		Log.e(Utils.getClassName(), "Error in method fillDataFromContentProvider: Cursor is empty");
@@ -265,7 +265,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     		});
     	}
     	
-    	tmpCursor.close();
+    	//tmpCursor.close();
     	return v;
     }
 
@@ -313,9 +313,9 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 			
 			
 			Cursor tmpCursor = getActivity().getContentResolver().query(
-					inIntent.getData(), null, null, null, null);
+					inIntent.getData(), null, null, null, ListContentProviderM.sSortType);
 			if(tmpCursor.getCount() == 0){
-				tmpCursor.close();
+				//tmpCursor.close();
 				return;
 			}
 			tmpCursor.moveToFirst();
@@ -324,7 +324,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 					tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ContactsContract.Contacts.LOOKUP_KEY)));
 			tmpFilePath = tmpLookupUri.toString();
 			
-			tmpCursor.close();
+			//tmpCursor.close();
 			break;
 		case REQUEST_BOOKMARKCHOOSER:
 			tmpFilePath = inIntent.getStringExtra(

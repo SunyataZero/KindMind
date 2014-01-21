@@ -249,8 +249,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		//////////KindModelM.get(getApplicationContext()).getListOfType(inListType).sortWithKindness();
 		
 		//Sorting the whole list for all the different types in one go
-		String tmpSortOrder = ItemTableM.COLUMN_KINDSORTVALUE;
-		getContentResolver().query(ListContentProviderM.LIST_CONTENT_URI, null, null, null, tmpSortOrder);
+		//String tmpSortOrder = ItemTableM.COLUMN_KINDSORTVALUE;
+		//getContentResolver().query(ListContentProviderM.LIST_CONTENT_URI, null, null, null, tmpSortOrder);
 		
 		//Setting the name and updating
 		switch(inListType){
@@ -342,7 +342,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	@Override
 	public void fireSavePatternEvent() {
 		Cursor tmpItemCursor = this.getContentResolver().query(
-				ListContentProviderM.LIST_CONTENT_URI, null, null, null, null);
+				ListContentProviderM.LIST_CONTENT_URI, null, null, null, ListContentProviderM.sSortType);
 		
 		for(tmpItemCursor.moveToFirst(); tmpItemCursor.isAfterLast() == false; tmpItemCursor.moveToNext()){
 		
@@ -361,6 +361,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 
 		Toast.makeText(this, "KindMind pattern saved", Toast.LENGTH_LONG).show();
 		
-		tmpItemCursor.close();
+		//tmpItemCursor.close();
 	}
 }

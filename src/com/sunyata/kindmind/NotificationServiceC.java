@@ -43,9 +43,9 @@ public class NotificationServiceC extends IntentService {
 		
 		//Creating SQL cursor
 		Cursor tmpCursor = inContext.getContentResolver().query(
-				ListContentProviderM.LIST_CONTENT_URI, null, null, null, null);
+				ListContentProviderM.LIST_CONTENT_URI, null, null, null, ListContentProviderM.sSortType);
 		if(tmpCursor.getCount() == 0){
-			tmpCursor.close();
+			//tmpCursor.close();
 			return;
 		}
 		
@@ -65,7 +65,7 @@ public class NotificationServiceC extends IntentService {
 			}
 		}
 		
-		tmpCursor.close();
+		//tmpCursor.close();
 	}
 	
 	
@@ -76,9 +76,9 @@ public class NotificationServiceC extends IntentService {
 	 */
 	static void setServiceNotificationSingle(Context inContext, Uri inItemUri, long inIntervalInMilliSeconds){
 		//Setting up an SQL cursor to point to the row for the item URI
-		Cursor tmpCursor = inContext.getContentResolver().query(inItemUri, null, null, null, null);
+		Cursor tmpCursor = inContext.getContentResolver().query(inItemUri, null, null, null, ListContentProviderM.sSortType);
 		if(tmpCursor.getCount() == 0){
-			tmpCursor.close();
+			//tmpCursor.close();
 			return;
 		}
 		tmpCursor.moveToFirst();
@@ -119,7 +119,7 @@ public class NotificationServiceC extends IntentService {
 			tmpPendingIntentToRepeat.cancel();
 		}
 		
-		tmpCursor.close();
+		//tmpCursor.close();
 	}
 	
 	

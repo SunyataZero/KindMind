@@ -48,7 +48,7 @@ public class BookmarkChooserFragmentC extends ListFragment {
 		
 		ContentResolver tmpContentResolver = getActivity().getContentResolver(); //<--------
 		Cursor tmpCursor = tmpContentResolver.query(
-				android.provider.Browser.BOOKMARKS_URI, null, null, null, null);
+				android.provider.Browser.BOOKMARKS_URI, null, null, null, ListContentProviderM.sSortType);
 		//android.provider.Browser.getAllBookmarks(tmpContentResolver);
 		
 		mCursorAdapter = new SimpleCursorAdapter(
@@ -57,7 +57,7 @@ public class BookmarkChooserFragmentC extends ListFragment {
 		
 		setListAdapter(mCursorAdapter);
 		
-		tmpCursor.close();
+		//tmpCursor.close();
 	}
 	
 	@Override
@@ -94,7 +94,7 @@ public class BookmarkChooserFragmentC extends ListFragment {
 				
 				//mToastBehaviour.toast(); //Också för när man klickar på själva checkboxen
 				
-				Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, null);
+				Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, Utils.sSortType);
 				tmpCursor.moveToFirst();
 				String tmpFilePath = tmpCursor.getString(
 						tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));

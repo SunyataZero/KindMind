@@ -20,6 +20,9 @@ public class Utils {
 	
 	public static final String PREF_IS_FIRST_TIME_APP_STARTED = "IsFirstTimeApplicationStarted";
 	
+	
+	
+	
 	//--------------------(Static) methods for debugging
 	
 	public static String getMethodName(String inPrefix){
@@ -109,11 +112,11 @@ public class Utils {
 		String retFilePath = "";
 		Cursor tmpCursor = null;
 		try{
-			tmpCursor = inContext.getContentResolver().query(tmpUri, null, null, null, null);
+			tmpCursor = inContext.getContentResolver().query(tmpUri, null, null, null, ListContentProviderM.sSortType);
 			tmpCursor.moveToFirst();
 			retFilePath = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
 		}finally{
-			tmpCursor.close();
+			//tmpCursor.close();
 		}
 		return retFilePath;
 	}
@@ -121,7 +124,7 @@ public class Utils {
 /*
 	static boolean sqlToBoolean(Context inContext, Uri inItemUri, String inColumn, int inFalseAsInt)
 			throws Exception{
-		Cursor tmpCursor = inContext.getContentResolver().query(inItemUri, null, null, null, null);
+		Cursor tmpCursor = inContext.getContentResolver().query(inItemUri, null, null, null, Utils.sSortType);
 		if(tmpCursor.getCount() == 0){
 			tmpCursor.close();
 			throw new Exception("Error in Utils.sqlToBoolean: Cursor empty");
@@ -154,7 +157,7 @@ public class Utils {
 		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
 		String[] tmpSelectionArguments = {inListType.toString()};
 		Cursor tmpCursor = inContext.getContentResolver().query(
-				ListContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, null);
+				ListContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, ListContentProviderM.sSortType);
 		retCount = tmpCursor.getCount();
 		tmpCursor.close();
 		/* -PLEASE NOTE: This cursor has to be closed (why this and not others?) otherwise we will

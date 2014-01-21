@@ -74,10 +74,10 @@ public class KindModelM {
 
 
 		Cursor tmpItemCursor = mContext.getContentResolver().query(
-				ListContentProviderM.LIST_CONTENT_URI, null, null, null, null);
+				ListContentProviderM.LIST_CONTENT_URI, null, null, null, ListContentProviderM.sSortType);
 
 		Cursor tmpPatternCursor = null;
-		//= mContext.getContentResolver().query(ListContentProviderM.PATTERN_CONTENT_URI, null, null, null, null);
+		//= mContext.getContentResolver().query(ListContentProviderM.PATTERN_CONTENT_URI, null, null, null, Utils.sSortType);
 		int tmpNumberOfMatches = 0;
 		long tmpItemId;
 		String tmpPatternSelection;
@@ -91,7 +91,7 @@ public class KindModelM {
 				tmpPatternSelection = ItemTableM.COLUMN_ID + "=" + "'" + tmpItemId + "'";
 
 				tmpPatternCursor = mContext.getContentResolver().query(
-						ListContentProviderM.PATTERN_CONTENT_URI, null, tmpPatternSelection, null, null);
+						ListContentProviderM.PATTERN_CONTENT_URI, null, tmpPatternSelection, null, ListContentProviderM.sSortType);
 
 				for(tmpPatternCursor.moveToFirst(); tmpPatternCursor.isAfterLast() == false; tmpPatternCursor.moveToNext()){
 					tmpNumberOfMatches++;
@@ -112,12 +112,12 @@ public class KindModelM {
 			tmpSQLiteDatabase.endTransaction();
 			
 			/////TODO: getContext().getContentResolver().notifyChange(tmpUri, null);
-			inContext.getContentResolver().notifyChange(tmpUri, null);
+			inContext.getContentResolver().notifyChange(ListContentProviderM.LIST_CONTENT_URI, null);
 		}
 
-		tmpItemCursor.close();
+		//tmpItemCursor.close();
 		if(tmpPatternCursor != null){
-			tmpPatternCursor.close();
+			//tmpPatternCursor.close();
 		}
 		
 		/*
@@ -407,14 +407,14 @@ public class KindModelM {
 				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + inListType.toString() + "'";
 		//-Please note that we are adding ' signs around the String
 		Cursor tmpCursor = mContext.getContentResolver().query(
-				ListContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, null);
+				ListContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, ListContentProviderM.sSortType);
 		for(tmpCursor.moveToFirst(); tmpCursor.isAfterLast() == false; tmpCursor.moveToNext()){
 			//add name to return list
 			String tmpStringToAdd = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
 			retActivatedData.add(tmpStringToAdd);
 		}
 		
-		tmpCursor.close();
+		//tmpCursor.close();
 		return retActivatedData;
 	}
 	//Recursive method
