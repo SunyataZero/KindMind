@@ -1,17 +1,9 @@
 package com.sunyata.kindmind.List;
 
-import java.io.File;
-import java.util.List;
-import java.util.Random;
-
 import android.app.Activity;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.database.Cursor;
-import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -28,13 +20,13 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CheckBox;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.KindMindContentProviderM;
 import com.sunyata.kindmind.Details.DetailsActivityC;
+import com.sunyata.kindmind.ToastsAndActions.*;
 
 /*
  * Overview: ListFragmentC can show a list of items (each list item corresponding to a row in the SQL database)
@@ -317,14 +309,14 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		getActivity().getContentResolver().update(tmpUri, tmpContentValues, null, null);
 		
 		//Showing a toast
-		mToastBehaviour.toast();
+		mToastBehaviour.toast(getActivity());
 
 		//Doing the action associated with the list item that was clicked
 		Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, KindMindContentProviderM.sSortType);
 		tmpCursor.moveToFirst();
 		String tmpFilePath = tmpCursor.getString(
 				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));
-		mActionBehaviour.kindAction(tmpFilePath);
+		mActionBehaviour.kindAction(getActivity(), tmpFilePath);
 		
 		mCustomCursorAdapter.notifyDataSetChanged();
 		
@@ -358,11 +350,11 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		switch(refListType){
 		case FEELINGS:
 			setToastBehaviour(new FeelingsToast());
-			setActionBehaviour(new OnlyTitleActionBehaviour());
+			setActionBehaviour(new NoAction());
 			break;
 		case NEEDS:
 			setToastBehaviour(new NeedsToast());
-			setActionBehaviour(new OnlyTitleActionBehaviour());
+			setActionBehaviour(new NoAction());
 			break;
 		case ACTIONS:
 			setToastBehaviour(new NoToast());
@@ -498,223 +490,13 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	*/
 	
 	
-	//-------------------Toast Behaviour [uses the Strategy pattern]
+	//-------------------Toast and Action Behaviour [uses the Strategy pattern]
 	
-	interface ToastBehaviour{
-		public void toast();
-	}
 	void setToastBehaviour(ToastBehaviour inToastBehaviour){
 		mToastBehaviour = inToastBehaviour;
 	}
-	
-	class FeelingsToast implements ToastBehaviour{
-		@Override
-		
-		public void toast() {
-			String tmpToastFeelingsString = KindModelM.get(getActivity()).getToastString(ListTypeM.FEELINGS);
-			if(tmpToastFeelingsString.length() > 0){
-				Toast.makeText(
-						getActivity(), "I am feeling " + tmpToastFeelingsString, Toast.LENGTH_LONG)
-						.show();
-			}
-		}
-	}
-	
-	class NeedsToast implements ToastBehaviour{
-		@Override
-		public void toast() {
 
-			String tmpToastFeelingsString = KindModelM.get(getActivity()).getToastString(ListTypeM.FEELINGS);
-			String tmpToastNeedsString = KindModelM.get(getActivity()).getToastString(ListTypeM.NEEDS);
-			
-			if(tmpToastFeelingsString.length() > 0 & tmpToastNeedsString.length() > 0){
-				Toast.makeText(
-						getActivity(),
-						"I am feeling " + tmpToastFeelingsString +
-						" because I am needing " + tmpToastNeedsString, Toast.LENGTH_LONG)
-						.show();
-			}else if(tmpToastNeedsString.length() > 0){
-					Toast.makeText(
-							getActivity(),
-							"I am needing " + tmpToastNeedsString, Toast.LENGTH_LONG)
-							.show();
-			}else{
-					//Do nothing
-			}
-		}
-	}
-	
-	class NoToast implements ToastBehaviour{
-		@Override
-		public void toast() {
-			//Nothing is done
-		}
-	}
-	
-	
-	//-------------------Action Behaviour [uses the strategy pattern]
-	
-	interface ActionBehaviour{
-		public void kindAction(String inKindActionFilePath);
-	}
 	void setActionBehaviour(ActionBehaviour inKindActionBehaviour){
 		mActionBehaviour = inKindActionBehaviour;
 	}
-	
-	class MediaFileActionBehaviour implements ActionBehaviour{
-		@Override
-		public void kindAction(String inKindActionFilePath) {
-			Log.i(Utils.getClassName(), "inKindActionFilePath = " + inKindActionFilePath);
-			
-			if(inKindActionFilePath == ""){
-				return;
-			}else{
-				File tmpFileOrDirectoryFromString = new File(inKindActionFilePath);
-				
-				Log.i(Utils.getClassName(), "tmpFileOrDirectoryFromString.isDirectory() = "
-						+ tmpFileOrDirectoryFromString.isDirectory());
-				if(tmpFileOrDirectoryFromString.isDirectory()){
-					this.doRandomKindActionFromSetOfFiles(tmpFileOrDirectoryFromString);
-				}else{
-					this.doKindAction(inKindActionFilePath);
-				}
-			}
-		}
-		private void doKindAction(String inFileFromString){
-			Log.i(Utils.getClassName(), "inFileFromString = " + inFileFromString);
-			
-			/*
-			//Ok, works well!
-			Intent tmpIntent = new Intent(Intent.ACTION_DIAL);
-			tmpIntent.setData(Uri.parse("tel:123"));
-			*/
-
-			AudioManager tmpAudioManager = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
-			String tmpTypeString = "*/*";
-			
-			Intent tmpIntent;
-			Uri tmpUri;
-			File tmpFileOrDirectoryFromString;
-			
-			if(inFileFromString.toString().startsWith("content://")){ //==========Contacts==========
-				
-				tmpIntent = new Intent(Intent.ACTION_VIEW);
-				tmpUri = Uri.parse(inFileFromString);
-				//tmpIntent.setData(tmpUri); //doesn't work
-				tmpIntent.setDataAndType(tmpUri, tmpTypeString);
-				//-NOTE: THIS IS OK, BUT SPLITTING DATA AND TYPE DOES NOT WORK
-
-			}else if(inFileFromString.toString().startsWith("http://")){
-
-				tmpIntent = new Intent(Intent.ACTION_VIEW);
-				tmpUri = Uri.parse(inFileFromString);
-				//tmpIntent.setData(tmpUri); //doesn't work
-				tmpIntent.setDataAndType(tmpUri, tmpTypeString);
-				//-NOTE: THIS IS OK, BUT SPLITTING DATA AND TYPE DOES NOT WOR
-				
-			}else{ //==========Media files==========
-
-				tmpFileOrDirectoryFromString = new File(inFileFromString);
-				
-				if(
-						inFileFromString.toString().endsWith(".jpg")||
-						inFileFromString.toString().endsWith(".jpeg")||
-						inFileFromString.toString().endsWith(".png")||
-						inFileFromString.toString().endsWith(".gif")){
-					tmpTypeString = "image/*";
-				}else if(
-						inFileFromString.toString().endsWith(".ogg")||
-						inFileFromString.toString().endsWith(".mp3")){
-
-					if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
-						/*
-					isWiredHeadsetOn is used even though it is deprecated:
-					"
-					This method was deprecated in API level 14.
-					Use only to check is a headset is connected or not.
-					"
-					http://stackoverflow.com/questions/2764733/android-checking-if-headphones-are-plugged-in
-						 */
-						Toast.makeText(
-								getActivity(),
-								"Not playing audio since headset is not connected or speaker phone is on",
-								Toast.LENGTH_LONG)
-								.show();
-						return;
-					}
-
-					tmpTypeString = "audio/*";
-
-				}else if(
-						inFileFromString.toString().endsWith(".mp4")||
-						inFileFromString.toString().endsWith(".avi")){
-					if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
-						Toast.makeText(
-								getActivity(),
-								"Not playing video since headset is not connected or speaker phone is on",
-								Toast.LENGTH_LONG)
-								.show();
-						return;
-					}
-
-					tmpTypeString = "video/*";
-
-				}else{
-					//Continue with "*/*"
-				}
-				
-				tmpIntent = new Intent(Intent.ACTION_VIEW);
-				tmpUri = Uri.fromFile(tmpFileOrDirectoryFromString);
-				//tmpIntent.setData(tmpUri); //doesn't work
-				tmpIntent.setDataAndType(tmpUri, tmpTypeString);
-				//-NOTE: THIS IS OK, BUT SPLITTING DATA AND TYPE DOES NOT WORK
-				
-			}
-			
-
-			/*
-			TODO:
-			choice of file
-			choice of number/contact (nerd book)
-			choice online url
-			future: pinterest api, other apis
-			*/
-			
-			//Verifying that we have at least one app that can handle this intent before starting
-			PackageManager tmpPackageManager = getActivity().getApplicationContext().getPackageManager();
-			List<ResolveInfo> tmpListOfAllPosibleAcitivtiesForStarting =
-					tmpPackageManager.queryIntentActivities(tmpIntent, 0);
-			if(tmpListOfAllPosibleAcitivtiesForStarting.size() > 0){
-				//===================Starting the activity===================
-				getActivity().startActivity(tmpIntent);
-			}else{
-				Toast.makeText(getActivity(),
-						"Currently no app supports this file type on this device, " +
-						"please install an app that supports this operation",
-						Toast.LENGTH_LONG)
-								.show();
-			}
-		}
-		private void doRandomKindActionFromSetOfFiles(File inDirectoryFromString){
-			Log.i(Utils.getClassName(), "inDirectoryFromString = " + inDirectoryFromString);
-			
-			String[] tmpListOfFilesInDirectory = inDirectoryFromString.list();
-			Random tmpRandomNumberGenerator = new Random();
-			int tmpNumberOfFilesInDirectory = tmpListOfFilesInDirectory.length;
-			int tmpRandomNumber = tmpRandomNumberGenerator.nextInt(tmpNumberOfFilesInDirectory);
-			
-			File tmpRandomlyGivenFile = new File(
-					inDirectoryFromString + "/"
-					+ tmpListOfFilesInDirectory[tmpRandomNumber]);
-			this.doKindAction(tmpRandomlyGivenFile.toString());
-		}
-	}
-	
-	class OnlyTitleActionBehaviour implements ActionBehaviour{
-		@Override
-		public void kindAction(String inKindActionFilePath) {
-			//do nothing
-		}
-	}
-
 }

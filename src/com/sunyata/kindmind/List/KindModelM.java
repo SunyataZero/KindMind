@@ -40,7 +40,7 @@ public class KindModelM {
 	}
 	
 	//Singelton get method
-	static KindModelM get(Context inContext){
+	public static KindModelM get(Context inContext){
 		if (sKindModel == null){
 			sKindModel = new KindModelM(inContext.getApplicationContext());
 		}
@@ -385,7 +385,7 @@ public class KindModelM {
 	private String mToastFeelingsString;
 	private String mToastNeedsString;
 	
-	String getToastString(ListTypeM inListType) {
+	public String getToastString(ListTypeM inListType) {
 		//-this method also updates the toast string (can be used for example for sharing)
 		
 		switch(inListType){
