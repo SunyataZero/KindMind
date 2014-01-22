@@ -55,11 +55,9 @@ public class KindModelM {
 	//This methods updates the update sort values for each item in the list where we are at the moment
 	void updateSortValuesForListType(Context inContext, ListTypeM inListType){
 
-
 		SQLiteDatabase tmpSQLiteDatabase = DatabaseHelperM.get(mContext).getWritableDatabase();
 				//ListContentProviderM.getDatabaseHelper().getWritableDatabase();
 		tmpSQLiteDatabase.beginTransaction();
-
 
 		Cursor tmpItemCursor = mContext.getContentResolver().query(
 				KindMindContentProviderM.LIST_CONTENT_URI, null, null, null, KindMindContentProviderM.sSortType);

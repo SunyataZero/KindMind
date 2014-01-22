@@ -54,11 +54,14 @@ public class CustomCursorAdapter extends SimpleCursorAdapter{
 		
 		//If we have not drawn the view before we first update the view by calling the super method
 		
-		synchronized(parent){
+		//synchronized(parent){
 		
+		convertView = super.getView(position, convertView, parent);
+		/*
 		if(convertView == null){
 			convertView = super.getView(position, convertView, parent);
 		}
+		*/
 		
     	//Getting the SQL cursor..
     	Cursor tmpCursor = getCursor();
@@ -76,9 +79,8 @@ public class CustomCursorAdapter extends SimpleCursorAdapter{
     		tmpCheckBox.setChecked(tmpActive != 0);
 		}
 		
-		//PLEASE NOTE: Cursor not closed
+		//PLEASE NOTE: Cursor not closed (for details please see method header comments)
 		return convertView;
-		}
 	}
 
 	

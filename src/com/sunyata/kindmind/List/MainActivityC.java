@@ -255,51 +255,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     
     //----------------------Update methods
     
-	void updateViewPagerView(ListTypeM inListType){
-		//NOTE: CANNOT CALL getListAdapter() ON THE FRAGMENT FROM HERE BECAUSE THE
-		// FRAGMENT'S ONACTIVITYCREATED METHOD HAS NOT SET UP THE FRAGMENT WITH THE ADAPTER.
-
-		////////KindModelM.get(getApplicationContext()).updateSortValuesForListType(inListType);
-		//////////KindModelM.get(getApplicationContext()).getListOfType(inListType).sortWithKindness();
-		
-		//Sorting the whole list for all the different types in one go
-		//String tmpSortOrder = ItemTableM.COLUMN_KINDSORTVALUE;
-		//getContentResolver().query(ListContentProviderM.LIST_CONTENT_URI, null, null, null, tmpSortOrder);
-		
-		//Setting the name and updating
-		switch(inListType){
-		/*
-		case EVENT:
-			setTitle(R.string.events_top_title);
-			updateFragmentList(mObservationListFragment);
-			break;
-		*/
-		case FEELINGS:
-			setTitle(R.string.feelings_title);
-			//updateFragmentList(mFeelingListFragment);
-			mFeelingListFragment.updateListWithNewData();
-			//mFeelingListFragment.restartLoader();
-			break;
-		case NEEDS:
-			setTitle(R.string.needs_title);
-			//updateFragmentList(mNeedListFragment);
-			mNeedListFragment.updateListWithNewData();
-			//mNeedListFragment.restartLoader();
-			break;
-		case ACTIONS:
-			setTitle(R.string.kindness_title);
-			//updateFragmentList(mKindnessListFragment);
-			mActionListFragment.updateListWithNewData();
-			//mActionListFragment.restartLoader();
-			break;
-		default:
-			Log.e(Utils.getClassName(), "Error in updateViewPagerView: Case not covered");
-			return;
-		}
-		
-		setTitle(R.string.app_name);
-	}
-    
 	public void clearActivated(){
 		//KindModelM.get(this).clearActivatedForAllLists();
 		
@@ -309,41 +264,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		this.getContentResolver().update(
 				tmpUri, tmpContentValueForUpdate, null, null);
 	}
-	
-	void updateAllFragmentLists(){
-		updateFragmentList(mFeelingListFragment);
-		updateFragmentList(mNeedListFragment);
-		updateFragmentList(mActionListFragment);
-	}
-	ListFragmentC tmpListFragment = null; //Has to be put outside for it to be accessible inside the Runnable
-	private void updateFragmentList(ListFragmentC inListFragment){
-		/*
-		tmpListFragment = inListFragment;
-		if(tmpListFragment == null){
-			return;
-		}
-		if(tmpListFragment.getListAdapter() == null){
-			return;
-		}
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				try{
-					//((ListFragmentDataAdapterC)tmpListFragment.getListAdapter()).notifyDataSetChanged();
-					//tmpListFragment.getListView().invalidateViews();
-					tmpListFragment.updateListWithNewData();
-				}catch(Exception e){
-					Log.w(Utils.getClassName(), "Error in updateFragmentList: " + e.getMessage());
-				}
-			}
-		});
-		tmpListFragment.getListView().setSelectionFromTop(0, 0);
-		*/
-	}
 
 	
 	//----------------------Callback methods
-	
 	
 	@Override
 	public void fireSavePatternEvent() {

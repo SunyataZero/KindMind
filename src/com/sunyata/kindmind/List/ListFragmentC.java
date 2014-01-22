@@ -4,15 +4,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Random;
 
-import com.sunyata.kindmind.R;
-import com.sunyata.kindmind.Utils;
-import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.Database.KindMindContentProviderM;
-import com.sunyata.kindmind.Details.DetailsActivityC;
-import com.sunyata.kindmind.R.id;
-import com.sunyata.kindmind.R.layout;
-import com.sunyata.kindmind.R.menu;
-
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
@@ -37,8 +28,13 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CheckBox;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
+
+import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.Details.DetailsActivityC;
 
 /*
  * Overview: ListFragmentC can show a list of items (each list item corresponding to a row in the SQL database)
@@ -167,7 +163,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 * Documentation: 
 	 * 
 	 */
-	void updateListWithNewData(){
+	void createListDataSupport(){
 		//Creating the SimpleCursorAdapter for the specified database columns linked to the specified GUI views..
 		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_TAGS}; //, ItemTableM.COLUMN_ACTIVE
 		int[] tmpDatabaseTo = {R.id.list_item_titleTextView, R.id.list_item_tagsTextView}; //, R.id.list_item_activeCheckBox
@@ -195,6 +191,76 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		//-initLoader seems to be preferrable to restartLoader
 		
 	}
+	
+	/*
+	 * Overview: refreshList updates the list
+	 * 
+	 * Details: This is done by changing the cursor and giving the cursor to the adapter, and restarting the loader 
+	 * 
+	 * Used in: 
+	 * 
+	 * Uses app internal: 
+	 * 
+	 * Uses Android lib: 
+	 * 
+	 * In: 
+	 * 
+	 * Out: 
+	 * 
+	 * Does: 
+	 * 
+	 * Shows user: 
+	 * 
+	 * Notes: 
+	 * 
+	 * Improvements: 
+	 * 
+	 * Documentation: 
+	 * 
+	 */
+	void refreshListDataSupport(Context inContext) {
+
+		String tmpSelection =
+				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + this.refListType.toString() + "'";
+		Cursor tmpCursor = inContext.getContentResolver().query(
+				KindMindContentProviderM.LIST_CONTENT_URI, null,
+				tmpSelection, null,
+				KindMindContentProviderM.sSortType);
+		
+		mCustomCursorAdapter.changeCursor(tmpCursor);
+		getListView().setAdapter(mCustomCursorAdapter);
+		//-PLEASE NOTE: We need this line, and it was hard to find this info. It was found here:
+		// http://stackoverflow.com/questions/8213200/android-listview-update-with-simplecursoradapter
+
+		
+		getLoaderManager().restartLoader(0, null, this);
+		//-PLEASE NOTE: We need this line, otherwise the checkbox status will not be updated
+		
+		getListView().smoothScrollToPosition(0); //-Scroll to the top of the list
+		
+		
+
+		
+		/*
+		getActivity().getContentResolver().notifyChange(KindMindContentProviderM.LIST_CONTENT_URI, null);
+		((CustomCursorAdapter)super.getListAdapter()).notifyDataSetChanged();
+		getLoaderManager().restartLoader(0, null, this);
+		*/
+		/*
+		getLoaderManager().restartLoader(0, null, this);
+		getLoaderManager().initLoader(0, null, this);
+		*/
+		/*
+		getLoaderManager().getLoader(0).reset();
+		getLoaderManager().getLoader(0).stopLoading();
+		getLoaderManager().getLoader(0).startLoading();
+		*/
+		/*
+		getListView().refreshDrawableState();
+		getListView().invalidate();
+		getListView().invalidateViews();
+		*/
+	}
 
 	/*
 	void restartLoader(){
@@ -219,7 +285,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		super.setRetainInstance(true);
 		///super.setEmptyText("List is empty, please click the add item button");
 		super.setHasOptionsMenu(true);
-		this.updateListWithNewData();
+		this.createListDataSupport();
 
     	super.getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
@@ -399,10 +465,15 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		case R.id.menu_item_sort_alphabetically:
 	    	
-			//Sorting the whole list for all the different types in one go
-			KindMindContentProviderM.sSortType = ItemTableM.COLUMN_NAME + " DESC";
+			//KindModelM.get(getActivity()).updateSortValuesForListType(this.getActivity(), refListType);
 			
-			this.refreshListCursorAndAdapter(this.getActivity());
+			//sleep(1000);
+			//SystemClock.sleep(1000);
+			
+			//Sorting the whole list for all the different types in one go
+			KindMindContentProviderM.sSortType = ItemTableM.COLUMN_NAME + " ASC";
+			
+			this.refreshListDataSupport(this.getActivity());
 			
 			//PLEASE NOTE: We don't close the cursor here
 			return true;
@@ -414,7 +485,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			//Sorting the whole list for all the different types in one go
 			KindMindContentProviderM.sSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
 			
-			this.refreshListCursorAndAdapter(this.getActivity());
+			this.refreshListDataSupport(this.getActivity());
 			
 			/* PLEASE NOTE: We don't close the cursor here since if we do that we will get the following:
 				01-21 21:45:28.546: E/AndroidRuntime(3173): FATAL EXCEPTION: main
@@ -437,7 +508,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			//mCallbackListener.fireUpdateAllListsEvent();
 			
 			//getLoaderManager().restartLoader(0, null, this);
-			this.updateListWithNewData();
+			//this.createListDataSupport();
 			mCustomCursorAdapter.notifyDataSetChanged();
 			
 			return true;
@@ -458,51 +529,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	}
 	
 	
-	void refreshListCursorAndAdapter(Context inContext) {
 
-		String tmpSelection =
-				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + this.refListType.toString() + "'";
-		Cursor tmpCursorWithAlphaBetaOrdering = inContext.getContentResolver().query(
-				KindMindContentProviderM.LIST_CONTENT_URI, null,
-				tmpSelection, null,
-				KindMindContentProviderM.sSortType);
-		
-		mCustomCursorAdapter.changeCursor(tmpCursorWithAlphaBetaOrdering);
-		getListView().setAdapter(mCustomCursorAdapter);
-		//-PLEASE NOTE: We need this line, and it was hard to find this info. It was found here:
-		// http://stackoverflow.com/questions/8213200/android-listview-update-with-simplecursoradapter
-		
-		getListView().smoothScrollToPosition(0); //-Scroll to the top of the list
-		
-		
-		/*
-		getActivity().getContentResolver().notifyChange(ListContentProviderM.LIST_CONTENT_URI, null);
-
-		((CustomCursorAdapter)super.getListAdapter()).notifyDataSetChanged();
-		
-		getLoaderManager().restartLoader(0, null, this);
-		//getLoaderManager().initLoader(0, null, this);
-		
-		getLoaderManager().getLoader(0).reset();
-		getLoaderManager().getLoader(0).stopLoading();
-		getLoaderManager().getLoader(0).startLoading();
-		
-		getListView().refreshDrawableState();
-		getListView().invalidate();
-		getListView().invalidateViews();
-		*/
-		
-		
-		
-		//this.updateListWithNewData();
-		//getLoaderManager().initLoader(0, null, this);
-		
-		/*
-		synchronized (this.getLoaderManager()){
-			this.getLoaderManager().notify();
-		}
-		*/
-	}
 	private void sendAsEmail(String inTitle, String inTextContent){
 		Intent i = new Intent(Intent.ACTION_SEND);
 		i.setType("text/plain");
