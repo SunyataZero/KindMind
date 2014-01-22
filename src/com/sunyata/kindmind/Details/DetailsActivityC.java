@@ -1,4 +1,6 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.Details;
+
+import com.sunyata.kindmind.SingleFragmentActivityC;
 
 import android.app.Fragment;
 
@@ -8,7 +10,7 @@ public class DetailsActivityC extends SingleFragmentActivityC {
 	
 	//The onCreate method in the parent (SingleFragmentActivityC) calls createFragment
 	@Override
-	Fragment createFragment(Object inAttachedData){ //Fragment
+	public Fragment createFragment(Object inAttachedData){ //Fragment
 		refFragment = (Fragment)DetailsFragmentC.newInstance(inAttachedData);
 		return refFragment;
 	}

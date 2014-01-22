@@ -2,6 +2,10 @@ package com.sunyata.kindmind;
 
 import java.math.BigDecimal;
 
+import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.List.ListTypeM;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -88,7 +92,7 @@ public class Utils {
 		ContentValues tmpContentValuesToInsert = new ContentValues();
     	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LISTTYPE, inListType.toString());
     	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, inColumnName);
-    	inContext.getContentResolver().insert(ListContentProviderM.LIST_CONTENT_URI, tmpContentValuesToInsert);
+    	inContext.getContentResolver().insert(KindMindContentProviderM.LIST_CONTENT_URI, tmpContentValuesToInsert);
 		Log.i(Utils.getClassName(),
 				"Added " + inColumnName + " with type " + inListType.toString() + " to the database");
 	}
@@ -102,17 +106,17 @@ public class Utils {
 		return "" + tmpBigDecimal;
 	}
 
-	static String getKindMindDirectory(){
+	public static String getKindMindDirectory(){
 		return Environment.getExternalStorageDirectory().getAbsolutePath() + "/KindMind";
 		//return Environment.getRootDirectory().getAbsolutePath() + "/KindMind";
 	}
 	
-	static String getFilePathFromIntent(Context inContext, Intent inIntent){
+	public static String getFilePathFromIntent(Context inContext, Intent inIntent){
 		Uri tmpUri = inIntent.getData();
 		String retFilePath = "";
 		Cursor tmpCursor = null;
 		try{
-			tmpCursor = inContext.getContentResolver().query(tmpUri, null, null, null, ListContentProviderM.sSortType);
+			tmpCursor = inContext.getContentResolver().query(tmpUri, null, null, null, KindMindContentProviderM.sSortType);
 			tmpCursor.moveToFirst();
 			retFilePath = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
 		}finally{
@@ -143,7 +147,7 @@ public class Utils {
 	}
 	*/
 	
-	static boolean sqlToBoolean(Cursor inCursor, String inColumn){
+	public static boolean sqlToBoolean(Cursor inCursor, String inColumn){
 		long tmpItemIsActiveInteger = inCursor.getLong(inCursor.getColumnIndexOrThrow(inColumn));
 		if(tmpItemIsActiveInteger == 0 ){
 			return false;
@@ -152,12 +156,12 @@ public class Utils {
 		}
 	}
 	
-	static int getListItemCount(Context inContext, ListTypeM inListType){
+	public static int getListItemCount(Context inContext, ListTypeM inListType){
 		int retCount;
 		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
 		String[] tmpSelectionArguments = {inListType.toString()};
 		Cursor tmpCursor = inContext.getContentResolver().query(
-				ListContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, ListContentProviderM.sSortType);
+				KindMindContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, KindMindContentProviderM.sSortType);
 		retCount = tmpCursor.getCount();
 		tmpCursor.close();
 		/* -PLEASE NOTE: This cursor has to be closed (why this and not others?) otherwise we will

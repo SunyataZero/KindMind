@@ -1,8 +1,17 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.List;
 
 import java.io.File;
 import java.util.List;
 import java.util.Random;
+
+import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.Details.DetailsActivityC;
+import com.sunyata.kindmind.R.id;
+import com.sunyata.kindmind.R.layout;
+import com.sunyata.kindmind.R.menu;
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -75,8 +84,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	//-------------------Fields and constructor
 	
-	static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
-	static final String EXTRA_AND_BUNDLE_LIST_TYPE = "EXTRA_LIST_TYPE";
+	public static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
+	public static final String EXTRA_AND_BUNDLE_LIST_TYPE = "EXTRA_LIST_TYPE";
 	private ListTypeM refListType; //-Saved in onSaveInstanceState
 	private ToastBehaviour mToastBehaviour; //-Not saved, but set in onResume
 	private static MainActivityCallbackListenerI sCallbackListener; //-Does not have to be saved since it's static
@@ -121,8 +130,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
 		//Creating the CursorLoader
 		CursorLoader retCursorLoader = new CursorLoader(
-				getActivity(), ListContentProviderM.LIST_CONTENT_URI,
-				tmpProjection, tmpSelection, tmpSelectionArguments, ListContentProviderM.sSortType);
+				getActivity(), KindMindContentProviderM.LIST_CONTENT_URI,
+				tmpProjection, tmpSelection, tmpSelectionArguments, KindMindContentProviderM.sSortType);
 		return retCursorLoader;
 	}
 	@Override
@@ -216,7 +225,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			@Override
 			public boolean onItemLongClick(AdapterView<?> adapter, View v, int position, long id) {
 
-				Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + id);
+				Uri tmpUri = Uri.parse(KindMindContentProviderM.LIST_CONTENT_URI + "/" + id);
 				Intent intent = new Intent(getActivity(), DetailsActivityC.class);
 				String tmpExtraString = tmpUri.toString();
 				intent.putExtra(EXTRA_ITEM_URI, tmpExtraString); //Extracted in DataDetailsFragmentC
@@ -247,7 +256,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		//tmpCheckBox.setOnCheckedChangeListener(null);
 
 		//Updating the database value
-		Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + inId);
+		Uri tmpUri = Uri.parse(KindMindContentProviderM.LIST_CONTENT_URI + "/" + inId);
 		ContentValues tmpContentValues = new ContentValues();
 		tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpCheckBox.isChecked() ? 1 : 0);
 		//-PLEASE NOTE: Now confirmed that only this one (right one) value is being updated, so this part is working
@@ -259,7 +268,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		mToastBehaviour.toast();
 
 		//Doing the action associated with the list item that was clicked
-		Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, ListContentProviderM.sSortType);
+		Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, KindMindContentProviderM.sSortType);
 		tmpCursor.moveToFirst();
 		String tmpFilePath = tmpCursor.getString(
 				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));
@@ -361,7 +370,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LISTTYPE, refListType.toString());
 	    	Uri tmpUriOfNewlyAddedItem =
 	    			getActivity().getContentResolver().insert(
-	    			ListContentProviderM.LIST_CONTENT_URI, tmpContentValuesToInsert);
+	    			KindMindContentProviderM.LIST_CONTENT_URI, tmpContentValuesToInsert);
 	    	//PLEASE NOTE: We use URIs instead of IDs for identifying items (since we don't connect directly to thd DB)
 	    	
 			Intent intent = new Intent(getActivity(), DetailsActivityC.class);
@@ -391,7 +400,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		case R.id.menu_item_sort_alphabetically:
 	    	
 			//Sorting the whole list for all the different types in one go
-			ListContentProviderM.sSortType = ItemTableM.COLUMN_NAME + " DESC";
+			KindMindContentProviderM.sSortType = ItemTableM.COLUMN_NAME + " DESC";
 			
 			this.refreshListCursorAndAdapter(this.getActivity());
 			
@@ -403,7 +412,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			KindModelM.get(getActivity()).updateSortValuesForListType(this.getActivity(), refListType);
 			
 			//Sorting the whole list for all the different types in one go
-			ListContentProviderM.sSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
+			KindMindContentProviderM.sSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
 			
 			this.refreshListCursorAndAdapter(this.getActivity());
 			
@@ -454,9 +463,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		String tmpSelection =
 				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + this.refListType.toString() + "'";
 		Cursor tmpCursorWithAlphaBetaOrdering = inContext.getContentResolver().query(
-				ListContentProviderM.LIST_CONTENT_URI, null,
+				KindMindContentProviderM.LIST_CONTENT_URI, null,
 				tmpSelection, null,
-				ListContentProviderM.sSortType);
+				KindMindContentProviderM.sSortType);
 		
 		mCustomCursorAdapter.changeCursor(tmpCursorWithAlphaBetaOrdering);
 		getListView().setAdapter(mCustomCursorAdapter);

@@ -1,4 +1,4 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.Details;
 
 import java.io.File;
 import java.util.Arrays;
@@ -15,6 +15,9 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.Utils;
 
 public class FileChooserFragmentC extends ListFragment {
 	

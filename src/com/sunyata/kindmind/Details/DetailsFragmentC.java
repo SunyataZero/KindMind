@@ -1,4 +1,4 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.Details;
 
 import java.util.Calendar;
 
@@ -27,6 +27,14 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+
+import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.List.ListFragmentC;
+import com.sunyata.kindmind.List.ListTypeM;
+import com.sunyata.kindmind.WidgetAndNotifications.NotificationServiceC;
 
 /*
  * DetailsFragmentC handles data for a single list item (row in the SQL database).
@@ -116,7 +124,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     	//Getting the SQL cursor for the list item URI
     	String[] tmpProjection = {ItemTableM.COLUMN_LISTTYPE, ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_NOTIFICATION};
     	Cursor tmpCursor = getActivity().getApplicationContext().getContentResolver().query(
-    			refItemUri, tmpProjection, null, null, ListContentProviderM.sSortType);
+    			refItemUri, tmpProjection, null, null, KindMindContentProviderM.sSortType);
     	boolean tmpCursorIsNotEmpty = tmpCursor.moveToFirst();
     	if(!tmpCursorIsNotEmpty){
     		Log.e(Utils.getClassName(), "Error in method fillDataFromContentProvider: Cursor is empty");
@@ -313,7 +321,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 			
 			
 			Cursor tmpCursor = getActivity().getContentResolver().query(
-					inIntent.getData(), null, null, null, ListContentProviderM.sSortType);
+					inIntent.getData(), null, null, null, KindMindContentProviderM.sSortType);
 			if(tmpCursor.getCount() == 0){
 				//tmpCursor.close();
 				return;

@@ -1,4 +1,8 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.WidgetAndNotifications;
+
+import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.R.id;
+import com.sunyata.kindmind.R.layout;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;

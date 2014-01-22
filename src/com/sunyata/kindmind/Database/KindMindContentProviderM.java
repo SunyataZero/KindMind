@@ -1,7 +1,8 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.Database;
 
 import java.util.Arrays;
 import java.util.HashSet;
+
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -13,7 +14,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 
-public class ListContentProviderM extends ContentProvider {
+public class KindMindContentProviderM extends ContentProvider {
 
 	private DatabaseHelperM mDatabaseHelper;
 
@@ -41,7 +42,7 @@ public class ListContentProviderM extends ContentProvider {
 	public static final Uri PATTERN_CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + PATTERN_BASE_PATH);
 	
 	
-	static String sSortType = ItemTableM.COLUMN_KINDSORTVALUE;
+	public static String sSortType = ItemTableM.COLUMN_KINDSORTVALUE;
 	
 	//public static final String PATTERN_CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/pattern";
 	

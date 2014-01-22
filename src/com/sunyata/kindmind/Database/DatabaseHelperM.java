@@ -1,11 +1,8 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.Database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.BaseColumns;
-import android.util.Log;
 
 public class DatabaseHelperM extends SQLiteOpenHelper{
 
@@ -15,7 +12,7 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 	private static DatabaseHelperM sDatabaseHelper;
 	
 	//Singelton get method
-	static DatabaseHelperM get(Context inContext){
+	public static DatabaseHelperM get(Context inContext){
 		if (sDatabaseHelper == null){
 			sDatabaseHelper = new DatabaseHelperM(inContext.getApplicationContext());
 		}

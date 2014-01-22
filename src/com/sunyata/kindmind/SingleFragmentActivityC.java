@@ -1,5 +1,7 @@
 package com.sunyata.kindmind;
 
+import com.sunyata.kindmind.List.ListFragmentC;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -8,7 +10,7 @@ import android.util.Log;
 
 public abstract class SingleFragmentActivityC extends Activity {
 
-	abstract Fragment createFragment(Object inAttachedData);
+	public abstract Fragment createFragment(Object inAttachedData);
 
 	
 	//-----------------Lifecycle methods

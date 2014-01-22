@@ -1,8 +1,14 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.List;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.Database.DatabaseHelperM;
+import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.Database.PatternTableM;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -56,7 +62,7 @@ public class KindModelM {
 
 
 		Cursor tmpItemCursor = mContext.getContentResolver().query(
-				ListContentProviderM.LIST_CONTENT_URI, null, null, null, ListContentProviderM.sSortType);
+				KindMindContentProviderM.LIST_CONTENT_URI, null, null, null, KindMindContentProviderM.sSortType);
 
 		Cursor tmpPatternCursor = null;
 		//= mContext.getContentResolver().query(ListContentProviderM.PATTERN_CONTENT_URI, null, null, null, Utils.sSortType);
@@ -83,7 +89,7 @@ public class KindModelM {
 				//-PLEASE NOTE: COLUMN_ITEM_ID (not COLUMN_ID)
 
 				tmpPatternCursor = mContext.getContentResolver().query(
-						ListContentProviderM.PATTERN_CONTENT_URI, null, tmpPatternSelection, null, null);
+						KindMindContentProviderM.PATTERN_CONTENT_URI, null, tmpPatternSelection, null, null);
 
 				//Why do these lines not work?
 				if(tmpPatternCursor.getCount() > 2){
@@ -118,7 +124,7 @@ public class KindModelM {
 			tmpSQLiteDatabase.endTransaction();
 			
 			/////TODO: getContext().getContentResolver().notifyChange(tmpUri, null);
-			inContext.getContentResolver().notifyChange(ListContentProviderM.LIST_CONTENT_URI, null);
+			inContext.getContentResolver().notifyChange(KindMindContentProviderM.LIST_CONTENT_URI, null);
 		}
 
 		//tmpItemCursor.close();
@@ -384,7 +390,6 @@ public class KindModelM {
 	String getToastString(ListTypeM inListType) {
 		//-this method also updates the toast string (can be used for example for sharing)
 		
-		String mToastFeelingsString;
 		switch(inListType){
 		case FEELINGS:
 			mToastFeelingsString =
@@ -413,7 +418,7 @@ public class KindModelM {
 				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + inListType.toString() + "'";
 		//-Please note that we are adding ' signs around the String
 		Cursor tmpCursor = mContext.getContentResolver().query(
-				ListContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, ListContentProviderM.sSortType);
+				KindMindContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, KindMindContentProviderM.sSortType);
 		for(tmpCursor.moveToFirst(); tmpCursor.isAfterLast() == false; tmpCursor.moveToNext()){
 			//add name to return list
 			String tmpStringToAdd = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));

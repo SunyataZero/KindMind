@@ -1,4 +1,7 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.Details;
+
+import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.Database.KindMindContentProviderM;
 
 import android.app.Activity;
 import android.app.ListFragment;
@@ -48,7 +51,7 @@ public class BookmarkChooserFragmentC extends ListFragment {
 		
 		ContentResolver tmpContentResolver = getActivity().getContentResolver(); //<--------
 		Cursor tmpCursor = tmpContentResolver.query(
-				android.provider.Browser.BOOKMARKS_URI, null, null, null, ListContentProviderM.sSortType);
+				android.provider.Browser.BOOKMARKS_URI, null, null, null, KindMindContentProviderM.sSortType);
 		//android.provider.Browser.getAllBookmarks(tmpContentResolver);
 		
 		mCursorAdapter = new SimpleCursorAdapter(

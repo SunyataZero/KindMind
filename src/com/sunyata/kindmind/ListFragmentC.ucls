@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class-diagram version="1.1.3" icons="true" always-add-relationships="true" generalizations="true" realizations="true" 
   associations="true" dependencies="true" nesting-relationships="true">  
-  <class id="1" language="java" name="com.sunyata.kindmind.ListFragmentC.NoToast" project="KindMind" 
-    file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+  <class id="1" language="java" name="com.sunyata.kindmind.List.ListFragmentC.NoToast" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/List/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="97" width="104" x="-12" y="525"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
       visibility="true">      
@@ -10,8 +10,8 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="2" language="java" name="com.sunyata.kindmind.ListFragmentC.FeelingsToast" project="KindMind" 
-    file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+  <class id="2" language="java" name="com.sunyata.kindmind.List.ListFragmentC.FeelingsToast" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/List/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="97" width="104" x="-156" y="525"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
       visibility="true">      
@@ -19,8 +19,8 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="3" language="java" name="com.sunyata.kindmind.ListFragmentC.NeedsToast" project="KindMind" 
-    file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+  <class id="3" language="java" name="com.sunyata.kindmind.List.ListFragmentC.NeedsToast" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/List/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="97" width="104" x="132" y="525"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
       visibility="true">      
@@ -28,8 +28,8 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <interface id="4" language="java" name="com.sunyata.kindmind.ListFragmentC.ToastBehaviour" project="KindMind" 
-    file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+  <interface id="4" language="java" name="com.sunyata.kindmind.List.ListFragmentC.ToastBehaviour" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/List/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="79" width="114" x="132" y="835"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
       visibility="true">      
@@ -64,8 +64,8 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="8" language="java" name="com.sunyata.kindmind.ListFragmentC" project="KindMind" 
-    file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+  <class id="8" language="java" name="com.sunyata.kindmind.List.ListFragmentC" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/List/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="439" width="375" x="257" y="46"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
       visibility="true">      

@@ -1,8 +1,17 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.List;
 
 import java.io.File;
 import java.util.Calendar;
 import java.util.Locale;
+
+import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.Database.PatternTableM;
+import com.sunyata.kindmind.R.id;
+import com.sunyata.kindmind.R.layout;
+import com.sunyata.kindmind.R.string;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -296,7 +305,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		
 		ContentValues tmpContentValueForUpdate = new ContentValues();
 		tmpContentValueForUpdate.put(ItemTableM.COLUMN_ACTIVE, 0); //0 means false
-		Uri tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI.toString());
+		Uri tmpUri = Uri.parse(KindMindContentProviderM.LIST_CONTENT_URI.toString());
 		this.getContentResolver().update(
 				tmpUri, tmpContentValueForUpdate, null, null);
 	}
@@ -339,7 +348,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	@Override
 	public void fireSavePatternEvent() {
 		Cursor tmpItemCursor = this.getContentResolver().query(
-				ListContentProviderM.LIST_CONTENT_URI, null, null, null, ListContentProviderM.sSortType);
+				KindMindContentProviderM.LIST_CONTENT_URI, null, null, null, KindMindContentProviderM.sSortType);
 		
 		for(tmpItemCursor.moveToFirst(); tmpItemCursor.isAfterLast() == false; tmpItemCursor.moveToNext()){
 		
@@ -352,7 +361,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				tmpInsertContentValues.put(PatternTableM.COLUMN_ITEM_REFERENCE, tmpItemId);
 				tmpInsertContentValues.put(PatternTableM.COLUMN_TIME, Calendar.getInstance().getTimeInMillis());
 				this.getContentResolver().insert(
-						ListContentProviderM.PATTERN_CONTENT_URI, tmpInsertContentValues);
+						KindMindContentProviderM.PATTERN_CONTENT_URI, tmpInsertContentValues);
 			}
 		}
 

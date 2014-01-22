@@ -46,8 +46,8 @@
       <operations public="false" package="true" protected="true" private="false" static="true"/>    
     </display>  
   </class>  
-  <interface id="6" language="java" name="com.sunyata.kindmind.ListFragmentC.ToastBehaviour" project="KindMind" 
-    file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+  <interface id="6" language="java" name="com.sunyata.kindmind.List.ListFragmentC.ToastBehaviour" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/List/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="847" y="384"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
@@ -82,8 +82,8 @@
       <operations public="false" package="true" protected="true" private="false" static="true"/>    
     </display>  
   </class>  
-  <class id="10" language="java" name="com.sunyata.kindmind.MainActivityC" project="KindMind" 
-    file="/KindMind/src/com/sunyata/kindmind/MainActivityC.java" binary="false" corner="BOTTOM_RIGHT">    
+  <class id="10" language="java" name="com.sunyata.kindmind.List.MainActivityC" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/List/MainActivityC.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1211" y="176"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
@@ -100,8 +100,8 @@
       <operations public="false" package="true" protected="true" private="false" static="true"/>    
     </display>  
   </class>  
-  <class id="12" language="java" name="com.sunyata.kindmind.KindModelM" project="KindMind" 
-    file="/KindMind/src/com/sunyata/kindmind/KindModelM.java" binary="false" corner="BOTTOM_RIGHT">    
+  <class id="12" language="java" name="com.sunyata.kindmind.List.KindModelM" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/List/KindModelM.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="154" y="137"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
@@ -109,8 +109,8 @@
       <operations public="false" package="true" protected="true" private="false" static="true"/>    
     </display>  
   </class>  
-  <class id="13" language="java" name="com.sunyata.kindmind.ListFragmentC" project="KindMind" 
-    file="/KindMind/src/com/sunyata/kindmind/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
+  <class id="13" language="java" name="com.sunyata.kindmind.List.ListFragmentC" project="KindMind" 
+    file="/KindMind/src/com/sunyata/kindmind/List/ListFragmentC.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="851" y="179"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      

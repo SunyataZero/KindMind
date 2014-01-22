@@ -1,4 +1,6 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.Details;
+
+import com.sunyata.kindmind.SingleFragmentActivityC;
 
 import android.app.Fragment;
 
@@ -9,7 +11,7 @@ public class FileChooserActivityC extends SingleFragmentActivityC{
 	
 	//The onCreate method in the parent (SingleFragmentActivityC) calls createFragment
 	@Override
-	Fragment createFragment(Object inAttachedData){
+	public Fragment createFragment(Object inAttachedData){
 		refFragment = (Fragment)FileChooserFragmentC.newInstance(); //Attached data is not used in this subclass
 		return refFragment;
 	}

@@ -1,6 +1,13 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.WidgetAndNotifications;
 
 import java.util.Date;
+
+import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.List.MainActivityC;
+import com.sunyata.kindmind.R.drawable;
 
 import android.app.AlarmManager;
 import android.app.IntentService;
@@ -37,13 +44,13 @@ public class NotificationServiceC extends IntentService {
 	 * Usage: Only BootCompleteReceiverC.onReceive()
 	 * Uses app internal: this.setServiceNotificationSingle()
 	 */
-	static void setServiceNotificationAll(Context inContext){
+	public static void setServiceNotificationAll(Context inContext){
 		long tmpNotification = -1;
 		Uri tmpItemUri = null;
 		
 		//Creating SQL cursor
 		Cursor tmpCursor = inContext.getContentResolver().query(
-				ListContentProviderM.LIST_CONTENT_URI, null, null, null, ListContentProviderM.sSortType);
+				KindMindContentProviderM.LIST_CONTENT_URI, null, null, null, KindMindContentProviderM.sSortType);
 		if(tmpCursor.getCount() == 0){
 			//tmpCursor.close();
 			return;
@@ -55,7 +62,7 @@ public class NotificationServiceC extends IntentService {
 			//..extracting notification data and list item URI
 			tmpNotification = tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
 			tmpItemUri = Uri.withAppendedPath(
-					ListContentProviderM.LIST_CONTENT_URI,
+					KindMindContentProviderM.LIST_CONTENT_URI,
 					"/" +
 					(tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID))));
 			
@@ -74,9 +81,9 @@ public class NotificationServiceC extends IntentService {
 	 * Usage: this.setServiceNotificationAll(), DetailsFragmentC.changeNotificationService()
 	 * Uses Android lib: AlarmManager.setRepeating()
 	 */
-	static void setServiceNotificationSingle(Context inContext, Uri inItemUri, long inIntervalInMilliSeconds){
+	public static void setServiceNotificationSingle(Context inContext, Uri inItemUri, long inIntervalInMilliSeconds){
 		//Setting up an SQL cursor to point to the row for the item URI
-		Cursor tmpCursor = inContext.getContentResolver().query(inItemUri, null, null, null, ListContentProviderM.sSortType);
+		Cursor tmpCursor = inContext.getContentResolver().query(inItemUri, null, null, null, KindMindContentProviderM.sSortType);
 		if(tmpCursor.getCount() == 0){
 			//tmpCursor.close();
 			return;

@@ -1,4 +1,6 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.Database;
+
+import com.sunyata.kindmind.Utils;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;

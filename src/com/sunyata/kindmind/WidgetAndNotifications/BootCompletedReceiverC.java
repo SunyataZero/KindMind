@@ -1,4 +1,6 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.WidgetAndNotifications;
+
+import com.sunyata.kindmind.Utils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

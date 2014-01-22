@@ -1,10 +1,13 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.List;
 
 import java.util.ArrayList;
 
+import com.sunyata.kindmind.Utils;
+
+
 import android.util.Log;
 
-enum ListTypeM{
+public enum ListTypeM{
 	FEELINGS	(0),
 	NEEDS		(1),
 	ACTIONS	(2);//Change name to strategies?

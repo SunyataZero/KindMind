@@ -1,6 +1,10 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.WidgetAndNotifications;
 
 import java.util.ArrayList;
+
+import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.R.layout;
 
 import android.content.Context;
 import android.content.Intent;
