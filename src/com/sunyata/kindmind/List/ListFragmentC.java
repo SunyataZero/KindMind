@@ -29,46 +29,31 @@ import com.sunyata.kindmind.Details.DetailsActivityC;
 import com.sunyata.kindmind.ToastsAndActions.*;
 
 /*
- * Overview: ListFragmentC can show a list of items (each list item corresponding to a row in the SQL database)
- * 
- * Details: 
- * 
- * Implements: 
- * 
- * Extends: 
- * 
- * Used in: 
- * 
- * Uses app internal: 
- * 
+ * Overview: ListFragmentC shows a list of items (each item corresponding to a row in the SQL database)
+ * Sections:
+ *  -------------------Fields and constructor
+ *  -------------------Loader and update methods
+ *  -------------------onCreate, onActivityCreated and click methods
+ *  -------------------Other lifecycle methods
+ *  -------------------Options menu
+ *  -------------------Toast and Action Behaviour
+ * Implements: LoaderManager.LoaderCallbacks<Cursor>
+ * Extends: ListFragment
  * Uses Android lib: *ListView*, ListFragment, LoaderManager, CursorLoader
  *  http://developer.android.com/reference/android/widget/ListView.html
  *  https://developer.android.com/reference/android/support/v4/app/ListFragment.html
  *  https://developer.android.com/reference/android/support/v4/app/LoaderManager.html
  *  https://developer.android.com/reference/android/support/v4/content/CursorLoader.html
- * 
- * In: 
- * 
- * Out: 
- * 
- * Does: 
- * 
- * Shows user: 
- * 
  * Notes: *Support classes are used*
  *  import android.support.v4.app.ListFragment;
  *  import android.support.v4.app.LoaderManager;
  *  import android.support.v4.content.CursorLoader;
  *  The reason for this is that the ViewPager only is available in a support version and is not compatible
  *  with other versions
- * 
- * Improvements: 
- * 
- * Documentation: 
- * 
  */
 public class ListFragmentC extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 //will later on extend an abstract class
+	
 	
 	//-------------------Fields and constructor
 	
@@ -89,7 +74,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	}
 
 	
-	//-------------------Loader methods
+	//-------------------Loader and update methods
 	//A very good example is available at the top of the following page:
 	// http://developer.android.com/reference/android/app/LoaderManager.html
 	
@@ -139,8 +124,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		mCustomCursorAdapter.swapCursor(null);
 	}
 	
-	
-	//-------------------Update methods
 	
 	/* 
 	 * Overview: createListDataSupport fills the data from the database into the loader
@@ -242,6 +225,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		01-21 21:45:28.546: E/AndroidRuntime(3173): 	at com.sunyata.kindmind.ListFragmentC$CustomCursorAdapter.getView(ListFragmentC.java:143)
 		 */
 	}
+	
 
 	
 	//-------------------onCreate, onActivityCreated and click methods
@@ -302,7 +286,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		//Updating the database value
 		Uri tmpUri = Uri.parse(KindMindContentProviderM.LIST_CONTENT_URI + "/" + inId);
 		ContentValues tmpContentValues = new ContentValues();
-		tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpCheckBox.isChecked() ? 1 : 0);
+		tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpCheckBox.isChecked() ? 1 : ItemTableM.FALSE);
 		//-PLEASE NOTE: Now confirmed that only this one (right one) value is being updated, so this part is working
 		// (what is left is the viewing of the data
 		//-Boolean stored as 0 (false) or 1 (true)
@@ -319,6 +303,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		mActionBehaviour.kindAction(getActivity(), tmpFilePath);
 		
 		mCustomCursorAdapter.notifyDataSetChanged();
+		
+		sCallbackListener.fireUpdateTabTitles();
 		
 		//tmpCursor.close();
     }
@@ -399,9 +385,15 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		inMenuInflater.inflate(R.menu.actionbarmenu_datalist, inMenu);
 	}
 	
+	/*
+	 * Overview: onOptionsItemSelected is called from outside kindmind when an options item (sometimes shown
+	 *  as a button and sometimes not) is clicked
+	 * Details: Please see each section in the method for details about the different responses for the buttons
+	 * Documentation: 
+	 * http://developer.android.com/reference/android/app/Activity.html#onOptionsItemSelected%28android.view.MenuItem%29
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem inMenuItem){
-		
 		switch (inMenuItem.getItemId()){
 		case R.id.menu_item_new_listitem:
 			ContentValues tmpContentValuesToInsert = new ContentValues();
@@ -418,6 +410,11 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			intent.putExtra(EXTRA_ITEM_URI, tmpExtraString);
 			//-Extracted in SingleFragmentActivityC and sent to DataDetailsFragmentC
 			startActivityForResult(intent, 0); //Calling DataDetailsActivityC
+			
+			return true;
+		case R.id.menu_item_save_pattern:
+			//Save all the checked list items into the PATTERN table
+			sCallbackListener.fireSavePatternEvent();
 			
 			return true;
 		case R.id.menu_item_share_experience:
@@ -449,11 +446,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			this.refreshListDataSupport();
 			
 			return true;
-		case R.id.menu_item_save_pattern:
-			//Save all the checked list items into the PATTERN table
-			sCallbackListener.fireSavePatternEvent();
-			
-			return true;
 		case R.id.menu_item_clear_all_list_selections:
 			//Clearing activated and going left, but without saving
 			sCallbackListener.fireClearAllListsEvent();
@@ -469,7 +461,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		}
 		
 	}
-	
 	private void sendAsEmail(String inTitle, String inTextContent){
 		Intent i = new Intent(Intent.ACTION_SEND);
 		i.setType("text/plain");
@@ -477,7 +468,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		i.putExtra(Intent.EXTRA_TEXT, inTextContent);
 		startActivity(i);
 	}
-	
 	/*
 	String toFormattedString(){
 		String retFormattedString = "List type: " + refListType + "\n";

@@ -4,20 +4,10 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.Locale;
 
-import com.sunyata.kindmind.R;
-import com.sunyata.kindmind.Utils;
-import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.Database.KindMindContentProviderM;
-import com.sunyata.kindmind.Database.PatternTableM;
-import com.sunyata.kindmind.R.id;
-import com.sunyata.kindmind.R.layout;
-import com.sunyata.kindmind.R.string;
-
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -28,15 +18,54 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.Database.PatternTableM;
+
+
+/*
+ * Overview: MainActivityC is the Activity holding the ListFragments using a ViewPager
+ * 
+ * Details: 
+ * 
+ * Extends: FragmentActivity
+ * 
+ * Implements: MainActivityCallbackListenerI
+ * 
+ * Sections:
+ * ------------------------Fields
+ * ------------------------onCreate and other lifecycle methods
+ * ------------------------Pager adapter
+ * ------------------------Update and callback methods
+ * Used in: 
+ * 
+ * Uses app internal: 
+ * 
+ * Uses Android lib: 
+ * 
+ * In: 
+ * 
+ * Out: 
+ * 
+ * Does: 
+ * 
+ * Shows user: 
+ * 
+ * Notes: CustomPagerAdapter is a local class because it uses local fields
+ * 
+ * Improvements: 
+ * 
+ * Documentation: 
+ * 
+ */
 public class MainActivityC extends FragmentActivity implements MainActivityCallbackListenerI{
 
+	
 	//------------------------Fields
 	
 	private CustomPagerAdapter mSectionsPagerAdapter;
@@ -48,8 +77,13 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     private ListFragmentC mNeedListFragment;
     private ListFragmentC mActionListFragment;
     private ActionBar refActionBar;
+    private String mFeelingTitle;
+    private String mNeedTitle;
+    private String mActionTitle;
     
-    //------------------------Lifecycle methods, including onCreate
+
+    
+    //------------------------onCreate and other lifecycle methods
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +110,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 			@Override
 			public void onPageSelected(int pos) {
+				Log.d(Utils.getClassName(), Utils.getMethodName("ViewPager.OnPageChangeListener.onPageSelected()"));
 				///updateViewPagerView(ListTypeM.getEnumListByLevel(mViewPager.getCurrentItem()).get(0));
 				getActionBar().setSelectedNavigationItem(pos);
 				/*
@@ -118,10 +153,12 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			public void onTabReselected(Tab tab, FragmentTransaction ft) {
 			}
         };
-        refActionBar.addTab(refActionBar.newTab().setText(R.string.feelings_title).setTabListener(tmpTabListener));
-        refActionBar.addTab(refActionBar.newTab().setText(R.string.needs_title).setTabListener(tmpTabListener));
-        refActionBar.addTab(refActionBar.newTab().setText(R.string.kindness_title).setTabListener(tmpTabListener));
-        //TODO: Adding a number to show the number of checked items. We can use getResources().getString(id)
+        
+        
+        refActionBar.addTab(refActionBar.newTab().setText(mFeelingTitle).setTabListener(tmpTabListener));
+        refActionBar.addTab(refActionBar.newTab().setText(mNeedTitle).setTabListener(tmpTabListener));
+        refActionBar.addTab(refActionBar.newTab().setText(mActionTitle).setTabListener(tmpTabListener));
+        this.fireUpdateTabTitles();
 
 
         //TODO: Direcoty is not created, please fix or find another way to choose files
@@ -138,7 +175,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	}
 
     }
-
     
     @Override
     public void onDestroy(){
@@ -175,19 +211,16 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	public void onActivityResult(int requestcode, int resultcode, Intent intent){
 		Log.d(Utils.getClassName(), Utils.getMethodName());
 	}
-	
-	
     @Override
     public void onSaveInstanceState(Bundle outBundle){
     	super.onSaveInstanceState(outBundle);
     	Log.d(Utils.getClassName(), Utils.getMethodName());
-    	
     	//this.savePatternToDatabase();
     }
 
 	
     
-	//-------------------Pager adapter
+	//------------------------Pager adapter
 	
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -205,31 +238,26 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         	case 0:
         		mFeelingListFragment = ListFragmentC.newInstance(ListTypeM.FEELINGS,
         				(MainActivityCallbackListenerI)MainActivityC.this);
-        		//((DataAdapter)mSufferingListFragment.getListAdapter()).notifyDataSetChanged();
         		break;
         	case 1:
         		mNeedListFragment = ListFragmentC.newInstance(ListTypeM.NEEDS,
         				(MainActivityCallbackListenerI)MainActivityC.this);
-        		//((DataAdapter)mNeedListFragment.getListAdapter()).notifyDataSetChanged();
         		break;
         	case 2:
         		mActionListFragment = ListFragmentC.newInstance(ListTypeM.ACTIONS,
         				(MainActivityCallbackListenerI)MainActivityC.this);
-        		//((DataAdapter)mKindnessListFragment.getListAdapter()).notifyDataSetChanged();
         		break;
         	default:
         		Log.e(Utils.getClassName(), "Error in instantiateItem: Case not covered");
         		break;
         	}
-        	
         	return super.instantiateItem(container, position);
         }
         //getItem is called to instantiate the page for the given position.
         @Override
         public android.support.v4.app.Fragment getItem(int inPosition) {
         	switch (inPosition){
-        		//case 0: return mObservationListFragment;
-		    	case 0:	return mFeelingListFragment; //mFeelingListFragment; //Has already been created in the constructor
+		    	case 0:	return mFeelingListFragment;
 				case 1: return mNeedListFragment;
 		    	case 2: return mActionListFragment;
 		    	default: Log.e(Utils.getClassName(), "Error in method getItem: case not covered");return null;
@@ -243,7 +271,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         public CharSequence getPageTitle(int inPosition) {
             Locale l = Locale.getDefault();
             switch (inPosition) {
-            	//TODO: Remove?
                 case 0: return getString(R.string.feelings_title).toUpperCase(l);
                 case 1: return getString(R.string.needs_title).toUpperCase(l);
                 case 2: return getString(R.string.kindness_title).toUpperCase(l);
@@ -253,21 +280,18 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     }
 
     
-    //----------------------Update methods
+    //------------------------Update and callback methods
     
 	public void clearActivated(){
 		//KindModelM.get(this).clearActivatedForAllLists();
 		
 		ContentValues tmpContentValueForUpdate = new ContentValues();
-		tmpContentValueForUpdate.put(ItemTableM.COLUMN_ACTIVE, 0); //0 means false
+		tmpContentValueForUpdate.put(ItemTableM.COLUMN_ACTIVE, ItemTableM.FALSE);
 		Uri tmpUri = Uri.parse(KindMindContentProviderM.LIST_CONTENT_URI.toString());
 		this.getContentResolver().update(
 				tmpUri, tmpContentValueForUpdate, null, null);
 	}
 
-	
-	//----------------------Callback methods
-	
 	@Override
 	public void fireSavePatternEvent() {
 		Cursor tmpItemCursor = this.getContentResolver().query(
@@ -307,5 +331,30 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		
 		//Side scrolling to the leftmost viewpager position (feelings)
 		mViewPager.setCurrentItem(0, true);
+		
+		this.fireUpdateTabTitles();
+	}
+	
+	@Override
+	public void fireUpdateTabTitles() {
+		mFeelingTitle = getResources().getString(R.string.feelings_title);
+        mNeedTitle = getResources().getString(R.string.needs_title);
+        mActionTitle = getResources().getString(R.string.kindness_title);
+        int tmpFeelingsCount = Utils.getActiveListItemCount(this, ListTypeM.FEELINGS);
+        int tmpNeedsCount = Utils.getActiveListItemCount(this, ListTypeM.NEEDS);
+        int tmpActionsCount = Utils.getActiveListItemCount(this, ListTypeM.ACTIONS);
+        if(tmpFeelingsCount != 0){
+        	mFeelingTitle = mFeelingTitle + " (" + tmpFeelingsCount + ")";
+        }
+        if(tmpNeedsCount != 0){
+        	mNeedTitle = mNeedTitle + " (" + tmpNeedsCount + ")";
+        }
+        if(tmpActionsCount != 0){
+        	mActionTitle = mActionTitle + " (" + tmpActionsCount + ")";
+        }
+        refActionBar.getTabAt(0).setText(mFeelingTitle);
+        refActionBar.getTabAt(1).setText(mNeedTitle);
+        refActionBar.getTabAt(2).setText(mActionTitle);
+        ////refActionBar.addTab(refActionBar.newTab().setText(mFeelingTitle).setTabListener(tmpTabListener));
 	}
 }

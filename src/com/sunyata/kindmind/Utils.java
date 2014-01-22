@@ -149,7 +149,7 @@ public class Utils {
 	
 	public static boolean sqlToBoolean(Cursor inCursor, String inColumn){
 		long tmpItemIsActiveInteger = inCursor.getLong(inCursor.getColumnIndexOrThrow(inColumn));
-		if(tmpItemIsActiveInteger == 0 ){
+		if(tmpItemIsActiveInteger == ItemTableM.FALSE){
 			return false;
 		}else{
 			return true;
@@ -174,6 +174,20 @@ public class Utils {
 		 *  http://stackoverflow.com/questions/4547461/closing-the-database-in-a-contentprovider
 		 *  We have also tried leaving other cursors open and have seen no problems there 
 		 */
+		return retCount;
+	}
+	
+	//Cmp with method getListOfNamesForActivatedData
+	public static int getActiveListItemCount(Context inContext, ListTypeM inListType){
+		int retCount;
+		String tmpSelection =
+				ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE + " AND " +
+				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + inListType.toString() + "'";
+		Cursor tmpCursor = inContext.getContentResolver().query(
+				KindMindContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, KindMindContentProviderM.sSortType);
+		retCount = tmpCursor.getCount();
+		tmpCursor.close();
+		//-PLEASE NOTE: This cursor has to be closed (see comments in method getListItemCount)
 		return retCount;
 	}
 }

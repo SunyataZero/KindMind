@@ -76,7 +76,7 @@ public class CustomCursorAdapter extends SimpleCursorAdapter{
 				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)));
 		CheckBox tmpCheckBox = ((CheckBox)convertView.findViewById(R.id.list_item_activeCheckBox));
 		if (tmpCheckBox != null){
-    		tmpCheckBox.setChecked(tmpActive != 0);
+    		tmpCheckBox.setChecked(tmpActive != ItemTableM.FALSE);
 		}
 		
 		//PLEASE NOTE: Cursor not closed (for details please see method header comments)

@@ -20,6 +20,8 @@ public class ItemTableM {
 	//-Alternative: Not storing this value here, but instead locally
 	public static final String COLUMN_TAGS = "tags"; //One string holding tags
 	
+	public static final int FALSE = -1; //-All other values means TRUE
+	
 	//TODO: Please remember to update the verifyColumns method and the updrade method when we add new columns
 	
 	private static final String CREATE_DATABASE =
@@ -27,7 +29,7 @@ public class ItemTableM {
 			+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ COLUMN_NAME + " TEXT NOT NULL DEFAULT 'no_name_set', "
 			+ COLUMN_LISTTYPE + " TEXT NOT NULL DEFAULT 'SUFFERING', " //TODO: remove default
-			+ COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT 0, " //TODO: change to -1 for false
+			+ COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT -1, "
 			+ COLUMN_FILEORDIRPATH + " TEXT NOT NULL DEFAULT -1, "
 			+ COLUMN_NOTIFICATION + " INTEGER NOT NULL DEFAULT -1, "
 			+ COLUMN_KINDSORTVALUE + " REAL NOT NULL DEFAULT 0, "

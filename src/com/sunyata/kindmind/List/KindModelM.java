@@ -412,7 +412,7 @@ public class KindModelM {
 	private ArrayList<String> getListOfNamesForActivatedData(ListTypeM inListType) {
 		ArrayList<String> retActivatedData = new ArrayList<String>();
 		String tmpSelection =
-				ItemTableM.COLUMN_ACTIVE + "=1" + " AND " +
+				ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE + " AND " +
 				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + inListType.toString() + "'";
 		//-Please note that we are adding ' signs around the String
 		Cursor tmpCursor = mContext.getContentResolver().query(

@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelperM extends SQLiteOpenHelper{
 
 	private static final String DATABASE_NAME = "kindmind.db";
-	private static final int DATABASE_VERSION = 18;
+	private static final int DATABASE_VERSION = 19;
 	
 	private static DatabaseHelperM sDatabaseHelper;
 	
