@@ -19,7 +19,7 @@ public class KindMindRemoteViewsService extends RemoteViewsService {
 
 class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory{
 
-	ArrayList<ItemM> refList;
+/////ArrayList<ItemM> refList;
 	Context mContext;
 	
 	KindMindRemoteViewsFactory(Context inContext, Intent inIntent){
@@ -28,7 +28,8 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
 	@Override
 	public int getCount() {
-		return refList.size();
+		/////return refList.size();
+		return -100;
 	}
 
 	@Override
@@ -53,7 +54,7 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
 		RemoteViews retRemoteViews = new RemoteViews(
 				mContext.getPackageName(), R.layout.widget_listitem); //Please note: R.layout
-		retRemoteViews.setTextViewText(R.id.widget_listitem, refList.get(position).getName());
+		/////retRemoteViews.setTextViewText(R.id.widget_listitem, refList.get(position).getName());
 
 		return retRemoteViews;
 	}

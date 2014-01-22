@@ -94,120 +94,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	}
 	
 	
-	//-------------------Adapter
 
-	public class CustomCursorAdapter extends SimpleCursorAdapter{
-
-		public CustomCursorAdapter(Context context, int layout, Cursor c,
-				String[] from, int[] to, int flags) {
-			super(context, layout, c, from, to, flags);
-		}
-
-		
-		/*
-		 * Overview: getView is overridden so that we can update the status of the checkboxes in the list
-		 * In: position is the position in the list
-		 *  convertView is a reference to the (parent) view that we get the checkbox view from;
-		 *  parent is the parent of the list item (so it is the "grand parent" of the checkbox);
-		 * Out: The updated View
-		 * Does: Updates the checkbox child view inside a list item view
-		 * Notes: A long time was spent on this method and it has been saved in the cloud as well as
-		 *  part of the CustomCursorAdapter
-		 * The cursor will remain open, we will get an error if we try to close it:
-			01-21 20:55:18.033: E/AndroidRuntime(6357): FATAL EXCEPTION: main
-			01-21 20:55:18.033: E/AndroidRuntime(6357): java.lang.IllegalStateException: attempt to re-open an already-closed object: android.database.sqlite.SQLiteQuery (mSql = SELECT _id, name, tags, active FROM item WHERE (listtype = ?)) 
-			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.sqlite.SQLiteClosable.acquireReference(SQLiteClosable.java:33)
-			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.sqlite.SQLiteQuery.fillWindow(SQLiteQuery.java:82)
-			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.sqlite.SQLiteCursor.fillWindow(SQLiteCursor.java:164)
-			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.sqlite.SQLiteCursor.onMove(SQLiteCursor.java:147)
-			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.AbstractCursor.moveToPosition(AbstractCursor.java:178)
-			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.CursorWrapper.moveToPosition(CursorWrapper.java:162)
-			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.widget.CursorAdapter.getView(CursorAdapter.java:241)
-			01-21 20:55:18.033: E/AndroidRuntime(6357): 	at com.sunyata.kindmind.ListFragmentC$CustomCursorAdapter.getView(ListFragmentC.java:120)
-		 */
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent){
-			//return super.getView(position, convertView, parent);
-			
-			//If we have not drawn the view before we first update the view by calling the super method
-			
-			synchronized(parent){
-			
-			if(convertView == null){
-				convertView = super.getView(position, convertView, parent);
-			}
-			
-	    	//Getting the SQL cursor..
-	    	Cursor tmpCursor = getCursor();
-	    	
-	    	//..moving to the current position (position in database is matched by position in gui list)
-	    	tmpCursor.moveToPosition(position);
-
-    		//Setting status of the checkbox (checked / not checked)
-	    	// The other child views of this view have already been changed by the mapping done by SimpleCursorAdapter
-	    	// above in the super.getView() method
-    		long tmpActive = Long.parseLong(
-    				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)));
-    		CheckBox tmpCheckBox = ((CheckBox)convertView.findViewById(R.id.list_item_activeCheckBox));
-    		if (tmpCheckBox != null){
-        		tmpCheckBox.setChecked(tmpActive != 0);
-    		}
-    		
-    		//PLEASE NOTE: Cursor not closed
-			return convertView;
-			}
-		}
-
-		
-		/*
-		 * Overview: getViewTypeCount returns the number of different types of elements for the list
-		 * Details: This information is used by the Loader (<- verify this), if the number is lower than
-		 *  the number of items in the list Android can reuse the item view for repainting at a lower
-		 *  performance cost. We can still see different names and the reason is that the Loader knows about
-		 *  the name (see method onCreateLoader in ListFragmentC).
-		 * In our case we have chosen to return the total number of elements because we otherwise run into
-		 *  a problem for the checkboxes which can't be included in the onCreateLoader mapping. The problem
-		 *  shows itself in a strange way: After we have checked one checkbox and then scrolls down, we can
-		 *  see another checked checkbox in the same relative position.
-		 * Used: getViewTypeCount is called after the setListAdapter call:
-			ListFragmentC$CustomCursorAdapter.getViewTypeCount() line: 172	
-			ListView.setAdapter(ListAdapter) line: 466	
-			ListFragmentC(ListFragment).setListAdapter(ListAdapter) line: 182	
-			ListFragmentC.updateListWithNewData() line: 267	
-		 * Out: The number of distinct views
-		 * Notes: Please note that super.getCount() can not be used here (as suggested in threads on stackoverflow)
-		 *  since the Loader has not finished when the call to this method is made. (In the cases where it is
-		 *  presented loaders are not used, only adapters)
-		 * The check against < 1 is done because of the following problem (only seen on physical device):
-		01-20 22:24:26.398: E/AndroidRuntime(25136): java.lang.IllegalArgumentException: Can't have a viewTypeCount < 1
-		01-20 22:24:26.398: E/AndroidRuntime(25136): 	at android.widget.AbsListView$RecycleBin.setViewTypeCount(AbsListView.java:5817)
-		01-20 22:24:26.398: E/AndroidRuntime(25136): 	at android.widget.ListView.setAdapter(ListView.java:466)
-		01-20 22:24:26.398: E/AndroidRuntime(25136): 	at android.support.v4.app.ListFragment.setListAdapter(ListFragment.java:182)
-		01-20 22:24:26.398: E/AndroidRuntime(25136): 	at com.sunyata.kindmind.ListFragmentC.updateListWithNewData(ListFragmentC.java:253)
-		 * This method is used in conjunction with getItemViewType (see below)
-		 * Improvements: 
-		 * 1. This may be a more efficient solution:
-		 *  http://www.lalit3686.blogspot.in/2012/06/today-i-am-going-to-show-how-to-deal.html
-		 *  We may end up having to use this solution since we need to solve the problem of showing the
-		 *  checkmarks in the first place (after database loading and before any click has been done)
-		 * 2. An alternative solution (very popular: 37+ votes) is presented by Vikas Patidar on StackOverflow:
-		 *  http://stackoverflow.com/questions/4803756/android-cursoradapter-listview-and-checkbox
-		 */
-		@Override
-		public int getViewTypeCount(){
-			int retViewTypeCount = Utils.getListItemCount(
-					ListFragmentC.this.getActivity(), ListFragmentC.this.refListType);
-			if(retViewTypeCount < 1){
-				retViewTypeCount = 1;
-			}
-			return retViewTypeCount;
-		}
-		@Override
-		public int getItemViewType(int inPosition){
-			return inPosition;
-		}
-		
-	}
 
 	
 	//-------------------Loader methods
@@ -286,7 +173,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		mCustomCursorAdapter = new CustomCursorAdapter(
 				getActivity(), R.layout.ofnr_list_item, null,
-				tmpDatabaseFrom, tmpDatabaseTo, 0);
+				tmpDatabaseFrom, tmpDatabaseTo, 0, refListType);
 		
 		
 		//..use this CursorAdapter as the adapter for this ListFragment
@@ -410,6 +297,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	super.onResume();
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     	
+    	
 		switch(refListType){
 		case FEELINGS:
 			setToastBehaviour(new FeelingsToast());
@@ -503,54 +391,10 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		case R.id.menu_item_sort_alphabetically:
 	    	
 			//Sorting the whole list for all the different types in one go
-			String tmpSelectionWithAlphaBetaOrdering =
-					ItemTableM.COLUMN_LISTTYPE + "=" + "'" + this.refListType.toString() + "'";
-			ListContentProviderM.sSortType = ItemTableM.COLUMN_NAME;
-			Cursor tmpCursorWithAlphaBetaOrdering = getActivity().getContentResolver().query(
-					ListContentProviderM.LIST_CONTENT_URI, null,
-					tmpSelectionWithAlphaBetaOrdering, null,
-					ListContentProviderM.sSortType);
-
-			mCustomCursorAdapter.changeCursor(tmpCursorWithAlphaBetaOrdering);
-			getListView().setAdapter(mCustomCursorAdapter);
-			//-PLEASE NOTE: We need this line, and it was hard to find this info. It was found here:
-			// http://stackoverflow.com/questions/8213200/android-listview-update-with-simplecursoradapter
+			ListContentProviderM.sSortType = ItemTableM.COLUMN_NAME + " DESC";
 			
+			this.refreshListCursorAndAdapter(this.getActivity());
 			
-			/*
-			//TODO: Try to remove this
-			
-			getActivity().getContentResolver().notifyChange(ListContentProviderM.LIST_CONTENT_URI, null);
-
-			((CustomCursorAdapter)super.getListAdapter()).notifyDataSetChanged();
-			
-			getLoaderManager().restartLoader(0, null, this);
-			//getLoaderManager().initLoader(0, null, this);
-			
-			getLoaderManager().getLoader(0).reset();
-			getLoaderManager().getLoader(0).stopLoading();
-			getLoaderManager().getLoader(0).startLoading();
-			
-			getListView().refreshDrawableState();
-			getListView().invalidate();
-			getListView().invalidateViews();
-			*/
-			
-			
-			
-			
-			//this.updateListWithNewData();
-			//getLoaderManager().initLoader(0, null, this);
-			
-			/*
-			synchronized (this.getLoaderManager()){
-				this.getLoaderManager().notify();
-			}
-			*/
-			
-			
-			getListView().smoothScrollToPosition(0);//Scroll to the top of the list
-
 			//PLEASE NOTE: We don't close the cursor here
 			return true;
 			
@@ -559,18 +403,10 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			KindModelM.get(getActivity()).updateSortValuesForListType(this.getActivity(), refListType);
 			
 			//Sorting the whole list for all the different types in one go
-			String tmpSelectionWithKindSortOrdering =
-					ItemTableM.COLUMN_LISTTYPE + "=" + "'" + this.refListType.toString() + "'";
-			ListContentProviderM.sSortType = ItemTableM.COLUMN_KINDSORTVALUE;
-			Cursor tmpCursorWithKindSortOrdering = getActivity().getContentResolver().query(
-					ListContentProviderM.LIST_CONTENT_URI, null,
-					tmpSelectionWithKindSortOrdering, null,
-					ListContentProviderM.sSortType);
-			mCustomCursorAdapter.changeCursor(tmpCursorWithKindSortOrdering);
-			((SimpleCursorAdapter)super.getListAdapter()).notifyDataSetChanged();
+			ListContentProviderM.sSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
 			
-			getListView().smoothScrollToPosition(0); //-Scroll to the top of the list
-
+			this.refreshListCursorAndAdapter(this.getActivity());
+			
 			/* PLEASE NOTE: We don't close the cursor here since if we do that we will get the following:
 				01-21 21:45:28.546: E/AndroidRuntime(3173): FATAL EXCEPTION: main
 				01-21 21:45:28.546: E/AndroidRuntime(3173): android.database.StaleDataException: Attempting to access a closed CursorWindow.Most probable cause: cursor is deactivated prior to calling this method.
@@ -582,8 +418,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		
 		case R.id.menu_item_save_pattern:
-			sCallbackListener.fireGoLeftmostEvent();
-			sCallbackListener.fireUpdateAllListsEvent();
 			sCallbackListener.fireSavePatternEvent();
 			//KindModelM.get(getActivity()).savePatternListToJson();
 			return true;
@@ -612,6 +446,53 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return super.onOptionsItemSelected(inMenuItem);
 		}
 		
+	}
+	
+	
+	void refreshListCursorAndAdapter(Context inContext) {
+
+		String tmpSelection =
+				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + this.refListType.toString() + "'";
+		Cursor tmpCursorWithAlphaBetaOrdering = inContext.getContentResolver().query(
+				ListContentProviderM.LIST_CONTENT_URI, null,
+				tmpSelection, null,
+				ListContentProviderM.sSortType);
+		
+		mCustomCursorAdapter.changeCursor(tmpCursorWithAlphaBetaOrdering);
+		getListView().setAdapter(mCustomCursorAdapter);
+		//-PLEASE NOTE: We need this line, and it was hard to find this info. It was found here:
+		// http://stackoverflow.com/questions/8213200/android-listview-update-with-simplecursoradapter
+		
+		getListView().smoothScrollToPosition(0); //-Scroll to the top of the list
+		
+		
+		/*
+		getActivity().getContentResolver().notifyChange(ListContentProviderM.LIST_CONTENT_URI, null);
+
+		((CustomCursorAdapter)super.getListAdapter()).notifyDataSetChanged();
+		
+		getLoaderManager().restartLoader(0, null, this);
+		//getLoaderManager().initLoader(0, null, this);
+		
+		getLoaderManager().getLoader(0).reset();
+		getLoaderManager().getLoader(0).stopLoading();
+		getLoaderManager().getLoader(0).startLoading();
+		
+		getListView().refreshDrawableState();
+		getListView().invalidate();
+		getListView().invalidateViews();
+		*/
+		
+		
+		
+		//this.updateListWithNewData();
+		//getLoaderManager().initLoader(0, null, this);
+		
+		/*
+		synchronized (this.getLoaderManager()){
+			this.getLoaderManager().notify();
+		}
+		*/
 	}
 	private void sendAsEmail(String inTitle, String inTextContent){
 		Intent i = new Intent(Intent.ACTION_SEND);

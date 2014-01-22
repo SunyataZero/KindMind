@@ -69,6 +69,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			public void onPageSelected(int pos) {
 				///updateViewPagerView(ListTypeM.getEnumListByLevel(mViewPager.getCurrentItem()).get(0));
 				getActionBar().setSelectedNavigationItem(pos);
+				/*
+				if(mFeelingListFragment!=null){mFeelingListFragment.refreshListCursorAndAdapter(MainActivityC.this);}
+				if(mNeedListFragment!=null){mNeedListFragment.refreshListCursorAndAdapter(MainActivityC.this);}
+				if(mActionListFragment!=null){mActionListFragment.refreshListCursorAndAdapter(MainActivityC.this);}
+				*/
 			}
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
@@ -330,15 +335,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	
 	//----------------------Callback methods
 	
-	@Override
-	public void fireGoLeftmostEvent() {
-        mViewPager.setCurrentItem(0, true);
-	}
-	@Override
-	public void fireUpdateAllListsEvent() {
-		this.clearActivated();
-		//mFeelingListFragment.updateListWithNewData();
-	}
+	
 	@Override
 	public void fireSavePatternEvent() {
 		Cursor tmpItemCursor = this.getContentResolver().query(
@@ -360,6 +357,12 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		}
 
 		Toast.makeText(this, "KindMind pattern saved", Toast.LENGTH_LONG).show();
+		
+		//Clearing all the data
+		this.clearActivated();
+		
+		//Side scrolling to the leftmost viewpager position (feelings)
+		mViewPager.setCurrentItem(0, true);
 		
 		//tmpItemCursor.close();
 	}

@@ -96,7 +96,7 @@ public class ListContentProviderM extends ContentProvider {
 		//  same database if it already has been created
 		
 		Cursor retCursor = tmpQueryBuilder.query(
-				tmpSQLiteDatabase, inProjection, inSelection, inSelectionArgs, null, null, sSortType);//ItemTableM.COLUMN_NAME
+				tmpSQLiteDatabase, inProjection, inSelection, inSelectionArgs, null, null, inSortOrder);//ItemTableM.COLUMN_NAME
 		/*
 		 * Why can't we use Utils.sSortType here? according do the debgging we have the expected value in Utils.sSortType,
 		 *  but it only works ok when setting the value here.

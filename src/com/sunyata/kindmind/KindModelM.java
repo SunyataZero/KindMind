@@ -8,9 +8,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.util.Log;
-
 
 public class KindModelM {
 
@@ -18,7 +16,7 @@ public class KindModelM {
 	
 	private static KindModelM sKindModel;
 	
-	private ArrayList<PatternM> mPatternList;
+	//private ArrayList<PatternM> mPatternList;
 	
 	//private ListOfPatterns mListOfPatterns; //Please note the this is a higher level than the ListDataM fields above
 	
@@ -28,24 +26,11 @@ public class KindModelM {
 	//(even though that would mean breaking the pattern connentions)
 	public static final double PATTERN_MULTIPLIER = 8;
 	
-
-	
 	private Context mContext;
 
 	//private singleton constructor
 	private KindModelM(Context inApplicationContext){
 		mContext = inApplicationContext;
-
-		/*
-		mSpecEv = mFactory.createListData(ListTypeM.SPECEV);
-		mSuffering = mFactory.createListData(ListTypeM.SUFFERING);
-		mNeeds = mFactory.createListData(ListTypeM.NEEDS);
-		mKindness = mFactory.createListData(ListTypeM.KINDNESS);
-		*/
-		
-		//Load patterns
-		mPatternList = new ArrayList<PatternM>();
-		
 	}
 	
 	//Singelton get method
@@ -55,9 +40,6 @@ public class KindModelM {
 		}
 		return sKindModel;
 	}
-	
-	
-
 	
 	
 	//-------------------------Algorithm / update methods
@@ -78,7 +60,7 @@ public class KindModelM {
 
 		Cursor tmpPatternCursor = null;
 		//= mContext.getContentResolver().query(ListContentProviderM.PATTERN_CONTENT_URI, null, null, null, Utils.sSortType);
-		int tmpNumberOfMatches = 0;
+		int tmpNumberOfMatchesInPatternTable = 0;
 		long tmpItemId;
 		String tmpPatternSelection;
 		ContentValues tmpContentValueForUpdate;
@@ -86,19 +68,42 @@ public class KindModelM {
 		try{
 
 			for(tmpItemCursor.moveToFirst(); tmpItemCursor.isAfterLast() == false; tmpItemCursor.moveToNext()){
-				tmpItemId = tmpItemCursor.getInt(
+				
+				//Clearing the count
+				tmpNumberOfMatchesInPatternTable = 0;
+				
+				tmpItemId = tmpItemCursor.getLong(
 						tmpItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
-				tmpPatternSelection = ItemTableM.COLUMN_ID + "=" + "'" + tmpItemId + "'";
+				if(tmpItemId==4){
+					for(int i = 0 ; i < 1;){
+						i++;
+					}
+				}
+				tmpPatternSelection = PatternTableM.COLUMN_ITEM_REFERENCE + "=" + "'" + tmpItemId + "'";
+				//-PLEASE NOTE: COLUMN_ITEM_ID (not COLUMN_ID)
 
 				tmpPatternCursor = mContext.getContentResolver().query(
-						ListContentProviderM.PATTERN_CONTENT_URI, null, tmpPatternSelection, null, ListContentProviderM.sSortType);
+						ListContentProviderM.PATTERN_CONTENT_URI, null, tmpPatternSelection, null, null);
 
+				//Why do these lines not work?
+				if(tmpPatternCursor.getCount() > 2){
+					for(int i = 0 ; i < 1;){
+						i++;
+					}
+				}
+				
 				for(tmpPatternCursor.moveToFirst(); tmpPatternCursor.isAfterLast() == false; tmpPatternCursor.moveToNext()){
-					tmpNumberOfMatches++;
+					tmpNumberOfMatchesInPatternTable++;
 				}
 
+				if(tmpNumberOfMatchesInPatternTable > 2){
+					for(int i = 0 ; i < 1;){
+						i++;
+					}
+				}
+				
 				tmpContentValueForUpdate = new ContentValues();
-				tmpContentValueForUpdate.put(ItemTableM.COLUMN_KINDSORTVALUE, tmpNumberOfMatches);
+				tmpContentValueForUpdate.put(ItemTableM.COLUMN_KINDSORTVALUE, tmpPatternCursor.getCount());
 				//tmpUri = Uri.parse(ListContentProviderM.LIST_CONTENT_URI + "/" + tmpItemId);
 				//mContext.getContentResolver().update(tmpUri, tmpContentValueForUpdate, null, null);
 				tmpSQLiteDatabase.update(
@@ -106,6 +111,7 @@ public class KindModelM {
 			}
 
 		}catch(Exception e){
+			Log.w(Utils.getClassName(), "Warning in updateSortValuesForListType, see stacktrace for details");
 			e.printStackTrace();
 		}finally{
 			tmpSQLiteDatabase.setTransactionSuccessful();
@@ -432,76 +438,4 @@ public class KindModelM {
 				getFormattedStringOfActivatedDataListItems(inList.subList(1, inList.size()));
 		}
 	}
-	
-	
-	
-	/*
-	private ArrayList<ListDataItemM> getCombinedListOfActivatedDataUntilInVal(ListTypeM inListType) {
-
-		ArrayList<ListDataItemM> retArrayList = new ArrayList<ListDataItemM>();
-		
-		//Using switch without break
-		switch(inListType.getLevel()){
-		case 3:
-			retArrayList.addAll(mNeeds.getListOfActivatedData());
-			//no break, will continue
-		case 2:
-			retArrayList.addAll(mSuffering.getListOfActivatedData());
-			//no break, will continue
-		case 1:
-			retArrayList.addAll(mSpecEv.getListOfActivatedData());
-			//no break, will continue
-		case 0:
-			//do nothing since there is nothing before this
-		}
-		return retArrayList;
-	}
-	*/
-	
-
-	
-	
-	//-------------------------Get, clear
-
-	/*
-	//Often called after the singleton get() call to access a specific list
-	ListDataM getListOfType(ListTypeM inListType) {
-		switch(inListType){
-			case SPECEV: return mSpecEv;
-			case SUFFERING: return mSuffering;
-			case NEEDS: return mNeeds;
-			case KINDNESS: return mKindness;
-			//more
-			default: Log.e(Utils.getMethodName(), "Error in method getListOfType: ListTypeM not covered");
-			return null;
-		}
-	}
-	*/
-
-/*	
-	void clearActivatedForAllLists(){
-		__________.clearActivated();
-	}
-	*/
-
-	/*
-	void clearAllDataLists(){
-		mSpecEv.clearData();
-		mSuffering.clearData();
-		mNeeds.clearData();
-		mKindness.clearData();
-	}
-	*/
-	
-	/*
-	String getFormattedStringWithAllLists(){
-		String retString = "";
-		retString = retString + ___________.toFormattedString();
-		return retString;
-	}
-	*/
-
-	
-
-	
 }
