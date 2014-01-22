@@ -273,6 +273,10 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		Cursor tmpItemCursor = this.getContentResolver().query(
 				KindMindContentProviderM.LIST_CONTENT_URI, null, null, null, KindMindContentProviderM.sSortType);
 		
+		long tmpCurrentTime = Calendar.getInstance().getTimeInMillis();
+		//-getting the time here instead of inside the for statement ensures that we are able
+		// to use the time as way to group items into a pattern.
+		
 		for(tmpItemCursor.moveToFirst(); tmpItemCursor.isAfterLast() == false; tmpItemCursor.moveToNext()){
 		
 			if(Utils.sqlToBoolean(tmpItemCursor, ItemTableM.COLUMN_ACTIVE)){
@@ -282,7 +286,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				long tmpItemId = tmpItemCursor.getInt(
 						tmpItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
 				tmpInsertContentValues.put(PatternTableM.COLUMN_ITEM_REFERENCE, tmpItemId);
-				tmpInsertContentValues.put(PatternTableM.COLUMN_TIME, Calendar.getInstance().getTimeInMillis());
+				tmpInsertContentValues.put(PatternTableM.COLUMN_TIME, tmpCurrentTime);
 				this.getContentResolver().insert(
 						KindMindContentProviderM.PATTERN_CONTENT_URI, tmpInsertContentValues);
 			}
@@ -290,12 +294,18 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 
 		Toast.makeText(this, "KindMind pattern saved", Toast.LENGTH_LONG).show();
 		
+		//Clearing data and side scrolling to the left
+		this.fireClearAllListsEvent();
+		
+		//tmpItemCursor.close();
+	}
+	
+	@Override
+	public void fireClearAllListsEvent() {
 		//Clearing all the data
 		this.clearActivated();
 		
 		//Side scrolling to the leftmost viewpager position (feelings)
 		mViewPager.setCurrentItem(0, true);
-		
-		//tmpItemCursor.close();
 	}
 }

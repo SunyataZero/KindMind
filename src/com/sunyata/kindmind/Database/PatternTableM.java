@@ -19,7 +19,7 @@ public class PatternTableM {
 	private static final String CREATE_DATABASE =
 			"CREATE TABLE " + TABLE_PATTERN + "("
 			+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-			+ COLUMN_TIME + " INTEGER NOT NULL, "
+			+ COLUMN_TIME + " INTEGER NOT NULL, " //Potentially used for two things: Grouping and relevance
 			+ COLUMN_ITEM_REFERENCE + " INTEGER REFERENCES " + ItemTableM.TABLE_ITEM + "(" + BaseColumns._ID + ")"
 			+ ");";
 	//+ COLUMN_RELEVANCE + " INTEGER NOT NULL DEFAULT 0, "

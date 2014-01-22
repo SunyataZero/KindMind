@@ -80,43 +80,37 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	//-------------------Fields and constructor
 	
+	private ListTypeM refListType; //-Saved in onSaveInstanceState
+	private static MainActivityCallbackListenerI sCallbackListener; //-Does not have to be saved since it's static
+	private ToastBehaviour mToastBehaviour; //-Not saved, but set in onResume
+	private ActionBehaviour mActionBehaviour; //-Not saved, but set in onResume
+	private CustomCursorAdapter mCustomCursorAdapter;
+
 	public static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
 	public static final String EXTRA_AND_BUNDLE_LIST_TYPE = "EXTRA_LIST_TYPE";
-	private ListTypeM refListType; //-Saved in onSaveInstanceState
-	private ToastBehaviour mToastBehaviour; //-Not saved, but set in onResume
-	private static MainActivityCallbackListenerI sCallbackListener; //-Does not have to be saved since it's static
-	private ActionBehaviour mActionBehaviour; //-Not saved, but set in onResume
-	
-	
-	private static String mSortType = ItemTableM.COLUMN_KINDSORTVALUE;
-	
-	
+
 	public static ListFragmentC newInstance(ListTypeM inListType, MainActivityCallbackListenerI inCallbackListener){
 		ListFragmentC retListFragment = new ListFragmentC();
 		retListFragment.refListType = inListType;
 		sCallbackListener = inCallbackListener;
 		return retListFragment;
 	}
-	
-	
-
 
 	
 	//-------------------Loader methods
-	//A very good example is available at the top of the following page: http://developer.android.com/reference/android/app/LoaderManager.html
-	
-	private CustomCursorAdapter mCustomCursorAdapter;
+	//A very good example is available at the top of the following page:
+	// http://developer.android.com/reference/android/app/LoaderManager.html
 	
 	/*
-	 * Overview: onCreateLoader creates the CursorLoader
-	 * Used in: Override method created "when needed" by _________
-	 * Uses Android lib: CursorLoader
-	 * Notes: The id "inIdUnused" is not used since we only have one loader.
+	 * Overview: onCreateLoader creates and returns the CursorLoader, which contains the mapping to the database
+	 * Used in: Override method called after TODO ___________________________
 	 * Documentation: 
 	 * http://developer.android.com/reference/android/app/LoaderManager.LoaderCallbacks.html#onCreateLoader%28int,%20android.os.Bundle%29
 	 */
 	@Override
 	public android.support.v4.content.Loader<Cursor> onCreateLoader(int inIdUnused, Bundle inArgumentsUnused) {
+		Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
+		
 		//Setup of variables used for selecting the database colums of rows (for the creation of the CursorLoader)
 		String[] tmpProjection = {ItemTableM.COLUMN_ID, ItemTableM.COLUMN_NAME,
 				ItemTableM.COLUMN_TAGS, ItemTableM.COLUMN_ACTIVE};
@@ -130,58 +124,51 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 				tmpProjection, tmpSelection, tmpSelectionArguments, KindMindContentProviderM.sSortType);
 		return retCursorLoader;
 	}
+	/*
+	 * Overview: onLoadFinished
+	 * Used in: "Called when a previously created loader has finished its load"
+	 * Documentation *interesting to read*:
+	 * http://developer.android.com/reference/android/app/LoaderManager.LoaderCallbacks.html#onLoadFinished%28android.content.Loader%3CD%3E,%20D%29
+	 */
 	@Override
 	public void onLoadFinished(android.support.v4.content.Loader<Cursor> inCursorLoader, Cursor inCursor) {
+		Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
+		
 		mCustomCursorAdapter.swapCursor(inCursor);
-		Log.i(Utils.getClassName(), "onLoadFinished: mCursorAdapter.getCount() = " + mCustomCursorAdapter.getCount());
-		Log.i(Utils.getClassName(), "onLoadFinished: Utils.getListItemCount(...) = "
-				+ Utils.getListItemCount(this.getActivity(), this.refListType));
 	}
+	/*
+	 * Overview: onLoaderReset
+	 * Used in: "Called when a previously created loader is being reset, and thus making its data unavailable"
+	 */
 	@Override
 	public void onLoaderReset(android.support.v4.content.Loader<Cursor> inCursorUnused) {
-		mCustomCursorAdapter.swapCursor(null);
+		Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
 		
-
+		mCustomCursorAdapter.swapCursor(null);
 	}
 	
-	/* ***UNCLEAR WHEN THIS METHOD WILL BE CALLED***
-	 * Overview: Fills the data from the database into the loader
-	 * 
-	 * Details: 
-	 * 
-	 * Used in:
-	 * 1. When the activity for this class is created
-	 * 2. PENDING 
-	 * 3. PENDING 
-	 * 
-	 * Uses Android lib: SimpleCursorAdapter, setListAdapter, initLoader
-	 * 
-	 * Notes: 
-	 * IMPORTANT: It's important that the state of the checkboxes is synched with the database
-	 * Improvements: 
-	 * 
-	 * Documentation: 
-	 * 
+	
+	//-------------------Update methods
+	
+	/* 
+	 * Overview: createListDataSupport fills the data from the database into the loader
+	 *  by creating a cursor adapter (with mapping to database columns) and initiating the loader
+	 * Used in: onActivityCreated
+	 * Uses app internal: CustomCursorAdapter
+	 * Uses Android lib: setListAdapter, initLoader
+	 * Notes: The synching on the state of the checkboxes with the database is not automatically, and
+	 *  this is handled in another place (getView in CustomCursorAdapter)
 	 */
 	void createListDataSupport(){
 		//Creating the SimpleCursorAdapter for the specified database columns linked to the specified GUI views..
 		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_TAGS}; //, ItemTableM.COLUMN_ACTIVE
 		int[] tmpDatabaseTo = {R.id.list_item_titleTextView, R.id.list_item_tagsTextView}; //, R.id.list_item_activeCheckBox
-		
-		/*
-		if(mCustomCursorAdapter != null && mCustomCursorAdapter.getCursor() != null){
-			mCustomCursorAdapter.getCursor().close(); //-experimental
-		}
-		*/
-		
-
-		
 		mCustomCursorAdapter = new CustomCursorAdapter(
 				getActivity(), R.layout.ofnr_list_item, null,
 				tmpDatabaseFrom, tmpDatabaseTo, 0, refListType);
 		
 		
-		//..use this CursorAdapter as the adapter for this ListFragment
+		//..using this CursorAdapter as the adapter for this ListFragment
 		super.setListAdapter(mCustomCursorAdapter);
 		Log.i(Utils.getClassName(), "mCursorAdapter.getCount() = " + mCustomCursorAdapter.getCount());
 		
@@ -194,15 +181,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	/*
 	 * Overview: refreshList updates the list
-	 * 
-	 * Details: This is done by changing the cursor and giving the cursor to the adapter, and restarting the loader 
-	 * 
+	 *  by changing the cursor and giving the cursor to the adapter, and restarting the loader 
 	 * Used in: 
-	 * 
-	 * Uses app internal: 
-	 * 
-	 * Uses Android lib: 
-	 * 
+	 * Uses Android lib: changeCursor, setAdapter, restartLoader
 	 * In: 
 	 * 
 	 * Out: 
@@ -218,28 +199,27 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 * Documentation: 
 	 * 
 	 */
-	void refreshListDataSupport(Context inContext) {
+	void refreshListDataSupport() {
 
+		//Update the cursor..
 		String tmpSelection =
 				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + this.refListType.toString() + "'";
-		Cursor tmpCursor = inContext.getContentResolver().query(
+		Cursor tmpCursor = getActivity().getContentResolver().query(
 				KindMindContentProviderM.LIST_CONTENT_URI, null,
 				tmpSelection, null,
 				KindMindContentProviderM.sSortType);
-		
 		mCustomCursorAdapter.changeCursor(tmpCursor);
+		
+		//..and use the new cursor for the adapter
 		getListView().setAdapter(mCustomCursorAdapter);
 		//-PLEASE NOTE: We need this line, and it was hard to find this info. It was found here:
 		// http://stackoverflow.com/questions/8213200/android-listview-update-with-simplecursoradapter
 
-		
 		getLoaderManager().restartLoader(0, null, this);
 		//-PLEASE NOTE: We need this line, otherwise the checkbox status will not be updated
 		
-		getListView().smoothScrollToPosition(0); //-Scroll to the top of the list
-		
-		
-
+		//Scroll to the top of the list
+		getListView().smoothScrollToPosition(0);
 		
 		/*
 		getActivity().getContentResolver().notifyChange(KindMindContentProviderM.LIST_CONTENT_URI, null);
@@ -260,21 +240,28 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		getListView().invalidate();
 		getListView().invalidateViews();
 		*/
+		
+		/* PLEASE NOTE: We don't close the cursor here since if we do that we will get the following:
+		01-21 21:45:28.546: E/AndroidRuntime(3173): FATAL EXCEPTION: main
+		01-21 21:45:28.546: E/AndroidRuntime(3173): android.database.StaleDataException: Attempting to access a closed CursorWindow.Most probable cause: cursor is deactivated prior to calling this method.
+		01-21 21:45:28.546: E/AndroidRuntime(3173): 	at android.database.AbstractWindowedCursor.checkPosition(AbstractWindowedCursor.java:139)
+		01-21 21:45:28.546: E/AndroidRuntime(3173): 	at android.database.AbstractWindowedCursor.getString(AbstractWindowedCursor.java:50)
+		01-21 21:45:28.546: E/AndroidRuntime(3173): 	at android.database.CursorWrapper.getString(CursorWrapper.java:114)
+		01-21 21:45:28.546: E/AndroidRuntime(3173): 	at com.sunyata.kindmind.ListFragmentC$CustomCursorAdapter.getView(ListFragmentC.java:143)
+		 */
 	}
 
-	/*
-	void restartLoader(){
-		//getLoaderManager().restartLoader(0, null, this);
-		//getLoaderManager().initLoader(0, null, this);
-		//mCursorAdapter.notifyDataSetChanged();
-		//setListShown(true);
+	
+	//-------------------onCreate, onActivityCreated and click methods
+	// Please note that one click method is inside onActivityCreated and the other is outside
+	
+	@Override
+	public void onCreate(Bundle inSavedInstanceState){
+		super.onCreate(inSavedInstanceState);
+		if(inSavedInstanceState != null){
+			refListType = ListTypeM.valueOf(inSavedInstanceState.getString(EXTRA_AND_BUNDLE_LIST_TYPE));
+		}
 	}
-	*/
-	
-	
-	//-------------------Lifecycle methods
-	//onActivityCreated has been moved to the loader and adapter section.
-	
 	//We get to onActivityCreated after onAttach and onCreateView.
     //Alternatively after onAttach, onCreate and onCreateView
     @Override
@@ -283,7 +270,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     	
 		super.setRetainInstance(true);
-		///super.setEmptyText("List is empty, please click the add item button");
+		//super.setEmptyText("List is empty, please click the add item button");
 		super.setHasOptionsMenu(true);
 		this.createListDataSupport();
 
@@ -309,7 +296,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			[...]
     	*/
     }
-    
     @Override
     public void onListItemClick(ListView l, View inView, int pos, long inId){
     	super.onListItemClick(l, inView, pos, inId);
@@ -345,13 +331,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		//tmpCursor.close();
     }
 	
-	@Override
-	public void onCreate(Bundle inSavedInstanceState){
-		super.onCreate(inSavedInstanceState);
-		if(inSavedInstanceState != null){
-			refListType = ListTypeM.valueOf(inSavedInstanceState.getString(EXTRA_AND_BUNDLE_LIST_TYPE));
-		}
-	}
+    
+	//-------------------Other lifecycle methods
+    
     @Override
     public void onStop(){
     	super.onStop();
@@ -429,7 +411,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	public boolean onOptionsItemSelected(MenuItem inMenuItem){
 		
 		switch (inMenuItem.getItemId()){
-		
 		case R.id.menu_item_new_listitem:
 			ContentValues tmpContentValuesToInsert = new ContentValues();
 	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, "no_name_set");
@@ -447,7 +428,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			startActivityForResult(intent, 0); //Calling DataDetailsActivityC
 			
 			return true;
-
 		case R.id.menu_item_share_experience:
 			/*
 			sendAsEmail(
@@ -462,74 +442,42 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			//Asking for empathy (Can you reflect back what you are hearing/reading)
 		*/
 			return true;
-		
 		case R.id.menu_item_sort_alphabetically:
-	    	
-			//KindModelM.get(getActivity()).updateSortValuesForListType(this.getActivity(), refListType);
-			
-			//sleep(1000);
-			//SystemClock.sleep(1000);
-			
-			//Sorting the whole list for all the different types in one go
+			//Changing the sort method used and refreshing list
 			KindMindContentProviderM.sSortType = ItemTableM.COLUMN_NAME + " ASC";
+			this.refreshListDataSupport();
 			
-			this.refreshListDataSupport(this.getActivity());
-			
-			//PLEASE NOTE: We don't close the cursor here
 			return true;
-			
 		case R.id.menu_item_kindsort:
-
+			//Updating the sort values which will be used below
 			KindModelM.get(getActivity()).updateSortValuesForListType(this.getActivity(), refListType);
 			
-			//Sorting the whole list for all the different types in one go
+			//Changing the sort method used and refreshing list
 			KindMindContentProviderM.sSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
+			this.refreshListDataSupport();
 			
-			this.refreshListDataSupport(this.getActivity());
-			
-			/* PLEASE NOTE: We don't close the cursor here since if we do that we will get the following:
-				01-21 21:45:28.546: E/AndroidRuntime(3173): FATAL EXCEPTION: main
-				01-21 21:45:28.546: E/AndroidRuntime(3173): android.database.StaleDataException: Attempting to access a closed CursorWindow.Most probable cause: cursor is deactivated prior to calling this method.
-				01-21 21:45:28.546: E/AndroidRuntime(3173): 	at android.database.AbstractWindowedCursor.checkPosition(AbstractWindowedCursor.java:139)
-				01-21 21:45:28.546: E/AndroidRuntime(3173): 	at android.database.AbstractWindowedCursor.getString(AbstractWindowedCursor.java:50)
-				01-21 21:45:28.546: E/AndroidRuntime(3173): 	at android.database.CursorWrapper.getString(CursorWrapper.java:114)
-				01-21 21:45:28.546: E/AndroidRuntime(3173): 	at com.sunyata.kindmind.ListFragmentC$CustomCursorAdapter.getView(ListFragmentC.java:143)
-			 */
 			return true;
-		
 		case R.id.menu_item_save_pattern:
+			//Save all the checked list items into the PATTERN table
 			sCallbackListener.fireSavePatternEvent();
-			//KindModelM.get(getActivity()).savePatternListToJson();
-			return true;
 			
+			return true;
 		case R.id.menu_item_clear_all_list_selections:
-			//-Clears and goes left, but without saving
-			//mCallbackListener.fireGoLeftmostEvent();
-			//mCallbackListener.fireUpdateAllListsEvent();
-			
-			//getLoaderManager().restartLoader(0, null, this);
-			//this.createListDataSupport();
-			mCustomCursorAdapter.notifyDataSetChanged();
+			//Clearing activated and going left, but without saving
+			sCallbackListener.fireClearAllListsEvent();
 			
 			return true;
-			
-		case R.id.menu_item_send_as_text_current:
-			//sendAsEmail("KindMind list as text", refListData.toFormattedString());
-			return true;
-			
 		case R.id.menu_item_send_as_text_all:
 			//String tmpAllListAsText = KindModelM.get(getActivity()).getFormattedStringWithAllLists();
 			//sendAsEmail("KindMind all lists as text", tmpAllListAsText);
+
 			return true;
-			
 		default:
 			return super.onOptionsItemSelected(inMenuItem);
 		}
 		
 	}
 	
-	
-
 	private void sendAsEmail(String inTitle, String inTextContent){
 		Intent i = new Intent(Intent.ACTION_SEND);
 		i.setType("text/plain");
@@ -537,6 +485,17 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		i.putExtra(Intent.EXTRA_TEXT, inTextContent);
 		startActivity(i);
 	}
+	
+	/*
+	String toFormattedString(){
+		String retFormattedString = "List type: " + refListType + "\n";
+		for(ListDataItemM ldi : mList){
+			retFormattedString = retFormattedString + ldi.toFormattedString();
+		}
+		retFormattedString = retFormattedString + "\n\n";
+		return retFormattedString;
+	}
+	*/
 	
 	
 	//-------------------Toast Behaviour [uses the Strategy pattern]
