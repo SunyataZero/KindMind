@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-
+	
     <!-- android:uiOptions="splitActionBarWhenNarrow"  -->
     
     <uses-sdk
@@ -46,20 +46,33 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </service>
-        <receiver android:name="KindMindAppWidgetProvider">
+        <receiver android:name="com.sunyata.kindmind.WidgetAndNotifications.KindMindAppWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/kindmind_appwidget_info"/>
         </receiver>
         <service
-            android:name="KindMindRemoteViewsService"
+            android:name="com.sunyata.kindmind.WidgetAndNotifications.KindMindRemoteViewsService"
             android:permission="android.permission.BIND_REMOTEVIEWS">
         </service>
         <provider
             android:name="com.sunyata.kindmind.Database.KindMindContentProviderM"
             android:authorities="com.sunyata.kindmind.contentprovider"
-            android:exported="false" >
+            android:exported="true" >
+            <!-- PLEASE NOTE:
+            "If a provider's application doesn't specify any permissions, then other applications have no access
+             to the provider's data."
+             http://developer.android.com/guide/topics/providers/content-provider-basics.html#Permissions
+             -->
+            <!-- 
+            read permissions:
+            http://stackoverflow.com/questions/14793672/requesting-read-permission-from-my-own-contentprovider-in-another-app
+            -->
+            <!-- 
+            android:readPermission="com.sunyata.kindmind.contentprovider.permission.READ"
+            <uses-permission android:name="com.sunyata.kindmind.contentprovider.permission.READ" />
+            -->
         </provider>
     </application>
 </manifest>

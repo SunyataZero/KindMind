@@ -310,6 +310,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     }
 	
     
+    
 	//-------------------Other lifecycle methods
     
     @Override

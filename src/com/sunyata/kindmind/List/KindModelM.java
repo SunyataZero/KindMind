@@ -53,13 +53,13 @@ public class KindModelM {
 	//TODO: Change to sort all lists at the same time?
 	
 	//This methods updates the update sort values for each item in the list where we are at the moment
-	void updateSortValuesForListType(Context inContext, ListTypeM inListType){
+	public static void updateSortValuesForListType(Context inContext, ListTypeM inListType){
 
-		SQLiteDatabase tmpSQLiteDatabase = DatabaseHelperM.get(mContext).getWritableDatabase();
+		SQLiteDatabase tmpSQLiteDatabase = DatabaseHelperM.get(inContext).getWritableDatabase();
 				//ListContentProviderM.getDatabaseHelper().getWritableDatabase();
 		tmpSQLiteDatabase.beginTransaction();
 
-		Cursor tmpItemCursor = mContext.getContentResolver().query(
+		Cursor tmpItemCursor = inContext.getContentResolver().query(
 				KindMindContentProviderM.LIST_CONTENT_URI, null, null, null, KindMindContentProviderM.sSortType);
 
 		Cursor tmpPatternCursor = null;
@@ -86,7 +86,7 @@ public class KindModelM {
 				tmpPatternSelection = PatternTableM.COLUMN_ITEM_REFERENCE + "=" + "'" + tmpItemId + "'";
 				//-PLEASE NOTE: COLUMN_ITEM_ID (not COLUMN_ID)
 
-				tmpPatternCursor = mContext.getContentResolver().query(
+				tmpPatternCursor = inContext.getContentResolver().query(
 						KindMindContentProviderM.PATTERN_CONTENT_URI, null, tmpPatternSelection, null, null);
 
 				//Why do these lines not work?

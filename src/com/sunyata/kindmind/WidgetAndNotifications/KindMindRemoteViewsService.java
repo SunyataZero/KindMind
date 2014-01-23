@@ -1,16 +1,18 @@
 package com.sunyata.kindmind.WidgetAndNotifications;
 
-import java.util.ArrayList;
-
-import com.sunyata.kindmind.R;
-import com.sunyata.kindmind.Utils;
-import com.sunyata.kindmind.R.layout;
-
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
+
+import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.List.KindModelM;
+import com.sunyata.kindmind.List.ListTypeM;
 
 public class KindMindRemoteViewsService extends RemoteViewsService {
 
@@ -33,7 +35,15 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 	@Override
 	public int getCount() {
 		/////return refList.size();
-		return -100;
+		
+		String tmpSortType = ItemTableM.COLUMN_KINDSORTVALUE;
+		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
+		String[] tmpSelectionArguments = {ListTypeM.NEEDS.toString()};
+		Cursor tmpCursor = mContext.getContentResolver().query(
+				KindMindContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
+		
+		//tmpCursor.close();
+		return tmpCursor.getCount();
 	}
 
 	@Override
@@ -55,11 +65,23 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 		retRemoteViews.setTextViewText(R.id.widget_listitem, refList.get(position).getName());
 		retRemoteViews.setTextViewText(R.id.widget_listitem, "asdf");
 		*/
+		
+		KindModelM.updateSortValuesForListType(mContext, ListTypeM.NEEDS);
 
+		String tmpSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
+		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
+		String[] tmpSelectionArguments = {ListTypeM.NEEDS.toString()};
+		Cursor tmpCursor = mContext.getContentResolver().query(
+				KindMindContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
+		tmpCursor.moveToPosition(position);
+		String tmpName = tmpCursor.getString(
+				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
+		
 		RemoteViews retRemoteViews = new RemoteViews(
 				mContext.getPackageName(), R.layout.widget_listitem); //Please note: R.layout
-		/////retRemoteViews.setTextViewText(R.id.widget_listitem, refList.get(position).getName());
+		retRemoteViews.setTextViewText(R.id.widget_listitem, tmpName);
 
+		//tmpCursor.close();
 		return retRemoteViews;
 	}
 

@@ -1,9 +1,5 @@
 package com.sunyata.kindmind.WidgetAndNotifications;
 
-import com.sunyata.kindmind.R;
-import com.sunyata.kindmind.R.id;
-import com.sunyata.kindmind.R.layout;
-
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
@@ -11,6 +7,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.widget.RemoteViews;
 
+import com.sunyata.kindmind.R;
+
+//Documentation: http://developer.android.com/guide/topics/appwidgets/index.html
 public class KindMindAppWidgetProvider extends AppWidgetProvider {
 	
 	@Override
