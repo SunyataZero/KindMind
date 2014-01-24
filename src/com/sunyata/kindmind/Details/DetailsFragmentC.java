@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 
@@ -37,14 +38,20 @@ import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.WidgetAndNotifications.NotificationServiceC;
 
 /*
- * DetailsFragmentC handles data for a single list item (row in the SQL database).
- * 
- * More specifically:
+ * Overview: DetailsFragmentC handles data for a single list item (row in the SQL database).
+ * Details: More specifically:
  * 1a. It does the setup of buttons and other widgets, with launching of app internal or external activities/fragments,
  *     many of these activities/fragments are for choosing different types of files (audio, video, images)
  *     or information (contacts or bookmarks).
  * 1b. It handles results from these activities/fragments
  * 2. It does the setup of the button for choosing time of day for a recurring notification.
+ * Extends: Fragment
+ * Implements: TimePickerFragmentC.OnTimeSetListenerI
+ * Sections:
+ * ----------------------------Fields
+ * ----------------------------onCreateView and other lifecycle methods
+ * ----------------------------onActivityResult
+ * ----------------------------Other methods
  */
 public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.OnTimeSetListenerI{
 
@@ -60,6 +67,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 	private Button mCustomFileChooserButton;
 	private Button mContactChooserButton;
 	private Button mBookmarkChooserButton;
+	private Button mClearChooserButton;
 	private CheckBox mNotificationCheckBox;
 	private Button mTimePickerButton;
 	
@@ -85,22 +93,11 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 	}
 	
 
-	//----------------------------Lifecycle methods
+	
+	//----------------------------onCreateView and onActivityResult
+	//Bundled together since they contain the setup (onCreateView) of the various media chooser buttons
+	// and the handling (onActivityResult) of the results from the (sometimes external) applications.
 
-	@Override
-	public void onCreate(Bundle savedInstanceState){
-		super.onCreate(savedInstanceState);
-		Log.d(Utils.getClassName(), Utils.getMethodName());
-		setRetainInstance(true);
-		setHasOptionsMenu(true); //for the up navigation button (left caret)
-	}
-	
-    @Override
-    public void onPause(){
-    	super.onPause();
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
-    }
-	
     //onCreateView mainly contains the setup of the buttons and other widgets. Many of the widgets are only shown
     // when we have a specific type of list.
     @Override
@@ -124,7 +121,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     	//Getting the SQL cursor for the list item URI
     	String[] tmpProjection = {ItemTableM.COLUMN_LISTTYPE, ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_NOTIFICATION};
     	Cursor tmpCursor = getActivity().getApplicationContext().getContentResolver().query(
-    			refItemUri, tmpProjection, null, null, KindMindContentProviderM.sSortType);
+    			refItemUri, tmpProjection, null, null, null);
     	boolean tmpCursorIsNotEmpty = tmpCursor.moveToFirst();
     	if(!tmpCursorIsNotEmpty){
     		Log.e(Utils.getClassName(), "Error in method fillDataFromContentProvider: Cursor is empty");
@@ -181,6 +178,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     	mCustomFileChooserButton = (Button)v.findViewById(R.id.custom_file_chooser_button);
     	mContactChooserButton = (Button)v.findViewById(R.id.contact_chooser_button);
     	mBookmarkChooserButton = (Button)v.findViewById(R.id.bookmark_chooser_button);
+    	mClearChooserButton = (Button)v.findViewById(R.id.clear_chooser_button);
     	mNotificationCheckBox = (CheckBox)v.findViewById(R.id.notification_checkbox);
     	mTimePickerButton = (Button)v.findViewById(R.id.time_picker_button);
 
@@ -197,24 +195,74 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     	}else{
 
     		//Setup of image chooser button..
-    		mImageFileChooserButton.setOnClickListener(new OnClickListener() {
-    			@Override
-    			public void onClick(View v) {
-    				//..using an external image app for choosing an image
-    				Intent tmpIntent = new Intent(
-    						Intent.ACTION_PICK,
-    						android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-    				startActivityForResult(tmpIntent, REQUEST_IMAGEFILECHOOSER);
-    				//-results handled below in the "onActivityResult" method
-    			}
-    		});
-    		//TODO: Audio
-    		//TODO: Video
+    		//..using an external image app for choosing an image
+    		final Intent tmpImageIntent = new Intent(
+					Intent.ACTION_PICK,
+					android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI); //-Images
+    		//..we only show the button if there is at least one application that can take care of the intent
+    		if(getActivity().getPackageManager().queryIntentActivities(tmpImageIntent, 0).size() == 0){
+    			mImageFileChooserButton.setVisibility(View.GONE);
+    		}else{
+        		mImageFileChooserButton.setOnClickListener(new OnClickListener() {
+        			@Override
+        			public void onClick(View v) {
+        				startActivityForResult(tmpImageIntent, REQUEST_IMAGEFILECHOOSER);
+        				//-results handled below in the "onActivityResult" method
+        			}
+        		});
+    		}
 
+    		//Setup of audio file chooser button..
+			//..using an external image app for choosing an image
+			final Intent tmpAudioIntent = new Intent(
+					Intent.ACTION_PICK,
+					android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI); //-Audio
+    		//..we only show the button if there is at least one application that can take care of the intent
+			if(getActivity().getPackageManager().queryIntentActivities(tmpAudioIntent, 0).size() == 0){
+				mAudioFileChooserButton.setVisibility(View.GONE);
+			}else{
+	    		mAudioFileChooserButton.setOnClickListener(new OnClickListener() {
+	    			@Override
+	    			public void onClick(View v) {
+	    				startActivityForResult(tmpAudioIntent, REQUEST_AUDIOFILECHOOSER);
+	    				//-results handled below in the "onActivityResult" method
+	    			}
+	    		});
+			}
+    		
+    		//Setup of video file chooser button..
+    		//..using an external image app for choosing an image
+			final Intent tmpVideoIntent = new Intent(
+					Intent.ACTION_PICK,
+					android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI); //-Video
+    		//..we only show the button if there is at least one application that can take care of the intent
+			if(getActivity().getPackageManager().queryIntentActivities(tmpVideoIntent, 0).size() == 0){
+				mVideoFileChooserButton.setVisibility(View.GONE);
+			}else{
+	    		mVideoFileChooserButton.setOnClickListener(new OnClickListener() {
+	    			@Override
+	    			public void onClick(View v) {
+	    				startActivityForResult(tmpVideoIntent, REQUEST_VIDEOFILECHOOSER);
+	    				//-results handled below in the "onActivityResult" method
+	    			}
+	    		});
+			}
+
+    		/*-PLEASE NOTE: There is a bug in Android that creates problems for the emulator:
+			01-23 14:22:48.400: E/AndroidRuntime(1829): FATAL EXCEPTION: main
+			01-23 14:22:48.400: E/AndroidRuntime(1829): java.lang.SecurityException: Permission Denial: starting Intent { act=android.intent.action.PICK dat=content://media/external/video/media cmp=com.android.music/.VideoBrowserActivity } from ProcessRecord{b3a88968 1829:com.sunyata.kindmind/10039} (pid=1829, uid=10039) not exported from uid 10034
+			01-23 14:22:48.400: E/AndroidRuntime(1829): 	at android.os.Parcel.readException(Parcel.java:1327)
+    		 * More info here:
+    		 * http://stackoverflow.com/questions/19181432/java-lang-securityexception-permission-denial-intent-in-new-version-4-3
+    		 */
+    		
     		//Setup of general file chooser button (file type will be used by Android for inferring intent type)..
     		mCustomFileChooserButton.setOnClickListener(new OnClickListener() {
     			@Override
     			public void onClick(View v) {
+    				//Alternative solution that searches through a volume:
+    				// http://stackoverflow.com/questions/10384080/mediastore-uri-to-query-all-types-of-files-media-and-non-media
+    				
     				//..starting a new (app internal) activity (and fragment) for for choosing a file
     				Intent intent = new Intent(getActivity(), FileChooserActivityC.class);
     				intent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
@@ -225,14 +273,15 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     		});
 
     		//Setup of contact chooser button..
+    		
+    		final Intent tmpContactIntent = new Intent(
+					Intent.ACTION_PICK,
+					ContactsContract.Contacts.CONTENT_URI);
     		mContactChooserButton.setOnClickListener(new OnClickListener() {
     			@Override
     			public void onClick(View v) {
     				//..using an external contact app
-    				Intent tmpIntent = new Intent(
-    						Intent.ACTION_PICK,
-    						ContactsContract.Contacts.CONTENT_URI);
-    				startActivityForResult(tmpIntent, REQUEST_CONTACTCHOOSER);
+    				startActivityForResult(tmpContactIntent, REQUEST_CONTACTCHOOSER);
     			}
     		});
 
@@ -244,6 +293,21 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     				Intent intent = new Intent(getActivity(), BookmarkChooserActivityC.class);
     				intent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString()); //Extracted in SingleFragmentActivityC
     				startActivityForResult(intent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
+    			}
+    		});
+    		
+    		mClearChooserButton.setOnClickListener(new OnClickListener() {
+    			@Override
+    			public void onClick(View v) {
+    				//Clearing the file/dir value in the database
+    				ContentValues tmpContentValues = new ContentValues();
+    				tmpContentValues.put(ItemTableM.COLUMN_FILEORDIRPATH, "");
+    				getActivity().getContentResolver().update(refItemUri, tmpContentValues, null, null);
+    				Toast.makeText(
+							getActivity(),
+							"Data cleared",
+							Toast.LENGTH_SHORT)
+							.show();
     			}
     		});
 
@@ -260,7 +324,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION)));
     		//-2nd value not used yet, but may be in the future
     		//-Please note: Contains both off/on (-1 / not -1) and the time. Only the first information is used here 
-    		mNotificationCheckBox.setChecked(tmpNotification != -1);
+    		mNotificationCheckBox.setChecked(tmpNotification != ItemTableM.FALSE);
 
     		//Setup of button for choosing time for notification..
     		mTimePickerButton.setOnClickListener(new OnClickListener(){
@@ -277,8 +341,12 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     	return v;
     }
 
+    
     //onActivityResult handles the results from the various activities started inside the anonymous inner classes
     // in the onCreateView method.
+    //"tmpFilePath"	 (pending)	
+    // /mnt/sdcard/DCIM/100ANDRO/DSC_0018.jpg
+    // dat=content://media/external/images/media/1993
 	@Override
 	public void onActivityResult(int inRequestCode, int inResultCode, Intent inIntent){
 		
@@ -319,11 +387,11 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 			 * http://stackoverflow.com/questions/4275167/how-to-open-a-contact-card-in-android-by-id
 			 */
 			
-			
+
 			Cursor tmpCursor = getActivity().getContentResolver().query(
-					inIntent.getData(), null, null, null, KindMindContentProviderM.sSortType);
+					inIntent.getData(), null, null, null, null);
 			if(tmpCursor.getCount() == 0){
-				//tmpCursor.close();
+				tmpCursor.close();
 				return;
 			}
 			tmpCursor.moveToFirst();
@@ -332,7 +400,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 					tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ContactsContract.Contacts.LOOKUP_KEY)));
 			tmpFilePath = tmpLookupUri.toString();
 			
-			//tmpCursor.close();
+			tmpCursor.close();
 			break;
 		case REQUEST_BOOKMARKCHOOSER:
 			tmpFilePath = inIntent.getStringExtra(
@@ -340,15 +408,32 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 			break;
 		}
 		
-		//If the file path that comes from the above is empty, clear value from the list item row
-		// and colum "COLUMN_FILEORDIRPATH" in the database
+		//Updating file/dir string value in the database
 		if(tmpFilePath != ""){
 			ContentValues tmpContentValues = new ContentValues();
 			tmpContentValues.put(ItemTableM.COLUMN_FILEORDIRPATH, tmpFilePath);
 			getActivity().getContentResolver().update(refItemUri, tmpContentValues, null, null);
+		}else{
+			Log.w(Utils.getClassName(),
+					"Waring in onActivityResult: tmpFilePath is empty even though the result code was RESULT_OK");
 		}
 	}
+
+
 	
+	//----------------------------Other lifecycle methods
+	@Override
+	public void onCreate(Bundle savedInstanceState){
+		super.onCreate(savedInstanceState);
+		Log.d(Utils.getClassName(), Utils.getMethodName());
+		setRetainInstance(true);
+		setHasOptionsMenu(true); //for the up navigation button (left caret)
+	}
+    @Override
+    public void onPause(){
+    	super.onPause();
+    	Log.d(Utils.getClassName(), Utils.getMethodName());
+    }
     @Override
     public void onDestroy(){
     	//-When a new activity is created, this method is called on a physical device, but not on
@@ -357,21 +442,8 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     	Log.d(Utils.getClassName(), Utils.getMethodName());
     }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem inMenuItem){
-		switch (inMenuItem.getItemId()){
-		case android.R.id.home:
-			//Navigating upwards in the activity heirarchy
-			if(NavUtils.getParentActivityName(getActivity()) != null){
-				NavUtils.navigateUpFromSameTask(getActivity());
-			}
-			return true;
-		default:
-			return super.onOptionsItemSelected(inMenuItem);
-		}
-	}
-
 	
+    
 	//----------------------------Other methods
 	
     //Callback method called from the TimePickerFragmentC class with the hour and minute values as arguments
@@ -399,5 +471,19 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 				getActivity().getApplicationContext(),
 				refItemUri,
 				AlarmManager.INTERVAL_DAY);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem inMenuItem){
+		switch (inMenuItem.getItemId()){
+		case android.R.id.home:
+			//Navigating upwards in the activity heirarchy
+			if(NavUtils.getParentActivityName(getActivity()) != null){
+				NavUtils.navigateUpFromSameTask(getActivity());
+			}
+			return true;
+		default:
+			return super.onOptionsItemSelected(inMenuItem);
+		}
 	}
 }

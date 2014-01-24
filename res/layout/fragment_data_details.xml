@@ -1,85 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
-    <EditText
-        android:id="@+id/listitem_name"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:hint="@string/listitem_name_hint" />
-    
-    <Button 
-        android:id="@+id/delete_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/delete_button_title" />
-    
-    <TextView
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/file_chooser_title" />
-    
-    <LinearLayout
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:orientation="horizontal" >
-	    <Button
-            android:id="@+id/image_file_chooser_button"
+        android:orientation="vertical" >
+
+        <EditText
+            android:id="@+id/listitem_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/listitem_name_hint" />
+
+        <Button
+            android:id="@+id/delete_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/image_file_chooser_button_title" />
-	    <Button
-            android:id="@+id/audio_file_chooser_button"
+            android:text="@string/delete_button_title" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/file_chooser_title" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            style="?android:attr/buttonBarStyle" >
+
+            <Button
+                android:id="@+id/image_file_chooser_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/image_file_chooser_button_title"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/audio_file_chooser_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/audio_file_chooser_button_title"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/video_file_chooser_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/video_file_chooser_button_title"
+                style="?android:attr/buttonBarButtonStyle" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            style="?android:attr/buttonBarStyle" >
+		 
+            <Button
+                android:id="@+id/custom_file_chooser_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/custom_file_chooser_button_title"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/contact_chooser_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/contact_chooser_button_title"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/bookmark_chooser_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bookmark_chooser_button_title"
+                style="?android:attr/buttonBarButtonStyle" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/clear_chooser_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/audio_file_chooser_button_title" />
-	    <Button
-            android:id="@+id/video_file_chooser_button"
+            android:text="@string/clear_chooser_button_title" />
+
+        <CheckBox
+            android:id="@+id/notification_checkbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/video_file_chooser_button_title" />
+            android:layout_marginLeft="8dp"
+            android:enabled="true"
+            android:focusable="false"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="CheckBox text for notifications"
+            android:textColorHighlight="#ffffff" />
+
+        <Button
+            android:id="@+id/time_picker_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose time for notification" />
     </LinearLayout>
-    
-    <LinearLayout
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:orientation="horizontal" >
-    	<Button
-            android:id="@+id/custom_file_chooser_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/custom_file_chooser_button_title" />
-	    <Button
-            android:id="@+id/contact_chooser_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/contact_chooser_button_title" />
-	    <Button
-            android:id="@+id/bookmark_chooser_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/bookmark_chooser_button_title" />
-    </LinearLayout>
-    
-	<CheckBox 
-        android:id="@+id/notification_checkbox"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:gravity="center"
-	    android:enabled="true"
-	    android:focusable="false"
-	    android:padding="16dp"
-	    android:layout_marginLeft="8dp"
-	    android:textColorHighlight="#ffffff"
-	    android:text="CheckBox text for notifications"
-    />
-	
-	<Button 
-        android:id="@+id/time_picker_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Choose time for notification"
-    />
-</LinearLayout>
+
+</ScrollView>

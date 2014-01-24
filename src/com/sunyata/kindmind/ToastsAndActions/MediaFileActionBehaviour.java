@@ -20,9 +20,11 @@ public class MediaFileActionBehaviour implements ActionBehaviour{
 	public void kindAction(Context inContext, String inKindActionFilePath) {
 		Log.i(Utils.getClassName(), "inKindActionFilePath = " + inKindActionFilePath);
 
-		if(inKindActionFilePath == ""){
+		//If the file/dir string has been cleared (or not set) exiting..
+		if(inKindActionFilePath.equals("")){
 			return;
-		}else{
+		}else{ //..otherwise ___________
+			 
 			File tmpFileOrDirectoryFromString = new File(inKindActionFilePath);
 
 			Log.i(Utils.getClassName(), "tmpFileOrDirectoryFromString.isDirectory() = "
@@ -55,20 +57,22 @@ public class MediaFileActionBehaviour implements ActionBehaviour{
 
 			tmpIntent = new Intent(Intent.ACTION_VIEW);
 			tmpUri = Uri.parse(inFileFromString);
-			//tmpIntent.setData(tmpUri); //doesn't work
+			tmpIntent.setData(tmpUri); //doesn't work
+			//-PLEASE NOTE that setDataAndType(tmpUri, "*/*") doesn't work any longer, but now setData
+			// has started working instead
+
+			
+		}else if(inFileFromString.toString().startsWith("http://")
+				|| inFileFromString.toString().startsWith("https://")){
+			//==========Bookmarks==========
+			
+			tmpIntent = new Intent(Intent.ACTION_VIEW);
+			tmpUri = Uri.parse(inFileFromString);
 			tmpIntent.setDataAndType(tmpUri, tmpTypeString);
 			//-NOTE: THIS IS OK, BUT SPLITTING DATA AND TYPE DOES NOT WORK
 
-		}else if(inFileFromString.toString().startsWith("http://")){
-
-			tmpIntent = new Intent(Intent.ACTION_VIEW);
-			tmpUri = Uri.parse(inFileFromString);
-			//tmpIntent.setData(tmpUri); //doesn't work
-			tmpIntent.setDataAndType(tmpUri, tmpTypeString);
-			//-NOTE: THIS IS OK, BUT SPLITTING DATA AND TYPE DOES NOT WOR
-
-		}else{ //==========Media files==========
-
+		}else{
+			//==========Media files==========
 			tmpFileOrDirectoryFromString = new File(inFileFromString);
 
 			if(
@@ -118,6 +122,7 @@ public class MediaFileActionBehaviour implements ActionBehaviour{
 				//Continue with "*/*"
 			}
 
+			//For all media files:
 			tmpIntent = new Intent(Intent.ACTION_VIEW);
 			tmpUri = Uri.fromFile(tmpFileOrDirectoryFromString);
 			//tmpIntent.setData(tmpUri); //doesn't work

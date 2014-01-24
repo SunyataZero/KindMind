@@ -51,7 +51,7 @@ public class BookmarkChooserFragmentC extends ListFragment {
 		
 		ContentResolver tmpContentResolver = getActivity().getContentResolver(); //<--------
 		Cursor tmpCursor = tmpContentResolver.query(
-				android.provider.Browser.BOOKMARKS_URI, null, null, null, KindMindContentProviderM.sSortType);
+				android.provider.Browser.BOOKMARKS_URI, null, null, null, null);
 		//android.provider.Browser.getAllBookmarks(tmpContentResolver);
 		
 		mCursorAdapter = new SimpleCursorAdapter(

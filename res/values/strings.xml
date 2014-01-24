@@ -19,7 +19,7 @@
     <string name="send_as_text_all">Send all lists as text</string>
 
     <string name="listitem_name_hint">Please enter a new list item title</string> <!-- \nQuote from the Buddha -->
-    <string name="delete_button_title">Delete</string>
+    <string name="delete_button_title">Delete item</string>
 
     <!-- 
     <string name="suffering_spinner_title">Suffering</string>
@@ -32,12 +32,13 @@
     </string-array>
      -->
     
-    <string name="file_chooser_title">Choose on of the following ____</string>
+    <string name="file_chooser_title">Choose one of the following actions to be performed when pressing the item in the list</string>
     <string name="image_file_chooser_button_title">Image</string>
     <string name="audio_file_chooser_button_title">Audio</string>
     <string name="video_file_chooser_button_title">Video</string>
     <string name="custom_file_chooser_button_title">Custom File</string>
     <string name="contact_chooser_button_title">Contact</string>
     <string name="bookmark_chooser_button_title">Bookmark</string>
+    <string name="clear_chooser_button_title">Clear</string>
     
 </resources>
