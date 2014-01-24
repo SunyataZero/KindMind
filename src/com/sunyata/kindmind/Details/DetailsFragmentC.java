@@ -256,7 +256,9 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     		 * http://stackoverflow.com/questions/19181432/java-lang-securityexception-permission-denial-intent-in-new-version-4-3
     		 */
     		
-    		//Setup of general file chooser button (file type will be used by Android for inferring intent type)..
+    		//Setup of general file chooser button
+			// (as for the other buttons, file type will be used by Android for inferring intent type)..
+			mCustomFileChooserButton.setText(Utils.getKindMindDirectory());
     		mCustomFileChooserButton.setOnClickListener(new OnClickListener() {
     			@Override
     			public void onClick(View v) {

@@ -62,13 +62,6 @@
             style="?android:attr/buttonBarStyle" >
 		 
             <Button
-                android:id="@+id/custom_file_chooser_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/custom_file_chooser_button_title"
-                style="?android:attr/buttonBarButtonStyle" />
-
-            <Button
                 android:id="@+id/contact_chooser_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -82,8 +75,14 @@
                 android:text="@string/bookmark_chooser_button_title"
                 style="?android:attr/buttonBarButtonStyle" />
         </LinearLayout>
-
+        
         <Button
+            android:id="@+id/custom_file_chooser_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/custom_file_chooser_button_title" />
+		
+		<Button
             android:id="@+id/clear_chooser_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -98,14 +97,14 @@
             android:focusable="false"
             android:gravity="center"
             android:padding="16dp"
-            android:text="CheckBox text for notifications"
+            android:text="@string/notification_textbox_title"
             android:textColorHighlight="#ffffff" />
 
         <Button
             android:id="@+id/time_picker_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Choose time for notification" />
+            android:text="@string/notification_button_title" />
     </LinearLayout>
 
 </ScrollView>

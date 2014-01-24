@@ -15,6 +15,9 @@ import android.widget.Toast;
 
 import com.sunyata.kindmind.Utils;
 
+
+//Documentation:
+// http://www.iana.org/assignments/media-types/media-types.xhtml
 public class MediaFileActionBehaviour implements ActionBehaviour{
 	@Override
 	public void kindAction(Context inContext, String inKindActionFilePath) {
@@ -53,7 +56,8 @@ public class MediaFileActionBehaviour implements ActionBehaviour{
 		Uri tmpUri;
 		File tmpFileOrDirectoryFromString;
 
-		if(inFileFromString.toString().startsWith("content://")){ //==========Contacts==========
+		if(inFileFromString.toString().startsWith("content://")){
+			//==========Contacts==========
 
 			tmpIntent = new Intent(Intent.ACTION_VIEW);
 			tmpUri = Uri.parse(inFileFromString);
@@ -68,9 +72,9 @@ public class MediaFileActionBehaviour implements ActionBehaviour{
 			
 			tmpIntent = new Intent(Intent.ACTION_VIEW);
 			tmpUri = Uri.parse(inFileFromString);
-			tmpIntent.setDataAndType(tmpUri, tmpTypeString);
-			//-NOTE: THIS IS OK, BUT SPLITTING DATA AND TYPE DOES NOT WORK
-
+			tmpIntent.setData(tmpUri);
+			//PLEASE NOTE: setDataAndType(tmpUri, "*/*") doesn't work any longer
+			
 		}else{
 			//==========Media files==========
 			tmpFileOrDirectoryFromString = new File(inFileFromString);

@@ -10,7 +10,7 @@ public class PatternTableM {
 
 	public static final String TABLE_PATTERN = "patterns"; 
 	public static final String COLUMN_ID = BaseColumns._ID; //Could maybe remove this and use time as key instead
-	public static final String COLUMN_TIME = "time";
+	public static final String COLUMN_CREATE_TIME = "create_time";
 	//public static final String COLUMN_RELEVANCE = "relevance";
 	public static final String COLUMN_ITEM_REFERENCE = "item_id";
 	
@@ -19,7 +19,7 @@ public class PatternTableM {
 	private static final String CREATE_DATABASE =
 			"CREATE TABLE " + TABLE_PATTERN + "("
 			+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-			+ COLUMN_TIME + " INTEGER NOT NULL, " //Potentially used for two things: Grouping and relevance
+			+ COLUMN_CREATE_TIME + " INTEGER NOT NULL, " //Potentially used for two things: Grouping and relevance
 			+ COLUMN_ITEM_REFERENCE + " INTEGER REFERENCES " + ItemTableM.TABLE_ITEM + "(" + BaseColumns._ID + ")"
 			+ ");";
 	//+ COLUMN_RELEVANCE + " INTEGER NOT NULL DEFAULT 0, "

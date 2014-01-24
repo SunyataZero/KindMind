@@ -310,7 +310,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				long tmpItemId = tmpItemCursor.getInt(
 						tmpItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
 				tmpInsertContentValues.put(PatternTableM.COLUMN_ITEM_REFERENCE, tmpItemId);
-				tmpInsertContentValues.put(PatternTableM.COLUMN_TIME, tmpCurrentTime);
+				tmpInsertContentValues.put(PatternTableM.COLUMN_CREATE_TIME, tmpCurrentTime);
 				this.getContentResolver().insert(
 						KindMindContentProviderM.PATTERN_CONTENT_URI, tmpInsertContentValues);
 			}

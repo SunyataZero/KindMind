@@ -240,6 +240,7 @@ public class KindMindContentProviderM extends ContentProvider {
 			//Please note: No break statement, so we continue to the next case
 		case LIST_ITEM_ID:
 			tmpAvailableColumns.add(ItemTableM.COLUMN_ID);
+			tmpAvailableColumns.add(ItemTableM.COLUMN_CREATE_TIME);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_NAME);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_LISTTYPE);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_ACTIVE);
@@ -251,7 +252,7 @@ public class KindMindContentProviderM extends ContentProvider {
 		case PATTERN:
 			tmpAvailableColumns.add(PatternTableM.COLUMN_ID);
 			tmpAvailableColumns.add(PatternTableM.COLUMN_ITEM_REFERENCE);
-			tmpAvailableColumns.add(PatternTableM.COLUMN_TIME);
+			tmpAvailableColumns.add(PatternTableM.COLUMN_CREATE_TIME);
 			break;
 		default:
 			throw new IllegalArgumentException("Error in method ListContentProviderM.query(): Unknown URI: " + inUri);

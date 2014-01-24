@@ -39,6 +39,8 @@
     <string name="custom_file_chooser_button_title">Custom File</string>
     <string name="contact_chooser_button_title">Contact</string>
     <string name="bookmark_chooser_button_title">Bookmark</string>
-    <string name="clear_chooser_button_title">Clear</string>
+    <string name="clear_chooser_button_title">Clear action</string>
+    <string name="notification_textbox_title">Activate notification</string>
+    <string name="notification_button_title">Change notification time</string>
     
 </resources>

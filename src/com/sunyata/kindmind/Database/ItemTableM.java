@@ -8,8 +8,10 @@ import android.util.Log;
 
 public class ItemTableM {
 
+	//-------------------Column constants
 	public static final String TABLE_ITEM = "item"; 
 	public static final String COLUMN_ID = BaseColumns._ID;
+	public static final String COLUMN_CREATE_TIME = "create_time";
 	public static final String COLUMN_NAME = "name";
 	public static final String COLUMN_LISTTYPE = "listtype";
 	public static final String COLUMN_ACTIVE = "active";
@@ -19,14 +21,15 @@ public class ItemTableM {
 	public static final String COLUMN_KINDSORTVALUE = "kindsortvalue";
 	//-Alternative: Not storing this value here, but instead locally
 	public static final String COLUMN_TAGS = "tags"; //One string holding tags
-	
-	public static final int FALSE = -1; //-All other values means TRUE
-	
+
 	//TODO: Please remember to update the verifyColumns method and the updrade method when we add new columns
-	
+
+
+	//-------------------Create table constant
 	private static final String CREATE_DATABASE =
 			"CREATE TABLE " + TABLE_ITEM + "("
 			+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+			+ COLUMN_CREATE_TIME + " INTEGER NOT NULL DEFAULT 0, "
 			+ COLUMN_NAME + " TEXT NOT NULL DEFAULT 'no_name_set', "
 			+ COLUMN_LISTTYPE + " TEXT NOT NULL DEFAULT 'SUFFERING', " //TODO: remove default
 			+ COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT -1, "
@@ -39,6 +42,14 @@ public class ItemTableM {
 	//TODO: NOT NULL
 	//+ COLUMN_NOTIFICATIONACTIVE + " INTEGER, "
 	
+	
+	
+	//-------------------Other constants
+	public static final int FALSE = -1; //-All other values means TRUE
+	
+	
+	
+	//-------------------Lifecycle methods
 	public static void onCreate(SQLiteDatabase inDatabase) {
 		inDatabase.execSQL(CREATE_DATABASE);
 		Log.i(Utils.getClassName(), "Database version = " + inDatabase.getVersion());
