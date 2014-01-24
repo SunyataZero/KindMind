@@ -150,7 +150,6 @@ public class NotificationServiceC extends IntentService {
 		//Creating the PendingIntent which will be used for the notification
 		PendingIntent tmpPendingIntent = PendingIntent.getActivity(
 				this, 0, new Intent(this, MainActivityC.class), 0);
-		asdf
 		//-Please note: Request code is not used by the class (see the documentation)
 		
 		//Extract data attached to the intent coming in to this method
@@ -159,13 +158,13 @@ public class NotificationServiceC extends IntentService {
 
 		//Build the notification..
 		Notification tmpNotification = new NotificationCompat.Builder(this)
-				.setTicker("Ticker text " + tmpTitleStringFromListDataItem)
+				.setTicker(tmpTitleStringFromListDataItem)
 				.setSmallIcon(R.drawable.kindmind_icon)
 				.setContentTitle(tmpTitleStringFromListDataItem)
-				.setContentText(tmpTitleStringFromListDataItem)
 				.setContentIntent(tmpPendingIntent)
 				.setAutoCancel(true)
 				.build();
+		///.setContentText(tmpTitleStringFromListDataItem)
 		
 		//..and display it
 		NotificationManager tmpNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);

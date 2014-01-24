@@ -94,6 +94,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:enabled="true"
+            android:checked="true"
             android:focusable="false"
             android:gravity="center"
             android:padding="16dp"

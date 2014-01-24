@@ -317,7 +317,9 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     		mNotificationCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener(){
     			@Override
     			public void onCheckedChanged(CompoundButton inCompoundButton, boolean inChecked) {
-    				DetailsFragmentC.this.changeNotificationService();
+    				if(inChecked == true){
+        				DetailsFragmentC.this.changeNotificationService();
+    				}
     			}
     		});
 
@@ -326,7 +328,11 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION)));
     		//-2nd value not used yet, but may be in the future
     		//-Please note: Contains both off/on (-1 / not -1) and the time. Only the first information is used here 
-    		mNotificationCheckBox.setChecked(tmpNotification != ItemTableM.FALSE);
+    		if(tmpNotification != ItemTableM.FALSE){
+    			mNotificationCheckBox.setChecked(true);
+    		}else{
+    			//do nothing since the checkbox starts out as checked and we don't want to trigger the reaction
+    		}
 
     		//Setup of button for choosing time for notification..
     		mTimePickerButton.setOnClickListener(new OnClickListener(){
