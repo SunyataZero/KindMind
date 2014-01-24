@@ -1,8 +1,5 @@
 package com.sunyata.kindmind.Details;
 
-import com.sunyata.kindmind.Utils;
-import com.sunyata.kindmind.Database.KindMindContentProviderM;
-
 import android.app.Activity;
 import android.app.ListFragment;
 import android.content.ContentResolver;
@@ -18,6 +15,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+
+import com.sunyata.kindmind.Utils;
 
 public class BookmarkChooserFragmentC extends ListFragment {
 

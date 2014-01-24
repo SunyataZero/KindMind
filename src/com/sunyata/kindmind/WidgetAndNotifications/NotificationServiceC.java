@@ -2,13 +2,6 @@ package com.sunyata.kindmind.WidgetAndNotifications;
 
 import java.util.Date;
 
-import com.sunyata.kindmind.R;
-import com.sunyata.kindmind.Utils;
-import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.Database.KindMindContentProviderM;
-import com.sunyata.kindmind.List.MainActivityC;
-import com.sunyata.kindmind.R.drawable;
-
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.Notification;
@@ -20,6 +13,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.List.MainActivityC;
 //-NotificationCompat is for api lvl 15 and downwards
 
 public class NotificationServiceC extends IntentService {
@@ -31,6 +30,8 @@ public class NotificationServiceC extends IntentService {
 	private static final String NOTIFICATION_UUID = "NotificationUUID";
 	private static final String NOTIFICATION_TITLE = "NotificationTitle";
 
+	private static Context sContext;
+	
 	public NotificationServiceC() {
 		super(TAG);
 	}
@@ -90,6 +91,8 @@ public class NotificationServiceC extends IntentService {
 		}
 		tmpCursor.moveToFirst();
 		
+		sContext = inContext;
+		
 		//Extracting various data values from the cursor/database-row for use later in this method..
 		String tmpItemIdAsString = Long.valueOf(
 				tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID)))
@@ -147,6 +150,7 @@ public class NotificationServiceC extends IntentService {
 		//Creating the PendingIntent which will be used for the notification
 		PendingIntent tmpPendingIntent = PendingIntent.getActivity(
 				this, 0, new Intent(this, MainActivityC.class), 0);
+		asdf
 		//-Please note: Request code is not used by the class (see the documentation)
 		
 		//Extract data attached to the intent coming in to this method

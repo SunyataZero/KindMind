@@ -20,7 +20,7 @@ import com.sunyata.kindmind.Utils;
 // http://www.iana.org/assignments/media-types/media-types.xhtml
 public class MediaFileActionBehaviour implements ActionBehaviour{
 	@Override
-	public void kindAction(Context inContext, String inKindActionFilePath) {
+	static public void kindAction(Context inContext, String inKindActionFilePath) {
 		Log.i(Utils.getClassName(), "inKindActionFilePath = " + inKindActionFilePath);
 
 		//If the file/dir string has been cleared (or not set) exiting..

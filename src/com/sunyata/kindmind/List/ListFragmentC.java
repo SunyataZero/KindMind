@@ -295,12 +295,15 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		//Showing a toast
 		mToastBehaviour.toast(getActivity());
 
-		//Doing the action associated with the list item that was clicked
-		Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, KindMindContentProviderM.sSortType);
-		tmpCursor.moveToFirst();
-		String tmpFilePath = tmpCursor.getString(
-				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));
-		mActionBehaviour.kindAction(getActivity(), tmpFilePath);
+		//If the new state of the checkbox is checked..
+		if(tmpCheckBox.isChecked() == true){
+			//..doing the action associated with the list item that was clicked
+			Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, KindMindContentProviderM.sSortType);
+			tmpCursor.moveToFirst();
+			String tmpFilePath = tmpCursor.getString(
+					tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));
+			mActionBehaviour.kindAction(getActivity(), tmpFilePath);
+		}
 		
 		mCustomCursorAdapter.notifyDataSetChanged();
 		
