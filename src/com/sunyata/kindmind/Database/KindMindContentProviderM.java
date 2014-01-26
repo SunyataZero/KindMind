@@ -3,7 +3,6 @@ package com.sunyata.kindmind.Database;
 import java.util.Arrays;
 import java.util.HashSet;
 
-
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -26,13 +25,16 @@ public class KindMindContentProviderM extends ContentProvider {
 
 	private static final String PATTERN_BASE_PATH = "pattern";
 	private static final int PATTERN = 21;
-	
+
+	private static final String EXTENDED_DATA_BASE_PATH = "extended_data";
+	private static final int EXTENDED_DATA = 31;
+
 	private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	static{
 		sUriMatcher.addURI(AUTHORITY, LIST_BASE_PATH, LIST);
 		sUriMatcher.addURI(AUTHORITY, LIST_BASE_PATH + "/#", LIST_ITEM_ID);
-		
 		sUriMatcher.addURI(AUTHORITY, PATTERN_BASE_PATH, PATTERN);
+		sUriMatcher.addURI(AUTHORITY, EXTENDED_DATA_BASE_PATH, EXTENDED_DATA);
 	}
 	
 	public static final Uri LIST_CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + LIST_BASE_PATH);
@@ -41,6 +43,7 @@ public class KindMindContentProviderM extends ContentProvider {
 	
 	public static final Uri PATTERN_CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + PATTERN_BASE_PATH);
 	
+	public static final Uri EXTENDED_DATA_CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + EXTENDED_DATA_BASE_PATH);
 	
 	public static String sSortType = ItemTableM.COLUMN_KINDSORTVALUE;
 	
@@ -84,6 +87,9 @@ public class KindMindContentProviderM extends ContentProvider {
 			break;
 		case PATTERN:
 			tmpQueryBuilder.setTables(PatternTableM.TABLE_PATTERN);
+			break;
+		case EXTENDED_DATA:
+			tmpQueryBuilder.setTables(ExtendedDataTableM.TABLE_EXTENDED_DATA);
 			break;
 		default:
 			throw new IllegalArgumentException("Error in method ListContentProviderM.query(): Unknown URI: " + inUri);
@@ -139,6 +145,10 @@ public class KindMindContentProviderM extends ContentProvider {
 			tmpInsertRowId = tmpSQLiteDatabase.insert(PatternTableM.TABLE_PATTERN, null, inContentValues);
 			uriReturnString = PATTERN_CONTENT_URI + "/" + tmpInsertRowId;
 			break;
+		case EXTENDED_DATA:
+			tmpInsertRowId = tmpSQLiteDatabase.insert(ExtendedDataTableM.TABLE_EXTENDED_DATA, null, inContentValues);
+			uriReturnString = EXTENDED_DATA_CONTENT_URI + "/" + tmpInsertRowId;
+			break;
 		default:
 			throw new IllegalArgumentException(
 					"Error in method ListContentProviderM.insert(): Unknown URI: " + inUri);
@@ -177,6 +187,10 @@ public class KindMindContentProviderM extends ContentProvider {
 		case PATTERN:
 			tmpNumberOfRowsDeleted = tmpSQLiteDatabase.delete(
 					PatternTableM.TABLE_PATTERN, inSelection, inSelectionArguments);
+			break;
+		case EXTENDED_DATA:
+			tmpNumberOfRowsDeleted = tmpSQLiteDatabase.delete(
+					ExtendedDataTableM.TABLE_EXTENDED_DATA, inSelection, inSelectionArguments);
 			break;
 		default:
 			throw new IllegalArgumentException(
@@ -219,6 +233,10 @@ public class KindMindContentProviderM extends ContentProvider {
 			tmpNumberOfRowsUpdated = tmpSQLiteDatabase.update(
 					ItemTableM.TABLE_ITEM, inContentValues, inSelection, inSelectionArguments);
 			break;
+		case EXTENDED_DATA:
+			tmpNumberOfRowsUpdated = tmpSQLiteDatabase.update(
+					ItemTableM.TABLE_ITEM, inContentValues, inSelection, inSelectionArguments);
+			break;
 		default:
 			throw new IllegalArgumentException(
 					"Error in method ListContentProviderM.update(): Unknown URI: " + inUri);
@@ -251,9 +269,13 @@ public class KindMindContentProviderM extends ContentProvider {
 			break;
 		case PATTERN:
 			tmpAvailableColumns.add(PatternTableM.COLUMN_ID);
-			tmpAvailableColumns.add(PatternTableM.COLUMN_ITEM_REFERENCE);
 			tmpAvailableColumns.add(PatternTableM.COLUMN_CREATE_TIME);
+			tmpAvailableColumns.add(PatternTableM.COLUMN_ITEM_REFERENCE);
 			break;
+		case EXTENDED_DATA:
+			tmpAvailableColumns.add(ExtendedDataTableM.COLUMN_ID);
+			tmpAvailableColumns.add(ExtendedDataTableM.COLUMN_DATA);
+			tmpAvailableColumns.add(ExtendedDataTableM.COLUMN_ITEM_REFERENCE);
 		default:
 			throw new IllegalArgumentException("Error in method ListContentProviderM.query(): Unknown URI: " + inUri);
 		}

@@ -20,7 +20,7 @@ public class ItemTableM {
 	//-Contains both active or not, and the time, not active is stored as -1
 	public static final String COLUMN_KINDSORTVALUE = "kindsortvalue";
 	//-Alternative: Not storing this value here, but instead locally
-	public static final String COLUMN_TAGS = "tags"; //One string holding tags
+	public static final String COLUMN_TAGS = "tags"; //PLEASE NOTE: Unused
 
 	//TODO: Please remember to update the verifyColumns method and the updrade method when we add new columns
 
