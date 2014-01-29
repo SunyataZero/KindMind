@@ -11,17 +11,18 @@ public class ItemTableM {
 	//-------------------Column constants
 	public static final String TABLE_ITEM = "item"; 
 	public static final String COLUMN_ID = BaseColumns._ID;
-	public static final String COLUMN_CREATE_TIME = "create_time";
+	public static final String COLUMN_CREATE_TIME = "create_time"; //-unused
+	public static final String COLUMN_MODIFICATION_TIME = "modification_time"; //-unused
 	public static final String COLUMN_NAME = "name";
 	public static final String COLUMN_LISTTYPE = "listtype";
 	public static final String COLUMN_ACTIVE = "active";
-	public static final String COLUMN_FILEORDIRPATH = "fileordirpath";
+	public static final String COLUMN_FILEORDIRPATH = "fileordirpath"; //PLEASE NOTE: Unused
 	public static final String COLUMN_NOTIFICATION = "notification";
 	//-Contains both active or not, and the time, not active is stored as -1
 	public static final String COLUMN_KINDSORTVALUE = "kindsortvalue";
 	//-Alternative: Not storing this value here, but instead locally
 	public static final String COLUMN_TAGS = "tags"; //PLEASE NOTE: Unused
-
+	
 	//TODO: Please remember to update the verifyColumns method and the updrade method when we add new columns
 
 
@@ -30,8 +31,9 @@ public class ItemTableM {
 			"CREATE TABLE " + TABLE_ITEM + "("
 			+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ COLUMN_CREATE_TIME + " INTEGER NOT NULL DEFAULT 0, "
+			+ COLUMN_MODIFICATION_TIME + " INTEGER NOT NULL DEFAULT 0, "
 			+ COLUMN_NAME + " TEXT NOT NULL DEFAULT 'no_name_set', "
-			+ COLUMN_LISTTYPE + " TEXT NOT NULL DEFAULT 'SUFFERING', " //TODO: remove default
+			+ COLUMN_LISTTYPE + " TEXT NOT NULL DEFAULT 'no_listtype_set', "
 			+ COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT -1, "
 			+ COLUMN_FILEORDIRPATH + " TEXT NOT NULL DEFAULT -1, "
 			+ COLUMN_NOTIFICATION + " INTEGER NOT NULL DEFAULT -1, "
@@ -42,6 +44,11 @@ public class ItemTableM {
 	//TODO: NOT NULL
 	//+ COLUMN_NOTIFICATIONACTIVE + " INTEGER, "
 	
+	/*
+	 * 			+ COLUMN_EXTENDED_DATA_REFERENCE + " INTEGER REFERENCES "
+					+ ExtendedDataTableM.TABLE_EXTENDED_DATA + "(" + BaseColumns._ID + ") "
+					+ "DEFAULT NULL"
+	 */
 	
 	
 	//-------------------Other constants
@@ -50,7 +57,7 @@ public class ItemTableM {
 	
 	
 	//-------------------Lifecycle methods
-	public static void onCreate(SQLiteDatabase inDatabase) {
+	public static void createTable(SQLiteDatabase inDatabase) {
 		inDatabase.execSQL(CREATE_DATABASE);
 		Log.i(Utils.getClassName(), "Database version = " + inDatabase.getVersion());
 	}
@@ -61,7 +68,7 @@ public class ItemTableM {
 				"all data was deleted");
 		
 		inDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ITEM);
-		onCreate(inDatabase);
+		createTable(inDatabase);
 		
 		//
 		//http://stackoverflow.com/questions/3505900/sqliteopenhelper-onupgrade-confusion-android

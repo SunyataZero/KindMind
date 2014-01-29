@@ -10,7 +10,7 @@ import android.widget.RemoteViewsService;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.List.KindModelM;
 import com.sunyata.kindmind.List.ListTypeM;
 
@@ -40,7 +40,7 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
 		String[] tmpSelectionArguments = {ListTypeM.NEEDS.toString()};
 		Cursor tmpCursor = mContext.getContentResolver().query(
-				KindMindContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
+				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
 		
 		//tmpCursor.close();
 		return tmpCursor.getCount();
@@ -72,7 +72,7 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
 		String[] tmpSelectionArguments = {ListTypeM.NEEDS.toString()};
 		Cursor tmpCursor = mContext.getContentResolver().query(
-				KindMindContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
+				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
 		tmpCursor.moveToPosition(position);
 		String tmpName = tmpCursor.getString(
 				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));

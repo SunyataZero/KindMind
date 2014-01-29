@@ -42,5 +42,7 @@
     <string name="clear_chooser_button_title">Clear action</string>
     <string name="notification_textbox_title">Activate notification</string>
     <string name="notification_button_title">Change notification time</string>
+    <string name="notification_time_not_set_title">"--:--"</string>
+    <string name="delete_listitem">"Delete"</string>
     
 </resources>

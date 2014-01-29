@@ -1,6 +1,7 @@
 package com.sunyata.kindmind.Details;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class FileChooserFragmentC extends ListFragment {
     private void initialize(){
     	
     	File mDirectoryPath = new File(Utils.getKindMindDirectory());
-    	/* From the javadoc for getExternalStorageDirectory:
+    	/*-From the javadoc for getExternalStorageDirectory:
     	 * "Note: don't be confused by the word "external" here.
     	 * This directory can better be thought as media/shared storage.
     	 * It is a filesystem that can hold a relatively large amount of
@@ -55,7 +56,17 @@ public class FileChooserFragmentC extends ListFragment {
     	 * device that is distinct from the protected internal storage
     	 * and can be mounted as a filesystem on a computer."
     	 */
+
+    	/*
+    	List<String> tmpList = new ArrayList<String>();
+    	tmpList.add("..");
+    	
     	//Setting up the path to the directory to be displayed and the adapter
+    	if(mDirectoryPath == null){
+    		
+    	}
+    	*/
+    	
     	List<String> tmpList = Arrays.asList(mDirectoryPath.list());
     	if(tmpList == null || tmpList.size() == 0){
     		Log.w(Utils.getClassName(), "No files in directory or directory not present");
@@ -85,9 +96,9 @@ public class FileChooserFragmentC extends ListFragment {
 			Log.i(Utils.getClassName(), "tmpFileOrDirectory = " + tmpFileOrDirectory);
 			String tmpDirectoryOrFileString = "";
 			if(tmpFileOrDirectory.isDirectory() == true){
-				tmpDirectoryOrFileString = "Dir:  ";
+				tmpDirectoryOrFileString = "[Dir]  ";
 			}else{
-				tmpDirectoryOrFileString = "File: ";
+				tmpDirectoryOrFileString = "[File] ";
 			}
 			TextView tmpDirectoryOrFileTextView = (TextView)inConvertView.findViewById(R.id.file_list_item_directoryOrFile);
 			tmpDirectoryOrFileTextView.setText(tmpDirectoryOrFileString);

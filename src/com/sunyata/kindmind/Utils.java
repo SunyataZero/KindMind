@@ -3,7 +3,7 @@ package com.sunyata.kindmind;
 import java.math.BigDecimal;
 
 import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.List.ListTypeM;
 
 import android.content.ContentValues;
@@ -92,7 +92,7 @@ public class Utils {
 		ContentValues tmpContentValuesToInsert = new ContentValues();
     	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LISTTYPE, inListType.toString());
     	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, inColumnName);
-    	inContext.getContentResolver().insert(KindMindContentProviderM.LIST_CONTENT_URI, tmpContentValuesToInsert);
+    	inContext.getContentResolver().insert(ContentProviderM.LIST_CONTENT_URI, tmpContentValuesToInsert);
 		Log.i(Utils.getClassName(),
 				"Added " + inColumnName + " with type " + inListType.toString() + " to the database");
 	}
@@ -165,7 +165,7 @@ public class Utils {
 		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
 		String[] tmpSelectionArguments = {inListType.toString()};
 		Cursor tmpCursor = inContext.getContentResolver().query(
-				KindMindContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, KindMindContentProviderM.sSortType);
+				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, ContentProviderM.sSortType);
 		retCount = tmpCursor.getCount();
 		tmpCursor.close();
 		/* -PLEASE NOTE: This cursor has to be closed (why this and not others?) otherwise we will
@@ -188,10 +188,14 @@ public class Utils {
 				ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE + " AND " +
 				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + inListType.toString() + "'";
 		Cursor tmpCursor = inContext.getContentResolver().query(
-				KindMindContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, KindMindContentProviderM.sSortType);
+				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
 		retCount = tmpCursor.getCount();
 		tmpCursor.close();
 		//-PLEASE NOTE: This cursor has to be closed (see comments in method getListItemCount)
 		return retCount;
+	}
+	
+	public static Long getIdFromUri(Uri inUri){
+		return Long.parseLong(inUri.toString().substring(inUri.toString().lastIndexOf("/") + 1));
 	}
 }

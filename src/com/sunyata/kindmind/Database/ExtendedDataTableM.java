@@ -24,7 +24,7 @@ public class ExtendedDataTableM {
 	//+ COLUMN_RELEVANCE + " INTEGER NOT NULL DEFAULT 0, "
 	//TODO: NOT NULL for COLUMN_ITEM_REFERENCE
 	
-	public static void onCreate(SQLiteDatabase inDatabase) {
+	public static void createTable(SQLiteDatabase inDatabase) {
 		inDatabase.execSQL(CREATE_DATABASE);
 		Log.i(Utils.getClassName(), "Database version = " + inDatabase.getVersion());
 	}
@@ -35,7 +35,7 @@ public class ExtendedDataTableM {
 				"all data was deleted");
 		
 		inDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_EXTENDED_DATA);
-		onCreate(inDatabase);
+		createTable(inDatabase);
 		
 		//
 		//http://stackoverflow.com/questions/3505900/sqliteopenhelper-onupgrade-confusion-android

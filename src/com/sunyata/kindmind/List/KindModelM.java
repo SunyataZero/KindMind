@@ -7,7 +7,7 @@ import java.util.Locale;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.DatabaseHelperM;
 import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.PatternTableM;
 
 import android.content.ContentValues;
@@ -60,7 +60,7 @@ public class KindModelM {
 		tmpSQLiteDatabase.beginTransaction();
 
 		Cursor tmpItemCursor = inContext.getContentResolver().query(
-				KindMindContentProviderM.LIST_CONTENT_URI, null, null, null, KindMindContentProviderM.sSortType);
+				ContentProviderM.LIST_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
 
 		Cursor tmpPatternCursor = null;
 		//= mContext.getContentResolver().query(ListContentProviderM.PATTERN_CONTENT_URI, null, null, null, Utils.sSortType);
@@ -87,24 +87,13 @@ public class KindModelM {
 				//-PLEASE NOTE: COLUMN_ITEM_ID (not COLUMN_ID)
 
 				tmpPatternCursor = inContext.getContentResolver().query(
-						KindMindContentProviderM.PATTERN_CONTENT_URI, null, tmpPatternSelection, null, null);
+						ContentProviderM.PATTERN_CONTENT_URI, null, tmpPatternSelection, null, null);
 
-				//Why do these lines not work?
-				if(tmpPatternCursor.getCount() > 2){
-					for(int i = 0 ; i < 1;){
-						i++;
-					}
-				}
-				
+		
 				for(tmpPatternCursor.moveToFirst(); tmpPatternCursor.isAfterLast() == false; tmpPatternCursor.moveToNext()){
 					tmpNumberOfMatchesInPatternTable++;
 				}
 
-				if(tmpNumberOfMatchesInPatternTable > 2){
-					for(int i = 0 ; i < 1;){
-						i++;
-					}
-				}
 				
 				tmpContentValueForUpdate = new ContentValues();
 				tmpContentValueForUpdate.put(ItemTableM.COLUMN_KINDSORTVALUE, tmpPatternCursor.getCount());
@@ -122,7 +111,7 @@ public class KindModelM {
 			tmpSQLiteDatabase.endTransaction();
 			
 			/////TODO: getContext().getContentResolver().notifyChange(tmpUri, null);
-			inContext.getContentResolver().notifyChange(KindMindContentProviderM.LIST_CONTENT_URI, null);
+			inContext.getContentResolver().notifyChange(ContentProviderM.LIST_CONTENT_URI, null);
 		}
 
 		//tmpItemCursor.close();
@@ -416,7 +405,7 @@ public class KindModelM {
 				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + inListType.toString() + "'";
 		//-Please note that we are adding ' signs around the String
 		Cursor tmpCursor = mContext.getContentResolver().query(
-				KindMindContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, KindMindContentProviderM.sSortType);
+				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
 		for(tmpCursor.moveToFirst(); tmpCursor.isAfterLast() == false; tmpCursor.moveToNext()){
 			//add name to return list
 			String tmpStringToAdd = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));

@@ -1,5 +1,6 @@
 package com.sunyata.kindmind.WidgetAndNotifications;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import android.app.AlarmManager;
@@ -17,7 +18,7 @@ import android.util.Log;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.List.MainActivityC;
 //-NotificationCompat is for api lvl 15 and downwards
 
@@ -51,7 +52,7 @@ public class NotificationServiceC extends IntentService {
 		
 		//Creating SQL cursor
 		Cursor tmpCursor = inContext.getContentResolver().query(
-				KindMindContentProviderM.LIST_CONTENT_URI, null, null, null, KindMindContentProviderM.sSortType);
+				ContentProviderM.LIST_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
 		if(tmpCursor.getCount() == 0){
 			//tmpCursor.close();
 			return;
@@ -63,7 +64,7 @@ public class NotificationServiceC extends IntentService {
 			//..extracting notification data and list item URI
 			tmpNotification = tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
 			tmpItemUri = Uri.withAppendedPath(
-					KindMindContentProviderM.LIST_CONTENT_URI,
+					ContentProviderM.LIST_CONTENT_URI,
 					"/" +
 					(tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID))));
 			
@@ -84,7 +85,7 @@ public class NotificationServiceC extends IntentService {
 	 */
 	public static void setServiceNotificationSingle(Context inContext, Uri inItemUri, long inIntervalInMilliSeconds){
 		//Setting up an SQL cursor to point to the row for the item URI
-		Cursor tmpCursor = inContext.getContentResolver().query(inItemUri, null, null, null, KindMindContentProviderM.sSortType);
+		Cursor tmpCursor = inContext.getContentResolver().query(inItemUri, null, null, null, ContentProviderM.sSortType);
 		if(tmpCursor.getCount() == 0){
 			//tmpCursor.close();
 			return;
@@ -103,9 +104,7 @@ public class NotificationServiceC extends IntentService {
 		boolean tmpItemNotificationIsActive = true;
 		long tmpItemTimeInMilliSeconds = tmpCursor.getLong(
 				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
-		if(tmpItemTimeInMilliSeconds == -1 ){
-			tmpItemNotificationIsActive = false;
-		}
+		if(tmpItemTimeInMilliSeconds == ItemTableM.FALSE ){tmpItemNotificationIsActive = false;}
 		
 		//Creation and setup of an Intent pointing to this class which has the onHandleIntent method
 		Intent tmpIntent = new Intent(inContext, NotificationServiceC.class);
@@ -125,6 +124,7 @@ public class NotificationServiceC extends IntentService {
 			// TimeZone.getDefault().getRawOffset() in spite of the documentation for AlarmManager.RTC which indicates
 			// that UTC is used.
 		}else{
+			//Cancel the notifications
 			tmpAlarmManager.cancel(tmpPendingIntentToRepeat);
 			tmpPendingIntentToRepeat.cancel();
 		}

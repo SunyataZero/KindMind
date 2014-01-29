@@ -57,7 +57,7 @@
             android:permission="android.permission.BIND_REMOTEVIEWS">
         </service>
         <provider
-            android:name="com.sunyata.kindmind.Database.KindMindContentProviderM"
+            android:name="com.sunyata.kindmind.Database.ContentProviderM"
             android:authorities="com.sunyata.kindmind.contentprovider"
             android:exported="true" >
             <!-- PLEASE NOTE:

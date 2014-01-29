@@ -24,7 +24,7 @@ import android.widget.Toast;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.Database.KindMindContentProviderM;
+import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.PatternTableM;
 
 
@@ -287,7 +287,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		
 		ContentValues tmpContentValueForUpdate = new ContentValues();
 		tmpContentValueForUpdate.put(ItemTableM.COLUMN_ACTIVE, ItemTableM.FALSE);
-		Uri tmpUri = Uri.parse(KindMindContentProviderM.LIST_CONTENT_URI.toString());
+		Uri tmpUri = Uri.parse(ContentProviderM.LIST_CONTENT_URI.toString());
 		this.getContentResolver().update(
 				tmpUri, tmpContentValueForUpdate, null, null);
 	}
@@ -295,7 +295,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	@Override
 	public void fireSavePatternEvent() {
 		Cursor tmpItemCursor = this.getContentResolver().query(
-				KindMindContentProviderM.LIST_CONTENT_URI, null, null, null, KindMindContentProviderM.sSortType);
+				ContentProviderM.LIST_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
 		
 		long tmpCurrentTime = Calendar.getInstance().getTimeInMillis();
 		//-getting the time here instead of inside the for statement ensures that we are able
@@ -312,7 +312,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				tmpInsertContentValues.put(PatternTableM.COLUMN_ITEM_REFERENCE, tmpItemId);
 				tmpInsertContentValues.put(PatternTableM.COLUMN_CREATE_TIME, tmpCurrentTime);
 				this.getContentResolver().insert(
-						KindMindContentProviderM.PATTERN_CONTENT_URI, tmpInsertContentValues);
+						ContentProviderM.PATTERN_CONTENT_URI, tmpInsertContentValues);
 			}
 		}
 

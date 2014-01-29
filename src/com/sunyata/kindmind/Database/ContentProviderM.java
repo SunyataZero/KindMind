@@ -13,7 +13,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 
-public class KindMindContentProviderM extends ContentProvider {
+public class ContentProviderM extends ContentProvider {
 
 	private DatabaseHelperM mDatabaseHelper;
 
@@ -122,7 +122,7 @@ public class KindMindContentProviderM extends ContentProvider {
 
 	@Override
 	public String getType(Uri arg0) {
-		//TODO change from null. Why null in tutorial?
+		//TODO change from null. Why null in tutorial? For info on how to implement, see Reto's book
 		return null;
 	}
 	
@@ -259,6 +259,7 @@ public class KindMindContentProviderM extends ContentProvider {
 		case LIST_ITEM_ID:
 			tmpAvailableColumns.add(ItemTableM.COLUMN_ID);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_CREATE_TIME);
+			tmpAvailableColumns.add(ItemTableM.COLUMN_MODIFICATION_TIME);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_NAME);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_LISTTYPE);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_ACTIVE);
@@ -276,8 +277,9 @@ public class KindMindContentProviderM extends ContentProvider {
 			tmpAvailableColumns.add(ExtendedDataTableM.COLUMN_ID);
 			tmpAvailableColumns.add(ExtendedDataTableM.COLUMN_DATA);
 			tmpAvailableColumns.add(ExtendedDataTableM.COLUMN_ITEM_REFERENCE);
+			break;
 		default:
-			throw new IllegalArgumentException("Error in method ListContentProviderM.query(): Unknown URI: " + inUri);
+			throw new IllegalArgumentException("Error in method KindMindContentProviderM.verifyColumns(): Unknown URI: " + inUri);
 		}
 		
 		if(inProjectedColumnsAsArray != null){
