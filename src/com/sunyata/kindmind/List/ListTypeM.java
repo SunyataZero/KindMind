@@ -10,7 +10,7 @@ import android.util.Log;
 public enum ListTypeM{
 	FEELINGS(0),
 	NEEDS(1),
-	ACTIONS(2);//Change name to strategies?
+	KINDNESS(2);//Change name to strategies?
 	private final int mLevel; //Currently corresponds to the order from the left (starting at zero) in viewpager
 	ListTypeM(int inLevel){
 		mLevel = inLevel;
@@ -25,7 +25,7 @@ public enum ListTypeM{
 		switch(inLevel){
 		case 0: retArrayList.add(ListTypeM.FEELINGS); break;
 		case 1: retArrayList.add(ListTypeM.NEEDS); break;
-		case 2: retArrayList.add(ListTypeM.ACTIONS); break;
+		case 2: retArrayList.add(ListTypeM.KINDNESS); break;
 		default: Log.e(Utils.getClassName(), "Error in method getEnumByLevel: case not covered"); return null;
 		}
 		return retArrayList;

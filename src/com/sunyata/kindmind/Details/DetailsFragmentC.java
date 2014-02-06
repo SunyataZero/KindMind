@@ -604,8 +604,6 @@ public class DetailsFragmentC extends Fragment
 			return super.onOptionsItemSelected(inMenuItem);
 		}
 	}
-
-	
 	
 
 }

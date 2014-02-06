@@ -1,10 +1,13 @@
 package com.sunyata.kindmind;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
-
-import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.Database.ContentProviderM;
-import com.sunyata.kindmind.List.ListTypeM;
+import java.nio.channels.FileChannel;
+import java.util.Calendar;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -15,6 +18,10 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
+
+import com.sunyata.kindmind.Database.ContentProviderM;
+import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.List.ListTypeM;
 
 public class Utils {
 
@@ -81,7 +88,7 @@ public class Utils {
     	createStartupItem(inContext, ListTypeM.NEEDS, "Contribution");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Fun");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Movement");
-    	createStartupItem(inContext, ListTypeM.ACTIONS, "Following the breath");
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Following the breath");
 		
     	PreferenceManager.getDefaultSharedPreferences(inContext)
     			.edit()
@@ -197,5 +204,61 @@ public class Utils {
 	
 	public static Long getIdFromUri(Uri inUri){
 		return Long.parseLong(inUri.toString().substring(inUri.toString().lastIndexOf("/") + 1));
+	}
+	
+	
+	/*
+	 * Overview: databaseBackupInternal does a backup of the database file to internal storage
+	 * Details: The name of the backup file includes version and date/time
+	 * Used in: DatabaseHelperM.onUpgrade()
+	 * Uses app internal: Utils.copyFile()
+	 */
+	public static void databaseBackupInternal(Context inContext, String inDataBaseName, int inOldVersion){
+		//Construction of the dir path and file name for the backup file
+		String tmpDestinationPath = inContext.getDir("db_backup", Context.MODE_PRIVATE).toString();
+		Calendar tmpCal = Calendar.getInstance();
+		String tmpTimeString = "-"
+				+ tmpCal.get(Calendar.YEAR) + "-"
+				+ tmpCal.get(Calendar.MONTH) + "-"
+				+ tmpCal.get(Calendar.DAY_OF_MONTH) + "-"
+				+ tmpCal.get(Calendar.HOUR_OF_DAY) + "-"
+				+ tmpCal.get(Calendar.MINUTE) + "-"
+				+ tmpCal.get(Calendar.SECOND);
+		String tmpVersionString = "-DatabaseVer" + inOldVersion;
+		
+		//Creating the new dir and file and getting reference to the existing database file
+		File tmpSourceFile = inContext.getDatabasePath(inDataBaseName);
+		File tmpDestinationFile = new File(tmpDestinationPath,
+				"kindmind-" + tmpVersionString + tmpTimeString + ".db");
+		//-tmpDestinationPath will be created internally but automatically gets an "app_" prefix.
+		// Please note that standard directories (like /databases) are not be available for security reasons
+
+		//Copying the file
+		Utils.copyFile(tmpSourceFile, tmpDestinationFile);
+		
+		Log.i(Utils.getClassName(),"Database backup successful");
+	}
+	
+	
+	/*
+	 * Overview: copyFile copies one file to another place, possibly with another file name
+	 */
+	public static void copyFile(File inInFile, File inOutFile){
+		try {
+			inOutFile.createNewFile(); //-creating the new file
+			FileInputStream tmpSourceStream = new FileInputStream(inInFile);
+			FileOutputStream tmpDestinationStream = new FileOutputStream(inOutFile);
+			FileChannel tmpSourceChannel = tmpSourceStream.getChannel();
+			FileChannel tmpDestinationChannel = tmpDestinationStream.getChannel();
+			tmpDestinationChannel.transferFrom(tmpSourceChannel, 0, tmpSourceChannel.size()); //-copying
+			tmpSourceStream.close();
+			tmpDestinationStream.close();
+			tmpSourceChannel.close();
+			tmpDestinationChannel.close();
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
 	}
 }

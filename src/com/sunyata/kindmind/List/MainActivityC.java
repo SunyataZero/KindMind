@@ -244,7 +244,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         				(MainActivityCallbackListenerI)MainActivityC.this);
         		break;
         	case 2:
-        		mActionListFragment = ListFragmentC.newInstance(ListTypeM.ACTIONS,
+        		mActionListFragment = ListFragmentC.newInstance(ListTypeM.KINDNESS,
         				(MainActivityCallbackListenerI)MainActivityC.this);
         		break;
         	default:
@@ -342,7 +342,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         mActionTitle = getResources().getString(R.string.kindness_title);
         int tmpFeelingsCount = Utils.getActiveListItemCount(this, ListTypeM.FEELINGS);
         int tmpNeedsCount = Utils.getActiveListItemCount(this, ListTypeM.NEEDS);
-        int tmpActionsCount = Utils.getActiveListItemCount(this, ListTypeM.ACTIONS);
+        int tmpActionsCount = Utils.getActiveListItemCount(this, ListTypeM.KINDNESS);
         if(tmpFeelingsCount != 0){
         	mFeelingTitle = mFeelingTitle + " (" + tmpFeelingsCount + ")";
         }

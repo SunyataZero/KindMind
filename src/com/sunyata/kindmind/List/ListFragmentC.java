@@ -1,11 +1,19 @@
 package com.sunyata.kindmind.List;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -23,12 +31,19 @@ import android.widget.ListView;
 
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.Database.ContentProviderM;
+import com.sunyata.kindmind.Database.DatabaseHelperM;
 import com.sunyata.kindmind.Database.ExtendedDataTableM;
 import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.PatternTableM;
 import com.sunyata.kindmind.Details.DetailsActivityC;
-import com.sunyata.kindmind.ToastsAndActions.*;
+import com.sunyata.kindmind.ToastsAndActions.ActionBehaviour;
+import com.sunyata.kindmind.ToastsAndActions.FeelingsToast;
+import com.sunyata.kindmind.ToastsAndActions.MediaFileActionBehaviour;
+import com.sunyata.kindmind.ToastsAndActions.NeedsToast;
+import com.sunyata.kindmind.ToastsAndActions.NoAction;
+import com.sunyata.kindmind.ToastsAndActions.NoToast;
+import com.sunyata.kindmind.ToastsAndActions.ToastBehaviour;
 
 /*
  * Overview: ListFragmentC shows a list of items (each item corresponding to a row in the SQL database)
@@ -364,7 +379,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			setToastBehaviour(new NeedsToast());
 			setActionBehaviour(new NoAction());
 			break;
-		case ACTIONS:
+		case KINDNESS:
 			setToastBehaviour(new NoToast());
 			setActionBehaviour(new MediaFileActionBehaviour());
 			break;
@@ -462,7 +477,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		case R.id.menu_item_kindsort:
 			//Updating the sort values which will be used below
-			KindModelM.get(getActivity()).updateSortValuesForListType(this.getActivity(), refListType);
+			KindModelM.updateSortValuesForListType(this.getActivity(), refListType);
 			
 			//Changing the sort method used and refreshing list
 			ContentProviderM.sSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
@@ -475,8 +490,16 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			
 			return true;
 		case R.id.menu_item_send_as_text_all:
-			//String tmpAllListAsText = KindModelM.get(getActivity()).getFormattedStringWithAllLists();
-			//sendAsEmail("KindMind all lists as text", tmpAllListAsText);
+			String tmpAllListsAsText =
+				this.getFormattedStringForListType(ListTypeM.FEELINGS) +
+				this.getFormattedStringForListType(ListTypeM.NEEDS) +
+				this.getFormattedStringForListType(ListTypeM.KINDNESS);
+			sendAsEmail("KindMind all lists as text", tmpAllListsAsText, null);
+
+			return true;
+		case R.id.menu_item_backup_database:
+			sendAsEmail("Backup of KindMind database", "Database file is attached",
+					getActivity().getDatabasePath(DatabaseHelperM.DATABASE_NAME));
 
 			return true;
 		default:
@@ -484,23 +507,51 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		}
 		
 	}
-	private void sendAsEmail(String inTitle, String inTextContent){
+	
+	/*
+	 * Overview: sendAsEmail sends an email with title, text and optionally an attachment
+	 * Used in: 
+	 * Uses app internal: Utils.copyFile
+	 * Notes: File must be stored on the external storage to be accessible by email applications (not enough to
+	 *  use the internal cache dir)
+	 */
+	private void sendAsEmail(String inTitle, String inTextContent, File inFileWithPath){
 		Intent i = new Intent(Intent.ACTION_SEND);
 		i.setType("text/plain");
 		i.putExtra(Intent.EXTRA_SUBJECT, inTitle);
 		i.putExtra(Intent.EXTRA_TEXT, inTextContent);
+		File tmpExtCacheDir = getActivity().getExternalCacheDir();
+		if(inFileWithPath != null && tmpExtCacheDir != null){
+			String tmpFileName = inFileWithPath.toString().substring(inFileWithPath.toString().lastIndexOf("/") + 1);
+			Utils.copyFile(inFileWithPath, new File(tmpExtCacheDir + "/" + tmpFileName));
+			i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(tmpExtCacheDir.toString() + "/" + tmpFileName)));
+		}
 		startActivity(i);
 	}
-	/*
-	String toFormattedString(){
-		String retFormattedString = "List type: " + refListType + "\n";
-		for(ListDataItemM ldi : mList){
-			retFormattedString = retFormattedString + ldi.toFormattedString();
+	
+	private String getFormattedStringForListType(ListTypeM inListType){
+		
+		String retString = "\n" + "===" + inListType.toString() + "===" + "\n\n";
+		
+		//Setup of cursor and data set
+		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = " + "'" + inListType.toString() + "'";
+		Cursor tmpCursor = getActivity().getContentResolver().query(
+				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, null);
+		if(tmpCursor.getCount() == 0){
+			tmpCursor.close();
+			return retString;
 		}
-		retFormattedString = retFormattedString + "\n\n";
-		return retFormattedString;
+
+		//For each list data item..
+		for(tmpCursor.moveToFirst(); tmpCursor.isAfterLast() == false; tmpCursor.moveToNext()){
+			//..save the name
+			retString = retString
+					+ tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME)) + "\n";
+		}
+		tmpCursor.close();
+		
+		return retString;
 	}
-	*/
 	
 	
 	//-------------------Toast and Action Behaviour [uses the Strategy pattern]

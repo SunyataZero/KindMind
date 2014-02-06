@@ -29,7 +29,7 @@ public class ExtendedDataTableM {
 		Log.i(Utils.getClassName(), "Database version = " + inDatabase.getVersion());
 	}
 
-	public static void onUpgrade(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
+	public static void upgradeTable(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
 		
 		Log.w(Utils.getClassName(), "Upgrade removed the database with a previous version and created a new one, " +
 				"all data was deleted");

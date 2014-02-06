@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">KindMind</string>
+    <string name="app_name">KindMind BETA</string>
     
     <string name="feelings_title">Feelings</string>
     <string name="needs_title">Needs</string>
@@ -17,7 +17,8 @@
     <!-- <string name="backup">Backup</string> -->
     <string name="send_as_text_current">Send current list as text</string>
     <string name="send_as_text_all">Send all lists as text</string>
-
+    <string name="backup_database">Backup database</string>
+    
     <string name="listitem_name_hint">Please enter a new list item title</string> <!-- \nQuote from the Buddha -->
     <string name="delete_button_title">Delete item</string>
 

@@ -35,4 +35,8 @@
         android:icon="@android:drawable/ic_menu_upload"
         android:title="@string/send_as_text_all"
         android:showAsAction="never" />
+    <item
+        android:id="@+id/menu_item_backup_database"
+        android:title="@string/backup_database"
+        android:showAsAction="never" />
 </menu>
