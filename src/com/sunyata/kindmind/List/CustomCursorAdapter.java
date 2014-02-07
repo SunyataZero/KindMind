@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
@@ -78,6 +79,13 @@ public class CustomCursorAdapter extends SimpleCursorAdapter{
 		if (tmpCheckBox != null){
     		tmpCheckBox.setChecked(tmpActive != ItemTableM.FALSE);
 		}
+		
+		//FOR DEBUG: Add the numbers to the end of the name of the list item
+		TextView tmpTextView = ((TextView)convertView.findViewById(R.id.list_item_titleTextView));
+		double tmpKindSortValue = Double.parseDouble(
+				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_KINDSORTVALUE)));
+		String tmpTextToAppend = " [" + tmpKindSortValue + "]";
+		tmpTextView.append(tmpTextToAppend);
 		
 		//PLEASE NOTE: Cursor not closed (for details please see method header comments)
 		return convertView;

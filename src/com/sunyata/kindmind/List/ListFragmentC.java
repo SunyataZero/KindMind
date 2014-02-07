@@ -107,7 +107,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		//Setup of variables used for selecting the database colums of rows (for the creation of the CursorLoader)
 		String[] tmpProjection = {ItemTableM.COLUMN_ID, ItemTableM.COLUMN_NAME,
-				ItemTableM.COLUMN_TAGS, ItemTableM.COLUMN_ACTIVE};
+				ItemTableM.COLUMN_TAGS, ItemTableM.COLUMN_ACTIVE, ItemTableM.COLUMN_KINDSORTVALUE};
+		//-kindsortvalue only needed here when used for debug purposes
 		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
 		String[] tmpSelectionArguments = {refListType.toString()};
 		//-TODO: There is an error here when restarting the app if leaving it for a while 
@@ -322,10 +323,15 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 					ContentProviderM.EXTENDED_DATA_CONTENT_URI,
 					null, tmpSelection, null, null);
 
-			tmpExtendedDataCursor.moveToFirst();
-			String tmpFilePath = tmpExtendedDataCursor.getString(
-					tmpExtendedDataCursor.getColumnIndexOrThrow(ExtendedDataTableM.COLUMN_DATA));
-			mActionBehaviour.kindAction(getActivity(), tmpFilePath);
+			if(tmpExtendedDataCursor.getCount() > 0){
+				//-TODO: Will this replace the strategy pattern?
+			
+				tmpExtendedDataCursor.moveToFirst();
+				String tmpFilePath = tmpExtendedDataCursor.getString(
+						tmpExtendedDataCursor.getColumnIndexOrThrow(ExtendedDataTableM.COLUMN_DATA));
+				mActionBehaviour.kindAction(getActivity(), tmpFilePath);
+
+			}
 
 				
 			/*
@@ -477,7 +483,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		case R.id.menu_item_kindsort:
 			//Updating the sort values which will be used below
-			KindModelM.updateSortValuesForListType(this.getActivity(), refListType);
+			AlgorithmM.updateSortValuesForListType(this.getActivity());
 			
 			//Changing the sort method used and refreshing list
 			ContentProviderM.sSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";

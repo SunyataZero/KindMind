@@ -16,11 +16,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-public class KindModelM {
+public class AlgorithmM {
 
 	//-------------------------Fields and constructor (private) plus singleton get method
 	
-	private static KindModelM sKindModel;
+	private static AlgorithmM sKindModel;
 	
 	//private ArrayList<PatternM> mPatternList;
 	
@@ -35,14 +35,14 @@ public class KindModelM {
 	private Context mContext;
 
 	//private singleton constructor
-	private KindModelM(Context inApplicationContext){
+	private AlgorithmM(Context inApplicationContext){
 		mContext = inApplicationContext;
 	}
 	
 	//Singelton get method
-	public static KindModelM get(Context inContext){
+	public static AlgorithmM get(Context inContext){
 		if (sKindModel == null){
-			sKindModel = new KindModelM(inContext.getApplicationContext());
+			sKindModel = new AlgorithmM(inContext.getApplicationContext());
 		}
 		return sKindModel;
 	}
@@ -52,8 +52,39 @@ public class KindModelM {
 	
 	//TODO: Change to sort all lists at the same time?
 	
-	//This methods updates the update sort values for each item in the list where we are at the moment
-	public static void updateSortValuesForListType(Context inContext, ListTypeM inListType){
+	/*
+	 * Overview: updateSortValuesForListType updates the sort values for each list
+	 * 
+	 * Details: 
+	 * 
+	 * Extends: 
+	 * 
+	 * Implements: 
+	 * 
+	 * Sections:
+	 * 
+	 * Used in: TODO: Called when a user checks or uncheks a checkbox
+	 * 
+	 * Uses app internal: 
+	 * 
+	 * Uses Android lib: 
+	 * 
+	 * In: 
+	 * 
+	 * Out: 
+	 * 
+	 * Does: 
+	 * 
+	 * Shows user: 
+	 * 
+	 * Notes: 
+	 * 
+	 * Improvements: Do the updates in a background thread instead of on the UI thread
+	 * 
+	 * Documentation: 
+	 * 
+	 */
+	public static void updateSortValuesForListType(Context inContext){
 
 		SQLiteDatabase tmpSQLiteDatabase = DatabaseHelperM.get(inContext).getWritableDatabase();
 				//ListContentProviderM.getDatabaseHelper().getWritableDatabase();
@@ -64,10 +95,10 @@ public class KindModelM {
 
 		Cursor tmpPatternCursor = null;
 		//= mContext.getContentResolver().query(ListContentProviderM.PATTERN_CONTENT_URI, null, null, null, Utils.sSortType);
-		int tmpNumberOfMatchesInPatternTable = 0;
 		long tmpItemId;
 		String tmpPatternSelection;
 		ContentValues tmpContentValueForUpdate;
+		int tmpNumberOfMatchesInPatternTable = 0;
 
 		try{
 
@@ -184,191 +215,15 @@ public class KindModelM {
 
 	}
 	
-	
-	
-	//=======================================MOVED FROM ListDataM=============================================
-	
-	
-	
-	//------------------------------Enum for type of list
-	
-
-/*
-	//Often called after getListOfActivatedData in KindModel
-	ArrayList<ItemM> getListOfActivatedData(ListTypeM inListType) {
-		ArrayList<ItemM> retActivatedData = new ArrayList<ItemM>();
-		
-
-		for(ListDataItemM ld : mList){
-			if (ld.isActive()){
-				retActivatedData.add(ld);
-			}
-		}
-
-		return retActivatedData;
-	}
-*/
-	
-	
-	//------------Add, get, set, delete, clear methods
-	
-
-	/*
-	ListDataItemM getItem(int inPosition) {
-		return mList.get(inPosition);
-	}
-	*/
-	/*
-	ListDataItemM getItem(UUID inUUID){
-		for(int i = 0; i < mList.size(); i++){
-			if(mList.get(i).getId().equals(inUUID)){
-				return mList.get(i);
-			}
-		}
-		Log.w(Utils.getClassName(), "Warning in method getDataItem: List data item could not be found");
-		return null;
-	}
-	*/
-
-	/*
-	boolean addItem(ListDataItemM inListDataItem, boolean inUserIsAddingThroughGui){
-		boolean tmpItemWithNameAlreadyExists = false;
-		//Only add a new item if its name (not id) does not already exist in the list
-		for(ListDataItemM ldi : mList){
-			String tmpListName = ldi.getName();
-			String tmpInName = inListDataItem.getName();
-			if(tmpListName.compareTo(tmpInName) == 0){
-				tmpItemWithNameAlreadyExists = true;
-			}
-		}
-		//..now that we have made the check we can add
-		if(!tmpItemWithNameAlreadyExists || inUserIsAddingThroughGui){
-			return mList.add(inListDataItem);
-		}
-		return false;
-	}
-	*/
-	/*
-	ArrayList<ListDataItemM> getListOfData() {
-		return mList;
-	}
-	*/
-	/*
-	void clearActivated() {
-		for(ListDataItemM ld : mList){
-			ld.setActive(false);
+	private class PatternList{
+		public double relevance;
+		public ArrayList<Integer> pattern;
+		public PatternList(){
+			relevance = 0;
+			pattern = new ArrayList<Integer>();
 		}
 	}
-	*/
-	/*
-	void clearData() {
-		//Please note: We have gotten ConcurrentModificationException here so therefore we use another solution
-		//-than simply using the "remove()" method.
-		ArrayList<ListDataItemM> tmpNewScaledDownList = new ArrayList<ListDataItemM>();
-		for(ListDataItemM ldi : mList){
-			if(ldi.isHardCoded() == true){
-				tmpNewScaledDownList.add(ldi);
-			}
-		}
-		mList = tmpNewScaledDownList;
-	}
-	*/
-
-	/*
-	void delete(ListDataItemM inItem){
-		mList.remove(inItem);
-	}
-	*/
 	
-	
-	//-----------Save, load, toString methods
-	/*
-	boolean saveToJson(boolean inSaveActive){
-		try{
-			mJsonSerializer.saveData(mList, inSaveActive);
-			return true;
-		}catch(Exception e){
-			Log.e(Utils.getClassName(), "Error in method saveToJson: Could not save data to Json file");
-			return false;
-		}
-	}
-*/
-	
-	//private since it is only called from the constructor in this class
-	/*
-	private void loadDataFromJson(ListTypeM inListType, String inFileName, Context inContext) {
-		mJsonSerializer = new JsonSerializerM(inContext, inFileName);
-		try{
-			mList = mJsonSerializer.loadData();
-			Log.i(Utils.getClassName(), "Done loading from JSON file");
-			//return true;
-		}catch(Exception e){
-			//This will happen when we don't have any file yet
-			mList = new ArrayList<ListDataItemM>();
-			//return false;
-		}
-	}
-	*/
-	
-	/*
-	String toFormattedString(){
-		String retFormattedString = "List type: " + refListType + "\n";
-		for(ListDataItemM ldi : mList){
-			retFormattedString = retFormattedString + ldi.toFormattedString();
-		}
-		retFormattedString = retFormattedString + "\n\n";
-		return retFormattedString;
-	}
-	*/
-
-
-	//-----------Sorting
-/*
-	//Please note that the calculation of the values used for sorting is done in another place
-	void sortWithKindness(){
-		
-		mContext.getContentResolver().
-		
-		Collections.sort(mList, new KindComparator());
-	}
-	
-	class KindComparator implements Comparator<ItemM>{
-		@Override
-		public int compare(ItemM lhs, ItemM rhs) {
-			
-			//First sort by which list data items are activated
-			if(lhs.isActive() == false && rhs.isActive() == true){
-				return 1;
-			}else if(lhs.isActive() == true && rhs.isActive() == false){
-				return -1;
-			}
-			
-			//1 and -1 have been switched because we want the order to go from highest number to lowest (cmp w/ alphabetasort)
-			if(lhs.getTotalSortValue() < rhs.getTotalSortValue()){
-				return 1;
-			}else if(rhs.getTotalSortValue() < lhs.getTotalSortValue()){
-				return -1;
-			}else{
-				return 0;
-			}
-		}
-	}
-*/
-	/*
-	void sortAlphabetically(){
-		Collections.sort(mList, new AlphaBetaComparator());
-	}
-	class AlphaBetaComparator implements Comparator<ListDataItemM>{
-		@Override
-		public int compare(ListDataItemM lhs, ListDataItemM rhs) {
-			return lhs.toString().compareToIgnoreCase(rhs.toString());
-		}
-	}
-*/
-
-	
-	
-	//===================================FROM KindModelM===============================================
 	
 	//-------------------------Toast
 	private String mToastFeelingsString;
@@ -430,4 +285,53 @@ public class KindModelM {
 				getFormattedStringOfActivatedDataListItems(inList.subList(1, inList.size()));
 		}
 	}
+
+
+
+	//-----------Sorting
+/*
+	//Please note that the calculation of the values used for sorting is done in another place
+	void sortWithKindness(){
+		
+		mContext.getContentResolver().
+		
+		Collections.sort(mList, new KindComparator());
+	}
+	
+	class KindComparator implements Comparator<ItemM>{
+		@Override
+		public int compare(ItemM lhs, ItemM rhs) {
+			
+			//First sort by which list data items are activated
+			if(lhs.isActive() == false && rhs.isActive() == true){
+				return 1;
+			}else if(lhs.isActive() == true && rhs.isActive() == false){
+				return -1;
+			}
+			
+			//1 and -1 have been switched because we want the order to go from highest number to lowest (cmp w/ alphabetasort)
+			if(lhs.getTotalSortValue() < rhs.getTotalSortValue()){
+				return 1;
+			}else if(rhs.getTotalSortValue() < lhs.getTotalSortValue()){
+				return -1;
+			}else{
+				return 0;
+			}
+		}
+	}
+*/
+	/*
+	void sortAlphabetically(){
+		Collections.sort(mList, new AlphaBetaComparator());
+	}
+	class AlphaBetaComparator implements Comparator<ListDataItemM>{
+		@Override
+		public int compare(ListDataItemM lhs, ListDataItemM rhs) {
+			return lhs.toString().compareToIgnoreCase(rhs.toString());
+		}
+	}
+*/
+
+	
 }
+
