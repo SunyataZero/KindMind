@@ -107,6 +107,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         // http://stackoverflow.com/questions/13651262/getactivity-in-arrayadapter-sometimes-returns-null
         //mViewPager.setOffscreenPageLimit(4); //This only partly solves the problem with NPE in onPageScrollStateChanged
 
+        //Note: To access one fragment from here we can do like this:
+        // ((CustomPagerAdapter)mViewPager.getAdapter()).getItem(pos).refreshListDataSupport();
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 			@Override
 			public void onPageSelected(int pos) {
@@ -118,6 +120,12 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				if(mNeedListFragment!=null){mNeedListFragment.refreshListCursorAndAdapter(MainActivityC.this);}
 				if(mActionListFragment!=null){mActionListFragment.refreshListCursorAndAdapter(MainActivityC.this);}
 				*/
+				
+				
+				//Refreshing the list (please note that the sorting itself is done in onListItemClick in
+				// ListFragmentC)
+				
+				
 			}
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
@@ -255,7 +263,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         }
         //getItem is called to instantiate the page for the given position.
         @Override
-        public android.support.v4.app.Fragment getItem(int inPosition) {
+        public ListFragmentC getItem(int inPosition) {
         	switch (inPosition){
 		    	case 0:	return mFeelingListFragment;
 				case 1: return mNeedListFragment;

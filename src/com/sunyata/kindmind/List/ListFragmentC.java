@@ -1,11 +1,6 @@
 package com.sunyata.kindmind.List;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -13,7 +8,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -37,6 +31,7 @@ import com.sunyata.kindmind.Database.ExtendedDataTableM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternTableM;
 import com.sunyata.kindmind.Details.DetailsActivityC;
+import com.sunyata.kindmind.List.MainActivityC.CustomPagerAdapter;
 import com.sunyata.kindmind.ToastsAndActions.ActionBehaviour;
 import com.sunyata.kindmind.ToastsAndActions.FeelingsToast;
 import com.sunyata.kindmind.ToastsAndActions.MediaFileActionBehaviour;
@@ -333,6 +328,13 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
 			}
 
+			
+			//Sorting with KindSort (please note that the refreshing of the lists is done in onPageSelected
+			// in MainActivityC)
+			AlgorithmM.get(getActivity()).updateSortValuesForListType();
+			ContentProviderM.sSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
+			this.refreshListDataSupport();
+			
 				
 			/*
 			//..doing the action associated with the list item that was clicked
@@ -343,6 +345,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			mActionBehaviour.kindAction(getActivity(), tmpFilePath);
 			*/
 		}
+		
+
 		
 		mCustomCursorAdapter.notifyDataSetChanged();
 		

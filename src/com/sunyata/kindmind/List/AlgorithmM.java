@@ -19,76 +19,38 @@ public class AlgorithmM {
 
 	//-------------------------Fields and constructor (private) plus singleton get method
 	
-	private static AlgorithmM sKindModel;
-	
-	//private ArrayList<PatternM> mPatternList;
-	
-	//private ListOfPatterns mListOfPatterns; //Please note the this is a higher level than the ListDataM fields above
-	
-	//These are saved to separate files since we may want to load from them separately during runtime
-	//and want to save some time, also there could be some advantage in the future of saving these in this way,
-	//for example some other user may have his own list that he could supply to another user
-	//(even though that would mean breaking the pattern connentions)
-	public static final double PATTERN_MULTIPLIER = 8;
-	
 	private Context mContext;
+	private static AlgorithmM sAlgorithm;
+	
+	public static final double PATTERN_MULTIPLIER = 8;
+	public static final double SIMPLE_PATTERN_MATCH_ADDITION = 1;
 
-	//private singleton constructor
 	private AlgorithmM(Context inApplicationContext){
 		mContext = inApplicationContext;
 	}
 	
 	//Singelton get method
 	public static AlgorithmM get(Context inContext){
-		if (sKindModel == null){
-			sKindModel = new AlgorithmM(inContext.getApplicationContext());
+		if (sAlgorithm == null){
+			sAlgorithm = new AlgorithmM(inContext.getApplicationContext());
 		}
-		return sKindModel;
+		return sAlgorithm;
 	}
 	
 	
 	//-------------------------Algorithm / update methods
 	
-	private class Pattern{
-		public float relevance;
-		public ArrayList<Long> list;
-		public Pattern(){
-			relevance = 0;
-			list = new ArrayList<Long>();
-		}
-	}
-	
 	/*
-	 * Overview: updateSortValuesForListType updates the sort values for each list
-	 * 
-	 * Details: 
-	 * 
-	 * Extends: 
-	 * 
-	 * Implements: 
-	 * 
-	 * Sections:
-	 * 
+	 * Overview: updateSortValuesForListType updates the sort values for all list items
+	 * Details: These things will have effect on the sort value:
+	 *  1. The number of times an item has been marked (this has an effect even when no checkbox is active)
+	 *  2. The history of correlations between a checked list item and other items. Ex: If an item has been
+	 *  checked and saved with another previously and the first item is now checked, the second will get
+	 *  an increase in sort value
 	 * Used in: TODO: Called when a user checks or uncheks a checkbox
-	 * 
-	 * Uses app internal: 
-	 * 
-	 * Uses Android lib: 
-	 * 
-	 * In: 
-	 * 
-	 * Out: 
-	 * 
-	 * Does: 
-	 * 
-	 * Shows user: 
-	 * 
-	 * Notes: 
-	 * 
-	 * Improvements: Do the updates in a background thread instead of on the UI thread
-	 * 
-	 * Documentation: 
-	 * 
+	 * Improvements: Do the updates in a background thread instead of on the UI thread (see UI part of Andr Cookbook)
+	 * Algorithm improvements: Many ideas, one is to use the timestamp from the patterns table to reduce relevance
+	 *  for patterns from a long time back
 	 */
 	public void updateSortValuesForListType(){
 
@@ -161,7 +123,9 @@ public class AlgorithmM {
 				if(p.list.contains(tmpItemId)){
 					
 					//..calculating the kindsort value
-					tmpNewKindSortValue = tmpNewKindSortValue + p.relevance * PATTERN_MULTIPLIER;
+					tmpNewKindSortValue = tmpNewKindSortValue
+							+ p.relevance * PATTERN_MULTIPLIER
+							+ SIMPLE_PATTERN_MATCH_ADDITION;
 					
 					//..updating the kindsort value in the database
 					tmpUpdateVal = new ContentValues();
@@ -173,80 +137,20 @@ public class AlgorithmM {
 			}
 			
 		}
-
 		
 		//Closing cursors
 		tmpItemCur.close();
 		tmpPatternCur.close();
 		
-		
-		
-		/*
-		//Clear all the temporary click values
-		for(ItemM guiLdi : this.getListOfType(inListType).getListOfData()){
-			guiLdi.setTempNumberOfTimesThisItemOccursInListOfPatterns(0);
-		}
-		
-		//First we check the number of times that each of the items in our current list (inTypeList) occurs in
-		// the list of patterns and use this to do a simple update.
-		for(PatternM p : mPatternList){
-			ArrayList<ItemM> tmpPattern = p.get();
-			for(ItemM i : tmpPattern){
-				if(i.getListType() == inListType){
-					//Search for the ListDataItem using the id
-					ItemM refDataItem = this.getListOfType(inListType).getItem(i.getId());
-					if(refDataItem != null){
-						refDataItem.incrementTempNumberOfTimesThisItemOccursInListOfPatterns();
-					}
-				}
-			}
-		}
-		
-		//Now we update the sort values using correlations..
-	
-		//..to do this we first go through the previous lists to set a value on the
-		//-relevance/reliability of each of the patterns..
-		for(PatternM p : mPatternList){
-			double tmpNumberOfMatchesBtwGuiAndPatternLdi = 0;
-			double tmpLengthOfPatternDataList = p.getUntilInVal(inListType).size(); //"Number of guesses"
-			if(tmpLengthOfPatternDataList == 0){
-				continue;
-			}
-			//..go through each activated element in previous gui lists to see if it is represented
-			//-in the current pattern
-			prevGuiLdiList: for(ItemM prevGuiLdi : this.getCombinedListOfActivatedDataUntilInVal(inListType)){
-				for(ItemM patternLdi : p.get()){
-					if(prevGuiLdi.getId().equals(patternLdi.getId())){
-						tmpNumberOfMatchesBtwGuiAndPatternLdi++;
-						continue prevGuiLdiList;
-					}
-				}
-			}
-			p.setRelevance(tmpNumberOfMatchesBtwGuiAndPatternLdi, tmpLengthOfPatternDataList);
-		}
-
-		//..and now we use these values to set the new sort values (please note the order of the for statements)
-		guiList: for(ItemM guiLdi : this.getListOfType(inListType).getListOfData()){ //Whole list is used
-			for(PatternM p : mPatternList){
-				for(ItemM patternLdi : p.get()){
-					if(patternLdi.getId().equals(guiLdi.getId())){ //Only update the ones that we have in the patterns list
-						guiLdi.setTotalSortValue(
-								guiLdi.getTempNumberOfTimesThisItemOccursInListOfPatterns()
-								+ PATTERN_MULTIPLIER * p.getRelevance());
-						continue guiList;
-					}
-				}
-			}
-			//If we could find no match for the gui list data item, we simply set the sort value to the click value
-			guiLdi.setTotalSortValue(guiLdi.getTempNumberOfTimesThisItemOccursInListOfPatterns());
-		}
-		
-		*/
-		
-
 	}
-	
-
+	private class Pattern{
+		public float relevance;
+		public ArrayList<Long> list;
+		public Pattern(){
+			relevance = 0;
+			list = new ArrayList<Long>();
+		}
+	}
 	
 	
 	//-------------------------Toast
