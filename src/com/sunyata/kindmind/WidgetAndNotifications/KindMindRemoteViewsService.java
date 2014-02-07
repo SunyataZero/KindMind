@@ -66,7 +66,7 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 		retRemoteViews.setTextViewText(R.id.widget_listitem, "asdf");
 		*/
 		
-		AlgorithmM.updateSortValuesForListType(mContext, ListTypeM.NEEDS);
+		AlgorithmM.get(mContext).updateSortValuesForListType();
 
 		String tmpSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
 		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";

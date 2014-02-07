@@ -483,7 +483,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		case R.id.menu_item_kindsort:
 			//Updating the sort values which will be used below
-			AlgorithmM.updateSortValuesForListType(this.getActivity());
+			AlgorithmM.get(getActivity()).updateSortValuesForListType();
 			
 			//Changing the sort method used and refreshing list
 			ContentProviderM.sSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
