@@ -72,6 +72,7 @@ public class DetailsFragmentC extends Fragment
 	private Button mNotificationTimePickerButton;
 	private Switch mNotificationSwitch;
 	private TextView mActionTextView;
+	private TextView mActionOnClickTextView;
 	private Boolean mSupressEvents = false;
 	
 	private ArrayAdapter<CharSequence> mTypeChooserButtonAdapter;
@@ -248,106 +249,114 @@ public class DetailsFragmentC extends Fragment
     	
     	this.updateSwitchAndNotificationButton();
     	
-
-
     	
     	//--------------Actions on click
     	
-    	ArrayList<CharSequence> tmpArrayList = new ArrayList<CharSequence>();
-    	tmpArrayList.add("Image");
-    	tmpArrayList.add("Audio");
-    	tmpArrayList.add("Video");
-    	tmpArrayList.add("Contact");
-    	tmpArrayList.add("Bookmark");
-    	tmpArrayList.add("Custom File");
-    	///tmpArrayList.add("Custom String");
-    	
+    	mActionOnClickTextView = (TextView) v.findViewById(R.id.actionOnClickTextView);
     	mActionTextView = (TextView) v.findViewById(R.id.actionTextView);
-    	
-    	mTypeChooserButtonAdapter = new ArrayAdapter<CharSequence>(
-    			getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, tmpArrayList);
-    	mNewActionButton = (Button)v.findViewById(R.id.newActionButton);
-    	mNewActionButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				new AlertDialog.Builder(getActivity()).setTitle("Type of action")
-						.setAdapter(mTypeChooserButtonAdapter, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								
-								switch(which){
-								case 0: //--------------Image
-
-							    	//Setup of image chooser button..
-							    	//..using an external image app for choosing an image
-							    	final Intent tmpImageIntent = new Intent(
-							    			Intent.ACTION_PICK,
-							    			android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI); //-Images
-							    	startActivityForResult(tmpImageIntent, REQUEST_IMAGEFILECHOOSER);
-							    	//-results handled below in the "onActivityResult" method
-									
-									break;
-								case 1: //--------------Audio
-									final Intent tmpAudioIntent = new Intent(
-							    			Intent.ACTION_PICK,
-							    			android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
-									startActivityForResult(tmpAudioIntent, REQUEST_AUDIOFILECHOOSER);
-									break;
-								case 2: //--------------Video
-									final Intent tmpVideoIntent = new Intent(
-							    			Intent.ACTION_PICK,
-							    			android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-									startActivityForResult(tmpVideoIntent, REQUEST_VIDEOFILECHOOSER);
-									break;
-								case 3: //--------------Contact
-							    	final Intent tmpContactIntent = new Intent(
-							    			Intent.ACTION_PICK,
-							    			ContactsContract.Contacts.CONTENT_URI);
-							    			startActivityForResult(tmpContactIntent, REQUEST_CONTACTCHOOSER);
-									break;
-								case 4: //--------------Bookmark
-					    			final Intent tmpBookmarkintent = new Intent(getActivity(), BookmarkChooserActivityC.class);
-					    			tmpBookmarkintent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
-					    			//-Extracted in SingleFragmentActivityC
-					    			startActivityForResult(tmpBookmarkintent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
-									break;
-									/*
-								case 5: //--------------Custom file
-					    			//Alternative solution that searches through a volume:
-					    			// http://stackoverflow.com/questions/10384080/mediastore-uri-to-query-all-types-of-files-media-and-non-media
-					    			//..starting a new (app internal) activity (and fragment) for for choosing a file
-									final Intent customFileIntent = new Intent(getActivity(), FileChooserActivityC.class);
-									customFileIntent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
-					    			//-Extracted in SingleFragmentActivityC
-					    			startActivityForResult(customFileIntent, REQUEST_CUSTOMFILECHOOSER);
-					    			//-Calling FileChooserActivityC
-									break;
-									*/
-								default:
-									break;
-								}
-								
-								dialog.dismiss();
-							}
-						}).create().show();
-			}
-		});
-
+    	mNewActionButton = (Button) v.findViewById(R.id.newActionButton);
     	mDeleteActionButton = (Button) v.findViewById(R.id.deleteActionButton);
-    	mDeleteActionButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				String tmpSelection = ExtendedDataTableM.COLUMN_ITEM_REFERENCE
-						+ " = " + Utils.getIdFromUri(refItemUri);
-				getActivity().getContentResolver().delete(
-						ContentProviderM.EXTENDED_DATA_CONTENT_URI, tmpSelection, null);
-				
-				updateActionList(v);
-			}
-		});
     	
-    	this.updateActionList(v);
-    	
+    	if(this.refListType == ListTypeM.KINDNESS){
+	    	
+	    	ArrayList<CharSequence> tmpArrayList = new ArrayList<CharSequence>();
+	    	tmpArrayList.add("Image");
+	    	tmpArrayList.add("Audio");
+	    	tmpArrayList.add("Video");
+	    	tmpArrayList.add("Contact");
+	    	tmpArrayList.add("Bookmark");
+	    	tmpArrayList.add("Custom File");
+	    	///tmpArrayList.add("Custom String");
+	    	
+	    	mTypeChooserButtonAdapter = new ArrayAdapter<CharSequence>(
+	    			getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, tmpArrayList);
+	    	
+	    	mNewActionButton.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					new AlertDialog.Builder(getActivity()).setTitle("Type of action")
+							.setAdapter(mTypeChooserButtonAdapter, new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									
+									switch(which){
+									case 0: //--------------Image
+	
+								    	//Setup of image chooser button..
+								    	//..using an external image app for choosing an image
+								    	final Intent tmpImageIntent = new Intent(
+								    			Intent.ACTION_PICK,
+								    			android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI); //-Images
+								    	startActivityForResult(tmpImageIntent, REQUEST_IMAGEFILECHOOSER);
+								    	//-results handled below in the "onActivityResult" method
+										
+										break;
+									case 1: //--------------Audio
+										final Intent tmpAudioIntent = new Intent(
+								    			Intent.ACTION_PICK,
+								    			android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+										startActivityForResult(tmpAudioIntent, REQUEST_AUDIOFILECHOOSER);
+										break;
+									case 2: //--------------Video
+										final Intent tmpVideoIntent = new Intent(
+								    			Intent.ACTION_PICK,
+								    			android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+										startActivityForResult(tmpVideoIntent, REQUEST_VIDEOFILECHOOSER);
+										break;
+									case 3: //--------------Contact
+								    	final Intent tmpContactIntent = new Intent(
+								    			Intent.ACTION_PICK,
+								    			ContactsContract.Contacts.CONTENT_URI);
+								    			startActivityForResult(tmpContactIntent, REQUEST_CONTACTCHOOSER);
+										break;
+									case 4: //--------------Bookmark
+						    			final Intent tmpBookmarkintent = new Intent(getActivity(), BookmarkChooserActivityC.class);
+						    			tmpBookmarkintent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
+						    			//-Extracted in SingleFragmentActivityC
+						    			startActivityForResult(tmpBookmarkintent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
+										break;
+										/*
+									case 5: //--------------Custom file
+						    			//Alternative solution that searches through a volume:
+						    			// http://stackoverflow.com/questions/10384080/mediastore-uri-to-query-all-types-of-files-media-and-non-media
+						    			//..starting a new (app internal) activity (and fragment) for for choosing a file
+										final Intent customFileIntent = new Intent(getActivity(), FileChooserActivityC.class);
+										customFileIntent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
+						    			//-Extracted in SingleFragmentActivityC
+						    			startActivityForResult(customFileIntent, REQUEST_CUSTOMFILECHOOSER);
+						    			//-Calling FileChooserActivityC
+										break;
+										*/
+									default:
+										break;
+									}
+									
+									dialog.dismiss();
+								}
+							}).create().show();
+				}
+			});
+	
+	    	mDeleteActionButton.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					String tmpSelection = ExtendedDataTableM.COLUMN_ITEM_REFERENCE
+							+ " = " + Utils.getIdFromUri(refItemUri);
+					getActivity().getContentResolver().delete(
+							ContentProviderM.EXTENDED_DATA_CONTENT_URI, tmpSelection, null);
+					
+					updateActionList(v);
+				}
+			});
+	    	
+	    	this.updateActionList(v);
+    		
+    	}else{ //Feelings or needs
+    		mActionOnClickTextView.setVisibility(View.GONE);
+    		mActionTextView.setVisibility(View.GONE);
+    		mNewActionButton.setVisibility(View.GONE);
+    		mDeleteActionButton.setVisibility(View.GONE);
+    	}
 
     	//tmpCursor.close();
     	return v;

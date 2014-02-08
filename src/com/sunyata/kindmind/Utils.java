@@ -85,7 +85,6 @@ public class Utils {
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Uncomfortable");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Vulnarable");
 
-
     	createStartupItem(inContext, ListTypeM.NEEDS, "Acceptance");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Appreciation");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Authenticity");
@@ -110,14 +109,14 @@ public class Utils {
     	createStartupItem(inContext, ListTypeM.KINDNESS, "Calling a friend");
     	createStartupItem(inContext, ListTypeM.KINDNESS, "Enumerating good things recently");
     	createStartupItem(inContext, ListTypeM.KINDNESS, "Finding a new way to do something");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Thinking about someone who shares your experience");
     	createStartupItem(inContext, ListTypeM.KINDNESS, "Focusing on a need");
     	createStartupItem(inContext, ListTypeM.KINDNESS, "Following the breath");
     	createStartupItem(inContext, ListTypeM.KINDNESS, "Looking at a plant or a tree nearby");
     	createStartupItem(inContext, ListTypeM.KINDNESS, "Seeing alternative ways to respond");
     	createStartupItem(inContext, ListTypeM.KINDNESS, "Seeing the bigger perspective");
     	createStartupItem(inContext, ListTypeM.KINDNESS, "Stretching");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Think about a time when you helped someone");
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Thinking about a time when you helped someone");
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Thinking about someone who shares your experience");
 
 		
     	PreferenceManager.getDefaultSharedPreferences(inContext)
