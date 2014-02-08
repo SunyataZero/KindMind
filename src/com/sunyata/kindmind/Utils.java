@@ -69,26 +69,56 @@ public class Utils {
 	public static void createAllStartupItems(Context inContext) {
 		// TODO Auto-generated method stub
 		
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Sad");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Angry");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Nervous");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Tired");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Anxious");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Concerned");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Dissapointed");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Rest");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Frustrated");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Guilty");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Hurt");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Overwhelmed");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Resentful");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Sad");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Shameful");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Suspicious");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Tired");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Uncomfortable");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Vulnarable");
+
+
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Acceptance");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Appreciation");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Authenticity");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Connection");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Peace");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Consideration");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Contribution");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Creativity");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Emotional safety");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Empathy");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Freedom");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Fun");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Inspiration");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Love");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Sustinence");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Air");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Safety");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Mourning");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Physical comfort");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Rest");
+    	createStartupItem(inContext, ListTypeM.NEEDS, "Support");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Trust");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Understanding");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Freedom");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Creativity");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Contribution");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Fun");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Movement");
+
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Awareness of a feeling in the body");
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Calling a friend");
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Enumerating good things recently");
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Finding a new way to do something");
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Thinking about someone who shares your experience");
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Focusing on a need");
     	createStartupItem(inContext, ListTypeM.KINDNESS, "Following the breath");
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Looking at a plant or a tree nearby");
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Seeing alternative ways to respond");
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Seeing the bigger perspective");
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Stretching");
+    	createStartupItem(inContext, ListTypeM.KINDNESS, "Think about a time when you helped someone");
+
 		
     	PreferenceManager.getDefaultSharedPreferences(inContext)
     			.edit()
