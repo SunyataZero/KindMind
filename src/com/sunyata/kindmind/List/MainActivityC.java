@@ -1,13 +1,13 @@
 package com.sunyata.kindmind.List;
 
 import java.util.Calendar;
-import java.util.Locale;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -21,12 +21,13 @@ import android.widget.Toast;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
+import com.sunyata.kindmind.Database.DatabaseHelperM;
+import com.sunyata.kindmind.Database.ExtendedDataTableM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternTableM;
 
 /*
  * Overview: MainActivityC holds three ListFragments in a ViewPager and handles the corresponding tabs
- * Implements: MainActivityCallbackListenerI, used by the fragments
  * Sections:
  * ------------------------Fields
  * ------------------------onCreate and OnPageChangeListener
@@ -35,18 +36,18 @@ import com.sunyata.kindmind.Database.PatternTableM;
  * ------------------------Other methods
  * Improvements: Saving the view pager position in a bundle instead of a static variable
  * Documentation: 
- * http://developer.android.com/training/implementing-navigation/lateral.html
- * http://developer.android.com/reference/android/support/v4/app/FragmentActivity.html
+ *  http://developer.android.com/training/implementing-navigation/lateral.html
+ *  http://developer.android.com/reference/android/support/v4/app/FragmentActivity.html
+ *  http://developer.android.com/reference/android/support/v4/view/ViewPager.html
  */
 public class MainActivityC extends FragmentActivity implements MainActivityCallbackListenerI{
 
 	//------------------------Fields
 	
-	//Fragments and handling of fragment changes
+	//Fragment changes
     private ViewPager mViewPager;
-	private PagerAdapterM mPagerAdapter;
+	private FragmentPagerAdapterM mPagerAdapter;
     private static int sViewPagerPosition;
-
 
     //Action bar
     private ActionBar refActionBar;
@@ -70,11 +71,16 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         super.onCreate(inSavedInstanceState);
         Log.d(Utils.getClassName(), Utils.getMethodName());
         
+    	//Creation of new list items
+    	if(Utils.isFirstTimeApplicationStarted(this) == true){
+    		Utils.createAllStartupItems(this);
+    	}
+
         setContentView(R.layout.activity_main);
         setTitle(R.string.app_name);
         
         //Create the adapter that will return a fragment for each section of the app
-        mPagerAdapter = new PagerAdapterM(getSupportFragmentManager());
+        mPagerAdapter = new FragmentPagerAdapterM(getSupportFragmentManager());
 
         //Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -131,11 +137,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         refActionBar.addTab(refActionBar.newTab().setText(mNeedTitle).setTabListener(tmpTabListener));
         refActionBar.addTab(refActionBar.newTab().setText(mActionTitle).setTabListener(tmpTabListener));
         this.fireUpdateTabTitles();
-
-    	//Creation of new list items
-    	if(Utils.isFirstTimeApplicationStarted(this) == true){
-    		Utils.createAllStartupItems(this);
-    	}
     }
     
 
@@ -144,15 +145,16 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     /*
 	 * Overview: PagerAdapterM handles the listfragments that makes up the core of the app
 	 * Used in: In onCreate setAdapater is called: "mViewPager.setAdapter(mPagerAdapter);"
+	 * Notes: Was previously a FragmentStatePagerAdapter
 	 * Documentation: 
 	 *  http://developer.android.com/reference/android/support/v4/app/FragmentPagerAdapter.html
 	 */
     //TODO: 
-    class PagerAdapterM extends FragmentPagerAdapter {
+    class FragmentPagerAdapterM extends FragmentPagerAdapter {
         private ListFragmentC mFeelingListFragment;
         private ListFragmentC mNeedListFragment;
         private ListFragmentC mActionListFragment;
-        public PagerAdapterM(FragmentManager inFragmentManager) {
+        public FragmentPagerAdapterM(FragmentManager inFragmentManager) {
             super(inFragmentManager);
         }
         @Override
@@ -176,7 +178,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         	}
         	return super.instantiateItem(inContainer, inPosition);
         }
-        //getItem is called to instantiate the page for the given position.
         @Override
         public ListFragmentC getItem(int inPosition) {
         	switch (inPosition){
@@ -190,21 +191,16 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         public int getCount() {
             return 3;
         }
-        @Override
-        public CharSequence getPageTitle(int inPosition) {
-            Locale l = Locale.getDefault();
-            switch (inPosition) {
-                case 0: return getString(R.string.feelings_title).toUpperCase(l);
-                case 1: return getString(R.string.needs_title).toUpperCase(l);
-                case 2: return getString(R.string.kindness_title).toUpperCase(l);
-            }
-            return null;
-        }
     }
 
     
     //------------------------Callback methods
 
+    /*
+	 * Overview: fireSavePatternEvent saves as a pattern all the currently checked list items
+	 * Used in: ListFragmentC when the user presses the save button menu item
+	 * Uses app internal: fireClearAllListsEvent
+	 */
 	@Override
 	public void fireSavePatternEvent() {
 		Cursor tmpItemCursor = this.getContentResolver().query(
@@ -214,18 +210,15 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		//-getting the time here instead of inside the for statement ensures that we are able
 		// to use the time as way to group items into a pattern.
 		
+		//Iterate through the list items to find the ones that are checked/active..
 		for(tmpItemCursor.moveToFirst(); tmpItemCursor.isAfterLast() == false; tmpItemCursor.moveToNext()){
-		
 			if(Utils.sqlToBoolean(tmpItemCursor, ItemTableM.COLUMN_ACTIVE)){
-
-				//Saving to pattern
+				//..saving to pattern in database
 				ContentValues tmpInsertContentValues = new ContentValues();
-				long tmpItemId = tmpItemCursor.getInt(
-						tmpItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
+				long tmpItemId = tmpItemCursor.getInt(tmpItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
 				tmpInsertContentValues.put(PatternTableM.COLUMN_ITEM_REFERENCE, tmpItemId);
 				tmpInsertContentValues.put(PatternTableM.COLUMN_CREATE_TIME, tmpCurrentTime);
-				this.getContentResolver().insert(
-						ContentProviderM.PATTERN_CONTENT_URI, tmpInsertContentValues);
+				this.getContentResolver().insert(ContentProviderM.PATTERN_CONTENT_URI, tmpInsertContentValues);
 			}
 		}
 
@@ -237,10 +230,18 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		//tmpItemCursor.close();
 	}
 	
+	/*
+	 * Overview: fireClearAllListsEvent clears all marks for checked/activated list items and scrolls to
+	 *  the leftmost position (then also calls fireUpdateTabTitles so that the numbers are cleared as well) 
+	 * Used in: 1. fireSavePatternEvent 2. ListFragmentC.onOptionsItemSelected()
+	 */
 	@Override
 	public void fireClearAllListsEvent() {
-		//Clearing all the data
-		this.clearActivated();
+		//Clearing all the checks for all list items
+		ContentValues tmpContentValueForUpdate = new ContentValues();
+		tmpContentValueForUpdate.put(ItemTableM.COLUMN_ACTIVE, ItemTableM.FALSE);
+		Uri tmpUri = Uri.parse(ContentProviderM.LIST_CONTENT_URI.toString());
+		this.getContentResolver().update(tmpUri, tmpContentValueForUpdate, null, null);
 		
 		//Side scrolling to the leftmost viewpager position (feelings)
 		mViewPager.setCurrentItem(0, true);
@@ -248,6 +249,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		this.fireUpdateTabTitles();
 	}
 	
+	/*
+	 * Overview: fireUpdateTabTitles updates tab titles with the name of the listtype and - if one or more
+	 *  list items have been checked/activated - adds the number of checks for that list type/fragment
+	 * Used in: 1. fireSavePatternEvent 2. ListFragmentC.onListItemClick() 3. onCreate
+	 */
 	@Override
 	public void fireUpdateTabTitles() {
 		mFeelingTitle = getResources().getString(R.string.feelings_title);
@@ -256,21 +262,27 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         int tmpFeelingsCount = Utils.getActiveListItemCount(this, ListTypeM.FEELINGS);
         int tmpNeedsCount = Utils.getActiveListItemCount(this, ListTypeM.NEEDS);
         int tmpActionsCount = Utils.getActiveListItemCount(this, ListTypeM.KINDNESS);
-        if(tmpFeelingsCount != 0){
-        	mFeelingTitle = mFeelingTitle + " (" + tmpFeelingsCount + ")";
-        }
-        if(tmpNeedsCount != 0){
-        	mNeedTitle = mNeedTitle + " (" + tmpNeedsCount + ")";
-        }
-        if(tmpActionsCount != 0){
-        	mActionTitle = mActionTitle + " (" + tmpActionsCount + ")";
-        }
+        if(tmpFeelingsCount != 0){mFeelingTitle = mFeelingTitle + " (" + tmpFeelingsCount + ")";}
+        if(tmpNeedsCount != 0){mNeedTitle = mNeedTitle + " (" + tmpNeedsCount + ")";}
+        if(tmpActionsCount != 0){mActionTitle = mActionTitle + " (" + tmpActionsCount + ")";}
         refActionBar.getTabAt(0).setText(mFeelingTitle);
         refActionBar.getTabAt(1).setText(mNeedTitle);
         refActionBar.getTabAt(2).setText(mActionTitle);
-        ////refActionBar.addTab(refActionBar.newTab().setText(mFeelingTitle).setTabListener(tmpTabListener));
 	}
-	
+
+    /*
+	 * Overview: resetData clears and repopulates the list of data items. Used for testing and debug purposes
+	 */
+    public void fireResetData(){
+    	//Clearing the data
+    	this.getContentResolver().delete(ContentProviderM.LIST_CONTENT_URI, null, null);
+    	this.getContentResolver().delete(ContentProviderM.PATTERN_CONTENT_URI, null, null);
+    	this.getContentResolver().delete(ContentProviderM.EXTENDED_DATA_CONTENT_URI, null, null);
+    	
+    	//Adding new data
+    	Utils.createAllStartupItems(this);
+    }
+
 	
     //------------------------Other methods
     
@@ -285,11 +297,4 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	}
     }
     
-	public void clearActivated(){
-		ContentValues tmpContentValueForUpdate = new ContentValues();
-		tmpContentValueForUpdate.put(ItemTableM.COLUMN_ACTIVE, ItemTableM.FALSE);
-		Uri tmpUri = Uri.parse(ContentProviderM.LIST_CONTENT_URI.toString());
-		this.getContentResolver().update(tmpUri, tmpContentValueForUpdate, null, null);
-	}
-	
 }

@@ -266,7 +266,7 @@ public class ContentProviderM extends ContentProvider {
 			tmpAvailableColumns.add(ItemTableM.COLUMN_FILEORDIRPATH);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_NOTIFICATION);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_KINDSORTVALUE);
-			tmpAvailableColumns.add(ItemTableM.COLUMN_TAGS);
+			tmpAvailableColumns.add(ItemTableM.COLUMN_DETAILS);
 			break;
 		case PATTERN:
 			tmpAvailableColumns.add(PatternTableM.COLUMN_ID);

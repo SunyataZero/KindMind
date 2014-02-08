@@ -20,6 +20,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CheckBox;
 import android.widget.ListView;
 
+import com.sunyata.kindmind.BuildConfig;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
@@ -98,7 +99,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		//Setup of variables used for selecting the database colums of rows (for the creation of the CursorLoader)
 		String[] tmpProjection = {ItemTableM.COLUMN_ID, ItemTableM.COLUMN_NAME,
-				ItemTableM.COLUMN_TAGS, ItemTableM.COLUMN_ACTIVE, ItemTableM.COLUMN_KINDSORTVALUE};
+				ItemTableM.COLUMN_DETAILS, ItemTableM.COLUMN_ACTIVE, ItemTableM.COLUMN_KINDSORTVALUE};
 		//-kindsortvalue only needed here when used for debug purposes
 		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
 		String[] tmpSelectionArguments = {refListType.toString()};
@@ -145,7 +146,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 */
 	void createListDataSupport(){
 		//Creating the SimpleCursorAdapter for the specified database columns linked to the specified GUI views..
-		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_TAGS}; //, ItemTableM.COLUMN_ACTIVE
+		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_DETAILS}; //, ItemTableM.COLUMN_ACTIVE
 		int[] tmpDatabaseTo = {R.id.list_item_titleTextView, R.id.list_item_tagsTextView}; //, R.id.list_item_activeCheckBox
 		mCustomCursorAdapter = new CustomCursorAdapterM(
 				getActivity(), R.layout.ofnr_list_item, null,
@@ -406,6 +407,12 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	public void onCreateOptionsMenu(Menu inMenu, MenuInflater inMenuInflater){
 		super.onCreateOptionsMenu(inMenu, inMenuInflater);
 		inMenuInflater.inflate(R.menu.actionbarmenu_datalist, inMenu);
+
+		//If we are not running in debug mode, hide the following option items
+		if(!BuildConfig.DEBUG){
+			inMenu.findItem(R.id.menu_item_backup_database).setVisible(false);
+			inMenu.findItem(R.id.menu_item_reset_database).setVisible(false);
+		}
 	}
 	
 	/*
@@ -417,6 +424,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem inMenuItem){
+		
 		switch (inMenuItem.getItemId()){
 		case R.id.menu_item_new_listitem:
 			
@@ -487,6 +495,10 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			sendAsEmail("Backup of KindMind database", "Database file is attached",
 					getActivity().getDatabasePath(DatabaseHelperM.DATABASE_NAME));
 
+			return true;
+		case R.id.menu_item_reset_database:
+			sCallbackListener.fireResetData();
+			
 			return true;
 		default:
 			return super.onOptionsItemSelected(inMenuItem);

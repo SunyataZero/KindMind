@@ -39,4 +39,8 @@
         android:id="@+id/menu_item_backup_database"
         android:title="@string/backup_database"
         android:showAsAction="never" />
+    <item
+        android:id="@+id/menu_item_reset_database"
+        android:title="@string/reset_database"
+        android:showAsAction="never" />
 </menu>

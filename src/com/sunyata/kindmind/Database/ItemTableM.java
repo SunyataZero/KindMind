@@ -14,6 +14,7 @@ public class ItemTableM {
 	public static final String COLUMN_CREATE_TIME = "create_time"; //-unused
 	public static final String COLUMN_MODIFICATION_TIME = "modification_time"; //-unused
 	public static final String COLUMN_NAME = "name";
+	public static final String COLUMN_DETAILS = "details"; //PLEASE NOTE: Unused
 	public static final String COLUMN_LISTTYPE = "listtype";
 	public static final String COLUMN_ACTIVE = "active";
 	public static final String COLUMN_FILEORDIRPATH = "fileordirpath"; //PLEASE NOTE: Unused
@@ -21,7 +22,6 @@ public class ItemTableM {
 	//-Contains both active or not, and the time, not active is stored as -1
 	public static final String COLUMN_KINDSORTVALUE = "kindsortvalue";
 	//-Alternative: Not storing this value here, but instead locally
-	public static final String COLUMN_TAGS = "tags"; //PLEASE NOTE: Unused
 	
 	//TODO: Please remember to update the verifyColumns method and the updrade method when we add new columns
 
@@ -33,12 +33,12 @@ public class ItemTableM {
 			+ COLUMN_CREATE_TIME + " INTEGER NOT NULL DEFAULT 0, "
 			+ COLUMN_MODIFICATION_TIME + " INTEGER NOT NULL DEFAULT 0, "
 			+ COLUMN_NAME + " TEXT NOT NULL DEFAULT 'no_name_set', "
+			+ COLUMN_DETAILS + " TEXT NOT NULL DEFAULT '-', "
 			+ COLUMN_LISTTYPE + " TEXT NOT NULL DEFAULT 'no_listtype_set', "
 			+ COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT -1, "
 			+ COLUMN_FILEORDIRPATH + " TEXT NOT NULL DEFAULT -1, "
 			+ COLUMN_NOTIFICATION + " INTEGER NOT NULL DEFAULT -1, "
-			+ COLUMN_KINDSORTVALUE + " REAL NOT NULL DEFAULT 0, "
-			+ COLUMN_TAGS + " TEXT NOT NULL DEFAULT '-----------'"
+			+ COLUMN_KINDSORTVALUE + " REAL NOT NULL DEFAULT 0"
 			+ ");";
 	//+ COLUMN_KINDSORTVALUE + " REAL NOT NULL DEFAULT 0"
 	//TODO: NOT NULL

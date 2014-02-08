@@ -4,4 +4,5 @@ interface MainActivityCallbackListenerI {
 	void fireSavePatternEvent();
 	void fireClearAllListsEvent();
 	void fireUpdateTabTitles();
+	void fireResetData();
 }
