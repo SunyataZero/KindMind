@@ -7,12 +7,11 @@ import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -21,8 +20,6 @@ import android.widget.Toast;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
-import com.sunyata.kindmind.Database.DatabaseHelperM;
-import com.sunyata.kindmind.Database.ExtendedDataTableM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternTableM;
 
@@ -46,7 +43,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	
 	//Fragment changes
     private ViewPager mViewPager;
-	private FragmentPagerAdapterM mPagerAdapter;
+	private FragmentStatePagerAdapterM mPagerAdapter;
     private static int sViewPagerPosition;
 
     //Action bar
@@ -80,7 +77,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         setTitle(R.string.app_name);
         
         //Create the adapter that will return a fragment for each section of the app
-        mPagerAdapter = new FragmentPagerAdapterM(getSupportFragmentManager());
+        mPagerAdapter = new FragmentStatePagerAdapterM(getSupportFragmentManager());
 
         //Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -124,7 +121,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			@Override
 			public void onTabSelected(Tab tab, FragmentTransaction ft) {
 				//Scrolling to the new fragment when the user selects a tab
-				mViewPager.setCurrentItem(tab.getPosition());
+				int tmpPos = tab.getPosition();
+				
+				mViewPager.setCurrentItem(tmpPos);
 			}
 			@Override
 			public void onTabUnselected(Tab tab, FragmentTransaction ft) {
@@ -145,16 +144,18 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     /*
 	 * Overview: PagerAdapterM handles the listfragments that makes up the core of the app
 	 * Used in: In onCreate setAdapater is called: "mViewPager.setAdapter(mPagerAdapter);"
-	 * Notes: Was previously a FragmentStatePagerAdapter
-	 * Documentation: 
-	 *  http://developer.android.com/reference/android/support/v4/app/FragmentPagerAdapter.html
+	 * PLEASE NOTE: Was previously a FragmentPagerAdapter, but this resulted in bugs (one of which was outside
+	 *  of the app code) so we use FragmentStatePagerAdapter instead even though the docs recommend the other
+	 *  for cases where we have only a few tabs as in our case
+	 * Documentation:
+	 *  http://developer.android.com/reference/android/support/v4/app/FragmentStatePagerAdapter.html
 	 */
     //TODO: 
-    class FragmentPagerAdapterM extends FragmentPagerAdapter {
+    class FragmentStatePagerAdapterM extends FragmentStatePagerAdapter {
         private ListFragmentC mFeelingListFragment;
         private ListFragmentC mNeedListFragment;
         private ListFragmentC mActionListFragment;
-        public FragmentPagerAdapterM(FragmentManager inFragmentManager) {
+        public FragmentStatePagerAdapterM(FragmentManager inFragmentManager) {
             super(inFragmentManager);
         }
         @Override

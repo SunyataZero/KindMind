@@ -55,7 +55,6 @@ public class ItemTableM {
 	public static final int FALSE = -1; //-All other values means TRUE
 	
 	
-	
 	//-------------------Lifecycle methods
 	public static void createTable(SQLiteDatabase inDatabase) {
 		inDatabase.execSQL(CREATE_DATABASE);

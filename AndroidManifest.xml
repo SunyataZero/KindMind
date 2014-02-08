@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sunyata.kindmind"
-    android:versionCode="12"
-    android:versionName="0.7.1_alpha" >
+    android:versionCode="13"
+    android:versionName="0.8.0_beta" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
