@@ -1,7 +1,6 @@
 package com.sunyata.kindmind.Details;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

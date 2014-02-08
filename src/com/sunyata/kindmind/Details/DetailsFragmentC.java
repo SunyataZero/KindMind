@@ -60,9 +60,7 @@ import com.sunyata.kindmind.WidgetAndNotifications.NotificationServiceC;
  * ----------------------------onActivityResult
  * ----------------------------Other methods
  */
-public class DetailsFragmentC extends Fragment
-		implements TimePickerFragmentC.OnTimeSetListenerI{
-
+public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.OnTimeSetListenerI{
 	
 	//----------------------------Fields
 	
@@ -141,7 +139,6 @@ public class DetailsFragmentC extends Fragment
     	//-Please note: We need to move the cursor to the first position before using .getString() (see above)
 
     	
-    	
     	//--------------Title
     	
     	//Storing reference to EditText button containing list item name (from the SQL database)..
@@ -170,46 +167,6 @@ public class DetailsFragmentC extends Fragment
     		}
     	});
 
-    	/*
-    	//Setup of delete button..
-    	mDeleteButton = (Button)v.findViewById(R.id.delete_button);
-    	mDeleteButton.setOnClickListener(new OnClickListener() {
-    		@Override
-    		public void onClick(View v) {
-    			//..remove the row from the SQL database and finish the activity that holds this fragment
-    			getActivity().getContentResolver().delete(refItemUri, null, null);
-    			getActivity().finish();
-    		}
-    	});
-    	*/
-
-    	/*
-    	//Getting references to the other buttons		
-    	mImageFileChooserButton = (Button)v.findViewById(R.id.image_file_chooser_button);
-    	mAudioFileChooserButton = (Button)v.findViewById(R.id.audio_file_chooser_button);
-    	mVideoFileChooserButton = (Button)v.findViewById(R.id.video_file_chooser_button);
-    	mCustomFileChooserButton = (Button)v.findViewById(R.id.custom_file_chooser_button);
-    	mContactChooserButton = (Button)v.findViewById(R.id.contact_chooser_button);
-    	mBookmarkChooserButton = (Button)v.findViewById(R.id.bookmark_chooser_button);
-    	mClearChooserButton = (Button)v.findViewById(R.id.clear_chooser_button);
-    	mNotificationCheckBox = (CheckBox)v.findViewById(R.id.notification_checkbox);
-    	mTimePickerButton = (Button)v.findViewById(R.id.time_picker_button);
-
-    	//If ListType is ACTIONS then these buttons will be shown, otherwise not
-    	if(refListType != ListTypeM.ACTIONS){
-    		mImageFileChooserButton.setVisibility(View.GONE);
-    		mAudioFileChooserButton.setVisibility(View.GONE);
-    		mVideoFileChooserButton.setVisibility(View.GONE);
-    		mCustomFileChooserButton.setVisibility(View.GONE);
-    		mContactChooserButton.setVisibility(View.GONE);
-    		mBookmarkChooserButton.setVisibility(View.GONE);
-    		mNotificationCheckBox.setVisibility(View.GONE);
-    		mTimePickerButton.setVisibility(View.GONE);
-    		
-        	//tmpCursor.close();
-        	return v;
-    	}
-    	*/
 
     	//--------------Daily Reminder
 
@@ -450,8 +407,8 @@ public class DetailsFragmentC extends Fragment
 	}
 
 
+	//----------------------------Other methods
 	
-	//----------------------------Other lifecycle methods
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -459,22 +416,6 @@ public class DetailsFragmentC extends Fragment
 		setRetainInstance(true); //-TODO: "generally not recommended" in Reto's book, remove?
 		setHasOptionsMenu(true); //-for the up navigation button (left caret)
 	}
-    @Override
-    public void onPause(){
-    	super.onPause();
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
-    }
-    @Override
-    public void onDestroy(){
-    	//-When a new activity is created, this method is called on a physical device, but not on
-        // the emulator, maybe because of "don't keep activities"?
-    	super.onDestroy();
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
-    }
-
-	
-    
-	//----------------------------Other methods
 	
     //Callback method called from the TimePickerFragmentC class with the hour and minute values as arguments
 	//(The alternative to send the uri of the list item into TimePickerFragmentC would not work well
@@ -613,6 +554,4 @@ public class DetailsFragmentC extends Fragment
 			return super.onOptionsItemSelected(inMenuItem);
 		}
 	}
-	
-
 }

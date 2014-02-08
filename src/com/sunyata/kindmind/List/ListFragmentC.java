@@ -2,7 +2,6 @@ package com.sunyata.kindmind.List;
 
 import java.io.File;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -12,12 +11,10 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CheckBox;
@@ -31,7 +28,6 @@ import com.sunyata.kindmind.Database.ExtendedDataTableM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternTableM;
 import com.sunyata.kindmind.Details.DetailsActivityC;
-import com.sunyata.kindmind.List.MainActivityC.CustomPagerAdapter;
 import com.sunyata.kindmind.ToastsAndActions.ActionBehaviour;
 import com.sunyata.kindmind.ToastsAndActions.FeelingsToast;
 import com.sunyata.kindmind.ToastsAndActions.MediaFileActionBehaviour;
@@ -73,7 +69,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	private static MainActivityCallbackListenerI sCallbackListener; //-Does not have to be saved since it's static
 	private ToastBehaviour mToastBehaviour; //-Not saved, but set in onResume
 	private ActionBehaviour mActionBehaviour; //-Not saved, but set in onResume
-	private CustomCursorAdapter mCustomCursorAdapter;
+	private CustomCursorAdapterM mCustomCursorAdapter;
 
 	public static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
 	public static final String EXTRA_AND_BUNDLE_LIST_TYPE = "EXTRA_LIST_TYPE";
@@ -151,7 +147,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		//Creating the SimpleCursorAdapter for the specified database columns linked to the specified GUI views..
 		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_TAGS}; //, ItemTableM.COLUMN_ACTIVE
 		int[] tmpDatabaseTo = {R.id.list_item_titleTextView, R.id.list_item_tagsTextView}; //, R.id.list_item_activeCheckBox
-		mCustomCursorAdapter = new CustomCursorAdapter(
+		mCustomCursorAdapter = new CustomCursorAdapterM(
 				getActivity(), R.layout.ofnr_list_item, null,
 				tmpDatabaseFrom, tmpDatabaseTo, 0, refListType);
 		
@@ -360,17 +356,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	//-------------------Other lifecycle methods
     
     @Override
-    public void onStop(){
-    	super.onStop();
-    	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
-    }
-    //PLEASE NOTE: When a new activity is created, this method is called on a physical device, but not on the emulator
-    @Override
-    public void onDestroy(){
-    	super.onDestroy();
-    	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
-    }
-    @Override
     public void onResume(){
     	//-PLEASE NOTE: When switching between different fragments in the ViewPager,
     	// we cannot use this method for changes we want to see when the state changes.
@@ -378,7 +363,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	// shown (strangely enough). Instead we can use onPageSelected in MainActivityC.
     	super.onResume();
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
-    	
     	
 		switch(refListType){
 		case FEELINGS:
@@ -397,22 +381,14 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			Log.e(Utils.getClassName() ,"Error in onCreate: ListType not covered by switch statement");
 		}
     }
+    /*
     @Override
     public View onCreateView(LayoutInflater inInflater, ViewGroup inContainer, Bundle inSavedinstanceState){
     	View retView = super.onCreateView(inInflater, inContainer, inSavedinstanceState);
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     	return retView;
     }
-    @Override
-    public void onAttach(Activity inActivity){
-    	super.onAttach(inActivity);
-    	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
-    }
-    @Override
-    public void onDetach(){
-    	super.onDetach();
-    	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
-    }
+    */
     //Please note that the loading is done in onCreate(), onCreateView() and onActivityCreated()
     @Override
     public void onSaveInstanceState(Bundle outBundle){

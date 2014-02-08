@@ -1,6 +1,5 @@
 package com.sunyata.kindmind.WidgetAndNotifications;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import android.app.AlarmManager;
@@ -17,8 +16,8 @@ import android.util.Log;
 
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
-import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.ContentProviderM;
+import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.List.MainActivityC;
 //-NotificationCompat is for api lvl 15 and downwards
 
@@ -31,8 +30,6 @@ public class NotificationServiceC extends IntentService {
 	private static final String NOTIFICATION_UUID = "NotificationUUID";
 	private static final String NOTIFICATION_TITLE = "NotificationTitle";
 
-	private static Context sContext;
-	
 	public NotificationServiceC() {
 		super(TAG);
 	}
@@ -91,8 +88,6 @@ public class NotificationServiceC extends IntentService {
 			return;
 		}
 		tmpCursor.moveToFirst();
-		
-		sContext = inContext;
 		
 		//Extracting various data values from the cursor/database-row for use later in this method..
 		String tmpItemIdAsString = Long.valueOf(

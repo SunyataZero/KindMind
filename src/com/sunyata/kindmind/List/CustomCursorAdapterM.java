@@ -14,12 +14,12 @@ import com.sunyata.kindmind.Database.ItemTableM;
 
 //-------------------Adapter
 
-public class CustomCursorAdapter extends SimpleCursorAdapter{
+public class CustomCursorAdapterM extends SimpleCursorAdapter{
 
 	Context mContext;
 	ListTypeM mListType;
 	
-	public CustomCursorAdapter(Context context, int layout, Cursor c,
+	public CustomCursorAdapterM(Context context, int layout, Cursor c,
 			String[] from, int[] to, int flags, ListTypeM inListType) {
 		super(context, layout, c, from, to, flags);
 		
