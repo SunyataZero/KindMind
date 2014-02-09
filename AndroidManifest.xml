@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.sunyata.kindmind.Details.DetailsActivityC"
+            android:name="com.sunyata.kindmind.Details.ItemSetupActivityC"
             android:label="@string/app_name">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".List.MainActivityC" />
         </activity>

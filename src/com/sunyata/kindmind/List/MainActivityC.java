@@ -255,6 +255,13 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			mViewPager.setCurrentItem(0, true);
 		}
 		
+		/*
+		///this.updateCursorLoaderAndAdapter();
+		((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getItem(0).updateCursorLoaderAndAdapter();
+		///mCursorAdapter.notifyDataSetChanged();
+		((CursorAdapterM)((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getItem(0).getListAdapter()).notifyDataSetChanged();
+		*/
+		
 		this.fireUpdateTabTitles();
 	}
 	

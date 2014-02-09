@@ -45,7 +45,7 @@ import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.WidgetAndNotifications.NotificationServiceC;
 
 /*
- * Overview: DetailsFragmentC handles data for a single list item (row in the SQL database).
+ * Overview: SetupFragmentC handles data for a single list item (row in the SQL database).
  * Details: More specifically:
  * 1a. It does the setup of buttons and other widgets, with launching of app internal or external activities/fragments,
  *     many of these activities/fragments are for choosing different types of files (audio, video, images)
@@ -60,10 +60,9 @@ import com.sunyata.kindmind.WidgetAndNotifications.NotificationServiceC;
  * ----------------------------onActivityResult
  * ----------------------------Other methods
  */
-public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.OnTimeSetListenerI{
+public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.OnTimeSetListenerI{
 	
 	//----------------------------Fields
-	
 	private EditText mItemEditText;
 	private ListTypeM refListType;
 	private Button mDeleteActionButton;
@@ -92,7 +91,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 		tmpArguments.putString(ListFragmentC.EXTRA_ITEM_URI, inAttachedData.toString());
 		//-inAttachedData contains the URI that identifies the item
 		//-inAttachedData comes from SingleFragmentActivityC/DetailsActivityC (and not directly from ListFragmentC)
-		Fragment retFragment = new DetailsFragmentC(); //"Implicit" constructor used
+		Fragment retFragment = new ItemSetupFragmentC(); //"Implicit" constructor used
 		retFragment.setArguments(tmpArguments);
 		return retFragment;
 	}
@@ -175,7 +174,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 			@Override
 			public void onClick(View v) { //-Alt: Using the xml property "android:onClick"
 				//..starting a new (app internal) fragment for for choosing time of day
-				DialogFragment tmpTimePickerFragment = TimePickerFragmentC.newInstance(DetailsFragmentC.this);
+				DialogFragment tmpTimePickerFragment = TimePickerFragmentC.newInstance(ItemSetupFragmentC.this);
 				tmpTimePickerFragment.show(getFragmentManager(), "TimePicker");
 			}
 		});
@@ -196,10 +195,10 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
     				}
     				
     				//Update GUI
-    				DetailsFragmentC.this.updateSwitchAndNotificationButton();
+    				ItemSetupFragmentC.this.updateSwitchAndNotificationButton();
     				
     				//Update notification
-    				DetailsFragmentC.this.changeNotificationService();
+    				ItemSetupFragmentC.this.changeNotificationService();
     			}
     		}
     	});
@@ -222,7 +221,7 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 	    	tmpArrayList.add("Video");
 	    	tmpArrayList.add("Contact");
 	    	tmpArrayList.add("Bookmark");
-	    	tmpArrayList.add("Custom File");
+	    	///tmpArrayList.add("Custom File");
 	    	///tmpArrayList.add("Custom String");
 	    	
 	    	mTypeChooserButtonAdapter = new ArrayAdapter<CharSequence>(

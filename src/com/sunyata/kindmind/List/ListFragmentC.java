@@ -29,7 +29,7 @@ import com.sunyata.kindmind.Database.DatabaseHelperM;
 import com.sunyata.kindmind.Database.ExtendedDataTableM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternTableM;
-import com.sunyata.kindmind.Details.DetailsActivityC;
+import com.sunyata.kindmind.Details.ItemSetupActivityC;
 import com.sunyata.kindmind.ToastsAndActions.ActionBehaviour;
 import com.sunyata.kindmind.ToastsAndActions.FeelingsToast;
 import com.sunyata.kindmind.ToastsAndActions.MediaFileActionBehaviour;
@@ -244,7 +244,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			public boolean onItemLongClick(AdapterView<?> a1, View a2, int a3, long inId) {
 				//Opening the details for the list item
 				Uri tmpUri = Uri.parse(ContentProviderM.LIST_CONTENT_URI + "/" + inId);
-				Intent intent = new Intent(getActivity(), DetailsActivityC.class);
+				Intent intent = new Intent(getActivity(), ItemSetupActivityC.class);
 				String tmpExtraString = tmpUri.toString();
 				intent.putExtra(EXTRA_ITEM_URI, tmpExtraString); //-Extracted in DataDetailsFragmentC
 				startActivityForResult(intent, 0); //-Calling DataDetailsActivityC
@@ -354,7 +354,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	    			ContentProviderM.LIST_CONTENT_URI, tmpContentValuesToInsert);
 	    	
 	    	//Launching the details fragment for the newly created item
-			Intent intent = new Intent(getActivity(), DetailsActivityC.class);
+			Intent intent = new Intent(getActivity(), ItemSetupActivityC.class);
 			String tmpExtraString = tmpUriOfNewItem.toString();
 			intent.putExtra(EXTRA_ITEM_URI, tmpExtraString);
 			//-Extracted in SingleFragmentActivityC and sent to DataDetailsFragmentC
