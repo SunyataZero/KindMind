@@ -168,7 +168,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 * Used in: 
 	 * Uses Android lib: changeCursor, setAdapter, restartLoader
 	 */
-	void updateCursorLoaderAndAdapter() {
+	void updateCursorLoaderAndAdapter() { //[list update]
 		Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
 		
 		//Updating the cursor..
@@ -188,7 +188,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		//Scrolling to the top of the list
 		getListView().smoothScrollToPosition(0);
-		
 	}
 	
 	
@@ -258,7 +257,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 * Uses app internal: updateCursorLoaderAndAdapter, fireUpdateTabTitles
 	 */
     @Override
-    public void onListItemClick(ListView l, View inView, int pos, long inId){
+    public void onListItemClick(ListView l, View inView, int pos, long inId){ //[list update]
     	super.onListItemClick(l, inView, pos, inId);
     	
     	//Switching the checkbox off/on
@@ -289,12 +288,12 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 				mActionBehaviour.kindAction(getActivity(), tmpFilePath);
 			}
 
-			//..sorting
-			SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
-			this.updateCursorLoaderAndAdapter();
-			
 			//tmpCursor.close();
 		}
+
+		//..sorting
+		SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
+		this.updateCursorLoaderAndAdapter();
 		
 		mCursorAdapter.notifyDataSetChanged();
 		sCallbackListener.fireUpdateTabTitles();

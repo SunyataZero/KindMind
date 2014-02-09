@@ -97,7 +97,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			//-To access one fragment from here we can use this line:
 			// ((CustomPagerAdapter)mViewPager.getAdapter()).getItem(pos).refreshListDataSupport();
 			@Override
-			public void onPageSelected(int inPos) {
+			public void onPageSelected(int inPos) { //[list update]
 				Log.d("ViewPager.OnPageChangeListener()", "onPageSelected()");
 				
 				//Setting the active tab when the user has just side scrolled (swiped) to a new fragment
@@ -243,7 +243,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	 * Used in: 1. fireSavePatternEvent 2. ListFragmentC.onOptionsItemSelected()
 	 */
 	@Override
-	public void fireClearAllListsEvent() {
+	public void fireClearAllListsEvent() { //[list update]
 		//Clearing all the checks for all list items
 		ContentValues tmpContentValueForUpdate = new ContentValues();
 		tmpContentValueForUpdate.put(ItemTableM.COLUMN_ACTIVE, ItemTableM.FALSE);

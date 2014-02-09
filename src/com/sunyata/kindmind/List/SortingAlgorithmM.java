@@ -6,7 +6,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
+import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternTableM;
@@ -24,6 +26,7 @@ public class SortingAlgorithmM {
 	
 	private Context mContext;
 	private static SortingAlgorithmM sAlgorithmSingleton;
+	private Thread mBackgroundThread;
 	
 	public static final double PATTERN_MULTIPLIER = 8;
 	public static final double SIMPLE_PATTERN_MATCH_ADDITION = 1;
@@ -43,8 +46,34 @@ public class SortingAlgorithmM {
 	
 	//-------------------------Algorithm / update methods
 	
+	//PLEASE NOTE: Currently the two methods below are not nessecary since we call join,
+	// they have been added for the future when we might change the update
+	public void updateSortValuesForListType(){ //[list update]
+
+		//Creating a thread for the resource intensive operation of calculating the kindsort values
+		mBackgroundThread = new Thread(new Runnable(){
+			@Override
+			public void run() {
+				SortingAlgorithmM.this.updateOnBackgroundThread();
+			}
+		});
+		
+		//Starting the new thread
+		mBackgroundThread.start();
+		
+		//Waiting for thread to finish execution
+		this.joinBackgroundThread();
+	}
+	public void joinBackgroundThread(){
+		try {
+			mBackgroundThread.join();
+		} catch (InterruptedException e) {
+			Log.w(Utils.getClassName(), e.getMessage());
+		}
+	}
+	
 	/*
-	 * Overview: updateSortValuesForListType updates the sort values for all list items
+	 * Overview: updateOnBackgroundThread updates the sort values for all list items
 	 * Details: These things will have effect on the sort value:
 	 *  1. The number of times an item has been marked (this has an effect even when no checkbox is active)
 	 *  2. The history of correlations between a checked list item and other items. Ex: If an item has been
@@ -58,8 +87,7 @@ public class SortingAlgorithmM {
 	 * Algorithm improvements: Many ideas, one is to use the timestamp from the patterns table to reduce relevance
 	 *  for patterns from a long time back
 	 */
-	public void updateSortValuesForListType(){
-
+	private void updateOnBackgroundThread(){
 		//1. Go through all checked/active items and store them in an array
 		ArrayList<Long> tmpCheckedItems = new ArrayList<Long>();
 		String tmpSelection = ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE;
