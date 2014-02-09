@@ -8,12 +8,17 @@ import android.widget.CheckBox;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.sunyata.kindmind.BuildConfig;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ItemTableM;
 
-//-------------------Adapter
-
+/*
+ * Overview: CursorAdapterM maps database values into list item views, views are available through getView()
+ * Extends: SimpleCursorAdapter
+ * Documentation: 
+ *  http://developer.android.com/reference/android/widget/SimpleCursorAdapter.html
+ */
 public class CursorAdapterM extends SimpleCursorAdapter{
 
 	Context mContext;
@@ -22,12 +27,10 @@ public class CursorAdapterM extends SimpleCursorAdapter{
 	public CursorAdapterM(Context context, int layout, Cursor c,
 			String[] from, int[] to, int flags, ListTypeM inListType) {
 		super(context, layout, c, from, to, flags);
-		
 		mContext = context;
 		mListType = inListType;
 	}
 
-	
 	/*
 	 * Overview: getView is overridden so that we can update the status of the checkboxes in the list
 	 * In: position is the position in the list
@@ -51,47 +54,39 @@ public class CursorAdapterM extends SimpleCursorAdapter{
 	 */
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent){
-		//return super.getView(position, convertView, parent);
 		
-		//If we have not drawn the view before we first update the view by calling the super method
-		
-		//synchronized(parent){
-		
+		//Getting the view that we like to modify
 		convertView = super.getView(position, convertView, parent);
-		/*
-		if(convertView == null){
-			convertView = super.getView(position, convertView, parent);
-		}
-		*/
 		
     	//Getting the SQL cursor..
-    	Cursor tmpCursor = getCursor();
+    	Cursor tmpLoaderItemCur = getCursor();
     	
     	//..moving to the current position (position in database is matched by position in gui list)
-    	tmpCursor.moveToPosition(position);
+    	tmpLoaderItemCur.moveToPosition(position);
 
 		//Setting status of the checkbox (checked / not checked)
     	// The other child views of this view have already been changed by the mapping done by SimpleCursorAdapter
     	// above in the super.getView() method
 		long tmpActive = Long.parseLong(
-				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)));
+				tmpLoaderItemCur.getString(tmpLoaderItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)));
 		CheckBox tmpCheckBox = ((CheckBox)convertView.findViewById(R.id.list_item_activeCheckBox));
 		if (tmpCheckBox != null){
     		tmpCheckBox.setChecked(tmpActive != ItemTableM.FALSE);
 		}
 		
-		//FOR DEBUG: Add the numbers to the end of the name of the list item
-		TextView tmpTextView = ((TextView)convertView.findViewById(R.id.list_item_titleTextView));
-		double tmpKindSortValue = Double.parseDouble(
-				tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_KINDSORTVALUE)));
-		String tmpTextToAppend = " [" + tmpKindSortValue + "]";
-		tmpTextView.append(tmpTextToAppend);
+		if(BuildConfig.DEBUG){
+			//Add the numbers to the end of the name of the list item
+			TextView tmpTextView = ((TextView)convertView.findViewById(R.id.list_item_titleTextView));
+			double tmpKindSortValue = Double.parseDouble(tmpLoaderItemCur.getString(
+					tmpLoaderItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_KINDSORTVALUE)));
+			String tmpTextToAppend = " [" + tmpKindSortValue + "]";
+			tmpTextView.append(tmpTextToAppend);
+		}
 		
-		//PLEASE NOTE: Cursor not closed (for details please see method header comments)
+		//Cursor not closed since the loader handles the cursor
 		return convertView;
 	}
 
-	
 	/*
 	 * Overview: getViewTypeCount returns the number of different types of elements for the list
 	 * Details: This information is used by the Loader (<- verify this), if the number is lower than
@@ -128,16 +123,13 @@ public class CursorAdapterM extends SimpleCursorAdapter{
 	 */
 	@Override
 	public int getViewTypeCount(){
-		int retViewTypeCount = Utils.getListItemCount(
-				mContext, mListType);
-		if(retViewTypeCount < 1){
-			retViewTypeCount = 1;
-		}
+		int retViewTypeCount = Utils.getListItemCount(mContext, mListType);
+		if(retViewTypeCount < 1){retViewTypeCount = 1;}
 		return retViewTypeCount;
 	}
+	
 	@Override
 	public int getItemViewType(int inPosition){
 		return inPosition;
 	}
-	
 }

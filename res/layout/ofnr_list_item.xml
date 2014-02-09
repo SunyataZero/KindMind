@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="horizontal"
     android:descendantFocusability="blocksDescendants" >
     
+    <!-- Please note this important property below for the checkbox: android:clickable -->
+    <!-- Lower layout weight increases space -->
     <CheckBox 
         android:id="@+id/list_item_activeCheckBox"
+        android:layout_weight="1"
 	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
+	    android:layout_height="match_parent"
 	    android:gravity="center"
-	    android:layout_alignParentLeft="true"
 	    android:enabled="true"
 	    android:focusable="false"
 	    android:clickable="false"
@@ -17,13 +20,11 @@
 	    android:layout_marginLeft="8dp"
 	    android:textColorHighlight="#ffffff"
     />
-    <!-- Please note this important property above: android:clickable -->
     <LinearLayout 
+        android:layout_weight="10"
         android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_toRightOf="@id/list_item_activeCheckBox"
-	    android:orientation="vertical"
-	    android:layout_centerInParent="true" >
+	    android:layout_height="match_parent"
+	    android:orientation="vertical" >
 		<TextView 
 	        android:id="@+id/list_item_titleTextView"
 		    android:layout_width="match_parent"
@@ -44,4 +45,10 @@
 		    android:paddingRight="4dp"
 	    /> <!-- NOTE: 12.5sp set in code -->
     </LinearLayout>
-</RelativeLayout>
+    <LinearLayout
+        android:layout_weight="1"
+        android:layout_width="10dp"
+        android:layout_height="match_parent"
+        android:background="@color/kindmind_background"
+    />
+</LinearLayout>

@@ -13,6 +13,9 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.sunyata.kindmind.SortTypeM;
+import com.sunyata.kindmind.Utils;
+
 public class ContentProviderM extends ContentProvider {
 
 	private DatabaseHelperM mDatabaseHelper;
@@ -45,7 +48,7 @@ public class ContentProviderM extends ContentProvider {
 	
 	public static final Uri EXTENDED_DATA_CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + EXTENDED_DATA_BASE_PATH);
 	
-	public static String sSortType = ItemTableM.COLUMN_KINDSORTVALUE;
+	public static String sSortType;
 	
 	//public static final String PATTERN_CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/pattern";
 	
@@ -60,6 +63,8 @@ public class ContentProviderM extends ContentProvider {
 	public boolean onCreate() {
 		
 		mDatabaseHelper = DatabaseHelperM.get(getContext());
+		
+		Utils.setSortType(SortTypeM.KINDSORT);
 		
 		return false;
 		//-TODO: Change to true when the provider is working. In the tutorial it is false (why?)

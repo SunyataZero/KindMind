@@ -82,7 +82,8 @@ public class NotificationServiceC extends IntentService {
 	 */
 	public static void setServiceNotificationSingle(Context inContext, Uri inItemUri, long inIntervalInMilliSeconds){
 		//Setting up an SQL cursor to point to the row for the item URI
-		Cursor tmpCursor = inContext.getContentResolver().query(inItemUri, null, null, null, ContentProviderM.sSortType);
+		Cursor tmpCursor = inContext.getContentResolver().query(
+				inItemUri, null, null, null, ContentProviderM.sSortType);
 		if(tmpCursor.getCount() == 0){
 			//tmpCursor.close();
 			return;

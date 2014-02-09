@@ -7,7 +7,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -290,4 +293,83 @@ public class Utils {
 			e2.printStackTrace();
 		}
 	}
+	
+	
+	//-------------------------Toast
+	
+	public static String getToastString(Context inContext, ListTypeM inListType) {
+		//-this method also updates the toast string (can be used for example for sharing)
+
+		String mToastFeelingsString;
+		String mToastNeedsString;
+
+		switch(inListType){
+		case FEELINGS:
+			mToastFeelingsString =
+					getFormattedStringOfActivatedDataListItems(
+					getListOfNamesForActivatedData(inContext, ListTypeM.FEELINGS))
+					.toLowerCase(Locale.getDefault());
+			return mToastFeelingsString;
+		
+		case NEEDS:
+			mToastNeedsString =
+					getFormattedStringOfActivatedDataListItems(
+					getListOfNamesForActivatedData(inContext, ListTypeM.NEEDS))
+					.toLowerCase(Locale.getDefault());
+			return mToastNeedsString;
+			
+		default:
+			Log.e(Utils.getClassName(),
+					"Error in getFormattedStringOfActivatedDataListItems: case not covered in switch statement");
+			return null;
+		}
+	}
+	private static ArrayList<String> getListOfNamesForActivatedData(Context inContext, ListTypeM inListType) {
+		ArrayList<String> retActivatedData = new ArrayList<String>();
+		String tmpSelection =
+				ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE + " AND " +
+				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + inListType.toString() + "'";
+		//-Please note that we are adding ' signs around the String
+		Cursor tmpCursor = inContext.getContentResolver().query(
+				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
+		for(tmpCursor.moveToFirst(); tmpCursor.isAfterLast() == false; tmpCursor.moveToNext()){
+			//add name to return list
+			String tmpStringToAdd = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
+			retActivatedData.add(tmpStringToAdd);
+		}
+		
+		//tmpCursor.close();
+		return retActivatedData;
+	}
+	//Recursive method
+	private static String getFormattedStringOfActivatedDataListItems(List<String> inList) {
+		if(inList.size() == 0){
+			return "";
+		}else if(inList.size() == 1){
+			return inList.get(0);
+		}else if(inList.size() == 2){
+			return inList.get(0) + " and " + inList.get(1);
+		}else{
+			return 
+				inList.get(0) +
+				", " +
+				getFormattedStringOfActivatedDataListItems(inList.subList(1, inList.size()));
+		}
+	}
+
+	public static void setSortType(SortTypeM inSortType) {
+		switch(inSortType){
+		case ALHPABETASORT:
+			ContentProviderM.sSortType = ItemTableM.COLUMN_NAME + " ASC";
+			break;
+		case KINDSORT:
+			ContentProviderM.sSortType = ItemTableM.COLUMN_ACTIVE + " DESC" + ", "
+					+ ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
+			break;
+		default:
+			Log.e(Utils.getClassName(), "Error in setSortType: Case not covered");
+			break;
+		}
+	}
+	
 }

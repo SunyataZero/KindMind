@@ -32,6 +32,12 @@ import com.sunyata.kindmind.Database.PatternTableM;
  * ------------------------Callback methods
  * ------------------------Other methods
  * Improvements: Saving the view pager position in a bundle instead of a static variable
+ * Notes: In various places in this class a check is made before calling setCurrentItem for the ViewPager,
+ *  for example: "if(mViewPager.getCurrentItem() != tmpPos){". The reason for this is what is an Android bug
+ *  which makes action bar items invisible because of a race condition and therefore we remove unnecessary
+ *  calls to setCurrentItem. For more info, please see the following links:
+ *  http://stackoverflow.com/questions/13998473/disappearing-action-bar-buttons-when-swiping-between-fragments
+ *  http://code.google.com/p/android/issues/detail?id=29472
  * Documentation: 
  *  http://developer.android.com/training/implementing-navigation/lateral.html
  *  http://developer.android.com/reference/android/support/v4/app/FragmentActivity.html
@@ -123,7 +129,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				//Scrolling to the new fragment when the user selects a tab
 				int tmpPos = tab.getPosition();
 				
-				mViewPager.setCurrentItem(tmpPos);
+				if(mViewPager.getCurrentItem() != tmpPos){
+					mViewPager.setCurrentItem(tmpPos);
+				}
 			}
 			@Override
 			public void onTabUnselected(Tab tab, FragmentTransaction ft) {
@@ -245,7 +253,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		this.getContentResolver().update(tmpUri, tmpContentValueForUpdate, null, null);
 		
 		//Side scrolling to the leftmost viewpager position (feelings)
-		mViewPager.setCurrentItem(0, true);
+		if(mViewPager.getCurrentItem() != 0){
+			mViewPager.setCurrentItem(0, true);
+		}
 		
 		this.fireUpdateTabTitles();
 	}

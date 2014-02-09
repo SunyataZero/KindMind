@@ -11,7 +11,7 @@ import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.ContentProviderM;
-import com.sunyata.kindmind.List.AlgorithmM;
+import com.sunyata.kindmind.List.SortingAlgorithmM;
 import com.sunyata.kindmind.List.ListTypeM;
 
 public class KindMindRemoteViewsService extends RemoteViewsService {
@@ -66,7 +66,7 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 		retRemoteViews.setTextViewText(R.id.widget_listitem, "asdf");
 		*/
 		
-		AlgorithmM.get(mContext).updateSortValuesForListType();
+		SortingAlgorithmM.get(mContext).updateSortValuesForListType();
 
 		String tmpSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
 		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";

@@ -1,40 +1,43 @@
 package com.sunyata.kindmind.List;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
-import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternTableM;
 
-public class AlgorithmM {
+/*
+ * Overview: SortingAlgorithmM handles sorting for the app
+ * Details: Sorting is done by extracting values from the database and working with them, then updating values
+ *  in the kindsort column in the items table in the database
+ * Notes: The reason that this class is a singleton instead of just using a static method for the sorting
+ *  is because we want to be able to store the private Pattern class locally
+ */
+public class SortingAlgorithmM {
 
 	//-------------------------Fields and constructor (private) plus singleton get method
 	
 	private Context mContext;
-	private static AlgorithmM sAlgorithm;
+	private static SortingAlgorithmM sAlgorithmSingleton;
 	
 	public static final double PATTERN_MULTIPLIER = 8;
 	public static final double SIMPLE_PATTERN_MATCH_ADDITION = 1;
 
-	private AlgorithmM(Context inApplicationContext){
+	private SortingAlgorithmM(Context inApplicationContext){
 		mContext = inApplicationContext;
 	}
 	
 	//Singelton get method
-	public static AlgorithmM get(Context inContext){
-		if (sAlgorithm == null){
-			sAlgorithm = new AlgorithmM(inContext.getApplicationContext());
+	public static SortingAlgorithmM get(Context inContext){
+		if (sAlgorithmSingleton == null){
+			sAlgorithmSingleton = new SortingAlgorithmM(inContext.getApplicationContext());
 		}
-		return sAlgorithm;
+		return sAlgorithmSingleton;
 	}
 	
 	
@@ -48,6 +51,9 @@ public class AlgorithmM {
 	 *  checked and saved with another previously and the first item is now checked, the second will get
 	 *  an increase in sort value
 	 * Used in: TODO: Called when a user checks or uncheks a checkbox
+	 * Notes: In cases where the relevance is zero (maybe because we have not checked any of the items yet) we
+	 *  still use the SIMPLE_PATTERN_MATCH_ADDITION constant, once for each time that the item has been checked
+	 *  and saved into the pattern table
 	 * Improvements: Do the updates in a background thread instead of on the UI thread (see UI part of Andr Cookbook)
 	 * Algorithm improvements: Many ideas, one is to use the timestamp from the patterns table to reduce relevance
 	 *  for patterns from a long time back
@@ -109,40 +115,35 @@ public class AlgorithmM {
 			p.relevance = tmpNumberOfMatches / tmpDivider;
 		}
 		
-		
 		//4. Go through all list items and use the relevance to update the kindsortvalue for each item..
 		tmpItemCur = mContext.getContentResolver().query(
 				ContentProviderM.LIST_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
 		for(tmpItemCur.moveToFirst(); tmpItemCur.isAfterLast() == false; tmpItemCur.moveToNext()){
-			double tmpNewKindSortValue = 0;
+			double tmpNewKindSortValue = 0; 
 			long tmpItemId = Long.parseLong(tmpItemCur.getString(
 					tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ID)));
+			Uri tmpItemUri = Uri.parse(ContentProviderM.LIST_CONTENT_URI + "/" + tmpItemId);
 			ContentValues tmpUpdateVal;
-			Uri tmpUri;
 			for(Pattern p : tmpPatternMatrix){
 				if(p.list.contains(tmpItemId)){
-					
-					//..calculating the kindsort value
+					//..calculating and adding to the kindsort value
 					tmpNewKindSortValue = tmpNewKindSortValue
-							+ p.relevance * PATTERN_MULTIPLIER
-							+ SIMPLE_PATTERN_MATCH_ADDITION;
-					
-					//..updating the kindsort value in the database
-					tmpUpdateVal = new ContentValues();
-					tmpUpdateVal.put(ItemTableM.COLUMN_KINDSORTVALUE, tmpNewKindSortValue);
-					tmpUri = Uri.parse(ContentProviderM.LIST_CONTENT_URI + "/" + tmpItemId);
-					mContext.getContentResolver().update(tmpUri, tmpUpdateVal, null, null);
-					///tmpSQLiteDatabase.update(ItemTableM.TABLE_ITEM, tmpContentValueForUpdate, ItemTableM.COLUMN_ID + "=" + tmpItemId, null);
+							+ SIMPLE_PATTERN_MATCH_ADDITION
+							+ p.relevance * PATTERN_MULTIPLIER;
 				}
 			}
 			
+			//..updating the kindsort value in the database
+			tmpUpdateVal = new ContentValues();
+			tmpUpdateVal.put(ItemTableM.COLUMN_KINDSORTVALUE, tmpNewKindSortValue);
+			mContext.getContentResolver().update(tmpItemUri, tmpUpdateVal, null, null);
 		}
 		
 		//Closing cursors
 		tmpItemCur.close();
 		tmpPatternCur.close();
-		
 	}
+	
 	private class Pattern{
 		public float relevance;
 		public ArrayList<Long> list;
@@ -151,73 +152,9 @@ public class AlgorithmM {
 			list = new ArrayList<Long>();
 		}
 	}
-	
-	
-	//-------------------------Toast
-	private String mToastFeelingsString;
-	private String mToastNeedsString;
-	
-	public String getToastString(ListTypeM inListType) {
-		//-this method also updates the toast string (can be used for example for sharing)
-		
-		switch(inListType){
-		case FEELINGS:
-			mToastFeelingsString =
-					getFormattedStringOfActivatedDataListItems(
-					getListOfNamesForActivatedData(ListTypeM.FEELINGS))
-					.toLowerCase(Locale.getDefault());
-			return mToastFeelingsString;
-		
-		case NEEDS:
-			mToastNeedsString =
-					getFormattedStringOfActivatedDataListItems(
-					getListOfNamesForActivatedData(ListTypeM.NEEDS))
-					.toLowerCase(Locale.getDefault());
-			return mToastNeedsString;
-			
-		default:
-			Log.e(Utils.getClassName(),
-					"Error in getFormattedStringOfActivatedDataListItems: case not covered in switch statement");
-			return null;
-		}
-	}
-	private ArrayList<String> getListOfNamesForActivatedData(ListTypeM inListType) {
-		ArrayList<String> retActivatedData = new ArrayList<String>();
-		String tmpSelection =
-				ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE + " AND " +
-				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + inListType.toString() + "'";
-		//-Please note that we are adding ' signs around the String
-		Cursor tmpCursor = mContext.getContentResolver().query(
-				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
-		for(tmpCursor.moveToFirst(); tmpCursor.isAfterLast() == false; tmpCursor.moveToNext()){
-			//add name to return list
-			String tmpStringToAdd = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
-			retActivatedData.add(tmpStringToAdd);
-		}
-		
-		//tmpCursor.close();
-		return retActivatedData;
-	}
-	//Recursive method
-	private String getFormattedStringOfActivatedDataListItems(List<String> inList) {
-		if(inList.size() == 0){
-			return "";
-		}else if(inList.size() == 1){
-			return inList.get(0);
-		}else if(inList.size() == 2){
-			return inList.get(0) + " and " + inList.get(1);
-		}else{
-			return 
-				inList.get(0) +
-				", " +
-				getFormattedStringOfActivatedDataListItems(inList.subList(1, inList.size()));
-		}
-	}
 
-
-
-	//-----------Sorting
-/*
+	
+	/*
 	//Please note that the calculation of the values used for sorting is done in another place
 	void sortWithKindness(){
 		
@@ -247,7 +184,7 @@ public class AlgorithmM {
 			}
 		}
 	}
-*/
+ 	*/
 	/*
 	void sortAlphabetically(){
 		Collections.sort(mList, new AlphaBetaComparator());
@@ -258,8 +195,6 @@ public class AlgorithmM {
 			return lhs.toString().compareToIgnoreCase(rhs.toString());
 		}
 	}
-*/
-
+	 */
 	
 }
-

@@ -22,6 +22,7 @@ import android.widget.ListView;
 
 import com.sunyata.kindmind.BuildConfig;
 import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.SortTypeM;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.DatabaseHelperM;
@@ -173,8 +174,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		//Updating the cursor..
 		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + "=" + "'" + this.refListType.toString() + "'";
 		Cursor tmpCursor = getActivity().getContentResolver().query(
-				ContentProviderM.LIST_CONTENT_URI, null,
-				tmpSelection, null, ContentProviderM.sSortType);
+				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
 		mCursorAdapter.changeCursor(tmpCursor);
 		
 		//..and using the new cursor for the adapter
@@ -289,8 +289,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			}
 
 			//..sorting
-			AlgorithmM.get(getActivity()).updateSortValuesForListType();
-			ContentProviderM.sSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
+			SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
 			this.updateCursorLoaderAndAdapter();
 			
 			//tmpCursor.close();
@@ -382,16 +381,16 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		case R.id.menu_item_sort_alphabetically: //------------Sort alphabeta
 			//Changing the sort method used and refreshing list
-			ContentProviderM.sSortType = ItemTableM.COLUMN_NAME + " ASC";
+			Utils.setSortType(SortTypeM.ALHPABETASORT);
 			this.updateCursorLoaderAndAdapter();
 			
 			return true;
 		case R.id.menu_item_kindsort: //------------Sort kindsort
 			//Updating the sort values which will be used below
-			AlgorithmM.get(getActivity()).updateSortValuesForListType();
+			SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
 			
 			//Changing the sort method used and refreshing list
-			ContentProviderM.sSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
+			Utils.setSortType(SortTypeM.KINDSORT);
 			this.updateCursorLoaderAndAdapter();
 			
 			return true;
