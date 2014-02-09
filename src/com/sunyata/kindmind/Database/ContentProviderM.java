@@ -16,6 +16,38 @@ import android.text.TextUtils;
 import com.sunyata.kindmind.SortTypeM;
 import com.sunyata.kindmind.Utils;
 
+/*
+ * Overview: ContentProviderM
+ * 
+ * Details: 
+ * 
+ * Extends: 
+ * 
+ * Implements: 
+ * 
+ * Sections:
+ * 
+ * Used in: 
+ * 
+ * Uses app internal: 
+ * 
+ * Uses Android lib: 
+ * 
+ * In: 
+ * 
+ * Out: 
+ * 
+ * Does: 
+ * 
+ * Shows user: 
+ * 
+ * Notes: 
+ * 
+ * Improvements: See Reto's example (in book or online code) for ideas about how to improve (had only read Vogella's
+ *  guide before writing the code)
+ * Documentation: 
+ *  http://developer.android.com/reference/android/content/ContentProvider.html
+ */
 public class ContentProviderM extends ContentProvider {
 
 	private DatabaseHelperM mDatabaseHelper;
@@ -61,22 +93,15 @@ public class ContentProviderM extends ContentProvider {
 	
 	@Override
 	public boolean onCreate() {
-		
 		mDatabaseHelper = DatabaseHelperM.get(getContext());
-		
 		Utils.setSortType(SortTypeM.KINDSORT);
-		
-		return false;
-		//-TODO: Change to true when the provider is working. In the tutorial it is false (why?)
-		// The documentation says this: "true if the provider was successfully loaded, false otherwise"
+		return true;
 	}
 	
-	
 	@Override
-	public Cursor query(
-			Uri inUri, String[] inProjection, String inSelection, String[] inSelectionArgs, String inSortOrder) {
+	public Cursor query(Uri inUri, String[] inProj, String inSel, String[] inSelArgs, String inSortOrder) {
 
-		verifyColumns(inUri, inProjection);
+		verifyColumns(inUri, inProj);
 
 		SQLiteQueryBuilder tmpQueryBuilder = new SQLiteQueryBuilder();
 		//Moved down: tmpQueryBuilder.setTables(ItemTableM.TABLE_ITEM);
@@ -108,7 +133,7 @@ public class ContentProviderM extends ContentProvider {
 		//  same database if it already has been created
 		
 		Cursor retCursor = tmpQueryBuilder.query(
-				tmpSQLiteDatabase, inProjection, inSelection, inSelectionArgs, null, null, inSortOrder);//ItemTableM.COLUMN_NAME
+				tmpSQLiteDatabase, inProj, inSel, inSelArgs, null, null, inSortOrder);//ItemTableM.COLUMN_NAME
 		/*
 		 * Why can't we use Utils.sSortType here? according do the debgging we have the expected value in Utils.sSortType,
 		 *  but it only works ok when setting the value here.

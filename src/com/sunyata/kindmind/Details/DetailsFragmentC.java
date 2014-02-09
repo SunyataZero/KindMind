@@ -413,7 +413,10 @@ public class DetailsFragmentC extends Fragment implements TimePickerFragmentC.On
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		Log.d(Utils.getClassName(), Utils.getMethodName());
-		setRetainInstance(true); //-TODO: "generally not recommended" in Reto's book, remove?
+		setRetainInstance(true);
+		//-Recommended by CommonsWare:
+		// http://stackoverflow.com/questions/11160412/why-use-fragmentsetretaininstanceboolean
+		// but not in Reto's book: "genereally not recommended"
 		setHasOptionsMenu(true); //-for the up navigation button (left caret)
 	}
 	

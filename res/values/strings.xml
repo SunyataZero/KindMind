@@ -1,38 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <!-- MainActivityC -->
     <string name="app_name">KindMind BETA</string>
     <string name="feelings_title">Feelings</string>
     <string name="needs_title">Needs</string>
     <string name="kindness_title">Kindness</string>
-    
+
     <!-- ListFragmentC Option Menu Items -->
-    <string name="new_action">New Item</string>
-    <string name="clear_list_selections">Clear Current List Selections</string>
-    <string name="clear_all_selections">Clear All List Selections</string>
-    <string name="share_experience">Share Experience</string>
-    <string name="sort_alphabetically">Sort Alphabetically</string>
-    <string name="sort_by_rank">Sort by Rank (KindSort)</string>
-    <string name="save_pattern">Save Pattern</string>
-    <string name="send_as_text_current">Send current list as text</string>
-    <string name="send_as_text_all">Send all lists as text</string>
+    <string name="new_action">New list item</string>
+    <string name="save_pattern">Save pattern</string>
+    <string name="clear_all_selections">Clear list selections</string>
+    <string name="sort_alphabetically">Sort alphabetically</string>
+    <string name="sort_by_rank">Sort using KindSort (default)</string>
+    <string name="send_as_text_all">Send lists as text</string>
+    <string name="share_experience">[DEBUG] Share experience</string>
     <string name="backup_database">[DEBUG] Backup database</string>
     <string name="reset_database">[DEBUG] Reset database</string>
     
     <!-- DetailsFragmentC -->
+    <string name="delete_list_item">Delete item</string>
     <string name="listitem_name_hint">Please enter a new list item title</string> <!-- \nQuote from the Buddha -->
-    <string name="delete_button_title">Delete item</string>
+    <string name="notification_textbox_title">Activate notification</string>
+    <string name="notification_button_title">Change notification time</string>
+    <string name="notification_time_not_set_title">"--:--"</string>
+    <string name="clear_chooser_button_title">Clear action</string>
     <string name="file_chooser_title">Choose one of the following actions to be performed when pressing the item in the list</string>
+    
+    <!-- DetailsFragmentC action choice popup -->
     <string name="image_file_chooser_button_title">Image</string>
     <string name="audio_file_chooser_button_title">Audio</string>
     <string name="video_file_chooser_button_title">Video</string>
     <string name="custom_file_chooser_button_title">Custom File</string>
     <string name="contact_chooser_button_title">Contact</string>
     <string name="bookmark_chooser_button_title">Bookmark</string>
-    <string name="clear_chooser_button_title">Clear action</string>
-    <string name="notification_textbox_title">Activate notification</string>
-    <string name="notification_button_title">Change notification time</string>
-    <string name="notification_time_not_set_title">"--:--"</string>
-    <string name="delete_listitem">"Delete"</string>
-    
 </resources>

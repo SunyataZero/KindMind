@@ -2,6 +2,7 @@ package com.sunyata.kindmind.List;
 
 import java.io.File;
 
+import com.sunyata.kindmind.R;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -21,7 +22,6 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 
 import com.sunyata.kindmind.BuildConfig;
-import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.SortTypeM;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
@@ -234,6 +234,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		super.setRetainInstance(true);
 		//-Recommended by CommonsWare:
 		// http://stackoverflow.com/questions/11160412/why-use-fragmentsetretaininstanceboolean
+		// but not in Reto's book: "genereally not recommended"
 		super.setHasOptionsMenu(true);
 		this.fillListWithDataFromAdapter();
 
@@ -329,7 +330,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		//If we are not running in debug mode, hide the following option items
 		if(!BuildConfig.DEBUG){
 			inMenu.findItem(R.id.menu_item_share_experience).setVisible(false);
-			inMenu.findItem(R.id.menu_item_sort_alphabetically).setVisible(false);
 			inMenu.findItem(R.id.menu_item_backup_database).setVisible(false);
 			inMenu.findItem(R.id.menu_item_reset_database).setVisible(false);
 		}
@@ -365,20 +365,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			sCallbackListener.fireSavePatternEvent();
 			
 			return true;
-		case R.id.menu_item_share_experience: //TODO: Do this as a hard coded action instead
-			/*
-			sendAsEmail(
-					"From the Kind Mind (Android app): My present experience",
-					"I am feeling "
-					+ KindModelM.get(getActivity()).getToastString(ListTypeM.SUFFERING)
-					+ ", because i am needing "
-					+ KindModelM.get(getActivity()).getToastString(ListTypeM.NEEDS)
-					+ "\n\nSent from the Android app Kind Mind, can be found in the google play store");
-					//"Please help");
-			//Asking for help
-			//Asking for empathy (Can you reflect back what you are hearing/reading)
-			 */
-			return true;
 		case R.id.menu_item_sort_alphabetically: //------------Sort alphabeta
 			//Changing the sort method used and refreshing list
 			Utils.setSortType(SortTypeM.ALHPABETASORT);
@@ -407,6 +393,20 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			sendAsEmail("KindMind all lists as text", tmpAllListsAsText, null);
 
 			return true;
+		case R.id.menu_item_share_experience: //TODO: Do this as a hard coded action instead
+			/*
+			sendAsEmail(
+					"From the Kind Mind (Android app): My present experience",
+					"I am feeling "
+					+ KindModelM.get(getActivity()).getToastString(ListTypeM.SUFFERING)
+					+ ", because i am needing "
+					+ KindModelM.get(getActivity()).getToastString(ListTypeM.NEEDS)
+					+ "\n\nSent from the Android app Kind Mind, can be found in the google play store");
+					//"Please help");
+			//Asking for help
+			//Asking for empathy (Can you reflect back what you are hearing/reading)
+			 */
+			return true;
 		case R.id.menu_item_backup_database: //------------Backup of database by sending database file
 			sendAsEmail("Backup of KindMind database", "Database file is attached",
 					getActivity().getDatabasePath(DatabaseHelperM.DATABASE_NAME));
@@ -419,7 +419,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		default:
 			return super.onOptionsItemSelected(inMenuItem);
 		}
-		
 	}
 	
 	/*

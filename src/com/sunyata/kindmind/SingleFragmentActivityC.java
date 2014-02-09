@@ -2,6 +2,7 @@ package com.sunyata.kindmind;
 
 import com.sunyata.kindmind.List.ListFragmentC;
 
+import com.sunyata.kindmind.R;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -23,7 +24,6 @@ public abstract class SingleFragmentActivityC extends Activity {
 		setContentView(R.layout.activity_fragment);
 		FragmentManager fm = getFragmentManager();
 		Fragment fragment = fm.findFragmentById(R.id.fragmentContainer);
-		
 		if(fragment == null){
 			fragment = createFragment(getIntent().getSerializableExtra(ListFragmentC.EXTRA_ITEM_URI));
 			//-Calling the abstract method

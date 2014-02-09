@@ -41,6 +41,7 @@ import android.util.Log;
 public class ItemTableM {
 
 	//-------------------Column constants
+	
 	public static final String TABLE_ITEM = "item"; 
 	public static final String COLUMN_ID = BaseColumns._ID;
 	public static final String COLUMN_CREATE_TIME = "create_time"; //-unused
@@ -55,7 +56,9 @@ public class ItemTableM {
 	public static final String COLUMN_KINDSORTVALUE = "kindsortvalue";
 	//-Alternative: Not storing this value here, but instead locally
 	
+	
 	//-------------------Create table constant
+	
 	private static final String CREATE_DATABASE =
 			"CREATE TABLE " + TABLE_ITEM + "("
 			+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -69,18 +72,10 @@ public class ItemTableM {
 			+ COLUMN_NOTIFICATION + " INTEGER NOT NULL DEFAULT -1, "
 			+ COLUMN_KINDSORTVALUE + " REAL NOT NULL DEFAULT 0"
 			+ ");";
-	//+ COLUMN_KINDSORTVALUE + " REAL NOT NULL DEFAULT 0"
-	//TODO: NOT NULL
-	//+ COLUMN_NOTIFICATIONACTIVE + " INTEGER, "
-	
-	/*
-	 * 			+ COLUMN_EXTENDED_DATA_REFERENCE + " INTEGER REFERENCES "
-					+ ExtendedDataTableM.TABLE_EXTENDED_DATA + "(" + BaseColumns._ID + ") "
-					+ "DEFAULT NULL"
-	 */
 	
 	
 	//-------------------Other constants
+	
 	public static final int FALSE = -1; //-All other values means TRUE
 	
 	
@@ -91,22 +86,10 @@ public class ItemTableM {
 	}
 	
 	public static void upgradeTable(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
-		
 		Log.w(Utils.getClassName(), "Upgrade removed the database with a previous version and created a new one, " +
 				"all data was deleted");
 		
 		inDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ITEM);
 		createTable(inDatabase);
-		
-		//
-		//http://stackoverflow.com/questions/3505900/sqliteopenhelper-onupgrade-confusion-android
-		//
-		
-
-		/*TODO: Change this method
-		 * 1. Backup
-		 * and/or
-		 * 2. Write upgrade code
-		 */
 	}
 }
