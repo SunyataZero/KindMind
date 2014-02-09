@@ -50,7 +50,7 @@ public class SortingAlgorithmM {
 	 *  2. The history of correlations between a checked list item and other items. Ex: If an item has been
 	 *  checked and saved with another previously and the first item is now checked, the second will get
 	 *  an increase in sort value
-	 * Used in: TODO: Called when a user checks or uncheks a checkbox
+	 * Used in: Called when a user checks or uncheks a checkbox
 	 * Notes: In cases where the relevance is zero (maybe because we have not checked any of the items yet) we
 	 *  still use the SIMPLE_PATTERN_MATCH_ADDITION constant, once for each time that the item has been checked
 	 *  and saved into the pattern table
@@ -152,49 +152,4 @@ public class SortingAlgorithmM {
 			list = new ArrayList<Long>();
 		}
 	}
-
-	
-	/*
-	//Please note that the calculation of the values used for sorting is done in another place
-	void sortWithKindness(){
-		
-		mContext.getContentResolver().
-		
-		Collections.sort(mList, new KindComparator());
-	}
-	
-	class KindComparator implements Comparator<ItemM>{
-		@Override
-		public int compare(ItemM lhs, ItemM rhs) {
-			
-			//First sort by which list data items are activated
-			if(lhs.isActive() == false && rhs.isActive() == true){
-				return 1;
-			}else if(lhs.isActive() == true && rhs.isActive() == false){
-				return -1;
-			}
-			
-			//1 and -1 have been switched because we want the order to go from highest number to lowest (cmp w/ alphabetasort)
-			if(lhs.getTotalSortValue() < rhs.getTotalSortValue()){
-				return 1;
-			}else if(rhs.getTotalSortValue() < lhs.getTotalSortValue()){
-				return -1;
-			}else{
-				return 0;
-			}
-		}
-	}
- 	*/
-	/*
-	void sortAlphabetically(){
-		Collections.sort(mList, new AlphaBetaComparator());
-	}
-	class AlphaBetaComparator implements Comparator<ListDataItemM>{
-		@Override
-		public int compare(ListDataItemM lhs, ListDataItemM rhs) {
-			return lhs.toString().compareToIgnoreCase(rhs.toString());
-		}
-	}
-	 */
-	
 }

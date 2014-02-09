@@ -21,9 +21,8 @@ public class PatternTableM {
 			+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ COLUMN_CREATE_TIME + " INTEGER NOT NULL, " //Potentially used for two things: Grouping and relevance
 			+ COLUMN_ITEM_REFERENCE + " INTEGER REFERENCES " + ItemTableM.TABLE_ITEM + "(" + BaseColumns._ID + ")"
+				+ " NOT NULL"
 			+ ");";
-	//+ COLUMN_RELEVANCE + " INTEGER NOT NULL DEFAULT 0, "
-	//TODO: NOT NULL for COLUMN_ITEM_REFERENCE
 	
 	public static void createTable(SQLiteDatabase inDatabase) {
 		inDatabase.execSQL(CREATE_DATABASE);
@@ -31,22 +30,10 @@ public class PatternTableM {
 	}
 
 	public static void upgradeTable(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
-		
 		Log.w(Utils.getClassName(), "Upgrade removed the database with a previous version and created a new one, " +
 				"all data was deleted");
 		
 		inDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_PATTERN);
 		createTable(inDatabase);
-		
-		//
-		//http://stackoverflow.com/questions/3505900/sqliteopenhelper-onupgrade-confusion-android
-		//
-		
-
-		/*TODO: Change this method
-		 * 1. Backup
-		 * and/or
-		 * 2. Write upgrade code
-		 */
 	}
 }

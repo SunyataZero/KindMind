@@ -125,14 +125,18 @@ public class ContentProviderM extends ContentProvider {
 		return retCursor;
 	}
 
+	/*
+	 * Overview: getType returns the type for a given Uri
+	 * Improvements: If we want to make data available to other applications through the content provider, we can
+	 *  change this method so it returns other values than null, see Reto's book, p 273 for an example
+	 * Documentation: 
+	 *  http://developer.android.com/reference/android/content/ContentProvider.html#getType%28android.net.Uri%29
+	 */
 	@Override
 	public String getType(Uri arg0) {
-		//TODO change from null. Why null in tutorial? For info on how to implement, see Reto's book
 		return null;
 	}
 	
-
-
 	@Override
 	public Uri insert(Uri inUri, ContentValues inContentValues) {
 		

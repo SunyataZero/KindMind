@@ -27,7 +27,7 @@ public class NotificationServiceC extends IntentService {
 	
 	private static final String TAG = "NotificationServiceC";
 	static final String PREFERENCES_NOTIFICATION_LIST = "NotificationList";
-	private static final String NOTIFICATION_UUID = "NotificationUUID";
+	private static final String NOTIFICATION_ID = "NotificationUUID";
 	private static final String NOTIFICATION_TITLE = "NotificationTitle";
 
 	public NotificationServiceC() {
@@ -105,7 +105,7 @@ public class NotificationServiceC extends IntentService {
 		//Creation and setup of an Intent pointing to this class which has the onHandleIntent method
 		Intent tmpIntent = new Intent(inContext, NotificationServiceC.class);
 		tmpIntent.setType(tmpItemIdAsString); //This is what makes the intents differ
-		tmpIntent.putExtra(NOTIFICATION_UUID, tmpItemIdAsString);
+		tmpIntent.putExtra(NOTIFICATION_ID, tmpItemIdAsString);
 		tmpIntent.putExtra(NOTIFICATION_TITLE, tmpItemName);
 
 		//Setting the repeating alarm, or cancelling it (depending on database value)
@@ -149,7 +149,7 @@ public class NotificationServiceC extends IntentService {
 		//-Please note: Request code is not used by the class (see the documentation)
 		
 		//Extract data attached to the intent coming in to this method
-		String tmpUuidStringFromListDataItem = inPendingIntent.getStringExtra(NOTIFICATION_UUID);
+		String tmpIdStringFromListDataItem = inPendingIntent.getStringExtra(NOTIFICATION_ID);
 		String tmpTitleStringFromListDataItem = inPendingIntent.getStringExtra(NOTIFICATION_TITLE);
 
 		//Build the notification..
@@ -164,6 +164,7 @@ public class NotificationServiceC extends IntentService {
 		
 		//..and display it
 		NotificationManager tmpNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-		tmpNotificationManager.notify(tmpUuidStringFromListDataItem, 0, tmpNotification); //TODO: Change the 0
+		tmpNotificationManager.notify(tmpIdStringFromListDataItem,
+				Utils.longToIntCutOff(Long.parseLong(tmpIdStringFromListDataItem)), tmpNotification);
 	}
 }

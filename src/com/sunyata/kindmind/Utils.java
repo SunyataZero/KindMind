@@ -28,13 +28,9 @@ import com.sunyata.kindmind.List.ListTypeM;
 
 public class Utils {
 
-	//TODO: Log
-	
 	public static final String LIST_TYPE = "LIST_TYPE";
 	
 	public static final String PREF_IS_FIRST_TIME_APP_STARTED = "IsFirstTimeApplicationStarted";
-	
-	
 	
 	
 	//--------------------(Static) methods for debugging
@@ -70,7 +66,6 @@ public class Utils {
 		return retVal;
 	}
 	public static void createAllStartupItems(Context inContext) {
-		// TODO Auto-generated method stub
 		
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Angry");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Anxious");
@@ -372,4 +367,8 @@ public class Utils {
 		}
 	}
 	
+	public static int longToIntCutOff(long inLong) {
+		int retIntVal = (int) (inLong & 0x0000FFFF);
+		return retIntVal;
+	}
 }

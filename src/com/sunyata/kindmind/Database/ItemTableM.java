@@ -6,6 +6,38 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+/*
+ * Overview: ItemTableM
+ * 
+ * Details: 
+ * 
+ * Extends: 
+ * 
+ * Implements: 
+ * 
+ * Sections:
+ * 
+ * Used in: 
+ * 
+ * Uses app internal: 
+ * 
+ * Uses Android lib: 
+ * 
+ * In: 
+ * 
+ * Out: 
+ * 
+ * Does: 
+ * 
+ * Shows user: 
+ * 
+ * Notes: Please remember to update the verifyColumns method and the upgrade method when we add new columns
+ * 
+ * Improvements: 
+ * 
+ * Documentation: 
+ * 
+ */
 public class ItemTableM {
 
 	//-------------------Column constants
@@ -23,9 +55,6 @@ public class ItemTableM {
 	public static final String COLUMN_KINDSORTVALUE = "kindsortvalue";
 	//-Alternative: Not storing this value here, but instead locally
 	
-	//TODO: Please remember to update the verifyColumns method and the updrade method when we add new columns
-
-
 	//-------------------Create table constant
 	private static final String CREATE_DATABASE =
 			"CREATE TABLE " + TABLE_ITEM + "("

@@ -94,15 +94,14 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 
         //Create and set the OnPageChangeListener for the ViewPager
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+			//-To access one fragment from here we can use this line:
+			// ((CustomPagerAdapter)mViewPager.getAdapter()).getItem(pos).refreshListDataSupport();
 			@Override
 			public void onPageSelected(int inPos) {
 				Log.d("ViewPager.OnPageChangeListener()", "onPageSelected()");
 				
 				//Setting the active tab when the user has just side scrolled (swiped) to a new fragment
 				getActionBar().setSelectedNavigationItem(inPos);
-				
-				//TODO: Refresh list here? Note: To access one fragment from here we use this line: 
-				// ((CustomPagerAdapter)mViewPager.getAdapter()).getItem(pos).refreshListDataSupport();
 			}
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
@@ -158,7 +157,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	 * Documentation:
 	 *  http://developer.android.com/reference/android/support/v4/app/FragmentStatePagerAdapter.html
 	 */
-    //TODO: 
     class FragmentStatePagerAdapterM extends FragmentStatePagerAdapter {
         private ListFragmentC mFeelingListFragment;
         private ListFragmentC mNeedListFragment;
