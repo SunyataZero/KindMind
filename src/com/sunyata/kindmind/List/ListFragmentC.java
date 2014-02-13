@@ -28,13 +28,6 @@ import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.DatabaseHelperM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Details.ItemSetupActivityC;
-import com.sunyata.kindmind.ToastsAndActions.ActionBehaviour;
-import com.sunyata.kindmind.ToastsAndActions.FeelingsToast;
-import com.sunyata.kindmind.ToastsAndActions.MediaFileActionBehaviour;
-import com.sunyata.kindmind.ToastsAndActions.NeedsToast;
-import com.sunyata.kindmind.ToastsAndActions.NoAction;
-import com.sunyata.kindmind.ToastsAndActions.NoToast;
-import com.sunyata.kindmind.ToastsAndActions.ToastBehaviour;
 
 /*
  * Overview: ListFragmentC shows a list of items, each item corresponding to a row in an SQL database
@@ -65,8 +58,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	private ListTypeM refListType; //-Saved in onSaveInstanceState
 	private static MainActivityCallbackListenerI sCallbackListener; //-Does not have to be saved since it's static
-	private ToastBehaviour mToastBehaviour; //-Not saved, but set in onResume
-	private ActionBehaviour mActionBehaviour; //-Not saved, but set in onResume
 	private CursorAdapterM mCursorAdapter;
 
 	public static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
@@ -210,24 +201,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			refListType = ListTypeM.valueOf(inSavedInstanceState.getString(EXTRA_AND_BUNDLE_LIST_TYPE));
 		}
     	
-		//Setup of toast and action behaviour that correspond to the type of list we have for the fragment
-		switch(refListType){
-		case FEELINGS:
-			setToastBehaviour(new FeelingsToast());
-			setActionBehaviour(new NoAction());
-			break;
-		case NEEDS:
-			setToastBehaviour(new NeedsToast());
-			setActionBehaviour(new NoAction());
-			break;
-		case KINDNESS:
-			setToastBehaviour(new NoToast());
-			setActionBehaviour(new MediaFileActionBehaviour());
-			break;
-		default:
-			Log.e(Utils.getClassName() ,"Error in onCreate: ListType not covered by switch statement");
-		}
-		
     	//Fundamental setup
 		super.setRetainInstance(true);
 		//-Recommended by CommonsWare:
@@ -270,38 +243,22 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpCheckBox.isChecked() ? 1 : ItemTableM.FALSE);
 		getActivity().getContentResolver().update(tmpUri, tmpContentValues, null, null);
 		
-		//Showing a toast
-		mToastBehaviour.toast(getActivity());
-
-		//If the new state of the checkbox is checked..
-		if(tmpCheckBox.isChecked() == true){
-			
+		//Performing the various toasts or actions
+		if(refListType == ListTypeM.FEELINGS){
+			OnClickToastOrActionC.feelingsToast(getActivity());
+		}else if(refListType == ListTypeM.NEEDS){
+			OnClickToastOrActionC.needsToast(getActivity());
+    	}else if(refListType == ListTypeM.KINDNESS && tmpCheckBox.isChecked() == true){
 			String[] tmpProjection = {ItemTableM.COLUMN_ACTIONS};
 			Cursor tmpItemCur = getActivity().getContentResolver().query(
 					Utils.getItemUriFromId(inId), tmpProjection, null, null, null);
 			tmpItemCur.moveToFirst();
 			String tmpActions = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
-			mActionBehaviour.kindAction(getActivity(), tmpActions); //TODO: handle "" case, and multi case
+			OnClickToastOrActionC.kindAction(getActivity(), tmpActions); //TODO: handle multi case
 			tmpItemCur.close();
-			
-			/*
-			String tmpSelection = PatternTableM.COLUMN_ITEM_REFERENCE + "=" + "'" + inId + "'";
-			Cursor tmpExtendedDataCursor = getActivity().getContentResolver().query(
-					ContentProviderM.EXTENDED_DATA_CONTENT_URI, null, tmpSelection, null, null);
-			if(tmpExtendedDataCursor.getCount() > 0){
-				//-TODO: Will this replace the strategy pattern?
-				//..performing the action
-				tmpExtendedDataCursor.moveToFirst();
-				String tmpFilePath = tmpExtendedDataCursor.getString(
-						tmpExtendedDataCursor.getColumnIndexOrThrow(ExtendedDataTableM.COLUMN_DATA));
-				mActionBehaviour.kindAction(getActivity(), tmpFilePath);
-			}
-			*/
-
-			//tmpCursor.close();
 		}
 
-		//..sorting
+		//Sorting
 		SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
 		this.updateCursorLoaderAndAdapter();
 		
@@ -478,16 +435,5 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		tmpCursor.close();
 		
 		return retString;
-	}
-	
-	
-	//-------------------Toast and Action Behaviour [uses the Strategy pattern]
-	
-	void setToastBehaviour(ToastBehaviour inToastBehaviour){
-		mToastBehaviour = inToastBehaviour;
-	}
-
-	void setActionBehaviour(ActionBehaviour inKindActionBehaviour){
-		mActionBehaviour = inKindActionBehaviour;
 	}
 }

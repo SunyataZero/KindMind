@@ -1,6 +1,7 @@
-package com.sunyata.kindmind.ToastsAndActions;
+package com.sunyata.kindmind.List;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -15,32 +16,67 @@ import android.widget.Toast;
 
 import com.sunyata.kindmind.Utils;
 
+public class OnClickToastOrActionC {
 
-//Documentation:
-// http://www.iana.org/assignments/media-types/media-types.xhtml
-public class MediaFileActionBehaviour implements ActionBehaviour{
-	@Override
-	public void kindAction(Context inContext, String inKindActionFilePath) {
-		Log.d(Utils.getClassName(), "inKindActionFilePath = " + inKindActionFilePath);
+	public static void feelingsToast(Context inContext) {
+		String tmpToastFeelingsString = Utils.getToastString(inContext, ListTypeM.FEELINGS);
+		if(tmpToastFeelingsString.length() > 0){
+			Toast.makeText(
+					inContext, "I am feeling " + tmpToastFeelingsString, Toast.LENGTH_LONG)
+					.show();
+		}
+	}
+	
+	
+	
+	public static void needsToast(Context inContext) {
+		String tmpToastFeelingsString = Utils.getToastString(inContext, ListTypeM.FEELINGS);
+		String tmpToastNeedsString = Utils.getToastString(inContext, ListTypeM.NEEDS);
+		if(tmpToastFeelingsString.length() > 0 & tmpToastNeedsString.length() > 0){
+			Toast.makeText(
+					inContext,
+					"I am feeling " + tmpToastFeelingsString +
+					" because I am needing " + tmpToastNeedsString, Toast.LENGTH_LONG)
+					.show();
+		}else if(tmpToastNeedsString.length() > 0){
+				Toast.makeText(
+						inContext,
+						"I am needing " + tmpToastNeedsString, Toast.LENGTH_LONG)
+						.show();
+		}
+	}
+	
+	
+	
+	public static void kindAction(Context inContext, String inActionsString) {
+		Log.d(Utils.getClassName(), "inKindActionFilePath = " + inActionsString);
 
 		//If the file/dir string has been cleared (or not set) exiting..
-		if(inKindActionFilePath.equals("")){
+		if(inActionsString.equals("")){
 			return;
 		}else{ //..otherwise ___________
-			 
-			File tmpFileOrDirectoryFromString = new File(inKindActionFilePath);
+			
+			
+			ArrayList<String> tmpActionList = Utils.actionsStringToArrayList(inActionsString);
+			
+			Random tmpRandomNumberGenerator = new Random();
+			int tmpRandomNumber = tmpRandomNumberGenerator.nextInt(tmpActionList.size());
 
-			Log.d(Utils.getClassName(), "tmpFileOrDirectoryFromString.isDirectory() = "
-					+ tmpFileOrDirectoryFromString.isDirectory());
+			String tmpRandomlyGivenAction = tmpActionList.get(tmpRandomNumber);
+			doKindAction(inContext, tmpRandomlyGivenAction);
+			
+			
+			/*
 			if(tmpFileOrDirectoryFromString.isDirectory()){
-				this.doRandomKindActionFromSetOfFiles(inContext, tmpFileOrDirectoryFromString);
+				doRandomKindActionFromSetOfFiles(inContext, tmpFileOrDirectoryFromString);
 			}else{
-				this.doKindAction(inContext, inKindActionFilePath);
+				doKindAction(inContext, inKindActionFilePath);
 			}
+			*/
 		}
 	}
 
-	private void doKindAction(Context inContext, String inFileFromString){
+	private static void doKindAction(Context inContext, String inFileFromString){
 		Log.d(Utils.getClassName(), "inFileFromString = " + inFileFromString);
 
 		/*
@@ -159,19 +195,4 @@ public class MediaFileActionBehaviour implements ActionBehaviour{
 							.show();
 		}
 	}
-	private void doRandomKindActionFromSetOfFiles(Context inContext, File inDirectoryFromString){
-		Log.d(Utils.getClassName(), "inDirectoryFromString = " + inDirectoryFromString);
-
-		String[] tmpListOfFilesInDirectory = inDirectoryFromString.list();
-		Random tmpRandomNumberGenerator = new Random();
-		int tmpNumberOfFilesInDirectory = tmpListOfFilesInDirectory.length;
-		int tmpRandomNumber = tmpRandomNumberGenerator.nextInt(tmpNumberOfFilesInDirectory);
-
-		File tmpRandomlyGivenFile = new File(
-				inDirectoryFromString + "/"
-						+ tmpListOfFilesInDirectory[tmpRandomNumber]);
-		this.doKindAction(inContext, tmpRandomlyGivenFile.toString());
-	}
 }
-
-

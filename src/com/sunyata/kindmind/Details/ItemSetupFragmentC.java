@@ -254,6 +254,10 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 										startActivityForResult(tmpAudioIntent, REQUEST_AUDIOFILECHOOSER);
 										break;
 									case 2: //--------------Video
+										//PLEASE NOTE: There is a bug in Android that gives an error when launching
+										// this intent in the emulator (there is no problem on physical device).
+										// More info:
+										// http://stackoverflow.com/questions/19181432/java-lang-securityexception-permission-denial-intent-in-new-version-4-3
 										final Intent tmpVideoIntent = new Intent(
 								    			Intent.ACTION_PICK,
 								    			android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
