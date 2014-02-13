@@ -8,7 +8,9 @@ import android.util.Log;
 
 public class PatternTableM {
 
-	public static final String TABLE_PATTERN = "patterns"; 
+	public static final String TABLE_PATTERNS = "patterns";
+	//-Plural here (and not for the list_item table) is intentional since one pattern will be made of several lines
+	// in this table (but not all lines so we will have several patterns in this table)
 	public static final String COLUMN_ID = BaseColumns._ID; //Could maybe remove this and use time as key instead
 	public static final String COLUMN_CREATE_TIME = "create_time";
 	//public static final String COLUMN_RELEVANCE = "relevance";
@@ -17,7 +19,7 @@ public class PatternTableM {
 	//TODO: Please remember to update the verifyColumns method and the updrade method when we add new columns
 	
 	private static final String CREATE_DATABASE =
-			"CREATE TABLE " + TABLE_PATTERN + "("
+			"CREATE TABLE " + TABLE_PATTERNS + "("
 			+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ COLUMN_CREATE_TIME + " INTEGER NOT NULL, " //Potentially used for two things: Grouping and relevance
 			+ COLUMN_ITEM_REFERENCE + " INTEGER REFERENCES " + ItemTableM.TABLE_ITEM + "(" + BaseColumns._ID + ")"
@@ -33,7 +35,7 @@ public class PatternTableM {
 		Log.w(Utils.getClassName(), "Upgrade removed the database with a previous version and created a new one, " +
 				"all data was deleted");
 		
-		inDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_PATTERN);
+		inDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_PATTERNS);
 		createTable(inDatabase);
 	}
 }

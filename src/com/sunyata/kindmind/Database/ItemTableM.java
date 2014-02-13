@@ -48,12 +48,12 @@ public class ItemTableM {
 	public static final String COLUMN_MODIFICATION_TIME = "modification_time"; //-unused
 	public static final String COLUMN_NAME = "name";
 	public static final String COLUMN_DETAILS = "details"; //PLEASE NOTE: Unused
-	public static final String COLUMN_LISTTYPE = "listtype";
+	public static final String COLUMN_LIST_TYPE = "list_type";
 	public static final String COLUMN_ACTIVE = "active";
-	public static final String COLUMN_FILEORDIRPATH = "fileordirpath"; //PLEASE NOTE: Unused
+	public static final String COLUMN_ACTIONS = "actions"; //-list of actions, each ends with the pipe ('|') character
 	public static final String COLUMN_NOTIFICATION = "notification";
 	//-Contains both active or not, and the time, not active is stored as -1
-	public static final String COLUMN_KINDSORTVALUE = "kindsortvalue";
+	public static final String COLUMN_KINDSORT_VALUE = "kindsort_value";
 	//-Alternative: Not storing this value here, but instead locally
 	
 	
@@ -66,11 +66,11 @@ public class ItemTableM {
 			+ COLUMN_MODIFICATION_TIME + " INTEGER NOT NULL DEFAULT 0, "
 			+ COLUMN_NAME + " TEXT NOT NULL DEFAULT 'no_name_set', "
 			+ COLUMN_DETAILS + " TEXT NOT NULL DEFAULT '-', "
-			+ COLUMN_LISTTYPE + " TEXT NOT NULL DEFAULT 'no_listtype_set', "
+			+ COLUMN_LIST_TYPE + " TEXT NOT NULL DEFAULT 'no_listtype_set', "
 			+ COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT -1, "
-			+ COLUMN_FILEORDIRPATH + " TEXT NOT NULL DEFAULT -1, "
+			+ COLUMN_ACTIONS + " TEXT NOT NULL DEFAULT '', "
 			+ COLUMN_NOTIFICATION + " INTEGER NOT NULL DEFAULT -1, "
-			+ COLUMN_KINDSORTVALUE + " REAL NOT NULL DEFAULT 0"
+			+ COLUMN_KINDSORT_VALUE + " REAL NOT NULL DEFAULT 0"
 			+ ");";
 	
 	

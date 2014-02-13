@@ -49,7 +49,7 @@ public class NotificationServiceC extends IntentService {
 		
 		//Creating SQL cursor
 		Cursor tmpCursor = inContext.getContentResolver().query(
-				ContentProviderM.LIST_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
+				ContentProviderM.ITEM_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
 		if(tmpCursor.getCount() == 0){
 			//tmpCursor.close();
 			return;
@@ -61,7 +61,7 @@ public class NotificationServiceC extends IntentService {
 			//..extracting notification data and list item URI
 			tmpNotification = tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
 			tmpItemUri = Uri.withAppendedPath(
-					ContentProviderM.LIST_CONTENT_URI,
+					ContentProviderM.ITEM_CONTENT_URI,
 					"/" +
 					(tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID))));
 			

@@ -2,10 +2,11 @@ package com.sunyata.kindmind.List;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.SimpleCursorAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sunyata.kindmind.BuildConfig;
@@ -74,16 +75,30 @@ public class CursorAdapterM extends SimpleCursorAdapter{
     		tmpCheckBox.setChecked(tmpActive != ItemTableM.FALSE);
 		}
 		
+
+		//Updating the action indications
+		String tmpActions = tmpLoaderItemCur.getString(
+				tmpLoaderItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
+		LinearLayout tmpRectangle = (LinearLayout)convertView.findViewById(R.id.list_item_indicatorRectangle);
+		if(tmpActions == null || tmpActions.equals("")){
+			tmpRectangle.setBackgroundColor(mContext.getResources().getColor(R.color.no_action));
+		}else{
+			tmpRectangle.setBackgroundColor(mContext.getResources().getColor(R.color.one_action));
+		}
+		//TODO: Add more cases here
+
+		
 		if(BuildConfig.DEBUG){
 			//Add the numbers to the end of the name of the list item
 			TextView tmpTextView = ((TextView)convertView.findViewById(R.id.list_item_titleTextView));
 			double tmpKindSortValue = Double.parseDouble(tmpLoaderItemCur.getString(
-					tmpLoaderItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_KINDSORTVALUE)));
+					tmpLoaderItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_KINDSORT_VALUE)));
 			String tmpTextToAppend = " [" + tmpKindSortValue + "]";
 			tmpTextView.append(tmpTextToAppend);
 		}
 		
 		//Cursor not closed since the loader handles the cursor
+		
 		return convertView;
 	}
 

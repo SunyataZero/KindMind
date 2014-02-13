@@ -46,9 +46,11 @@
 	    /> <!-- NOTE: 12.5sp set in code -->
     </LinearLayout>
     <LinearLayout
+        android:id="@+id/list_item_indicatorRectangle"
         android:layout_weight="1"
         android:layout_width="10dp"
         android:layout_height="match_parent"
+        android:orientation="horizontal"
         android:background="@color/kindmind_background"
     />
 </LinearLayout>

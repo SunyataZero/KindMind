@@ -55,30 +55,24 @@ public class ContentProviderM extends ContentProvider {
 	private static final String AUTHORITY = "com.sunyata.kindmind.contentprovider";
 
 	private static final String LIST_BASE_PATH = "list";
-	static final int LIST = 11;
-	private static final int LIST_ITEM_ID = 12;
+	static final int ITEM = 11;
+	private static final int ITEM_SINGLE_ROW = 12;
 
-	private static final String PATTERN_BASE_PATH = "pattern";
-	private static final int PATTERN = 21;
-
-	private static final String EXTENDED_DATA_BASE_PATH = "extended_data";
-	private static final int EXTENDED_DATA = 31;
+	private static final String PATTERNS_BASE_PATH = "pattern";
+	private static final int PATTERNS = 21;
 
 	private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	static{
-		sUriMatcher.addURI(AUTHORITY, LIST_BASE_PATH, LIST);
-		sUriMatcher.addURI(AUTHORITY, LIST_BASE_PATH + "/#", LIST_ITEM_ID);
-		sUriMatcher.addURI(AUTHORITY, PATTERN_BASE_PATH, PATTERN);
-		sUriMatcher.addURI(AUTHORITY, EXTENDED_DATA_BASE_PATH, EXTENDED_DATA);
+		sUriMatcher.addURI(AUTHORITY, LIST_BASE_PATH, ITEM);
+		sUriMatcher.addURI(AUTHORITY, LIST_BASE_PATH + "/#", ITEM_SINGLE_ROW);
+		sUriMatcher.addURI(AUTHORITY, PATTERNS_BASE_PATH, PATTERNS);
 	}
 	
-	public static final Uri LIST_CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + LIST_BASE_PATH);
+	public static final Uri ITEM_CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + LIST_BASE_PATH);
 	public static final String LIST_CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/list";
 	public static final String LIST_CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/list_item";
 	
-	public static final Uri PATTERN_CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + PATTERN_BASE_PATH);
-	
-	public static final Uri EXTENDED_DATA_CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + EXTENDED_DATA_BASE_PATH);
+	public static final Uri PATTERNS_CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + PATTERNS_BASE_PATH);
 	
 	public static String sSortType;
 	
@@ -107,19 +101,16 @@ public class ContentProviderM extends ContentProvider {
 		//Moved down: tmpQueryBuilder.setTables(ItemTableM.TABLE_ITEM);
 		
 		switch(sUriMatcher.match(inUri)){
-		case LIST:
+		case ITEM:
 			tmpQueryBuilder.setTables(ItemTableM.TABLE_ITEM);
 			break;
-		case LIST_ITEM_ID:
+		case ITEM_SINGLE_ROW:
 			tmpQueryBuilder.setTables(ItemTableM.TABLE_ITEM);
 			//Adding the column id from the uri to the where SQL statement
 			tmpQueryBuilder.appendWhere(ItemTableM.COLUMN_ID + "=" + inUri.getLastPathSegment());
 			break;
-		case PATTERN:
-			tmpQueryBuilder.setTables(PatternTableM.TABLE_PATTERN);
-			break;
-		case EXTENDED_DATA:
-			tmpQueryBuilder.setTables(ExtendedDataTableM.TABLE_EXTENDED_DATA);
+		case PATTERNS:
+			tmpQueryBuilder.setTables(PatternTableM.TABLE_PATTERNS);
 			break;
 		default:
 			throw new IllegalArgumentException("Error in method ListContentProviderM.query(): Unknown URI: " + inUri);
@@ -171,17 +162,13 @@ public class ContentProviderM extends ContentProvider {
 		String uriReturnString = "";
 		
 		switch(sUriMatcher.match(inUri)){
-		case LIST:
+		case ITEM:
 			tmpInsertRowId = tmpSQLiteDatabase.insert(ItemTableM.TABLE_ITEM, null, inContentValues);
-			uriReturnString = LIST_CONTENT_URI + "/" + tmpInsertRowId;
+			uriReturnString = ITEM_CONTENT_URI + "/" + tmpInsertRowId;
 			break;
-		case PATTERN:
-			tmpInsertRowId = tmpSQLiteDatabase.insert(PatternTableM.TABLE_PATTERN, null, inContentValues);
-			uriReturnString = PATTERN_CONTENT_URI + "/" + tmpInsertRowId;
-			break;
-		case EXTENDED_DATA:
-			tmpInsertRowId = tmpSQLiteDatabase.insert(ExtendedDataTableM.TABLE_EXTENDED_DATA, null, inContentValues);
-			uriReturnString = EXTENDED_DATA_CONTENT_URI + "/" + tmpInsertRowId;
+		case PATTERNS:
+			tmpInsertRowId = tmpSQLiteDatabase.insert(PatternTableM.TABLE_PATTERNS, null, inContentValues);
+			uriReturnString = PATTERNS_CONTENT_URI + "/" + tmpInsertRowId;
 			break;
 		default:
 			throw new IllegalArgumentException(
@@ -203,11 +190,11 @@ public class ContentProviderM extends ContentProvider {
 		int tmpNumberOfRowsDeleted = 0;
 		
 		switch(sUriMatcher.match(inUri)){
-		case LIST:
+		case ITEM:
 			tmpNumberOfRowsDeleted = tmpSQLiteDatabase.delete(
 					ItemTableM.TABLE_ITEM, inSelection, inSelectionArguments);
 			break;
-		case LIST_ITEM_ID:
+		case ITEM_SINGLE_ROW:
 			String tmpDeleteIdFromUri = inUri.getLastPathSegment(); //Q: Why a String?
 			if(TextUtils.isEmpty(inSelection)){
 				tmpNumberOfRowsDeleted = tmpSQLiteDatabase.delete(
@@ -218,13 +205,9 @@ public class ContentProviderM extends ContentProvider {
 						" and " + inSelection, inSelectionArguments);
 			}
 			break;
-		case PATTERN:
+		case PATTERNS:
 			tmpNumberOfRowsDeleted = tmpSQLiteDatabase.delete(
-					PatternTableM.TABLE_PATTERN, inSelection, inSelectionArguments);
-			break;
-		case EXTENDED_DATA:
-			tmpNumberOfRowsDeleted = tmpSQLiteDatabase.delete(
-					ExtendedDataTableM.TABLE_EXTENDED_DATA, inSelection, inSelectionArguments);
+					PatternTableM.TABLE_PATTERNS, inSelection, inSelectionArguments);
 			break;
 		default:
 			throw new IllegalArgumentException(
@@ -247,11 +230,11 @@ public class ContentProviderM extends ContentProvider {
 		int tmpNumberOfRowsUpdated = 0;
 		
 		switch(sUriMatcher.match(inUri)){
-		case LIST:
+		case ITEM:
 			tmpNumberOfRowsUpdated = tmpSQLiteDatabase.update(
 					ItemTableM.TABLE_ITEM, inContentValues, inSelection, inSelectionArguments);
 			break;
-		case LIST_ITEM_ID:
+		case ITEM_SINGLE_ROW:
 			String tmpUpdateIdFromUri = inUri.getLastPathSegment();
 			if(TextUtils.isEmpty(inSelection)){
 				tmpNumberOfRowsUpdated = tmpSQLiteDatabase.update(
@@ -263,11 +246,7 @@ public class ContentProviderM extends ContentProvider {
 						+ " and " + inSelection, inSelectionArguments);
 			}
 			break;
-		case PATTERN:
-			tmpNumberOfRowsUpdated = tmpSQLiteDatabase.update(
-					ItemTableM.TABLE_ITEM, inContentValues, inSelection, inSelectionArguments);
-			break;
-		case EXTENDED_DATA:
+		case PATTERNS:
 			tmpNumberOfRowsUpdated = tmpSQLiteDatabase.update(
 					ItemTableM.TABLE_ITEM, inContentValues, inSelection, inSelectionArguments);
 			break;
@@ -288,32 +267,28 @@ public class ContentProviderM extends ContentProvider {
 		HashSet<String> tmpAvailableColumns = new HashSet<String>();
 		
 		switch(sUriMatcher.match(inUri)){
-		case LIST:
+		case ITEM:
 			//Please note: No break statement, so we continue to the next case
-		case LIST_ITEM_ID:
+		case ITEM_SINGLE_ROW:
 			tmpAvailableColumns.add(ItemTableM.COLUMN_ID);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_CREATE_TIME);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_MODIFICATION_TIME);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_NAME);
-			tmpAvailableColumns.add(ItemTableM.COLUMN_LISTTYPE);
+			tmpAvailableColumns.add(ItemTableM.COLUMN_LIST_TYPE);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_ACTIVE);
-			tmpAvailableColumns.add(ItemTableM.COLUMN_FILEORDIRPATH);
+			tmpAvailableColumns.add(ItemTableM.COLUMN_ACTIONS);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_NOTIFICATION);
-			tmpAvailableColumns.add(ItemTableM.COLUMN_KINDSORTVALUE);
+			tmpAvailableColumns.add(ItemTableM.COLUMN_KINDSORT_VALUE);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_DETAILS);
 			break;
-		case PATTERN:
+		case PATTERNS:
 			tmpAvailableColumns.add(PatternTableM.COLUMN_ID);
 			tmpAvailableColumns.add(PatternTableM.COLUMN_CREATE_TIME);
 			tmpAvailableColumns.add(PatternTableM.COLUMN_ITEM_REFERENCE);
 			break;
-		case EXTENDED_DATA:
-			tmpAvailableColumns.add(ExtendedDataTableM.COLUMN_ID);
-			tmpAvailableColumns.add(ExtendedDataTableM.COLUMN_DATA);
-			tmpAvailableColumns.add(ExtendedDataTableM.COLUMN_ITEM_REFERENCE);
-			break;
 		default:
-			throw new IllegalArgumentException("Error in method KindMindContentProviderM.verifyColumns(): Unknown URI: " + inUri);
+			throw new IllegalArgumentException(
+					"Error in method KindMindContentProviderM.verifyColumns(): Unknown URI: " + inUri);
 		}
 		
 		if(inProjectedColumnsAsArray != null){

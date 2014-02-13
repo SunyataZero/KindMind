@@ -32,13 +32,13 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
-import com.sunyata.kindmind.Database.ContentProviderM;
-import com.sunyata.kindmind.Database.ExtendedDataTableM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.List.ListFragmentC;
 import com.sunyata.kindmind.List.ListTypeM;
@@ -110,7 +110,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     	Log.d(Utils.getClassName(), Utils.getMethodName());
 
     	//Inflating the layout
-    	View v = inflater.inflate(R.layout.fragment_data_details, parent, false);
+    	View v = inflater.inflate(R.layout.fragment_item_setup, parent, false);
 
     	//Using the app icon and left caret for hierarchical navigation
     	if(NavUtils.getParentActivityName(getActivity()) != null){
@@ -122,7 +122,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     	refItemUri = Uri.parse(tmpArgumentsString);
 
     	//Getting the SQL cursor for the list item URI
-    	String[] tmpProjection = {ItemTableM.COLUMN_LISTTYPE, ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_NOTIFICATION};
+    	String[] tmpProjection = {ItemTableM.COLUMN_LIST_TYPE, ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_NOTIFICATION};
     	Cursor tmpCursor = getActivity().getApplicationContext().getContentResolver().query(
     			refItemUri, tmpProjection, null, null, null);
     	boolean tmpCursorIsNotEmpty = tmpCursor.moveToFirst();
@@ -134,7 +134,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 
     	//Setting the list type enum value
     	refListType = ListTypeM.valueOf(
-    			tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_LISTTYPE)));
+    			tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE)));
     	//-Please note: We need to move the cursor to the first position before using .getString() (see above)
 
     	
@@ -209,9 +209,9 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     	//--------------Actions on click
     	
     	mActionOnClickTextView = (TextView) v.findViewById(R.id.actionOnClickTextView);
-    	mActionTextView = (TextView) v.findViewById(R.id.actionTextView);
+    	mActionTextView = (TextView) v.findViewById(R.id.action_list_item_itemStringTextView);
     	mNewActionButton = (Button) v.findViewById(R.id.newActionButton);
-    	mDeleteActionButton = (Button) v.findViewById(R.id.deleteActionButton);
+    	mDeleteActionButton = (Button) v.findViewById(R.id.action_list_item_deleteButton);
     	
     	if(this.refListType == ListTypeM.KINDNESS){
 	    	
@@ -293,6 +293,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 				}
 			});
 	
+	    	/*
 	    	mDeleteActionButton.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -304,6 +305,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 					updateActionList(v);
 				}
 			});
+			*/
 	    	
 	    	this.updateActionList(v);
     		
@@ -383,26 +385,54 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			tmpFilePath = inIntent.getStringExtra(
 					BookmarkChooserFragmentC.EXTRA_RETURN_VALUE_FROM_BOOKMARK_CHOOSER_FRAGMENT);
 			break;
+		default:
+			Log.e(Utils.getClassName(), "Error in onActivityResult(): Case not covered");
+			return;
 		}
 		
 		
 		//--------------Updating file/dir string value in the database
 		
-		if(tmpFilePath != ""){
-			ContentValues tmpContentValues = new ContentValues();
-			long tmpItemId = Utils.getIdFromUri(refItemUri);
-			tmpContentValues.put(ExtendedDataTableM.COLUMN_ITEM_REFERENCE, tmpItemId);
-			tmpContentValues.put(ExtendedDataTableM.COLUMN_DATA, tmpFilePath);
-			getActivity().getContentResolver().insert(ContentProviderM.EXTENDED_DATA_CONTENT_URI, tmpContentValues);
-
-			
-			//Creation of a new action line in the layout
-			this.updateActionList(this.getView());
-	    	
-		}else{
+		if(tmpFilePath == ""){
 			Log.w(Utils.getClassName(),
 					"Waring in onActivityResult: tmpFilePath is empty even though the result code was RESULT_OK");
+			return;
 		}
+		
+		//Reading the current string
+		String[] tmpProjection = {ItemTableM.COLUMN_ACTIONS};
+		Cursor tmpItemCur = getActivity().getContentResolver().query(refItemUri, tmpProjection, null, null, null);
+		tmpItemCur.moveToFirst();
+		String tmpActions = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
+		tmpItemCur.close();
+		
+		//Verify that the string to be added does not contain the separator
+		if(tmpFilePath.contains(Utils.ACTIONS_SEPARATOR)){
+			Log.e(Utils.getClassName(), "Error in onActivityResult: String contains separator character");
+			return;
+		}
+		
+		if(tmpActions == null || tmpActions.equals("")){
+			tmpActions = tmpFilePath;
+		}else{
+			//Updating the string with the appended file path
+			tmpActions = tmpActions + Utils.ACTIONS_SEPARATOR + tmpFilePath;
+		}
+		
+		//Writing the updated string to the database
+		ContentValues tmpContentValues = new ContentValues();
+		tmpContentValues.put(ItemTableM.COLUMN_ACTIONS, tmpActions);
+		getActivity().getContentResolver().update(refItemUri, tmpContentValues, null, null);
+		
+		/*
+		long tmpItemId = Utils.getIdFromUri(refItemUri);
+		tmpContentValues.put(ExtendedDataTableM.COLUMN_ITEM_REFERENCE, tmpItemId);
+		tmpContentValues.put(ExtendedDataTableM.COLUMN_DATA, tmpFilePath);
+		getActivity().getContentResolver().insert(ContentProviderM.EXTENDED_DATA_CONTENT_URI, tmpContentValues);
+		 */
+		
+		//Creation of a new action line in the layout
+		this.updateActionList(this.getView());
 	}
 
 
@@ -488,6 +518,72 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     // Overview: updateActionList updates the list of actions
     // Please note: Currently only one action
     private void updateActionList(View inView) {
+
+    	LinearLayout tmpVerticalList = (LinearLayout)inView.findViewById(R.id.actionsLinearLayout);
+
+    	//Clearing the layout
+    	tmpVerticalList.removeAllViews();
+    	
+    	LayoutInflater tmpLayoutInflater = LayoutInflater.from(this.getActivity().getApplicationContext());
+    	
+    	
+		String[] tmpProjection = {ItemTableM.COLUMN_ACTIONS};
+		Cursor tmpItemCur = getActivity().getContentResolver().query(
+				this.refItemUri, tmpProjection, null, null, null);
+		tmpItemCur.moveToFirst();
+		String tmpActionsString = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
+    	ArrayList<String> tmpActionsArrayList = Utils.actionsStringToArrayList(tmpActionsString);
+
+    	
+    	RelativeLayout tmpActionItem;
+		for(String action : tmpActionsArrayList){
+			
+			tmpActionItem = (RelativeLayout)tmpLayoutInflater.inflate(
+					R.layout.action_list_item, tmpVerticalList, false); //-please note "attachToRoot = false"
+    		
+			TextView tmpTextView = (TextView)tmpActionItem.findViewById(R.id.action_list_item_itemStringTextView);
+			tmpTextView.setText(action);
+			
+			Button tmpDeleteButton = (Button)tmpActionItem.findViewById(R.id.action_list_item_deleteButton);
+
+			//Using the action name as tag so we can remove this when the delete button is clicked
+			tmpDeleteButton.setTag(action);
+			
+			tmpDeleteButton.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					//Read the current string
+					String[] tmpProjection = {ItemTableM.COLUMN_ACTIONS};
+					Cursor tmpItemCur = getActivity().getContentResolver().query(
+							refItemUri, tmpProjection, null, null, null);
+					tmpItemCur.moveToFirst();
+					String tmpActions = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(
+							ItemTableM.COLUMN_ACTIONS));
+					tmpItemCur.close();
+					
+					//Removing the matching string
+					tmpActions = Utils.removeStringFromActions(tmpActions, v.getTag().toString());
+					
+					//Update the database string
+					ContentValues tmpContentValues = new ContentValues();
+					tmpContentValues.put(ItemTableM.COLUMN_ACTIONS, tmpActions);
+					getActivity().getContentResolver().update(refItemUri, tmpContentValues, null, null);
+					
+					ItemSetupFragmentC.this.updateActionList(v.getRootView());
+					//-not 100% sure how this works
+				}
+			});
+
+			//Adding the action to the list
+			tmpVerticalList.addView(tmpActionItem);
+    	}
+    	
+    	
+    	
+    	
+    	
+    	
+    	/*
     	Cursor tmpExtendedCursor = null;
 
     	//Using the item id for the extended table to get a cursor pointing to 0, 1 or more rows
@@ -514,6 +610,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		}
 
 		tmpExtendedCursor.close();
+		*/
 	}
 
 	void changeNotificationService(){

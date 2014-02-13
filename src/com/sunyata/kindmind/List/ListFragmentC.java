@@ -2,7 +2,6 @@ package com.sunyata.kindmind.List;
 
 import java.io.File;
 
-import com.sunyata.kindmind.R;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -22,13 +21,12 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 
 import com.sunyata.kindmind.BuildConfig;
+import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.SortTypeM;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.DatabaseHelperM;
-import com.sunyata.kindmind.Database.ExtendedDataTableM;
 import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.Database.PatternTableM;
 import com.sunyata.kindmind.Details.ItemSetupActivityC;
 import com.sunyata.kindmind.ToastsAndActions.ActionBehaviour;
 import com.sunyata.kindmind.ToastsAndActions.FeelingsToast;
@@ -100,14 +98,15 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		//Setup of variables used for selecting the database colums of rows
 		String[] tmpProjection = {ItemTableM.COLUMN_ID, ItemTableM.COLUMN_NAME,
-				ItemTableM.COLUMN_DETAILS, ItemTableM.COLUMN_ACTIVE, ItemTableM.COLUMN_KINDSORTVALUE};
+				ItemTableM.COLUMN_DETAILS, ItemTableM.COLUMN_ACTIVE, ItemTableM.COLUMN_KINDSORT_VALUE,
+				ItemTableM.COLUMN_ACTIONS};
 		//-kindsortvalue only needed here when used for debug purposes
-		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
+		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = ?";
 		String[] tmpSelectionArguments = {refListType.toString()};
 
 		//Creating the CursorLoader
 		CursorLoader retCursorLoader = new CursorLoader(
-				getActivity(), ContentProviderM.LIST_CONTENT_URI,
+				getActivity(), ContentProviderM.ITEM_CONTENT_URI,
 				tmpProjection, tmpSelection, tmpSelectionArguments, ContentProviderM.sSortType);
 		return retCursorLoader;
 	}
@@ -172,9 +171,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
 		
 		//Updating the cursor..
-		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + "=" + "'" + this.refListType.toString() + "'";
+		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + "=" + "'" + this.refListType.toString() + "'";
 		Cursor tmpCursor = getActivity().getContentResolver().query(
-				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
+				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
 		mCursorAdapter.changeCursor(tmpCursor);
 		
 		//..and using the new cursor for the adapter
@@ -243,7 +242,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			@Override
 			public boolean onItemLongClick(AdapterView<?> a1, View a2, int a3, long inId) {
 				//Opening the details for the list item
-				Uri tmpUri = Uri.parse(ContentProviderM.LIST_CONTENT_URI + "/" + inId);
+				Uri tmpUri = Uri.parse(ContentProviderM.ITEM_CONTENT_URI + "/" + inId);
 				Intent intent = new Intent(getActivity(), ItemSetupActivityC.class);
 				String tmpExtraString = tmpUri.toString();
 				intent.putExtra(EXTRA_ITEM_URI, tmpExtraString); //-Extracted in DataDetailsFragmentC
@@ -266,7 +265,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		tmpCheckBox.toggle();
 
 		//Updating the database value
-		Uri tmpUri = Uri.parse(ContentProviderM.LIST_CONTENT_URI + "/" + inId);
+		Uri tmpUri = Uri.parse(ContentProviderM.ITEM_CONTENT_URI + "/" + inId);
 		ContentValues tmpContentValues = new ContentValues();
 		tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpCheckBox.isChecked() ? 1 : ItemTableM.FALSE);
 		getActivity().getContentResolver().update(tmpUri, tmpContentValues, null, null);
@@ -277,6 +276,15 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		//If the new state of the checkbox is checked..
 		if(tmpCheckBox.isChecked() == true){
 			
+			String[] tmpProjection = {ItemTableM.COLUMN_ACTIONS};
+			Cursor tmpItemCur = getActivity().getContentResolver().query(
+					Utils.getItemUriFromId(inId), tmpProjection, null, null, null);
+			tmpItemCur.moveToFirst();
+			String tmpActions = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
+			mActionBehaviour.kindAction(getActivity(), tmpActions); //TODO: handle "" case, and multi case
+			tmpItemCur.close();
+			
+			/*
 			String tmpSelection = PatternTableM.COLUMN_ITEM_REFERENCE + "=" + "'" + inId + "'";
 			Cursor tmpExtendedDataCursor = getActivity().getContentResolver().query(
 					ContentProviderM.EXTENDED_DATA_CONTENT_URI, null, tmpSelection, null, null);
@@ -288,6 +296,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 						tmpExtendedDataCursor.getColumnIndexOrThrow(ExtendedDataTableM.COLUMN_DATA));
 				mActionBehaviour.kindAction(getActivity(), tmpFilePath);
 			}
+			*/
 
 			//tmpCursor.close();
 		}
@@ -349,9 +358,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			//Creating and inserting the new list item into the database
 			ContentValues tmpContentValuesToInsert = new ContentValues();
 	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, "no_name_set");
-	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LISTTYPE, refListType.toString());
+	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LIST_TYPE, refListType.toString());
 	    	Uri tmpUriOfNewItem = getActivity().getContentResolver().insert(
-	    			ContentProviderM.LIST_CONTENT_URI, tmpContentValuesToInsert);
+	    			ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);
 	    	
 	    	//Launching the details fragment for the newly created item
 			Intent intent = new Intent(getActivity(), ItemSetupActivityC.class);
@@ -452,9 +461,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		String retString = "\n" + "===" + inListType.toString() + "===" + "\n\n";
 		
 		//Setup of cursor and data set
-		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = " + "'" + inListType.toString() + "'";
+		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = " + "'" + inListType.toString() + "'";
 		Cursor tmpCursor = getActivity().getContentResolver().query(
-				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, null);
+				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, null);
 		if(tmpCursor.getCount() == 0){
 			tmpCursor.close();
 			return retString;

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -31,6 +32,13 @@ public class Utils {
 	public static final String LIST_TYPE = "LIST_TYPE";
 	
 	public static final String PREF_IS_FIRST_TIME_APP_STARTED = "IsFirstTimeApplicationStarted";
+	
+	public static final String ACTIONS_SEPARATOR = " ";
+	
+	//"\\|"
+	//-Please note: Escaped two times since it is both a special character in general and in Java.
+	// See this link for more info:
+	// http://www.rgagnon.com/javadetails/java-0438.html
 	
 	
 	//--------------------(Static) methods for debugging
@@ -124,9 +132,9 @@ public class Utils {
 	}
 	private static void createStartupItem(Context inContext, ListTypeM inListType, String inColumnName){
 		ContentValues tmpContentValuesToInsert = new ContentValues();
-    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LISTTYPE, inListType.toString());
+    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LIST_TYPE, inListType.toString());
     	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, inColumnName);
-    	inContext.getContentResolver().insert(ContentProviderM.LIST_CONTENT_URI, tmpContentValuesToInsert);
+    	inContext.getContentResolver().insert(ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);
 		Log.i(Utils.getClassName(),
 				"Added " + inColumnName + " with type " + inListType.toString() + " to the database");
 	}
@@ -196,10 +204,10 @@ public class Utils {
 	
 	public static int getListItemCount(Context inContext, ListTypeM inListType){
 		int retCount;
-		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
+		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = ?";
 		String[] tmpSelectionArguments = {inListType.toString()};
 		Cursor tmpCursor = inContext.getContentResolver().query(
-				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, ContentProviderM.sSortType);
+				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, ContentProviderM.sSortType);
 		retCount = tmpCursor.getCount();
 		tmpCursor.close();
 		/* -PLEASE NOTE: This cursor has to be closed (why this and not others?) otherwise we will
@@ -220,9 +228,9 @@ public class Utils {
 		int retCount;
 		String tmpSelection =
 				ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE + " AND " +
-				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + inListType.toString() + "'";
+				ItemTableM.COLUMN_LIST_TYPE + "=" + "'" + inListType.toString() + "'";
 		Cursor tmpCursor = inContext.getContentResolver().query(
-				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
+				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
 		retCount = tmpCursor.getCount();
 		tmpCursor.close();
 		//-PLEASE NOTE: This cursor has to be closed (see comments in method getListItemCount)
@@ -233,7 +241,7 @@ public class Utils {
 		return Long.parseLong(inUri.toString().substring(inUri.toString().lastIndexOf("/") + 1));
 	}
 	public static Uri getItemUriFromId(long inId){
-		return Uri.withAppendedPath(ContentProviderM.LIST_CONTENT_URI, String.valueOf(inId));
+		return Uri.withAppendedPath(ContentProviderM.ITEM_CONTENT_URI, String.valueOf(inId));
 	}
 	/*
 	 * Overview: databaseBackupInternal does a backup of the database file to internal storage
@@ -324,10 +332,10 @@ public class Utils {
 		ArrayList<String> retActivatedData = new ArrayList<String>();
 		String tmpSelection =
 				ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE + " AND " +
-				ItemTableM.COLUMN_LISTTYPE + "=" + "'" + inListType.toString() + "'";
+				ItemTableM.COLUMN_LIST_TYPE + "=" + "'" + inListType.toString() + "'";
 		//-Please note that we are adding ' signs around the String
 		Cursor tmpCursor = inContext.getContentResolver().query(
-				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
+				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
 		for(tmpCursor.moveToFirst(); tmpCursor.isAfterLast() == false; tmpCursor.moveToNext()){
 			//add name to return list
 			String tmpStringToAdd = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
@@ -360,7 +368,7 @@ public class Utils {
 			break;
 		case KINDSORT:
 			ContentProviderM.sSortType = ItemTableM.COLUMN_ACTIVE + " DESC" + ", "
-					+ ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
+					+ ItemTableM.COLUMN_KINDSORT_VALUE + " DESC";
 			break;
 		default:
 			Log.e(Utils.getClassName(), "Error in setSortType: Case not covered");
@@ -372,4 +380,48 @@ public class Utils {
 		int retIntVal = (int) (inLong & 0x0000FFFF);
 		return retIntVal;
 	}
+	
+	public static ArrayList<String> actionsStringToArrayList(String inActions){
+		ArrayList<String> retArrayList = new ArrayList<String>(Arrays.asList(inActions.split(Utils.ACTIONS_SEPARATOR)));
+		
+		//Removing any empty strings or nulls
+		retArrayList.remove("");
+		retArrayList.remove(null);
+
+		return retArrayList;
+	}
+	public static String removeStringFromActions(String inActions, String inActionToRemove){
+		String retString = "";
+		
+		//Split the string into several parts
+		String[] tmpStringArray = inActions.split(Utils.ACTIONS_SEPARATOR);
+		
+		boolean tmpOneItemHasBeenRemoved = false;
+		
+		//Rebuild the string..
+		for(int i=0; i<tmpStringArray.length; i++){
+			if(tmpStringArray[i].equals(inActionToRemove) && tmpOneItemHasBeenRemoved == false){
+				//..but remove the first match
+				tmpOneItemHasBeenRemoved = true;
+			}else{
+				//..but add all other parts
+				if(retString.equals("")){
+					retString = tmpStringArray[i];
+				}else{
+					retString = retString + Utils.ACTIONS_SEPARATOR + tmpStringArray[i];
+				}
+			}
+		}
+		
+		return retString;
+	}
+	//return Long.parseLong(inUri.toString().substring(inUri.toString().lastIndexOf("/") + 1));
+	/*
+	private static String cleanString(String inString, String inCharacterToRemove){
+		String retString = inString;
+		
+		retString.replace(oldChar, newChar)
+		
+	}
+	*/
 }

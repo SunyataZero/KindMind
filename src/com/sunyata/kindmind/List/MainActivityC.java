@@ -224,7 +224,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	@Override
 	public void fireSavePatternEvent() {
 		Cursor tmpItemCursor = this.getContentResolver().query(
-				ContentProviderM.LIST_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
+				ContentProviderM.ITEM_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
 		
 		long tmpCurrentTime = Calendar.getInstance().getTimeInMillis();
 		//-getting the time here instead of inside the for statement ensures that we are able
@@ -238,7 +238,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				long tmpItemId = tmpItemCursor.getInt(tmpItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
 				tmpInsertContentValues.put(PatternTableM.COLUMN_ITEM_REFERENCE, tmpItemId);
 				tmpInsertContentValues.put(PatternTableM.COLUMN_CREATE_TIME, tmpCurrentTime);
-				this.getContentResolver().insert(ContentProviderM.PATTERN_CONTENT_URI, tmpInsertContentValues);
+				this.getContentResolver().insert(ContentProviderM.PATTERNS_CONTENT_URI, tmpInsertContentValues);
 			}
 		}
 
@@ -260,7 +260,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		//Clearing all the checks for all list items
 		ContentValues tmpContentValueForUpdate = new ContentValues();
 		tmpContentValueForUpdate.put(ItemTableM.COLUMN_ACTIVE, ItemTableM.FALSE);
-		Uri tmpUri = Uri.parse(ContentProviderM.LIST_CONTENT_URI.toString());
+		Uri tmpUri = Uri.parse(ContentProviderM.ITEM_CONTENT_URI.toString());
 		this.getContentResolver().update(tmpUri, tmpContentValueForUpdate, null, null);
 		
 		//Side scrolling to the leftmost viewpager position (feelings)
@@ -304,9 +304,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	 */
     public void fireResetData(){
     	//Clearing the data
-    	this.getContentResolver().delete(ContentProviderM.LIST_CONTENT_URI, null, null);
-    	this.getContentResolver().delete(ContentProviderM.PATTERN_CONTENT_URI, null, null);
-    	this.getContentResolver().delete(ContentProviderM.EXTENDED_DATA_CONTENT_URI, null, null);
+    	this.getContentResolver().delete(ContentProviderM.ITEM_CONTENT_URI, null, null);
+    	this.getContentResolver().delete(ContentProviderM.PATTERNS_CONTENT_URI, null, null);
     	
     	//Adding new data
     	Utils.createAllStartupItems(this);

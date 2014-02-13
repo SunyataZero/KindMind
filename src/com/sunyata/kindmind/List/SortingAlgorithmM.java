@@ -94,7 +94,7 @@ public class SortingAlgorithmM {
 		ArrayList<Long> tmpCheckedItems = new ArrayList<Long>();
 		String tmpSelection = ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE;
 		Cursor tmpItemCur = mContext.getContentResolver().query(
-				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
+				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
 		for(tmpItemCur.moveToFirst(); tmpItemCur.isAfterLast() == false; tmpItemCur.moveToNext()){
 			tmpCheckedItems.add(Long.parseLong(tmpItemCur.getString(
 					tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ID))));
@@ -103,7 +103,7 @@ public class SortingAlgorithmM {
 		//2. Go through all patterns and save in matrix with pattern relevance..
 		ArrayList<Pattern> tmpPatternMatrix = new ArrayList<Pattern>();
 		Cursor tmpPatternCur = mContext.getContentResolver().query(
-				ContentProviderM.PATTERN_CONTENT_URI, null, null, null, PatternTableM.COLUMN_CREATE_TIME);
+				ContentProviderM.PATTERNS_CONTENT_URI, null, null, null, PatternTableM.COLUMN_CREATE_TIME);
 		long tmpOldPatternTime = -2;
 		for(tmpPatternCur.moveToFirst(); tmpPatternCur.isAfterLast() == false; tmpPatternCur.moveToNext()){
 			
@@ -147,12 +147,12 @@ public class SortingAlgorithmM {
 		
 		//4. Go through all list items and use the relevance to update the kindsortvalue for each item..
 		tmpItemCur = mContext.getContentResolver().query(
-				ContentProviderM.LIST_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
+				ContentProviderM.ITEM_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
 		for(tmpItemCur.moveToFirst(); tmpItemCur.isAfterLast() == false; tmpItemCur.moveToNext()){
 			double tmpNewKindSortValue = 0; 
 			long tmpItemId = Long.parseLong(tmpItemCur.getString(
 					tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ID)));
-			Uri tmpItemUri = Uri.parse(ContentProviderM.LIST_CONTENT_URI + "/" + tmpItemId);
+			Uri tmpItemUri = Uri.parse(ContentProviderM.ITEM_CONTENT_URI + "/" + tmpItemId);
 			ContentValues tmpUpdateVal;
 			for(Pattern p : tmpPatternMatrix){
 				if(p.list.contains(tmpItemId)){
@@ -165,7 +165,7 @@ public class SortingAlgorithmM {
 			
 			//..updating the kindsort value in the database
 			tmpUpdateVal = new ContentValues();
-			tmpUpdateVal.put(ItemTableM.COLUMN_KINDSORTVALUE, tmpNewKindSortValue);
+			tmpUpdateVal.put(ItemTableM.COLUMN_KINDSORT_VALUE, tmpNewKindSortValue);
 			mContext.getContentResolver().update(tmpItemUri, tmpUpdateVal, null, null);
 		}
 		

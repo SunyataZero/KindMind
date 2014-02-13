@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelperM extends SQLiteOpenHelper{
 
 	public static final String DATABASE_NAME = "kindmind.db";
-	private static final int DATABASE_VERSION = 45;
+	private static final int DATABASE_VERSION = 46;
 	//-PLEASE BE CAREFUL WHEN UPDATING THIS
 	// 1. Check the onUpgrade method and implement the change there
 	// 2. Make a backup of the current file (in onUpgrade?)
@@ -35,7 +35,6 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 	public void onCreate(SQLiteDatabase inDatabase) {
 		ItemTableM.createTable(inDatabase);
 		PatternTableM.createTable(inDatabase);
-		ExtendedDataTableM.createTable(inDatabase);
 	}
 
 	/*
@@ -53,6 +52,5 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 		//Upgrading for all the tables
 		ItemTableM.upgradeTable(inDatabase, inOldVersion, inNewVersion);
 		PatternTableM.upgradeTable(inDatabase, inOldVersion, inNewVersion);
-		ExtendedDataTableM.upgradeTable(inDatabase, inOldVersion, inNewVersion);
 	}
 }

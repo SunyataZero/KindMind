@@ -36,11 +36,11 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 	public int getCount() {
 		/////return refList.size();
 		
-		String tmpSortType = ItemTableM.COLUMN_KINDSORTVALUE;
-		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
+		String tmpSortType = ItemTableM.COLUMN_KINDSORT_VALUE;
+		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = ?";
 		String[] tmpSelectionArguments = {ListTypeM.NEEDS.toString()};
 		Cursor tmpCursor = mContext.getContentResolver().query(
-				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
+				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
 		
 		//tmpCursor.close();
 		return tmpCursor.getCount();
@@ -68,11 +68,11 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 		
 		SortingAlgorithmM.get(mContext).updateSortValuesForListType();
 
-		String tmpSortType = ItemTableM.COLUMN_KINDSORTVALUE + " DESC";
-		String tmpSelection = ItemTableM.COLUMN_LISTTYPE + " = ?";
+		String tmpSortType = ItemTableM.COLUMN_KINDSORT_VALUE + " DESC";
+		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = ?";
 		String[] tmpSelectionArguments = {ListTypeM.NEEDS.toString()};
 		Cursor tmpCursor = mContext.getContentResolver().query(
-				ContentProviderM.LIST_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
+				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
 		tmpCursor.moveToPosition(position);
 		String tmpName = tmpCursor.getString(
 				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
