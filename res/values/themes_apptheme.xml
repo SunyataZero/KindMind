@@ -3,7 +3,7 @@
 <!-- Generated with http://android-holo-colors.com -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <style name="AppTheme" parent="android:Theme.Black">
+  <style name="AppThemeHoloColors" parent="android:Theme.Holo"> <!-- android:Theme.Black -->
 
     <item name="android:editTextStyle">@style/EditTextAppTheme</item>
 
@@ -23,11 +23,6 @@
 
     <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItemAppTheme</item>
 
-    <!-- Added by Sunyata -->
-    <!-- 
-    <item name="android:actionBarStyle">@style/KindMindActionBar</item>
-     -->
-     
   </style>
 
 </resources>

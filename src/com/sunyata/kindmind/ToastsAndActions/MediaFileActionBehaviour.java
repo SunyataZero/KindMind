@@ -21,7 +21,7 @@ import com.sunyata.kindmind.Utils;
 public class MediaFileActionBehaviour implements ActionBehaviour{
 	@Override
 	public void kindAction(Context inContext, String inKindActionFilePath) {
-		Log.i(Utils.getClassName(), "inKindActionFilePath = " + inKindActionFilePath);
+		Log.d(Utils.getClassName(), "inKindActionFilePath = " + inKindActionFilePath);
 
 		//If the file/dir string has been cleared (or not set) exiting..
 		if(inKindActionFilePath.equals("")){
@@ -30,7 +30,7 @@ public class MediaFileActionBehaviour implements ActionBehaviour{
 			 
 			File tmpFileOrDirectoryFromString = new File(inKindActionFilePath);
 
-			Log.i(Utils.getClassName(), "tmpFileOrDirectoryFromString.isDirectory() = "
+			Log.d(Utils.getClassName(), "tmpFileOrDirectoryFromString.isDirectory() = "
 					+ tmpFileOrDirectoryFromString.isDirectory());
 			if(tmpFileOrDirectoryFromString.isDirectory()){
 				this.doRandomKindActionFromSetOfFiles(inContext, tmpFileOrDirectoryFromString);
@@ -41,7 +41,7 @@ public class MediaFileActionBehaviour implements ActionBehaviour{
 	}
 
 	private void doKindAction(Context inContext, String inFileFromString){
-		Log.i(Utils.getClassName(), "inFileFromString = " + inFileFromString);
+		Log.d(Utils.getClassName(), "inFileFromString = " + inFileFromString);
 
 		/*
 		//Ok, works well!
@@ -90,14 +90,14 @@ public class MediaFileActionBehaviour implements ActionBehaviour{
 					inFileFromString.toString().endsWith(".mp3")){
 
 				if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
-					/*
+				/*
 				isWiredHeadsetOn is used even though it is deprecated:
 				"
 				This method was deprecated in API level 14.
 				Use only to check is a headset is connected or not.
 				"
 				http://stackoverflow.com/questions/2764733/android-checking-if-headphones-are-plugged-in
-					 */
+				*/
 					Toast.makeText(
 							inContext,
 							"Not playing audio since headset is not connected or speaker phone is on",
@@ -160,7 +160,7 @@ public class MediaFileActionBehaviour implements ActionBehaviour{
 		}
 	}
 	private void doRandomKindActionFromSetOfFiles(Context inContext, File inDirectoryFromString){
-		Log.i(Utils.getClassName(), "inDirectoryFromString = " + inDirectoryFromString);
+		Log.d(Utils.getClassName(), "inDirectoryFromString = " + inDirectoryFromString);
 
 		String[] tmpListOfFilesInDirectory = inDirectoryFromString.list();
 		Random tmpRandomNumberGenerator = new Random();

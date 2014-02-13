@@ -62,6 +62,7 @@ public class SortingAlgorithmM {
 		mBackgroundThread.start();
 		
 		//Waiting for thread to finish execution
+		// TODO: Move this to some of the other places marked with "[list update]"
 		this.joinBackgroundThread();
 	}
 	public void joinBackgroundThread(){
@@ -83,7 +84,8 @@ public class SortingAlgorithmM {
 	 * Notes: In cases where the relevance is zero (maybe because we have not checked any of the items yet) we
 	 *  still use the SIMPLE_PATTERN_MATCH_ADDITION constant, once for each time that the item has been checked
 	 *  and saved into the pattern table
-	 * Improvements: Do the updates in a background thread instead of on the UI thread (see UI part of Andr Cookbook)
+	 * Improvements: To cut down on object creation and thereby memory usage, remove the PatternM private class and
+	 *  store "relevance" values in an array or ListArray
 	 * Algorithm improvements: Many ideas, one is to use the timestamp from the patterns table to reduce relevance
 	 *  for patterns from a long time back
 	 */

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- PLEASE NOTE: There is no error check or auto-complete suggestions for class and package names in this file -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sunyata.kindmind"
-    android:versionCode="14"
-    android:versionName="0.8.1_beta" >
+    android:versionCode="15"
+    android:versionName="0.8.2_beta" >
 
+    
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS" />
@@ -39,11 +41,12 @@
             android:name="com.sunyata.kindmind.Details.BookmarkChooserActivityC"
             android:label="@string/app_name">
         </activity>
-        <service android:name="com.sunyata.kindmind.WidgetAndNotifications.NotificationServiceC">com.sunyata.kindmind.WidgetAndNotifications.BootCompletedReceiverCeiver android:name=".BootCompletedReceiverC">
+        <receiver android:name="com.sunyata.kindmind.WidgetAndNotifications.BootCompletedReceiverC">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
-        </service>
+        </receiver>
+        <service android:name="com.sunyata.kindmind.WidgetAndNotifications.NotificationServiceC"></service>
         <receiver android:name="com.sunyata.kindmind.WidgetAndNotifications.KindMindAppWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

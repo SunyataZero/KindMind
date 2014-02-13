@@ -232,8 +232,9 @@ public class Utils {
 	public static Long getIdFromUri(Uri inUri){
 		return Long.parseLong(inUri.toString().substring(inUri.toString().lastIndexOf("/") + 1));
 	}
-	
-	
+	public static Uri getItemUriFromId(long inId){
+		return Uri.withAppendedPath(ContentProviderM.LIST_CONTENT_URI, String.valueOf(inId));
+	}
 	/*
 	 * Overview: databaseBackupInternal does a backup of the database file to internal storage
 	 * Details: The name of the backup file includes version and date/time
@@ -354,7 +355,7 @@ public class Utils {
 
 	public static void setSortType(SortTypeM inSortType) {
 		switch(inSortType){
-		case ALHPABETASORT:
+		case ALPHABETASORT:
 			ContentProviderM.sSortType = ItemTableM.COLUMN_NAME + " ASC";
 			break;
 		case KINDSORT:

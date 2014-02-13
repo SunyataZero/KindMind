@@ -236,6 +236,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		// but not in Reto's book: "genereally not recommended"
 		super.setHasOptionsMenu(true);
 		this.fillListWithDataFromAdapter();
+		this.updateCursorLoaderAndAdapter(); //-solves issue #83
 
 		//Setup for long click listener
     	super.getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -366,7 +367,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		case R.id.menu_item_sort_alphabetically: //------------Sort alphabeta
 			//Changing the sort method used and refreshing list
-			Utils.setSortType(SortTypeM.ALHPABETASORT);
+			Utils.setSortType(SortTypeM.ALPHABETASORT);
 			this.updateCursorLoaderAndAdapter();
 			
 			return true;

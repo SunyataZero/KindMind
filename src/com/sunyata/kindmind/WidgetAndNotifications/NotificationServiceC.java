@@ -136,22 +136,37 @@ public class NotificationServiceC extends IntentService {
 	 *  and shows a notification to the user
 	 * Usage: this.setServiceNotificationSingle()
 	 * Uses Android libs: NotificationCompat.Builder, NotificationManager
-	 * Improvements: 
+	 * Notes: Please note that there are two pending intents in this method, one that is sent to the method from the
+	 *  alarm, and one that is created inside the method and is used for the action we get when clicking on the
+	 *  notification
+	 * Improvements: Launch the associated action or actions if any. To make this change we may need to redesign
+	 *  MediaFileActionBehaviour
 	 * Documentation: https://developer.android.com/reference/android/app/IntentService.html#onHandleIntent%28android.content.Intent%29
 	 */
 	@Override
 	protected void onHandleIntent(Intent inPendingIntent) {
 		Log.d(Utils.getClassName(), "In method onHandleIntent: One intent received");
 		
-		//Creating the PendingIntent which will be used for the notification
+		//Extracting data attached to the intent coming in to this method
+		String tmpIdStringFromListDataItem = inPendingIntent.getStringExtra(NOTIFICATION_ID);
+		String tmpTitleStringFromListDataItem = inPendingIntent.getStringExtra(NOTIFICATION_TITLE);
+
+		/* Improvement (see text in method header):
+		Uri tmpUri = Utils.getItemUriFromId(Long.parseLong(tmpIdStringFromListDataItem));
+		Cursor tmpCursor = getApplicationContext().getContentResolver().query(
+				tmpUri, null, null, null, ContentProviderM.sSortType);
+		if(tmpCursor.getCount() == 0){
+			//tmpCursor.close();
+			return;
+		}
+		tmpCursor.moveToFirst();
+		*/
+		
+		//Creating the PendingIntent which will be used when clicking on the notification
 		PendingIntent tmpPendingIntent = PendingIntent.getActivity(
 				this, 0, new Intent(this, MainActivityC.class), 0);
 		//-Please note: Request code is not used by the class (see the documentation)
 		
-		//Extract data attached to the intent coming in to this method
-		String tmpIdStringFromListDataItem = inPendingIntent.getStringExtra(NOTIFICATION_ID);
-		String tmpTitleStringFromListDataItem = inPendingIntent.getStringExtra(NOTIFICATION_TITLE);
-
 		//Build the notification..
 		Notification tmpNotification = new NotificationCompat.Builder(this)
 				.setTicker(tmpTitleStringFromListDataItem)

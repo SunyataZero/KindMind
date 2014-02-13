@@ -9,6 +9,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -17,7 +18,9 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.sunyata.kindmind.BuildConfig;
 import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.SortTypeM;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
@@ -74,11 +77,18 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         super.onCreate(inSavedInstanceState);
         Log.d(Utils.getClassName(), Utils.getMethodName());
         
+        //Activating strict mode for debug builds
+        // More info: http://developer.android.com/reference/android/os/StrictMode.html
+        if(BuildConfig.DEBUG){
+        	StrictMode.enableDefaults();
+        }
+        
     	//Creation of new list items
     	if(Utils.isFirstTimeApplicationStarted(this) == true){
     		Utils.createAllStartupItems(this);
     	}
 
+    	//Setting layout and title
         setContentView(R.layout.activity_main);
         setTitle(R.string.app_name);
         
@@ -99,6 +109,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			@Override
 			public void onPageSelected(int inPos) { //[list update]
 				Log.d("ViewPager.OnPageChangeListener()", "onPageSelected()");
+				
+				//Resetting the sorting
+				Utils.setSortType(SortTypeM.KINDSORT);
 				
 				//Setting the active tab when the user has just side scrolled (swiped) to a new fragment
 				getActionBar().setSelectedNavigationItem(inPos);
