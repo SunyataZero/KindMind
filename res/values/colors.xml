@@ -6,8 +6,8 @@
      
     <!-- Colours for showing/indicating the action type to the user -->
     <color name="no_action">@color/kindmind_background</color>
-    <color name="one_action">#2a2a2a</color>
-    <color name="multiple_actions">#4a4a4a</color>
+    <color name="one_action">#5a5a5a</color>
+    <color name="multiple_actions">#9a9a9a</color>
     <color name="special_built_in_action">@color/kindmind_green</color>
     
 </resources>

@@ -75,7 +75,6 @@ public class CursorAdapterM extends SimpleCursorAdapter{
     		tmpCheckBox.setChecked(tmpActive != ItemTableM.FALSE);
 		}
 		
-
 		//Updating the action indications
 		String tmpActions = tmpLoaderItemCur.getString(
 				tmpLoaderItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
@@ -85,7 +84,7 @@ public class CursorAdapterM extends SimpleCursorAdapter{
 		}else{
 			tmpRectangle.setBackgroundColor(mContext.getResources().getColor(R.color.one_action));
 		}
-		//TODO: Add more cases here
+		//TODO: Count the number of separator characters to see how light we want to make the rectangle
 
 		
 		if(BuildConfig.DEBUG){
