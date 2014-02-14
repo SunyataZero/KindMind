@@ -25,9 +25,9 @@ public class WidgetConfigActivityC extends Activity {
 	private Button mCancelButton;
 
 	public static String WIDGET_CONFIG_LIST_TYPE = "widgetConfigPreferences";
-	public static String PREFERENCE_LIST_TYPE = "listType";
+	//public static String PREFERENCE_LIST_TYPE = "listType";
 	public static String PREFERENCE_LIST_TYPE_DEFAULT = "error";
-	s
+
 	@Override
 	public void onCreate(Bundle inSavedInstanceState){
 		super.onCreate(inSavedInstanceState);
@@ -69,13 +69,14 @@ public class WidgetConfigActivityC extends Activity {
 						WidgetConfigActivityC.this.getSharedPreferences(WIDGET_CONFIG_LIST_TYPE,
 								Context.MODE_PRIVATE).edit();
 				if(mFeelingsRadioButton.isChecked()){
-					tmpPreferencesEditor.putString(PREFERENCE_LIST_TYPE, ListTypeM.FEELINGS.toString()).commit();
+					tmpPreferencesEditor.putString(String.valueOf(mWidgetId), ListTypeM.FEELINGS.toString()).commit();
+					//-"String.valueOf(mWidgetId)" is used as the key
 					setResult(RESULT_OK, retResultIntent);
 				}else if(mNeedsRadioButton.isChecked()){
-					tmpPreferencesEditor.putString(PREFERENCE_LIST_TYPE, ListTypeM.NEEDS.toString()).commit();
+					tmpPreferencesEditor.putString(String.valueOf(mWidgetId), ListTypeM.NEEDS.toString()).commit();
 					setResult(RESULT_OK, retResultIntent);
 				}else if(mKindnessRadioButton.isChecked()){
-					tmpPreferencesEditor.putString(PREFERENCE_LIST_TYPE, ListTypeM.KINDNESS.toString()).commit();
+					tmpPreferencesEditor.putString(String.valueOf(mWidgetId), ListTypeM.KINDNESS.toString()).commit();
 					setResult(RESULT_OK, retResultIntent);
 				}else{
 					//..in the case that no radiobutton has been chosen, exiting without result

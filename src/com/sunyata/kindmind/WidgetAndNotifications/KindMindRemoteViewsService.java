@@ -1,5 +1,6 @@
 package com.sunyata.kindmind.WidgetAndNotifications;
 
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -9,10 +10,9 @@ import android.widget.RemoteViewsService;
 
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
-import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.ContentProviderM;
+import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.List.SortingAlgorithmM;
-import com.sunyata.kindmind.List.ListTypeM;
 
 public class KindMindRemoteViewsService extends RemoteViewsService {
 	@Override
@@ -57,9 +57,16 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
 	Context mContext;
 	Cursor mItemCursor;
+	int mWidgetId;
 	
 	KindMindRemoteViewsFactory(Context inContext, Intent inIntent){
 		mContext = inContext;
+		mWidgetId = inIntent.getExtras().getInt(
+				AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+		if(mWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID){
+			Log.e(Utils.getClassName(), "Error in constructor KindMindRemoteViewsFactory: INVALID_APPWIDGET_ID");
+			return;
+		}
 	}
 
 	@Override
@@ -71,7 +78,7 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
 		//Setting the type of list we like to display
 		String tmpListType = mContext.getSharedPreferences(WidgetConfigActivityC.WIDGET_CONFIG_LIST_TYPE,
-				Context.MODE_PRIVATE).getString(WidgetConfigActivityC.PREFERENCE_LIST_TYPE,
+				Context.MODE_PRIVATE).getString(String.valueOf(mWidgetId),
 							WidgetConfigActivityC.PREFERENCE_LIST_TYPE_DEFAULT);
 		if(tmpListType.equals(WidgetConfigActivityC.PREFERENCE_LIST_TYPE_DEFAULT)){
 			Log.e(Utils.getClassName(), "Error in onCreate: no list type given");
