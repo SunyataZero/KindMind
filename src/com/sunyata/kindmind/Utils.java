@@ -424,4 +424,13 @@ public class Utils {
 		
 	}
 	*/
+	public static int numberOfCharacterAppearances(String inString, char inCharacter){
+		int retInt = 0;
+		for(int i=0; i < inString.length(); i++){
+			if(inCharacter == inString.charAt(i)){
+				retInt++;
+			}
+		}
+		return retInt;
+	}
 }

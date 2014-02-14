@@ -9,7 +9,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -18,7 +17,6 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.sunyata.kindmind.BuildConfig;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.SortTypeM;
 import com.sunyata.kindmind.Utils;
@@ -79,9 +77,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         
         //Activating strict mode for debug builds
         // More info: http://developer.android.com/reference/android/os/StrictMode.html
+        /*
         if(BuildConfig.DEBUG){
         	StrictMode.enableDefaults();
         }
+        */
         
     	//Creation of new list items
     	if(Utils.isFirstTimeApplicationStarted(this) == true){
@@ -156,6 +156,10 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         refActionBar.addTab(refActionBar.newTab().setText(mNeedTitle).setTabListener(tmpTabListener));
         refActionBar.addTab(refActionBar.newTab().setText(mActionTitle).setTabListener(tmpTabListener));
         this.fireUpdateTabTitles();
+        
+        
+        //TODO: Extracting attached bundle data (used when starting from a pending intent through notifications)
+
     }
     
 

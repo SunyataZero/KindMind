@@ -25,7 +25,6 @@ public class KindMindRemoteViewsService extends RemoteViewsService {
 
 class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory{
 
-/////ArrayList<ItemM> refList;
 	Context mContext;
 	
 	KindMindRemoteViewsFactory(Context inContext, Intent inIntent){
@@ -34,7 +33,6 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
 	@Override
 	public int getCount() {
-		/////return refList.size();
 		
 		String tmpSortType = ItemTableM.COLUMN_KINDSORT_VALUE;
 		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = ?";
@@ -44,11 +42,6 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 		
 		//tmpCursor.close();
 		return tmpCursor.getCount();
-	}
-
-	@Override
-	public long getItemId(int position) {
-		return position;
 	}
 
 	@Override
@@ -92,14 +85,20 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
 	@Override
 	public boolean hasStableIds() {
-		// TODO Auto-generated method stub
-		return true;
+		return false;
+	}
+	@Override
+	public long getItemId(int inPosition) {
+		return inPosition;
 	}
 
 	@Override
 	public void onCreate() {
 		Log.i(Utils.getClassName(), "onCreate()");
 
+		
+		//TODO: Cursor
+		
 		/*
 		refList = NotificationServiceC.loadDataFromJson(
 				ListTypeM.KINDNESS, KindModelM.JSON_REQUESTS_KINDNESS_FILE_NAME, mContext);
@@ -114,6 +113,8 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 
 	@Override
 	public void onDestroy() {
+		
+		//TODO: Cursor
 		
 	}
 	

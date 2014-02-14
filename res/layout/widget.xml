@@ -21,7 +21,6 @@
         android:textColor="#ffffff"
         android:textSize="16sp"
         android:text="Empty" >
-    
     </TextView>
 
 </LinearLayout>

@@ -49,35 +49,20 @@ public class OnClickToastOrActionC {
 	
 	
 	public static void kindAction(Context inContext, String inActionsString) {
-		Log.d(Utils.getClassName(), "inKindActionFilePath = " + inActionsString);
+		Log.d(Utils.getClassName(), "inActionsString = " + inActionsString);
 
-		//If the file/dir string has been cleared (or not set) exiting..
+		//If the string has been cleared (or not set) exiting
 		if(inActionsString.equals("")){
 			return;
-		}else{ //..otherwise ___________
-			
-			
-			ArrayList<String> tmpActionList = Utils.actionsStringToArrayList(inActionsString);
-			
-			Random tmpRandomNumberGenerator = new Random();
-			int tmpRandomNumber = tmpRandomNumberGenerator.nextInt(tmpActionList.size());
-
-			String tmpRandomlyGivenAction = tmpActionList.get(tmpRandomNumber);
-			doKindAction(inContext, tmpRandomlyGivenAction);
-			
-			
-			/*
-			if(tmpFileOrDirectoryFromString.isDirectory()){
-				doRandomKindActionFromSetOfFiles(inContext, tmpFileOrDirectoryFromString);
-			}else{
-				doKindAction(inContext, inKindActionFilePath);
-			}
-			*/
 		}
-	}
+			
+		ArrayList<String> tmpActionList = Utils.actionsStringToArrayList(inActionsString);
+		
+		Random tmpRandomNumberGenerator = new Random();
+		int tmpRandomNumber = tmpRandomNumberGenerator.nextInt(tmpActionList.size());
 
-	private static void doKindAction(Context inContext, String inFileFromString){
-		Log.d(Utils.getClassName(), "inFileFromString = " + inFileFromString);
+		String tmpRandomlyGivenAction = tmpActionList.get(tmpRandomNumber);
+		Log.d(Utils.getClassName(), "tmpRandomlyGivenAction = " + tmpRandomlyGivenAction);
 
 		/*
 		//Ok, works well!
@@ -92,38 +77,38 @@ public class OnClickToastOrActionC {
 		Uri tmpUri;
 		File tmpFileOrDirectoryFromString;
 
-		if(inFileFromString.toString().startsWith("content://")){
+		if(tmpRandomlyGivenAction.toString().startsWith("content://")){
 			//==========Contacts==========
 
 			tmpIntent = new Intent(Intent.ACTION_VIEW);
-			tmpUri = Uri.parse(inFileFromString);
+			tmpUri = Uri.parse(tmpRandomlyGivenAction);
 			tmpIntent.setData(tmpUri); //doesn't work
 			//-PLEASE NOTE that setDataAndType(tmpUri, "*/*") doesn't work any longer, but now setData
 			// has started working instead
 
 			
-		}else if(inFileFromString.toString().startsWith("http://")
-				|| inFileFromString.toString().startsWith("https://")){
+		}else if(tmpRandomlyGivenAction.toString().startsWith("http://")
+				|| tmpRandomlyGivenAction.toString().startsWith("https://")){
 			//==========Bookmarks==========
 			
 			tmpIntent = new Intent(Intent.ACTION_VIEW);
-			tmpUri = Uri.parse(inFileFromString);
+			tmpUri = Uri.parse(tmpRandomlyGivenAction);
 			tmpIntent.setData(tmpUri);
 			//PLEASE NOTE: setDataAndType(tmpUri, "*/*") doesn't work any longer
 			
 		}else{
 			//==========Media files==========
-			tmpFileOrDirectoryFromString = new File(inFileFromString);
+			tmpFileOrDirectoryFromString = new File(tmpRandomlyGivenAction);
 
 			if(
-					inFileFromString.toString().endsWith(".jpg")||
-					inFileFromString.toString().endsWith(".jpeg")||
-					inFileFromString.toString().endsWith(".png")||
-					inFileFromString.toString().endsWith(".gif")){
+					tmpRandomlyGivenAction.toString().endsWith(".jpg")||
+					tmpRandomlyGivenAction.toString().endsWith(".jpeg")||
+					tmpRandomlyGivenAction.toString().endsWith(".png")||
+					tmpRandomlyGivenAction.toString().endsWith(".gif")){
 				tmpTypeString = "image/*";
 			}else if(
-					inFileFromString.toString().endsWith(".ogg")||
-					inFileFromString.toString().endsWith(".mp3")){
+					tmpRandomlyGivenAction.toString().endsWith(".ogg")||
+					tmpRandomlyGivenAction.toString().endsWith(".mp3")){
 
 				if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
 				/*
@@ -145,8 +130,8 @@ public class OnClickToastOrActionC {
 				tmpTypeString = "audio/*";
 
 			}else if(
-					inFileFromString.toString().endsWith(".mp4")||
-					inFileFromString.toString().endsWith(".avi")){
+					tmpRandomlyGivenAction.toString().endsWith(".mp4")||
+					tmpRandomlyGivenAction.toString().endsWith(".avi")){
 				if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
 					Toast.makeText(
 							inContext,

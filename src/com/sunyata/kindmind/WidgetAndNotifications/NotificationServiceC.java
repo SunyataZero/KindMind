@@ -161,10 +161,11 @@ public class NotificationServiceC extends IntentService {
 		}
 		tmpCursor.moveToFirst();
 		*/
+		//TODO: Send bundle data so that we can start the action associated with the notification item clicked
 		
 		//Creating the PendingIntent which will be used when clicking on the notification
 		PendingIntent tmpPendingIntent = PendingIntent.getActivity(
-				this, 0, new Intent(this, MainActivityC.class), 0);
+				this, 0, new Intent(this, MainActivityC.class), 0); //-TODO: add bundle for actions
 		//-Please note: Request code is not used by the class (see the documentation)
 		
 		//Build the notification..

@@ -16,7 +16,7 @@ public class KindMindAppWidgetProvider extends AppWidgetProvider {
 	public void onUpdate(Context inContext, AppWidgetManager inAppWidgetManager, int[] inAppWidgetIds){
 		
 		//Going through all widgets placed (could be more than one)
-		for(int i = 0; i < inAppWidgetIds.length; i++){ //-------------------------------> i++ or ++i ?
+		for(int i = 0; i < inAppWidgetIds.length; i++){
 			
 			/*
 			Intent tmpIntent = new Intent(inContext, MainActivityC.class);
