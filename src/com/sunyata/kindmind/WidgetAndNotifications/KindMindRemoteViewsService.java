@@ -15,107 +15,138 @@ import com.sunyata.kindmind.List.SortingAlgorithmM;
 import com.sunyata.kindmind.List.ListTypeM;
 
 public class KindMindRemoteViewsService extends RemoteViewsService {
-
 	@Override
 	public RemoteViewsFactory onGetViewFactory(Intent inIntent) {
 		return new KindMindRemoteViewsFactory(this.getApplicationContext(), inIntent);
 	}
-	
 }
 
+/*
+ * Overview: KindMindRemoteViewsFactory
+ * 
+ * Details: 
+ * 
+ * Extends: 
+ * 
+ * Implements: RemoteViewsService.RemoteViewsFactory which is a this wrapper for an Adapter
+ * 
+ * Sections:
+ * 
+ * Used in: 
+ * 
+ * Uses app internal: 
+ * 
+ * Uses Android lib: 
+ * 
+ * In: 
+ * 
+ * Out: 
+ * 
+ * Does: 
+ * 
+ * Shows user: 
+ * 
+ * Notes: 
+ * 
+ * Improvements: 
+ * 
+ * Documentation: 
+ *  See Reto's book p596-597
+ */
 class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory{
 
 	Context mContext;
+	Cursor mItemCursor;
 	
 	KindMindRemoteViewsFactory(Context inContext, Intent inIntent){
 		mContext = inContext;
 	}
 
 	@Override
-	public int getCount() {
-		
-		String tmpSortType = ItemTableM.COLUMN_KINDSORT_VALUE;
-		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = ?";
-		String[] tmpSelectionArguments = {ListTypeM.NEEDS.toString()};
-		Cursor tmpCursor = mContext.getContentResolver().query(
-				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
-		
-		//tmpCursor.close();
-		return tmpCursor.getCount();
-	}
+	public void onCreate() {
+		Log.d(Utils.getClassName(), "onCreate()");
 
-	@Override
-	public RemoteViews getLoadingView() {
-		return null;
-	}
-
-	@Override
-	public RemoteViews getViewAt(int position) {
-		
-		/*
-		RemoteViews retRemoteViews = new RemoteViews(
-				mContext.getPackageName(), R.id.widget_listitem);
-		retRemoteViews.setTextViewText(R.id.widget_listitem, refList.get(position).getName());
-		retRemoteViews.setTextViewText(R.id.widget_listitem, "asdf");
-		*/
-		
+		//Updating sort values
 		SortingAlgorithmM.get(mContext).updateSortValuesForListType();
 
+		//Setting the type of list we like to display
+		String tmpListType = mContext.getSharedPreferences(WidgetConfigActivityC.WIDGET_CONFIG_LIST_TYPE,
+				Context.MODE_PRIVATE).getString(WidgetConfigActivityC.PREFERENCE_LIST_TYPE,
+							WidgetConfigActivityC.PREFERENCE_LIST_TYPE_DEFAULT);
+		if(tmpListType.equals(WidgetConfigActivityC.PREFERENCE_LIST_TYPE_DEFAULT)){
+			Log.e(Utils.getClassName(), "Error in onCreate: no list type given");
+			return;
+		}
+		
+		//Getting and saving a reference to the cursor
 		String tmpSortType = ItemTableM.COLUMN_KINDSORT_VALUE + " DESC";
 		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = ?";
-		String[] tmpSelectionArguments = {ListTypeM.NEEDS.toString()};
-		Cursor tmpCursor = mContext.getContentResolver().query(
+		String[] tmpSelectionArguments = {tmpListType};
+		mItemCursor = mContext.getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
-		tmpCursor.moveToPosition(position);
-		String tmpName = tmpCursor.getString(
-				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
 		
-		RemoteViews retRemoteViews = new RemoteViews(
-				mContext.getPackageName(), R.layout.widget_listitem); //Please note: R.layout
-		retRemoteViews.setTextViewText(R.id.widget_listitem, tmpName);
-
-		//tmpCursor.close();
-		return retRemoteViews;
+	}
+	@Override
+	public void onDestroy() {
+		mItemCursor.close();
 	}
 
 	@Override
-	public int getViewTypeCount() {
-		return 1;
+	public int getCount() {
+		if(mItemCursor != null){
+			return mItemCursor.getCount();
+		}else{
+			return 0;
+		}
+	}
+
+	@Override
+	public long getItemId(int inPosition) {
+		if(mItemCursor != null){
+			return mItemCursor.getLong(mItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
+		}else{
+			return inPosition;
+		}
 	}
 
 	@Override
 	public boolean hasStableIds() {
-		return false;
+		return true;
 	}
+	
 	@Override
-	public long getItemId(int inPosition) {
-		return inPosition;
+	public int getViewTypeCount() {
+		return 1;
 	}
-
+	
 	@Override
-	public void onCreate() {
-		Log.i(Utils.getClassName(), "onCreate()");
-
-		
-		//TODO: Cursor
-		
-		/*
-		refList = NotificationServiceC.loadDataFromJson(
-				ListTypeM.KINDNESS, KindModelM.JSON_REQUESTS_KINDNESS_FILE_NAME, mContext);
-		*/
+	public RemoteViews getLoadingView() {
+		return null;
 	}
-
+	
+	/*
+	 * Overview: onDataSetChanged is called when WidgetManager.notifyAppWidgetViewDataChanged has been invoked
+	 *  and can be used for updating the list of data (it is the most efficient way since the other three alternatives
+	 *  all recreate the whole widget).
+	 * Notes: Will always be called before the Widget is updated
+	 * Improvements: In the future we may want to implement this method as another way to update the widget
+	 *  (currently the widget is updated after an interval)
+	 *  Documentation: PA4AD p598
+	 */
 	@Override
 	public void onDataSetChanged() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onDestroy() {
-		
-		//TODO: Cursor
 		
 	}
 	
+	@Override
+	public RemoteViews getViewAt(int inPosition) {
+		mItemCursor.moveToPosition(inPosition);
+		String tmpName = mItemCursor.getString(mItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
+		
+		RemoteViews retRemoteViews = new RemoteViews(mContext.getPackageName(), R.layout.widget_listitem);
+		
+		retRemoteViews.setTextViewText(R.id.widget_listitem, tmpName);
+
+		return retRemoteViews;
+	}
 }

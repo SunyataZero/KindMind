@@ -153,7 +153,6 @@ public class OnClickToastOrActionC {
 			//tmpIntent.setData(tmpUri); //doesn't work
 			tmpIntent.setDataAndType(tmpUri, tmpTypeString);
 			//-NOTE: THIS IS OK, BUT SPLITTING DATA AND TYPE DOES NOT WORK
-
 		}
 
 

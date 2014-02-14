@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+	    <RadioButton
+	        android:id="@+id/widgetConfigFeelings_radioButton"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="feelings" />
+	
+	    <RadioButton
+	        android:id="@+id/widgetConfigNeeds_radioButton"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="needs" />
+	
+	    <RadioButton
+	        android:id="@+id/widgetConfigKindness_radioButton"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="kindness" />
+        
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/widgetConfigOk_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ok" />
+
+    <Button
+        android:id="@+id/widgetConfigCancel_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel" />
+
+</LinearLayout>

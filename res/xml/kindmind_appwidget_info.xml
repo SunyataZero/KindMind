@@ -2,7 +2,8 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="80dp"
     android:minHeight="70dp"
-    android:updatePeriodMillis="3600000"
+    android:updatePeriodMillis="43200000"
     android:initialLayout="@layout/widget"
-    android:resizeMode="horizontal|vertical" >
+    android:resizeMode="horizontal|vertical"
+    android:configure="com.sunyata.kindmind.WidgetAndNotifications.WidgetConfigActivityC" >
 </appwidget-provider>

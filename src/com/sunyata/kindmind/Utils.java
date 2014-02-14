@@ -35,6 +35,11 @@ public class Utils {
 	
 	public static final String ACTIONS_SEPARATOR = " ";
 	
+	
+	public static int FEELINGS_INT = 0;
+	public static int NEEDS_INT = 1;
+	public static int KINDNESS_INT = 2;
+	
 	//"\\|"
 	//-Please note: Escaped two times since it is both a special character in general and in Java.
 	// See this link for more info:

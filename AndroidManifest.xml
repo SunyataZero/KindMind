@@ -47,7 +47,7 @@
             </intent-filter>
         </receiver>
         <service android:name="com.sunyata.kindmind.WidgetAndNotifications.NotificationServiceC"></service>
-        <receiver android:name="com.sunyata.kindmind.WidgetAndNotifications.KindMindAppWidgetProvider">
+        <receiver android:name="com.sunyata.kindmind.WidgetAndNotifications.WidgetProviderC">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -57,6 +57,12 @@
             android:name="com.sunyata.kindmind.WidgetAndNotifications.KindMindRemoteViewsService"
             android:permission="android.permission.BIND_REMOTEVIEWS">
         </service>
+        <activity
+            android:name="com.sunyata.kindmind.WidgetAndNotifications.WidgetConfigActivityC" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
         <provider
             android:name="com.sunyata.kindmind.Database.ContentProviderM"
             android:authorities="com.sunyata.kindmind.contentprovider"

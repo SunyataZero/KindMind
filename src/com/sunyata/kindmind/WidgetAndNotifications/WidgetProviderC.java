@@ -9,8 +9,41 @@ import android.widget.RemoteViews;
 
 import com.sunyata.kindmind.R;
 
-//Documentation: http://developer.android.com/guide/topics/appwidgets/index.html
-public class KindMindAppWidgetProvider extends AppWidgetProvider {
+/*
+ * Overview: 
+ * 
+ * Details: 
+ * 
+ * Extends: 
+ * 
+ * Implements: 
+ * 
+ * Sections:
+ * 
+ * Used in: 
+ * 
+ * Uses app internal: 
+ * 
+ * Uses Android lib: 
+ * 
+ * In: 
+ * 
+ * Out: 
+ * 
+ * Does: 
+ * 
+ * Shows user: 
+ * 
+ * Notes: 
+ * 
+ * Improvements: 
+ * 
+ * Documentation: 
+ *  http://developer.android.com/guide/topics/appwidgets/index.html
+ *  http://docs.eoeandroid.com/resources/samples/ApiDemos/src/com/example/android/apis/appwidget/index.html
+ *  Reto's book chapter 14
+ */
+public class WidgetProviderC extends AppWidgetProvider {
 	
 	@Override
 	public void onUpdate(Context inContext, AppWidgetManager inAppWidgetManager, int[] inAppWidgetIds){
