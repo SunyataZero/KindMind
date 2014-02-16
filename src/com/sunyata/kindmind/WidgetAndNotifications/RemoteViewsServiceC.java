@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -114,18 +115,41 @@ class RemoteViewsFactoryC implements RemoteViewsService.RemoteViewsFactory{
 		mItemCursor = createItemCursor();
 	}
 	
+	/*
+	 * Overview: getViewAt (1) updates the template intent with an URI which can be used for launching actions,
+	 *  and (2) updates and returns a RemoteViews view hierarchy (in our case only one view)
+	 * Notes: The plural for RemoteViews comes from the fact that it is a View hieraracy (in our case it happens
+	 *  to be only one view)
+	 * Documentation: 
+	 *  https://developer.android.com/reference/android/widget/RemoteViewsService.RemoteViewsFactory.html#getViewAt%28int%29
+	 *  https://developer.android.com/reference/android/widget/RemoteViews.html
+	 */
 	@Override
 	public RemoteViews getViewAt(int inPosition) {
+		//Moving the cursor to the current position
 		mItemCursor.moveToPosition(inPosition);
+		
+		//Extracting values from the database
 		String tmpName = mItemCursor.getString(mItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
+		long tmpItemId = mItemCursor.getLong(mItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
+		Uri tmpItemUri = Utils.getItemUriFromId(tmpItemId);
 		
+		//Setting up the remote views object
 		RemoteViews retRemoteViews = new RemoteViews(mContext.getPackageName(), R.layout.widget_listitem);
+		retRemoteViews.setTextViewText(R.id.widget_listitem_textView, tmpName);
 		
-		retRemoteViews.setTextViewText(R.id.widget_listitem, tmpName);
+		//Adding action URI to the intent template which was set for all the list rows in WidgetProviderC.onUpdate
+		Intent tmpFillInIntent = new Intent();
+		tmpFillInIntent.setData(tmpItemUri);
+		retRemoteViews.setOnClickFillInIntent(R.id.widget_listitem_textView, tmpFillInIntent);
 
 		return retRemoteViews;
 	}
 	
+	/*
+	 * Overview: createItemCursor (1) updates sort values with KindSort, and (2) returns a cursor pointing to
+	 *  a data set for one of the three ListTypeM values
+	 */
 	private Cursor createItemCursor(){
 		//Updating sort values
 		SortingAlgorithmM.get(mContext).updateSortValuesForListType();

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.Database.ItemTableM;
 
 public class OnClickToastOrActionC {
 
@@ -46,15 +48,23 @@ public class OnClickToastOrActionC {
 		}
 	}
 	
-	public static void kindAction(Context inContext, String inActionsString) {
-		Log.d(Utils.getClassName(), "inActionsString = " + inActionsString);
-
+	public static void kindAction(Context inContext, Uri inItemUri) {
+		///Log.d(Utils.getClassName(), "inActionsString = " + tmpActions);
+		
+		//Extracting the actions string from the database
+		String[] tmpProjection = {ItemTableM.COLUMN_ACTIONS};
+		Cursor tmpItemCur = inContext.getContentResolver().query(
+				inItemUri, tmpProjection, null, null, null);
+		tmpItemCur.moveToFirst();
+		String tmpActions = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
+		tmpItemCur.close();
+		
 		//If the string has been cleared (or not set) exiting
-		if(inActionsString.equals("")){
+		if(tmpActions.equals("")){
 			return;
 		}
 			
-		ArrayList<String> tmpActionList = Utils.actionsStringToArrayList(inActionsString);
+		ArrayList<String> tmpActionList = Utils.actionsStringToArrayList(tmpActions);
 		
 		Random tmpRandomNumberGenerator = new Random();
 		int tmpRandomNumber = tmpRandomNumberGenerator.nextInt(tmpActionList.size());
@@ -184,6 +194,8 @@ public class OnClickToastOrActionC {
 				tmpPackageManager.queryIntentActivities(tmpIntent, 0);
 		if(tmpListOfAllPosibleAcitivtiesForStarting.size() > 0){
 			//===================Starting the activity===================
+			////ActivityOptions tmpOptions = new ActivityOptions();
+			tmpIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			inContext.startActivity(tmpIntent);
 		}else{
 			Toast.makeText(inContext,

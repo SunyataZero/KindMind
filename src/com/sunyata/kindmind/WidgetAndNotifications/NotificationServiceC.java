@@ -18,15 +18,28 @@ import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.List.MainActivityC;
 //-NotificationCompat is for api lvl 15 and downwards
 
+/*
+ * Overview: NotificationServiceC both contain the static method for setting alarms (setServiceNotificationSingle)
+ *  and also handles the Intent contained in the pending intent given to the alarm manager. Also in this class
+ *  is the method setServiceNotificationAll which is called from a broadcast receiver started at boot and which
+ *  iterates through all database list items that have a notification
+ * Extends: IntentService
+ * Sections:
+ *  //-------------------Fields and constructor
+ *  //-------------------Overridden IntentService methods
+ * Used in: 
+ * Notes: 
+ * Improvements: 
+ * Documentation: 
+ */
 public class NotificationServiceC extends IntentService {
 
 	//-------------------Fields and constructor
 	
 	private static final String TAG = "NotificationServiceC";
-	static final String PREFERENCES_NOTIFICATION_LIST = "NotificationList";
+	public static final String PREFERENCES_NOTIFICATION_LIST = "NotificationList";
 	private static final String NOTIFICATION_ID = "NotificationUUID";
 	private static final String NOTIFICATION_TITLE = "NotificationTitle";
 
@@ -90,17 +103,19 @@ public class NotificationServiceC extends IntentService {
 		}
 		tmpCursor.moveToFirst();
 		
-		//Extracting various data values from the cursor/database-row for use later in this method..
+		//Extracting data values from the cursor/database-row for use later in this method..
 		String tmpItemIdAsString = Long.valueOf(
 				tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID)))
 						.toString();
 		String tmpItemName = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
-		
-		//..extracting time and whether or not notifications are active for this list item
 		boolean tmpItemNotificationIsActive = true;
 		long tmpItemTimeInMilliSeconds = tmpCursor.getLong(
 				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
-		if(tmpItemTimeInMilliSeconds == ItemTableM.FALSE ){tmpItemNotificationIsActive = false;}
+		
+		//Checking whether or not notifications are active for this list item
+		if(tmpItemTimeInMilliSeconds == ItemTableM.FALSE ){
+			tmpItemNotificationIsActive = false;
+		}
 		
 		//Creation and setup of an Intent pointing to this class which has the onHandleIntent method
 		Intent tmpIntent = new Intent(inContext, NotificationServiceC.class);
@@ -144,31 +159,19 @@ public class NotificationServiceC extends IntentService {
 	 * Documentation: https://developer.android.com/reference/android/app/IntentService.html#onHandleIntent%28android.content.Intent%29
 	 */
 	@Override
-	protected void onHandleIntent(Intent inPendingIntent) {
+	protected void onHandleIntent(Intent inIntent) {
 		Log.d(Utils.getClassName(), "In method onHandleIntent: One intent received");
 		
 		//Extracting data attached to the intent coming in to this method
-		String tmpIdStringFromListDataItem = inPendingIntent.getStringExtra(NOTIFICATION_ID);
-		String tmpTitleStringFromListDataItem = inPendingIntent.getStringExtra(NOTIFICATION_TITLE);
+		String tmpIdStringFromListDataItem = inIntent.getStringExtra(NOTIFICATION_ID);
+		String tmpTitleStringFromListDataItem = inIntent.getStringExtra(NOTIFICATION_TITLE);
 
-		/* Improvement (see text in method header):
-		Uri tmpUri = Utils.getItemUriFromId(Long.parseLong(tmpIdStringFromListDataItem));
-		Cursor tmpCursor = getApplicationContext().getContentResolver().query(
-				tmpUri, null, null, null, ContentProviderM.sSortType);
-		if(tmpCursor.getCount() == 0){
-			//tmpCursor.close();
-			return;
-		}
-		tmpCursor.moveToFirst();
-		*/
-		//TODO: Send bundle data so that we can start the action associated with the notification item clicked
+		//Building the pending intent that will start LauncherServiceC
+		Intent tmpIntentToAttach = new Intent(this, LauncherServiceC.class);
+		tmpIntentToAttach.setData(Utils.getItemUriFromId(Long.valueOf(tmpIdStringFromListDataItem)));
+		PendingIntent tmpPendingIntent = PendingIntent.getService(this, 0, tmpIntentToAttach, 0);
 		
-		//Creating the PendingIntent which will be used when clicking on the notification
-		PendingIntent tmpPendingIntent = PendingIntent.getActivity(
-				this, 0, new Intent(this, MainActivityC.class), 0); //-TODO: add bundle for actions
-		//-Please note: Request code is not used by the class (see the documentation)
-		
-		//Build the notification..
+		//Building the notification..
 		Notification tmpNotification = new NotificationCompat.Builder(this)
 				.setTicker(tmpTitleStringFromListDataItem)
 				.setSmallIcon(R.drawable.kindmind_icon)
@@ -178,7 +181,7 @@ public class NotificationServiceC extends IntentService {
 				.build();
 		///.setContentText(tmpTitleStringFromListDataItem)
 		
-		//..and display it
+		//..and displaying it
 		NotificationManager tmpNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 		tmpNotificationManager.notify(tmpIdStringFromListDataItem,
 				Utils.longToIntCutOff(Long.parseLong(tmpIdStringFromListDataItem)), tmpNotification);

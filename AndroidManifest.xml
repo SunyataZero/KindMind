@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	
     <uses-sdk
         android:minSdkVersion="15"
@@ -81,5 +82,6 @@
             <uses-permission android:name="com.sunyata.kindmind.contentprovider.permission.READ" />
             -->
         </provider>
+        <service android:name="com.sunyata.kindmind.WidgetAndNotifications.LauncherServiceC"></service>
     </application>
 </manifest>

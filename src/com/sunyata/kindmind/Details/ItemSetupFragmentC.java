@@ -83,11 +83,12 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	
 	//newInstance is a simple static factory method which is used for creating instances of the class.
 	//inAttachedData contains the Uri of the list item for the instance that is about to be created.
-	static Fragment newInstance(Object inAttachedData){
+	public static Fragment newInstance(Object inAttachedData){
 		Bundle tmpArguments = new Bundle();
 		tmpArguments.putString(ListFragmentC.EXTRA_ITEM_URI, inAttachedData.toString());
 		//-inAttachedData contains the URI that identifies the item
 		//-inAttachedData comes from SingleFragmentActivityC/DetailsActivityC (and not directly from ListFragmentC)
+		
 		Fragment retFragment = new ItemSetupFragmentC(); //"Implicit" constructor used
 		retFragment.setArguments(tmpArguments);
 		return retFragment;
@@ -103,7 +104,6 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
     	//-super not called in the Big Nerd Ranch book
-
     	Log.d(Utils.getClassName(), Utils.getMethodName());
 
     	//Inflating the layout

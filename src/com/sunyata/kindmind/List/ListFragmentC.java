@@ -249,13 +249,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		}else if(refListType == ListTypeM.NEEDS){
 			OnClickToastOrActionC.needsToast(getActivity());
     	}else if(refListType == ListTypeM.KINDNESS && tmpCheckBox.isChecked() == true){
-			String[] tmpProjection = {ItemTableM.COLUMN_ACTIONS};
-			Cursor tmpItemCur = getActivity().getContentResolver().query(
-					Utils.getItemUriFromId(inId), tmpProjection, null, null, null);
-			tmpItemCur.moveToFirst();
-			String tmpActions = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
-			OnClickToastOrActionC.kindAction(getActivity(), tmpActions); //TODO: handle multi case
-			tmpItemCur.close();
+			OnClickToastOrActionC.kindAction(getActivity(), Utils.getItemUriFromId(inId)); //TODO: handle multi case
 		}
 
 		//Sorting
