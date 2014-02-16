@@ -430,10 +430,24 @@ public class Utils {
 		
 	}
 	*/
+	/*
 	public static int numberOfCharacterAppearances(String inString, char inCharacter){
 		int retInt = 0;
 		for(int i=0; i < inString.length(); i++){
 			if(inCharacter == inString.charAt(i)){
+				retInt++;
+			}
+		}
+		return retInt;
+	}
+	*/
+	public static int numberOfActions(String inActions) {
+		if(inActions == ""){
+			return 0;
+		}
+		int retInt = 1;
+		for(int i=0; i < inActions.length(); i++){
+			if(Utils.ACTIONS_SEPARATOR.charAt(0) == inActions.charAt(i)){
 				retInt++;
 			}
 		}

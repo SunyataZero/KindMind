@@ -65,11 +65,8 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	//----------------------------Fields
 	private EditText mItemEditText;
 	private ListTypeM refListType;
-	//private Button mDeleteActionButton;
 	private Button mNotificationTimePickerButton;
 	private Switch mNotificationSwitch;
-	//private TextView mActionTextView;
-	//private TextView mActionOnClickTextView;
 	private Boolean mSupressEvents = false;
 	
 	private ArrayAdapter<CharSequence> mTypeChooserButtonAdapter;
@@ -208,10 +205,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     	
     	//--------------Actions on click
     	
-    	//mActionOnClickTextView = (TextView) v.findViewById(R.id.actionOnClickTextView);
-    	//mActionTextView = (TextView) v.findViewById(R.id.action_list_item_itemStringTextView);
     	mNewActionButton = (Button) v.findViewById(R.id.newActionButton);
-    	//mDeleteActionButton = (Button) v.findViewById(R.id.action_list_item_deleteButton);
     	
     	if(this.refListType == ListTypeM.KINDNESS){
 	    	
@@ -231,79 +225,76 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 				@Override
 				public void onClick(View v) {
 					new AlertDialog.Builder(getActivity()).setTitle("Type of action")
-							.setAdapter(mTypeChooserButtonAdapter, new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									
-									switch(which){
-									case 0: //--------------Image
+					.setAdapter(mTypeChooserButtonAdapter, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							
+							switch(which){
+							case 0: //--------------Image
 	
-								    	//Setup of image chooser button..
-								    	//..using an external image app for choosing an image
-								    	final Intent tmpImageIntent = new Intent(
-								    			Intent.ACTION_PICK,
-								    			android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI); //-Images
-								    	startActivityForResult(tmpImageIntent, REQUEST_IMAGEFILECHOOSER);
-								    	//-results handled below in the "onActivityResult" method
-										
-										break;
-									case 1: //--------------Audio
-										final Intent tmpAudioIntent = new Intent(
-								    			Intent.ACTION_PICK,
-								    			android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
-										startActivityForResult(tmpAudioIntent, REQUEST_AUDIOFILECHOOSER);
-										break;
-									case 2: //--------------Video
-										//PLEASE NOTE: There is a bug in Android that gives an error when launching
-										// this intent in the emulator (there is no problem on physical device).
-										// More info:
-										// http://stackoverflow.com/questions/19181432/java-lang-securityexception-permission-denial-intent-in-new-version-4-3
-										final Intent tmpVideoIntent = new Intent(
-								    			Intent.ACTION_PICK,
-								    			android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-										startActivityForResult(tmpVideoIntent, REQUEST_VIDEOFILECHOOSER);
-										break;
-									case 3: //--------------Contact
-								    	final Intent tmpContactIntent = new Intent(
-								    			Intent.ACTION_PICK,
-								    			ContactsContract.Contacts.CONTENT_URI);
-								    			startActivityForResult(tmpContactIntent, REQUEST_CONTACTCHOOSER);
-										break;
-									case 4: //--------------Bookmark
-						    			final Intent tmpBookmarkIntent = new Intent(getActivity(), BookmarkChooserActivityC.class);
-						    			tmpBookmarkIntent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
-						    			//-Extracted in SingleFragmentActivityC
-						    			startActivityForResult(tmpBookmarkIntent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
-										break;
-										/*
-									case 5: //--------------Custom file
-						    			//Alternative solution that searches through a volume:
-						    			// http://stackoverflow.com/questions/10384080/mediastore-uri-to-query-all-types-of-files-media-and-non-media
-						    			//..starting a new (app internal) activity (and fragment) for for choosing a file
-										final Intent customFileIntent = new Intent(getActivity(), FileChooserActivityC.class);
-										customFileIntent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
-						    			//-Extracted in SingleFragmentActivityC
-						    			startActivityForResult(customFileIntent, REQUEST_CUSTOMFILECHOOSER);
-						    			//-Calling FileChooserActivityC
-										break;
-										*/
-									default:
-										break;
-									}
-									
-									dialog.dismiss();
-								}
-							}).create().show();
+						    	//Setup of image chooser button..
+						    	//..using an external image app for choosing an image
+						    	final Intent tmpImageIntent = new Intent(
+						    			Intent.ACTION_PICK,
+						    			android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI); //-Images
+						    	startActivityForResult(tmpImageIntent, REQUEST_IMAGEFILECHOOSER);
+						    	//-results handled below in the "onActivityResult" method
+								
+								break;
+							case 1: //--------------Audio
+								final Intent tmpAudioIntent = new Intent(
+						    			Intent.ACTION_PICK,
+						    			android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+								startActivityForResult(tmpAudioIntent, REQUEST_AUDIOFILECHOOSER);
+								break;
+							case 2: //--------------Video
+								//PLEASE NOTE: There is a bug in Android that gives an error when launching
+								// this intent in the emulator (there is no problem on physical device).
+								// More info:
+								// http://stackoverflow.com/questions/19181432/java-lang-securityexception-permission-denial-intent-in-new-version-4-3
+								final Intent tmpVideoIntent = new Intent(
+						    			Intent.ACTION_PICK,
+						    			android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+								startActivityForResult(tmpVideoIntent, REQUEST_VIDEOFILECHOOSER);
+								break;
+							case 3: //--------------Contact
+						    	final Intent tmpContactIntent = new Intent(
+						    			Intent.ACTION_PICK,
+						    			ContactsContract.Contacts.CONTENT_URI);
+						    			startActivityForResult(tmpContactIntent, REQUEST_CONTACTCHOOSER);
+								break;
+							case 4: //--------------Bookmark
+				    			final Intent tmpBookmarkIntent = new Intent(getActivity(), BookmarkChooserActivityC.class);
+				    			tmpBookmarkIntent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
+				    			//-Extracted in SingleFragmentActivityC
+				    			startActivityForResult(tmpBookmarkIntent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
+								break;
+								/*
+							case 5: //--------------Custom file
+				    			//Alternative solution that searches through a volume:
+				    			// http://stackoverflow.com/questions/10384080/mediastore-uri-to-query-all-types-of-files-media-and-non-media
+				    			//..starting a new (app internal) activity (and fragment) for for choosing a file
+								final Intent customFileIntent = new Intent(getActivity(), FileChooserActivityC.class);
+								customFileIntent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
+				    			//-Extracted in SingleFragmentActivityC
+				    			startActivityForResult(customFileIntent, REQUEST_CUSTOMFILECHOOSER);
+				    			//-Calling FileChooserActivityC
+								break;
+								*/
+							default:
+								break;
+							}
+							
+							dialog.dismiss();
+						}
+					}).create().show();
 				}
 			});
 	
 	    	this.updateActionList(v);
     		
     	}else{ //Feelings or needs
-    		//mActionOnClickTextView.setVisibility(View.GONE);
-    		//mActionTextView.setVisibility(View.GONE);
     		mNewActionButton.setVisibility(View.GONE);
-    		//mDeleteActionButton.setVisibility(View.GONE);
     	}
 
     	tmpItemCur.close();

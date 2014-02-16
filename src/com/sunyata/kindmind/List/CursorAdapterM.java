@@ -76,15 +76,14 @@ public class CursorAdapterM extends SimpleCursorAdapter{
 		}
 		
 		//Updating the action indications
-		
 		String tmpActions = tmpLoaderItemCur.getString(
 				tmpLoaderItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
 		LinearLayout tmpRectangle = (LinearLayout)convertView.findViewById(R.id.list_item_indicatorRectangle);
 		if(tmpActions == null || tmpActions.equals("")){
 			tmpRectangle.setBackgroundColor(mContext.getResources().getColor(R.color.no_action));
-		}else if(Utils.numberOfCharacterAppearances(tmpActions, Utils.ACTIONS_SEPARATOR.charAt(0)) == 1){
+		}else if(Utils.numberOfActions(tmpActions) == 1){
 			tmpRectangle.setBackgroundColor(mContext.getResources().getColor(R.color.one_action));
-		}else if(Utils.numberOfCharacterAppearances(tmpActions, Utils.ACTIONS_SEPARATOR.charAt(0)) > 1){
+		}else if(Utils.numberOfActions(tmpActions) > 1){
 			tmpRectangle.setBackgroundColor(mContext.getResources().getColor(R.color.multiple_actions));
 		}
 
