@@ -14,52 +14,30 @@ import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.List.SortingAlgorithmM;
 
-public class KindMindRemoteViewsService extends RemoteViewsService {
+public class RemoteViewsServiceC extends RemoteViewsService {
 	@Override
 	public RemoteViewsFactory onGetViewFactory(Intent inIntent) {
-		return new KindMindRemoteViewsFactory(this.getApplicationContext(), inIntent);
+		return new RemoteViewsFactoryC(this.getApplicationContext(), inIntent);
 	}
 }
 
 /*
- * Overview: KindMindRemoteViewsFactory
- * 
- * Details: 
- * 
- * Extends: 
- * 
- * Implements: RemoteViewsService.RemoteViewsFactory which is a this wrapper for an Adapter
- * 
- * Sections:
- * 
- * Used in: 
- * 
- * Uses app internal: 
- * 
- * Uses Android lib: 
- * 
- * In: 
- * 
- * Out: 
- * 
- * Does: 
- * 
- * Shows user: 
- * 
+ * Overview: RemoteViewsFactoryC works as an adapter giving the (for example) home screen process
+ *  views that can be displayed (the data is taken from the database)
+ * Implements: RemoteViewsService.RemoteViewsFactory which is a thin wrapper for an Adapter
+ * Used in: Called by RemoteViewsServiceC.onGetViewFactory above
+ * In: ApplicationContext, Intent containing the widget id
  * Notes: 
- * 
  * Improvements: 
- * 
- * Documentation: 
- *  See Reto's book p596-597
+ * Documentation: See Reto's book p596-597
  */
-class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory{
+class RemoteViewsFactoryC implements RemoteViewsService.RemoteViewsFactory{
 
 	Context mContext;
 	Cursor mItemCursor;
 	int mWidgetId;
 	
-	KindMindRemoteViewsFactory(Context inContext, Intent inIntent){
+	RemoteViewsFactoryC(Context inContext, Intent inIntent){
 		mContext = inContext;
 		mWidgetId = inIntent.getExtras().getInt(
 				AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
@@ -69,29 +47,19 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 		}
 	}
 
+	/*
+	 * Overview: onCreate
+	 * In: The type of list has - in the widget configuration activity - been stored in a special
+	 *  preferences file which is read in this method
+	 * Notes: 
+	 * Improvements: 
+	 * Documentation: 
+	 */
 	@Override
 	public void onCreate() {
 		Log.d(Utils.getClassName(), "onCreate()");
 
-		//Updating sort values
-		SortingAlgorithmM.get(mContext).updateSortValuesForListType();
-
-		//Setting the type of list we like to display
-		String tmpListType = mContext.getSharedPreferences(WidgetConfigActivityC.WIDGET_CONFIG_LIST_TYPE,
-				Context.MODE_PRIVATE).getString(String.valueOf(mWidgetId),
-							WidgetConfigActivityC.PREFERENCE_LIST_TYPE_DEFAULT);
-		if(tmpListType.equals(WidgetConfigActivityC.PREFERENCE_LIST_TYPE_DEFAULT)){
-			Log.e(Utils.getClassName(), "Error in onCreate: no list type given");
-			return;
-		}
-		
-		//Getting and saving a reference to the cursor
-		String tmpSortType = ItemTableM.COLUMN_KINDSORT_VALUE + " DESC";
-		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = ?";
-		String[] tmpSelectionArguments = {tmpListType};
-		mItemCursor = mContext.getContentResolver().query(
-				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
-		
+		mItemCursor = createItemCursor();
 	}
 	@Override
 	public void onDestroy() {
@@ -142,7 +110,8 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 	 */
 	@Override
 	public void onDataSetChanged() {
-		
+		//Creating a new cursor
+		mItemCursor = createItemCursor();
 	}
 	
 	@Override
@@ -155,5 +124,26 @@ class KindMindRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactor
 		retRemoteViews.setTextViewText(R.id.widget_listitem, tmpName);
 
 		return retRemoteViews;
+	}
+	
+	private Cursor createItemCursor(){
+		//Updating sort values
+		SortingAlgorithmM.get(mContext).updateSortValuesForListType();
+
+		//Setting the type of list we like to display
+		String tmpListType = mContext.getSharedPreferences(WidgetConfigActivityC.WIDGET_CONFIG_LIST_TYPE_PREFERENCES,
+				Context.MODE_PRIVATE).getString(String.valueOf(mWidgetId),
+							WidgetConfigActivityC.WIDGET_CONFIG_LIST_TYPE_PREFERENCES_DEFAULT);
+		if(tmpListType.equals(WidgetConfigActivityC.WIDGET_CONFIG_LIST_TYPE_PREFERENCES_DEFAULT)){
+			Log.e(Utils.getClassName(), "Error in onCreate: no list type given");
+			return null;
+		}
+		
+		//Getting and saving a reference to the cursor
+		String tmpSortType = ItemTableM.COLUMN_KINDSORT_VALUE + " DESC";
+		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = ?";
+		String[] tmpSelectionArguments = {tmpListType};
+		return mContext.getContentResolver().query(
+				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
 	}
 }

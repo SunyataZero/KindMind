@@ -84,17 +84,18 @@ public class Utils {
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Anxious");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Concerned");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Dissapointed");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Embarrassed");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Frustrated");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Guilty");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Hurt");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Overwhelmed");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Resentful");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Sad");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Shameful");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Suspicious");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Tired");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Uncomfortable");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Vulnarable");
+    	//Vulnarable
+    	//Suspicious
+    	//Shameful
 
     	createStartupItem(inContext, ListTypeM.NEEDS, "Acceptance");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Appreciation");

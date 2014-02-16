@@ -4,14 +4,16 @@ import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.List.ListTypeM;
 
 public class WidgetConfigActivityC extends Activity {
@@ -23,11 +25,13 @@ public class WidgetConfigActivityC extends Activity {
 	private RadioButton mKindnessRadioButton;
 	private Button mOkButton;
 	private Button mCancelButton;
+	private RadioGroup mRadioGroup;
 
-	public static String WIDGET_CONFIG_LIST_TYPE = "widgetConfigPreferences";
-	//public static String PREFERENCE_LIST_TYPE = "listType";
-	public static String PREFERENCE_LIST_TYPE_DEFAULT = "error";
+	public static String WIDGET_CONFIG_LIST_TYPE_PREFERENCES = "widgetConfigListTypePreferences";
+	public static String WIDGET_CONFIG_LIST_TYPE_PREFERENCES_DEFAULT = "error";
 
+	
+	//https://developer.android.com/reference/android/widget/RadioGroup.html
 	@Override
 	public void onCreate(Bundle inSavedInstanceState){
 		super.onCreate(inSavedInstanceState);
@@ -44,46 +48,42 @@ public class WidgetConfigActivityC extends Activity {
 		//Setting the result to cancelled so that if the activity exits, we will get this result
 		super.setResult(RESULT_CANCELED, null);
 		
-		
-		mFeelingsRadioButton = ((RadioButton)WidgetConfigActivityC.this.findViewById(
-				R.id.widgetConfigFeelings_radioButton));
-		mNeedsRadioButton = ((RadioButton)WidgetConfigActivityC.this.findViewById(
-				R.id.widgetConfigNeeds_radioButton));
-		mKindnessRadioButton = ((RadioButton)WidgetConfigActivityC.this.findViewById(
-				R.id.widgetConfigKindness_radioButton));
+		mRadioGroup = (RadioGroup)this.findViewById(R.id.widgetConfig_radioGroup);
+		mFeelingsRadioButton = ((RadioButton)this.findViewById(R.id.widgetConfigFeelings_radioButton));
+		mNeedsRadioButton = ((RadioButton)this.findViewById(R.id.widgetConfigNeeds_radioButton));
+		mKindnessRadioButton = ((RadioButton)this.findViewById(R.id.widgetConfigKindness_radioButton));
 		
 		//Setting up the Ok button
 		mOkButton = (Button) super.findViewById(R.id.widgetConfigOk_button);
 		mOkButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				
-				//Creating the intent holding the result..
-				Intent retResultIntent = new Intent();
-				
-				//..adding the id of the widget
-				retResultIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mWidgetId);
-
-				//..adding the list type..
-				SharedPreferences.Editor tmpPreferencesEditor =
-						WidgetConfigActivityC.this.getSharedPreferences(WIDGET_CONFIG_LIST_TYPE,
-								Context.MODE_PRIVATE).edit();
-				if(mFeelingsRadioButton.isChecked()){
-					tmpPreferencesEditor.putString(String.valueOf(mWidgetId), ListTypeM.FEELINGS.toString()).commit();
-					//-"String.valueOf(mWidgetId)" is used as the key
-					setResult(RESULT_OK, retResultIntent);
-				}else if(mNeedsRadioButton.isChecked()){
-					tmpPreferencesEditor.putString(String.valueOf(mWidgetId), ListTypeM.NEEDS.toString()).commit();
-					setResult(RESULT_OK, retResultIntent);
-				}else if(mKindnessRadioButton.isChecked()){
-					tmpPreferencesEditor.putString(String.valueOf(mWidgetId), ListTypeM.KINDNESS.toString()).commit();
-					setResult(RESULT_OK, retResultIntent);
-				}else{
-					//..in the case that no radiobutton has been chosen, exiting without result
+				//First checking if no radio button has been selected..
+				if(mRadioGroup.getCheckedRadioButtonId() == -1){
+					//..exiting with RESULT_CANCELED
 					setResult(RESULT_CANCELED, null);
+					finish();
 				}
 				
-				//Closing the activity
+				//Saving the list type to a special preferences file containing widget ids and list types
+				String tmpListTypeAsString = "";
+				if(mFeelingsRadioButton.isChecked()){
+					tmpListTypeAsString = ListTypeM.FEELINGS.toString();
+				}else if(mNeedsRadioButton.isChecked()){
+					tmpListTypeAsString = ListTypeM.NEEDS.toString();
+				}else if(mKindnessRadioButton.isChecked()){
+					tmpListTypeAsString = ListTypeM.KINDNESS.toString();
+				}else{
+					Log.e(Utils.getClassName(), "Error in onClick: Radio button not covered in if statements");
+					finish();
+				}
+				getSharedPreferences(WIDGET_CONFIG_LIST_TYPE_PREFERENCES, Context.MODE_PRIVATE).edit()
+						.putString(String.valueOf(mWidgetId), tmpListTypeAsString).commit();
+
+				//Exiting with an intent (holding the id as an extra) and RESULT_OK
+				Intent retResultIntent = new Intent();
+				retResultIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mWidgetId);
+				setResult(RESULT_OK, retResultIntent);
 				finish();
 			}
 		});
@@ -93,11 +93,8 @@ public class WidgetConfigActivityC extends Activity {
 		mCancelButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				
-				//Setting the result as cancelled
+				//Setting the result as cancelled and exiting
 				setResult(RESULT_CANCELED, null);
-			
-				//Closing the activity
 				finish();
 			}
 		});

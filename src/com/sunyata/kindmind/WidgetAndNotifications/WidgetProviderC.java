@@ -59,7 +59,7 @@ public class WidgetProviderC extends AppWidgetProvider {
 			//tmpRemoteViews.setOnClickPendingIntent(R.id.button, pendingIntent)
 			*/
 			
-			Intent tmpRVServiceIntent = new Intent(inContext, KindMindRemoteViewsService.class);
+			Intent tmpRVServiceIntent = new Intent(inContext, RemoteViewsServiceC.class);
 			tmpRVServiceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, inAppWidgetIds[i]);
 			tmpRVServiceIntent.setData(Uri.parse(tmpRVServiceIntent.toUri(Intent.URI_INTENT_SCHEME)));
 			

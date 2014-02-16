@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- MainActivityC -->
-    <string name="app_name">KindMind BETA</string>
+    <string name="app_name">KindMind</string>
     <string name="feelings_title">Feelings</string>
     <string name="needs_title">Needs</string>
     <string name="kindness_title">Kindness</string>

@@ -65,11 +65,11 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	//----------------------------Fields
 	private EditText mItemEditText;
 	private ListTypeM refListType;
-	private Button mDeleteActionButton;
+	//private Button mDeleteActionButton;
 	private Button mNotificationTimePickerButton;
 	private Switch mNotificationSwitch;
-	private TextView mActionTextView;
-	private TextView mActionOnClickTextView;
+	//private TextView mActionTextView;
+	//private TextView mActionOnClickTextView;
 	private Boolean mSupressEvents = false;
 	
 	private ArrayAdapter<CharSequence> mTypeChooserButtonAdapter;
@@ -208,10 +208,10 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     	
     	//--------------Actions on click
     	
-    	mActionOnClickTextView = (TextView) v.findViewById(R.id.actionOnClickTextView);
-    	mActionTextView = (TextView) v.findViewById(R.id.action_list_item_itemStringTextView);
+    	//mActionOnClickTextView = (TextView) v.findViewById(R.id.actionOnClickTextView);
+    	//mActionTextView = (TextView) v.findViewById(R.id.action_list_item_itemStringTextView);
     	mNewActionButton = (Button) v.findViewById(R.id.newActionButton);
-    	mDeleteActionButton = (Button) v.findViewById(R.id.action_list_item_deleteButton);
+    	//mDeleteActionButton = (Button) v.findViewById(R.id.action_list_item_deleteButton);
     	
     	if(this.refListType == ListTypeM.KINDNESS){
 	    	
@@ -314,10 +314,10 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	    	this.updateActionList(v);
     		
     	}else{ //Feelings or needs
-    		mActionOnClickTextView.setVisibility(View.GONE);
-    		mActionTextView.setVisibility(View.GONE);
+    		//mActionOnClickTextView.setVisibility(View.GONE);
+    		//mActionTextView.setVisibility(View.GONE);
     		mNewActionButton.setVisibility(View.GONE);
-    		mDeleteActionButton.setVisibility(View.GONE);
+    		//mDeleteActionButton.setVisibility(View.GONE);
     	}
 
     	//tmpCursor.close();
@@ -581,40 +581,6 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			//Adding the action to the list
 			tmpVerticalList.addView(tmpActionItem);
     	}
-    	
-    	
-    	
-    	
-    	
-    	
-    	/*
-    	Cursor tmpExtendedCursor = null;
-
-    	//Using the item id for the extended table to get a cursor pointing to 0, 1 or more rows
-    	long tmpItemId = Utils.getIdFromUri(refItemUri);
-    	String tmpSelection = ExtendedDataTableM.COLUMN_ITEM_REFERENCE + " = " + tmpItemId;
-    	tmpExtendedCursor = getActivity().getContentResolver().query(
-				ContentProviderM.EXTENDED_DATA_CONTENT_URI, null, tmpSelection, null, null);
-    	tmpExtendedCursor.moveToFirst(); //-Why is this not done in Reto's book?
-    	
-    	String tmpString = "";
-		if(tmpExtendedCursor.getCount() == 0){
-			mActionTextView.setVisibility(View.GONE);
-			mDeleteActionButton.setVisibility(View.GONE);
-			mNewActionButton.setVisibility(View.VISIBLE);
-		}else{
-			mActionTextView.setVisibility(View.VISIBLE);
-			mDeleteActionButton.setVisibility(View.VISIBLE);
-			mNewActionButton.setVisibility(View.GONE);
-			
-			tmpString = tmpExtendedCursor.getString(
-					tmpExtendedCursor.getColumnIndexOrThrow(ExtendedDataTableM.COLUMN_DATA));
-			
-			mActionTextView.setText(tmpString);
-		}
-
-		tmpExtendedCursor.close();
-		*/
 	}
 
 	void changeNotificationService(){
