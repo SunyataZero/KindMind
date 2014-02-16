@@ -123,10 +123,10 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 
     	//Getting the SQL cursor for the list item URI
     	String[] tmpProjection = {ItemTableM.COLUMN_LIST_TYPE, ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_NOTIFICATION};
-    	Cursor tmpCursor = getActivity().getApplicationContext().getContentResolver().query(
+    	Cursor tmpItemCur = getActivity().getApplicationContext().getContentResolver().query(
     			refItemUri, tmpProjection, null, null, null);
-    	boolean tmpCursorIsNotEmpty = tmpCursor.moveToFirst();
-    	if(!tmpCursorIsNotEmpty){
+    	boolean tmpCursorIsEmpty = !tmpItemCur.moveToFirst();
+    	if(tmpCursorIsEmpty){
     		Log.e(Utils.getClassName(), "Error in method fillDataFromContentProvider: Cursor is empty");
     		getActivity().finish();
     		return v;
@@ -134,7 +134,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 
     	//Setting the list type enum value
     	refListType = ListTypeM.valueOf(
-    			tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE)));
+    			tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE)));
     	//-Please note: We need to move the cursor to the first position before using .getString() (see above)
 
     	
@@ -143,7 +143,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     	//Storing reference to EditText button containing list item name (from the SQL database)..
     	mItemEditText = (EditText)v.findViewById(R.id.listitem_name);
     	mItemEditText.setText(
-    			tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME)));
+    			tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME)));
 
     	//..adding a text changed listener for when the text changes..
     	mItemEditText.addTextChangedListener(new TextWatcher() {
@@ -270,10 +270,10 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 								    			startActivityForResult(tmpContactIntent, REQUEST_CONTACTCHOOSER);
 										break;
 									case 4: //--------------Bookmark
-						    			final Intent tmpBookmarkintent = new Intent(getActivity(), BookmarkChooserActivityC.class);
-						    			tmpBookmarkintent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
+						    			final Intent tmpBookmarkIntent = new Intent(getActivity(), BookmarkChooserActivityC.class);
+						    			tmpBookmarkIntent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
 						    			//-Extracted in SingleFragmentActivityC
-						    			startActivityForResult(tmpBookmarkintent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
+						    			startActivityForResult(tmpBookmarkIntent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
 										break;
 										/*
 									case 5: //--------------Custom file
@@ -297,20 +297,6 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 				}
 			});
 	
-	    	/*
-	    	mDeleteActionButton.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					String tmpSelection = ExtendedDataTableM.COLUMN_ITEM_REFERENCE
-							+ " = " + Utils.getIdFromUri(refItemUri);
-					getActivity().getContentResolver().delete(
-							ContentProviderM.EXTENDED_DATA_CONTENT_URI, tmpSelection, null);
-					
-					updateActionList(v);
-				}
-			});
-			*/
-	    	
 	    	this.updateActionList(v);
     		
     	}else{ //Feelings or needs
@@ -320,7 +306,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     		//mDeleteActionButton.setVisibility(View.GONE);
     	}
 
-    	//tmpCursor.close();
+    	tmpItemCur.close();
     	return v;
     }
 
@@ -371,19 +357,19 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			 */
 			
 
-			Cursor tmpCursor = getActivity().getContentResolver().query(
+			Cursor tmpContactsCur = getActivity().getContentResolver().query(
 					inIntent.getData(), null, null, null, null);
-			if(tmpCursor.getCount() == 0){
-				tmpCursor.close();
+			if(tmpContactsCur.getCount() == 0){
+				tmpContactsCur.close();
 				return;
 			}
-			tmpCursor.moveToFirst();
+			tmpContactsCur.moveToFirst();
 			Uri tmpLookupUri = Uri.withAppendedPath(
 					Contacts.CONTENT_LOOKUP_URI,
-					tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ContactsContract.Contacts.LOOKUP_KEY)));
+					tmpContactsCur.getString(tmpContactsCur.getColumnIndexOrThrow(ContactsContract.Contacts.LOOKUP_KEY)));
 			tmpFilePath = tmpLookupUri.toString();
 			
-			tmpCursor.close();
+			tmpContactsCur.close();
 			break;
 		case REQUEST_BOOKMARKCHOOSER:
 			tmpFilePath = inIntent.getStringExtra(
@@ -498,6 +484,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		tmpCursor.moveToFirst();
 		long tmpTimeInMilliseconds = tmpCursor.getLong(
 				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
+		tmpCursor.close();
 
 		//..preparing extraction of minutes and hours from the result
 		Calendar c = Calendar.getInstance();
@@ -574,7 +561,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 					getActivity().getContentResolver().update(refItemUri, tmpContentValues, null, null);
 					
 					ItemSetupFragmentC.this.updateActionList(v.getRootView());
-					//-not 100% sure how this works
+					//-not 100% sure how getRootView works
 				}
 			});
 

@@ -172,7 +172,7 @@ public class Utils {
 			tmpCursor.moveToFirst();
 			retFilePath = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
 		}finally{
-			//tmpCursor.close();
+			tmpCursor.close();
 		}
 		return retFilePath;
 	}
@@ -348,7 +348,7 @@ public class Utils {
 			retActivatedData.add(tmpStringToAdd);
 		}
 		
-		//tmpCursor.close();
+		tmpCursor.close();
 		return retActivatedData;
 	}
 	//Recursive method

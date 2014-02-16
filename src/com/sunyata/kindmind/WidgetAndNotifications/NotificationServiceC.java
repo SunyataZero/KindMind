@@ -51,7 +51,7 @@ public class NotificationServiceC extends IntentService {
 		Cursor tmpCursor = inContext.getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
 		if(tmpCursor.getCount() == 0){
-			//tmpCursor.close();
+			tmpCursor.close();
 			return;
 		}
 		
@@ -71,7 +71,7 @@ public class NotificationServiceC extends IntentService {
 			}
 		}
 		
-		//tmpCursor.close();
+		tmpCursor.close();
 	}
 	
 	
@@ -85,7 +85,7 @@ public class NotificationServiceC extends IntentService {
 		Cursor tmpCursor = inContext.getContentResolver().query(
 				inItemUri, null, null, null, ContentProviderM.sSortType);
 		if(tmpCursor.getCount() == 0){
-			//tmpCursor.close();
+			tmpCursor.close();
 			return;
 		}
 		tmpCursor.moveToFirst();
@@ -125,7 +125,7 @@ public class NotificationServiceC extends IntentService {
 			tmpPendingIntentToRepeat.cancel();
 		}
 		
-		//tmpCursor.close();
+		tmpCursor.close();
 	}
 	
 	

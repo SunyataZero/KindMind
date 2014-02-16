@@ -227,7 +227,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	 */
 	@Override
 	public void fireSavePatternEvent() {
-		Cursor tmpItemCursor = this.getContentResolver().query(
+		Cursor tmpItemCur = this.getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
 		
 		long tmpCurrentTime = Calendar.getInstance().getTimeInMillis();
@@ -235,11 +235,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		// to use the time as way to group items into a pattern.
 		
 		//Iterate through the list items to find the ones that are checked/active..
-		for(tmpItemCursor.moveToFirst(); tmpItemCursor.isAfterLast() == false; tmpItemCursor.moveToNext()){
-			if(Utils.sqlToBoolean(tmpItemCursor, ItemTableM.COLUMN_ACTIVE)){
+		for(tmpItemCur.moveToFirst(); tmpItemCur.isAfterLast() == false; tmpItemCur.moveToNext()){
+			if(Utils.sqlToBoolean(tmpItemCur, ItemTableM.COLUMN_ACTIVE)){
 				//..saving to pattern in database
 				ContentValues tmpInsertContentValues = new ContentValues();
-				long tmpItemId = tmpItemCursor.getInt(tmpItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
+				long tmpItemId = tmpItemCur.getInt(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
 				tmpInsertContentValues.put(PatternTableM.COLUMN_ITEM_REFERENCE, tmpItemId);
 				tmpInsertContentValues.put(PatternTableM.COLUMN_CREATE_TIME, tmpCurrentTime);
 				this.getContentResolver().insert(ContentProviderM.PATTERNS_CONTENT_URI, tmpInsertContentValues);
@@ -251,7 +251,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		//Clearing data and side scrolling to the left
 		this.fireClearAllListsEvent();
 		
-		//tmpItemCursor.close();
+		tmpItemCur.close();
 	}
 	
 	/*

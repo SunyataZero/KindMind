@@ -37,7 +37,6 @@ public class BookmarkChooserFragmentC extends ListFragment {
 	//-------------------Methods for LoaderManager.LoaderCallbacks<Cursor>
 	
 	private SimpleCursorAdapter mCursorAdapter;
-	
 
 	private void updateListWithNewData(){
 		
@@ -51,19 +50,18 @@ public class BookmarkChooserFragmentC extends ListFragment {
 		String tmpSelection = android.provider.Browser.BookmarkColumns.BOOKMARK;
 		
 		ContentResolver tmpContentResolver = getActivity().getContentResolver();
-		Cursor tmpCursor = tmpContentResolver.query(
+		Cursor tmpBookmarksCursorForAdapter = tmpContentResolver.query(
 				android.provider.Browser.BOOKMARKS_URI, null, tmpSelection, null, null);
 		// The selection "android.provider.Browser.BOOKMARKS_URI" gives only the bookmarks (not any history)
 		// "Browser.getAllBookmarks(tmpContentResolver);" will only give the urls
 		
 		mCursorAdapter = new SimpleCursorAdapter(
-				getActivity(), android.R.layout.simple_list_item_2, tmpCursor,
+				getActivity(), android.R.layout.simple_list_item_2, tmpBookmarksCursorForAdapter,
 				tmpDatabaseFrom, tmpDatabaseTo, 0);
 		
 		setListAdapter(mCursorAdapter);
 		
-		//tmpCursor.close();
-		//-Closing the cursor since this is not our own content provider
+		//Not closing the cursor since it is used for the adapter
 	}
 	
 	@Override
