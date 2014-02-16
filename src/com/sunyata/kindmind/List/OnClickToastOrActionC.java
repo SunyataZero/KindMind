@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.media.AudioManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
@@ -27,8 +29,6 @@ public class OnClickToastOrActionC {
 		}
 	}
 	
-	
-	
 	public static void needsToast(Context inContext) {
 		String tmpToastFeelingsString = Utils.getToastString(inContext, ListTypeM.FEELINGS);
 		String tmpToastNeedsString = Utils.getToastString(inContext, ListTypeM.NEEDS);
@@ -45,8 +45,6 @@ public class OnClickToastOrActionC {
 						.show();
 		}
 	}
-	
-	
 	
 	public static void kindAction(Context inContext, String inActionsString) {
 		Log.d(Utils.getClassName(), "inActionsString = " + inActionsString);
@@ -91,10 +89,24 @@ public class OnClickToastOrActionC {
 				|| tmpRandomlyGivenAction.toString().startsWith("https://")){
 			//==========Bookmarks==========
 			
-			tmpIntent = new Intent(Intent.ACTION_VIEW);
-			tmpUri = Uri.parse(tmpRandomlyGivenAction);
-			tmpIntent.setData(tmpUri);
-			//PLEASE NOTE: setDataAndType(tmpUri, "*/*") doesn't work any longer
+			//Checking if we are conntected to the internet
+			ConnectivityManager tmpConnectivityManager =
+					(ConnectivityManager)inContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo tmpNetworkInfo = tmpConnectivityManager.getActiveNetworkInfo();
+			if(tmpNetworkInfo != null && tmpNetworkInfo.isConnectedOrConnecting()){
+				tmpIntent = new Intent(Intent.ACTION_VIEW);
+				tmpUri = Uri.parse(tmpRandomlyGivenAction);
+				tmpIntent.setData(tmpUri);
+				//PLEASE NOTE: setDataAndType(tmpUri, "*/*") doesn't work any longer
+			}else{
+				Toast.makeText(
+						inContext,
+						"Not launching website since there is no internet connectivity",
+						Toast.LENGTH_LONG)
+						.show();
+				return;
+			}
+			
 			
 		}else{
 			//==========Media files==========
@@ -112,11 +124,12 @@ public class OnClickToastOrActionC {
 
 				if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
 				/*
-				isWiredHeadsetOn is used even though it is deprecated:
+				PLEASE NOTE: Half deprecated but this method can still be used for checking connectivity:
 				"
 				This method was deprecated in API level 14.
-				Use only to check is a headset is connected or not.
-				"
+				***Use only to check is a headset is connected or not.***
+				" (my emphasis)
+				https://developer.android.com/reference/android/media/AudioManager.html#isWiredHeadsetOn%28%29
 				http://stackoverflow.com/questions/2764733/android-checking-if-headphones-are-plugged-in
 				*/
 					Toast.makeText(
@@ -133,6 +146,7 @@ public class OnClickToastOrActionC {
 					tmpRandomlyGivenAction.toString().endsWith(".mp4")||
 					tmpRandomlyGivenAction.toString().endsWith(".avi")){
 				if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
+					//-See comments above about isWiredHeadsetOn()
 					Toast.makeText(
 							inContext,
 							"Not playing video since headset is not connected or speaker phone is on",
