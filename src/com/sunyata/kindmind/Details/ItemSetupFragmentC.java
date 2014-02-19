@@ -67,6 +67,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	private ListTypeM refListType;
 	private Button mNotificationTimePickerButton;
 	private Switch mNotificationSwitch;
+	private TextView mActionOnClickTextView;
 	private Boolean mSupressEvents = false;
 	
 	private ArrayAdapter<CharSequence> mTypeChooserButtonAdapter;
@@ -205,6 +206,8 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     	
     	//--------------Actions on click
     	
+    	mActionOnClickTextView = (TextView) v.findViewById(R.id.actionOnClickTextView);
+    	
     	mNewActionButton = (Button) v.findViewById(R.id.newActionButton);
     	
     	if(this.refListType == ListTypeM.KINDNESS){
@@ -294,6 +297,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	    	this.updateActionList(v);
     		
     	}else{ //Feelings or needs
+    		mActionOnClickTextView.setVisibility(View.GONE);
     		mNewActionButton.setVisibility(View.GONE);
     	}
 
@@ -516,7 +520,6 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		String tmpActionsString = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
     	ArrayList<String> tmpActionsArrayList = Utils.actionsStringToArrayList(tmpActionsString);
 
-    	
     	RelativeLayout tmpActionItem;
 		for(String action : tmpActionsArrayList){
 			

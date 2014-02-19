@@ -80,14 +80,13 @@ public class CursorAdapterM extends SimpleCursorAdapter{
 				tmpLoaderItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
 		LinearLayout tmpRectangle = (LinearLayout)convertView.findViewById(R.id.list_item_indicatorRectangle);
 		if(tmpActions == null || tmpActions.equals("")){
-			tmpRectangle.setBackgroundColor(mContext.getResources().getColor(R.color.no_action));
+			tmpRectangle.setVisibility(View.INVISIBLE); //.setBackgroundColor(mContext.getResources().getColor(R.color.no_action));
 		}else if(Utils.numberOfActions(tmpActions) == 1){
 			tmpRectangle.setBackgroundColor(mContext.getResources().getColor(R.color.one_action));
 		}else if(Utils.numberOfActions(tmpActions) > 1){
 			tmpRectangle.setBackgroundColor(mContext.getResources().getColor(R.color.multiple_actions));
 		}
 
-		
 		if(BuildConfig.DEBUG){
 			//Add the numbers to the end of the name of the list item
 			TextView tmpTextView = ((TextView)convertView.findViewById(R.id.list_item_titleTextView));

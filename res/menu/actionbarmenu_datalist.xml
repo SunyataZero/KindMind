@@ -7,7 +7,7 @@
         android:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_item_save_pattern"
-        android:icon="@drawable/ic_cab_done_holo_dark"
+        android:icon="@drawable/ic_action_accept"
         android:title="@string/save_pattern"
         android:showAsAction="always" />
     <item
@@ -25,9 +25,9 @@
         android:icon="@android:drawable/ic_menu_sort_alphabetically"
         android:title="@string/sort_alphabetically"
         android:showAsAction="never" />
+    <!-- clear_all_list_selections: android:icon="@drawable/ic_menu_clear_playlist" -->
     <item
         android:id="@+id/menu_item_clear_all_list_selections"
-        android:icon="@drawable/ic_menu_clear_playlist"
         android:title="@string/clear_all_selections"
         android:showAsAction="never" />
     <item

@@ -51,6 +51,5 @@
         android:layout_width="20dp"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:background="@color/kindmind_background"
     />
 </LinearLayout>

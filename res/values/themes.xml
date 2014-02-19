@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- the theme applied to the application or activity -->
-    <style name="CustomActionBarTheme"
-           parent="android:Theme.Holo.Light.DarkActionBar">
-        <item name="android:actionBarStyle">@style/MyActionBar</item>
+    
+    <style name="AppThemeKindMind" parent="@android:style/Theme.Holo">
+        <!--
+        <item name="android:background">@color/kindmind_background</item>
+         -->
     </style>
-
-    <!-- ActionBar styles -->
-    <style name="MyActionBar"
-           parent="android:Widget.Holo.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">#ffffff</item>
-    </style>
+    
 </resources>
