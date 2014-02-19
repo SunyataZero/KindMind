@@ -249,7 +249,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		}else if(refListType == ListTypeM.NEEDS){
 			OnClickToastOrActionC.needsToast(getActivity());
     	}else if(refListType == ListTypeM.KINDNESS && tmpCheckBox.isChecked() == true){
-			OnClickToastOrActionC.kindAction(getActivity(), Utils.getItemUriFromId(inId)); //TODO: handle multi case
+			OnClickToastOrActionC.randomKindAction(getActivity(), Utils.getItemUriFromId(inId));
 		}
 
 		//Sorting

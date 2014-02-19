@@ -30,7 +30,7 @@ public class LauncherServiceC extends IntentService {
 		Uri tmpItemUri = inIntent.getData();
 		if(tmpItemUri != null){
 			//Launching the kind action
-			OnClickToastOrActionC.kindAction(getApplicationContext(), tmpItemUri);
+			OnClickToastOrActionC.randomKindAction(getApplicationContext(), tmpItemUri);
 		}
 	}
 }

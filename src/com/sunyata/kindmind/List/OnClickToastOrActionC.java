@@ -48,7 +48,7 @@ public class OnClickToastOrActionC {
 		}
 	}
 	
-	public static void kindAction(Context inContext, Uri inItemUri) {
+	public static void randomKindAction(Context inContext, Uri inItemUri) {
 		///Log.d(Utils.getClassName(), "inActionsString = " + tmpActions);
 		
 		//Extracting the actions string from the database
@@ -72,6 +72,10 @@ public class OnClickToastOrActionC {
 		String tmpRandomlyGivenAction = tmpActionList.get(tmpRandomNumber);
 		Log.d(Utils.getClassName(), "tmpRandomlyGivenAction = " + tmpRandomlyGivenAction);
 
+		kindAction(inContext, tmpRandomlyGivenAction);
+	}
+	public static void kindAction(Context inContext, String inRandomlyGivenAction) {
+		
 		/*
 		//Ok, works well!
 		Intent tmpIntent = new Intent(Intent.ACTION_DIAL);
@@ -85,18 +89,18 @@ public class OnClickToastOrActionC {
 		Uri tmpUri;
 		File tmpFileOrDirectoryFromString;
 
-		if(tmpRandomlyGivenAction.toString().startsWith("content://")){
+		if(inRandomlyGivenAction.toString().startsWith("content://")){
 			//==========Contacts==========
 
 			tmpIntent = new Intent(Intent.ACTION_VIEW);
-			tmpUri = Uri.parse(tmpRandomlyGivenAction);
+			tmpUri = Uri.parse(inRandomlyGivenAction);
 			tmpIntent.setData(tmpUri); //doesn't work
 			//-PLEASE NOTE that setDataAndType(tmpUri, "*/*") doesn't work any longer, but now setData
 			// has started working instead
 
 			
-		}else if(tmpRandomlyGivenAction.toString().startsWith("http://")
-				|| tmpRandomlyGivenAction.toString().startsWith("https://")){
+		}else if(inRandomlyGivenAction.toString().startsWith("http://")
+				|| inRandomlyGivenAction.toString().startsWith("https://")){
 			//==========Bookmarks==========
 			
 			//Checking if we are conntected to the internet
@@ -105,7 +109,7 @@ public class OnClickToastOrActionC {
 			NetworkInfo tmpNetworkInfo = tmpConnectivityManager.getActiveNetworkInfo();
 			if(tmpNetworkInfo != null && tmpNetworkInfo.isConnectedOrConnecting()){
 				tmpIntent = new Intent(Intent.ACTION_VIEW);
-				tmpUri = Uri.parse(tmpRandomlyGivenAction);
+				tmpUri = Uri.parse(inRandomlyGivenAction);
 				tmpIntent.setData(tmpUri);
 				//PLEASE NOTE: setDataAndType(tmpUri, "*/*") doesn't work any longer
 			}else{
@@ -120,17 +124,17 @@ public class OnClickToastOrActionC {
 			
 		}else{
 			//==========Media files==========
-			tmpFileOrDirectoryFromString = new File(tmpRandomlyGivenAction);
+			tmpFileOrDirectoryFromString = new File(inRandomlyGivenAction);
 
 			if(
-					tmpRandomlyGivenAction.toString().endsWith(".jpg")||
-					tmpRandomlyGivenAction.toString().endsWith(".jpeg")||
-					tmpRandomlyGivenAction.toString().endsWith(".png")||
-					tmpRandomlyGivenAction.toString().endsWith(".gif")){
+					inRandomlyGivenAction.toString().endsWith(".jpg")||
+					inRandomlyGivenAction.toString().endsWith(".jpeg")||
+					inRandomlyGivenAction.toString().endsWith(".png")||
+					inRandomlyGivenAction.toString().endsWith(".gif")){
 				tmpTypeString = "image/*";
 			}else if(
-					tmpRandomlyGivenAction.toString().endsWith(".ogg")||
-					tmpRandomlyGivenAction.toString().endsWith(".mp3")){
+					inRandomlyGivenAction.toString().endsWith(".ogg")||
+					inRandomlyGivenAction.toString().endsWith(".mp3")){
 
 				if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
 				/*
@@ -153,8 +157,8 @@ public class OnClickToastOrActionC {
 				tmpTypeString = "audio/*";
 
 			}else if(
-					tmpRandomlyGivenAction.toString().endsWith(".mp4")||
-					tmpRandomlyGivenAction.toString().endsWith(".avi")){
+					inRandomlyGivenAction.toString().endsWith(".mp4")||
+					inRandomlyGivenAction.toString().endsWith(".avi")){
 				if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
 					//-See comments above about isWiredHeadsetOn()
 					Toast.makeText(

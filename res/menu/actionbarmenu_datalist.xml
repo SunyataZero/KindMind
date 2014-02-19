@@ -4,7 +4,7 @@
         android:id="@+id/menu_item_new_listitem"
         android:icon="@android:drawable/ic_menu_add"
         android:title="@string/new_action"
-        android:showAsAction="ifRoom" />
+        android:showAsAction="always" />
     <item
         android:id="@+id/menu_item_save_pattern"
         android:icon="@drawable/ic_action_accept"

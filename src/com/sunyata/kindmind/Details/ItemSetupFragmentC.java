@@ -42,6 +42,8 @@ import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.List.ListFragmentC;
 import com.sunyata.kindmind.List.ListTypeM;
+import com.sunyata.kindmind.List.OnClickToastOrActionC;
+import com.sunyata.kindmind.List.SetupActionOnClickListenerC;
 import com.sunyata.kindmind.WidgetAndNotifications.NotificationServiceC;
 
 /*
@@ -520,14 +522,17 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		String tmpActionsString = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
     	ArrayList<String> tmpActionsArrayList = Utils.actionsStringToArrayList(tmpActionsString);
 
-    	RelativeLayout tmpActionItem;
+    	LinearLayout tmpActionItem;
 		for(String action : tmpActionsArrayList){
 			
-			tmpActionItem = (RelativeLayout)tmpLayoutInflater.inflate(
+			tmpActionItem = (LinearLayout)tmpLayoutInflater.inflate(
 					R.layout.action_list_item, tmpVerticalList, false); //-please note "attachToRoot = false"
     		
 			TextView tmpTextView = (TextView)tmpActionItem.findViewById(R.id.action_list_item_itemStringTextView);
 			tmpTextView.setText(action);
+			
+			//Launching the action if the user presses the text
+			tmpTextView.setOnClickListener(new SetupActionOnClickListenerC(getActivity(), action));
 			
 			Button tmpDeleteButton = (Button)tmpActionItem.findViewById(R.id.action_list_item_deleteButton);
 
