@@ -33,7 +33,6 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -42,7 +41,6 @@ import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.List.ListFragmentC;
 import com.sunyata.kindmind.List.ListTypeM;
-import com.sunyata.kindmind.List.OnClickToastOrActionC;
 import com.sunyata.kindmind.List.SetupActionOnClickListenerC;
 import com.sunyata.kindmind.WidgetAndNotifications.NotificationServiceC;
 

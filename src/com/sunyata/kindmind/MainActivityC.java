@@ -1,4 +1,4 @@
-package com.sunyata.kindmind.List;
+package com.sunyata.kindmind;
 
 import java.util.Calendar;
 
@@ -17,12 +17,11 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.sunyata.kindmind.R;
-import com.sunyata.kindmind.SortTypeM;
-import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternTableM;
+import com.sunyata.kindmind.List.ListFragmentC;
+import com.sunyata.kindmind.List.ListTypeM;
 
 /*
  * Overview: MainActivityC holds three ListFragments in a ViewPager and handles the corresponding tabs
@@ -78,7 +77,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         //Activating strict mode for debug builds
         // More info: http://developer.android.com/reference/android/os/StrictMode.html
         /*
-        if(BuildConfig.DEBUG){
+        if(Utils.BuildConfig.DEBUG){
         	StrictMode.enableDefaults();
         }
         */

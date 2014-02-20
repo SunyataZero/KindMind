@@ -1,7 +1,5 @@
 package com.sunyata.kindmind.List;
 
-import java.io.File;
-
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -20,7 +18,8 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CheckBox;
 import android.widget.ListView;
 
-import com.sunyata.kindmind.BuildConfig;
+import com.sunyata.kindmind.AboutActivityC;
+import com.sunyata.kindmind.OnClickToastOrActionC;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.SortTypeM;
 import com.sunyata.kindmind.Utils;
@@ -28,6 +27,7 @@ import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.DatabaseHelperM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Details.ItemSetupActivityC;
+import com.sunyata.kindmind.MainActivityCallbackListenerI;
 
 /*
  * Overview: ListFragmentC shows a list of items, each item corresponding to a row in an SQL database
@@ -137,10 +137,10 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
 		
 		//Creating the SimpleCursorAdapter for the specified database columns linked to the specified GUI views..
-		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_DETAILS};
-		int[] tmpDatabaseTo = {R.id.list_item_titleTextView, R.id.list_item_tagsTextView};
+		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME}; ///, ItemTableM.COLUMN_DETAILS
+		int[] tmpDatabaseTo = {R.id.list_item_titleTextView}; ///, R.id.list_item_tagsTextView
 		mCursorAdapter = new CursorAdapterM(
-				getActivity(), R.layout.ofnr_list_item, null,
+				getActivity(), R.layout.fnk_list_item, null,
 				tmpDatabaseFrom, tmpDatabaseTo, 0, refListType);
 		
 		//..using this CursorAdapter as the adapter for this ListFragment
@@ -285,10 +285,10 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	@Override
 	public void onCreateOptionsMenu(Menu inMenu, MenuInflater inMenuInflater){
 		super.onCreateOptionsMenu(inMenu, inMenuInflater);
-		inMenuInflater.inflate(R.menu.actionbarmenu_datalist, inMenu);
+		inMenuInflater.inflate(R.menu.list_menu, inMenu);
 
 		//If we are not running in debug mode, hide the following option items
-		if(!BuildConfig.DEBUG){
+		if(Utils.isReleaseVersion(getActivity())){
 			inMenu.findItem(R.id.menu_item_share_experience).setVisible(false);
 			inMenu.findItem(R.id.menu_item_backup_database).setVisible(false);
 			inMenu.findItem(R.id.menu_item_reset_database).setVisible(false);
@@ -350,7 +350,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 				this.getFormattedStringForListType(ListTypeM.FEELINGS) +
 				this.getFormattedStringForListType(ListTypeM.NEEDS) +
 				this.getFormattedStringForListType(ListTypeM.KINDNESS);
-			sendAsEmail("KindMind all lists as text", tmpAllListsAsText, null);
+			Utils.sendAsEmail(getActivity(), "KindMind all lists as text", tmpAllListsAsText, null);
 
 			return true;
 		case R.id.menu_item_share_experience: //TODO: Do this as a hard coded action instead
@@ -368,12 +368,15 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			 */
 			return true;
 		case R.id.menu_item_backup_database: //------------Backup of database by sending database file
-			sendAsEmail("Backup of KindMind database", "Database file is attached",
+			Utils.sendAsEmail(getActivity(), "Backup of KindMind database", "Database file is attached",
 					getActivity().getDatabasePath(DatabaseHelperM.DATABASE_NAME));
 
 			return true;
 		case R.id.menu_item_reset_database: //------------Resetting database
 			sCallbackListener.fireResetData();
+		
+		case R.id.menu_item_about: //------------About
+			startActivity(new Intent(getActivity(), AboutActivityC.class));
 			
 			return true;
 		default:
@@ -381,26 +384,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		}
 	}
 	
-	/*
-	 * Overview: sendAsEmail sends an email with title, text and optionally an attachment
-	 * Used in: Helper method for onOptionsItemSelected above
-	 * Uses app internal: Utils.copyFile
-	 * Notes: File must be stored on the external storage to be accessible by email applications (not enough to
-	 *  use the internal cache dir for example)
-	 */
-	private void sendAsEmail(String inTitle, String inTextContent, File inFileWithPath){
-		Intent i = new Intent(Intent.ACTION_SEND);
-		i.setType("text/plain");
-		i.putExtra(Intent.EXTRA_SUBJECT, inTitle);
-		i.putExtra(Intent.EXTRA_TEXT, inTextContent);
-		File tmpExtCacheDir = getActivity().getExternalCacheDir();
-		if(inFileWithPath != null && tmpExtCacheDir != null){
-			String tmpFileName = inFileWithPath.toString().substring(inFileWithPath.toString().lastIndexOf("/") + 1);
-			Utils.copyFile(inFileWithPath, new File(tmpExtCacheDir + "/" + tmpFileName));
-			i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(tmpExtCacheDir.toString() + "/" + tmpFileName)));
-		}
-		startActivity(i);
-	}
 	
 	/*
 	 * Overview: getFormattedStringForListType formats a list of a given type into a string

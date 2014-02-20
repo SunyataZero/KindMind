@@ -4,7 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.net.Uri;
 
-import com.sunyata.kindmind.List.OnClickToastOrActionC;
+import com.sunyata.kindmind.OnClickToastOrActionC;
 
 /*
  * Overview: LauncherServiceC starts actions using OnClickToastOrAction.kindAction after the user has

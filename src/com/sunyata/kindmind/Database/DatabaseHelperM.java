@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelperM extends SQLiteOpenHelper{
 
 	public static final String DATABASE_NAME = "kindmind.db";
-	private static final int DATABASE_VERSION = 46;
+	private static final int DATABASE_VERSION = 47;
 	//-PLEASE BE CAREFUL WHEN UPDATING THIS
 	// 1. Check the onUpgrade method and implement the change there
 	// 2. Make a backup of the current file (in onUpgrade?)

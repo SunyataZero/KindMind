@@ -43,4 +43,8 @@
         android:id="@+id/menu_item_reset_database"
         android:title="@string/reset_database"
         android:showAsAction="never" />
+    <item
+        android:id="@+id/menu_item_about"
+        android:title="About"
+        android:showAsAction="never" />
 </menu>

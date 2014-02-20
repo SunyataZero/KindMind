@@ -1,6 +1,6 @@
-package com.sunyata.kindmind.List;
+package com.sunyata.kindmind;
 
-interface MainActivityCallbackListenerI {
+public interface MainActivityCallbackListenerI {
 	void fireSavePatternEvent();
 	void fireClearAllListsEvent();
 	void fireUpdateTabTitles();

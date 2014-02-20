@@ -1,4 +1,4 @@
-package com.sunyata.kindmind.List;
+package com.sunyata.kindmind;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -17,8 +17,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.List.ListTypeM;
 
 public class OnClickToastOrActionC {
 

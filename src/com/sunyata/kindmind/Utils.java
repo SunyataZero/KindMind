@@ -16,6 +16,8 @@ import java.util.Locale;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
@@ -33,7 +35,7 @@ public class Utils {
 	
 	public static final String PREF_IS_FIRST_TIME_APP_STARTED = "IsFirstTimeApplicationStarted";
 	
-	public static final String ACTIONS_SEPARATOR = " ";
+	public static final String ACTIONS_SEPARATOR = ";";
 	
 	
 	public static int FEELINGS_INT = 0;
@@ -452,5 +454,48 @@ public class Utils {
 			}
 		}
 		return retInt;
+	}
+	
+	/*
+	 * Overview: sendAsEmail sends an email with title, text and optionally an attachment
+	 * Used in: Helper method for onOptionsItemSelected above
+	 * Uses app internal: Utils.copyFile
+	 * Notes: File must be stored on the external storage to be accessible by email applications (not enough to
+	 *  use the internal cache dir for example)
+	 */
+	public static void sendAsEmail(Context inContext, String inTitle, String inTextContent, File inFileWithPath){
+		Intent i = new Intent(Intent.ACTION_SEND);
+		i.setType("text/plain");
+		i.putExtra(Intent.EXTRA_SUBJECT, inTitle);
+		i.putExtra(Intent.EXTRA_TEXT, inTextContent);
+		File tmpExtCacheDir = inContext.getExternalCacheDir();
+		if(inFileWithPath != null && tmpExtCacheDir != null){
+			String tmpFileName = inFileWithPath.toString().substring(inFileWithPath.toString().lastIndexOf("/") + 1);
+			Utils.copyFile(inFileWithPath, new File(tmpExtCacheDir + "/" + tmpFileName));
+			i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(tmpExtCacheDir.toString() + "/" + tmpFileName)));
+		}
+		inContext.startActivity(i);
+	}
+	
+	public static boolean isReleaseVersion(Context inContext){
+		//Checking if this is a beta or alpha version
+		PackageInfo tmpPackageInfo = null;
+		try {
+			tmpPackageInfo = inContext.getPackageManager().getPackageInfo(inContext.getPackageName(), 0);
+		} catch (NameNotFoundException e) {
+			Log.e(Utils.getClassName(), e.getMessage());
+		}
+		String tmpVerName = tmpPackageInfo.versionName;
+		if(tmpVerName.contains("alpha") || tmpVerName.contains("Alpha") || tmpVerName.contains("ALPHA")
+				|| tmpVerName.contains("beta") || tmpVerName.contains("Beta") || tmpVerName.contains("BETA")){
+			return false;
+		}
+		
+		//Checking if this is a debug build
+		if(BuildConfig.DEBUG){
+			return false;
+		}
+		
+		return true;
 	}
 }

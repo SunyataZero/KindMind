@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:descendantFocusability="blocksDescendants" >
     
@@ -9,32 +9,41 @@
     <!-- Lower layout weight increases space -->
     <CheckBox 
         android:id="@+id/list_item_activeCheckBox"
-        android:layout_weight="1"
+        android:layout_weight="0"
 	    android:layout_width="wrap_content"
 	    android:layout_height="match_parent"
 	    android:gravity="center"
 	    android:enabled="true"
 	    android:focusable="false"
 	    android:clickable="false"
-	    android:padding="16dp"
+	    android:paddingLeft="16dp"
+	    android:paddingRight="16dp"
 	    android:layout_marginLeft="8dp"
 	    android:textColorHighlight="#ffffff"
     />
+   	<TextView 
+        android:id="@+id/list_item_titleTextView"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_marginTop="0dp"
+	    android:paddingTop="0dp"
+		android:layout_marginBottom="0dp"
+	    android:paddingBottom="3dp"
+	    android:gravity="center_vertical"
+	    android:minHeight="48dp"
+	    android:textStyle="normal"
+	    android:textSize="20sp"
+	    android:typeface="sans"
+	    android:paddingLeft="4dp"
+	    android:paddingRight="4dp"
+    />
+   	<!-- 
     <LinearLayout 
         android:layout_weight="10"
         android:layout_width="match_parent"
 	    android:layout_height="match_parent"
 	    android:orientation="vertical" >
-		<TextView 
-	        android:id="@+id/list_item_titleTextView"
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"
-		    android:textStyle="normal"
-		    android:textSize="20sp"
-		    android:typeface="sans"
-		    android:paddingLeft="4dp"
-		    android:paddingRight="4dp"
-	    />
+
 	    <TextView 
 	        android:id="@+id/list_item_tagsTextView"
 		    android:layout_width="match_parent"
@@ -43,11 +52,12 @@
 		    android:textSize="12sp"
 		    android:paddingLeft="4dp"
 		    android:paddingRight="4dp"
-	    /> <!-- NOTE: 12.5sp set in code -->
+	    />
     </LinearLayout>
+     -->
     <LinearLayout
         android:id="@+id/list_item_indicatorRectangle"
-        android:layout_weight="1"
+        android:layout_weight="0"
         android:layout_width="20dp"
         android:layout_height="match_parent"
         android:orientation="horizontal"

@@ -1,10 +1,12 @@
 package com.sunyata.kindmind.Database;
 
-import com.sunyata.kindmind.Utils;
-
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.util.Log;
+
+import com.sunyata.kindmind.Utils;
 
 /*
  * Overview: ItemTableM
@@ -86,10 +88,28 @@ public class ItemTableM {
 	}
 	
 	public static void upgradeTable(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
-		Log.w(Utils.getClassName(), "Upgrade removed the database with a previous version and created a new one, " +
-				"all data was deleted");
-		
-		inDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ITEM);
-		createTable(inDatabase);
+		//Upgrading the database by changing the action separator character from " " to ";"
+		if(inOldVersion == 46 && inNewVersion == 47){
+			Cursor tmpItemCursor = inDatabase.query(ItemTableM.TABLE_ITEM, null, null, null, null, null, null);
+			if(tmpItemCursor.getCount() == 0){
+				tmpItemCursor.close();
+				return;
+			}
+			final String OLD_SEPARATOR = " ";
+			for(tmpItemCursor.moveToFirst(); tmpItemCursor.isAfterLast() == false; tmpItemCursor.moveToNext()){
+				String tmpActions = tmpItemCursor.getString(tmpItemCursor.getColumnIndexOrThrow(COLUMN_ACTIONS));
+				String tmpId = tmpItemCursor.getString(tmpItemCursor.getColumnIndexOrThrow(COLUMN_ID));
+				tmpActions = tmpActions.replace(OLD_SEPARATOR, Utils.ACTIONS_SEPARATOR);
+				ContentValues tmpContentValues = new ContentValues();
+				tmpContentValues.put(ItemTableM.COLUMN_ACTIONS, tmpActions);
+				inDatabase.update(ItemTableM.TABLE_ITEM, tmpContentValues, COLUMN_ID + "=" + tmpId, null);
+			}
+			tmpItemCursor.close();
+		}else{
+			Log.w(Utils.getClassName(), "Upgrade removed the database with a previous version and created a new one, " +
+					"all data was deleted");
+			inDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ITEM);
+			createTable(inDatabase);
+		}
 	}
 }
