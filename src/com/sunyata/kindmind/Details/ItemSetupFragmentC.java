@@ -164,7 +164,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     		}
     	});
 
-
+    	
     	//--------------Daily Reminder
 
     	mNotificationTimePickerButton = (Button) v.findViewById(R.id.timePickerButton);
@@ -432,6 +432,17 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		// http://stackoverflow.com/questions/11160412/why-use-fragmentsetretaininstanceboolean
 		// but not in Reto's book: "genereally not recommended"
 		setHasOptionsMenu(true); //-for the up navigation button (left caret)
+	}
+	
+	@Override
+	public void onResume(){
+		super.onResume();
+		
+		//Setting focus and bringing up the soft keyboard if no title has been set for this item
+		if(mItemEditText.getText().toString().equals(ItemTableM.NO_NAME)){
+			mItemEditText.setFocusableInTouchMode(true);
+			mItemEditText.requestFocus();
+		}
 	}
 	
     //Callback method called from the TimePickerFragmentC class with the hour and minute values as arguments

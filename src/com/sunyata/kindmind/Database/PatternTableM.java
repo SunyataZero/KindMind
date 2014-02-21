@@ -32,10 +32,12 @@ public class PatternTableM {
 	}
 
 	public static void upgradeTable(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
+		
 		Log.w(Utils.getClassName(), "Upgrade removed the database with a previous version and created a new one, " +
 				"all data was deleted");
 		
 		inDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_PATTERNS);
 		createTable(inDatabase);
+		
 	}
 }

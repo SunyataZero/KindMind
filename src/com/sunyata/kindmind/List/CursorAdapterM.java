@@ -82,8 +82,10 @@ public class CursorAdapterM extends SimpleCursorAdapter{
 		if(tmpActions == null || tmpActions.equals("")){
 			tmpRectangle.setVisibility(View.INVISIBLE); //.setBackgroundColor(mContext.getResources().getColor(R.color.no_action));
 		}else if(Utils.numberOfActions(tmpActions) == 1){
+			tmpRectangle.setVisibility(View.VISIBLE);
 			tmpRectangle.setBackgroundColor(mContext.getResources().getColor(R.color.one_action));
 		}else if(Utils.numberOfActions(tmpActions) > 1){
+			tmpRectangle.setVisibility(View.VISIBLE);
 			tmpRectangle.setBackgroundColor(mContext.getResources().getColor(R.color.multiple_actions));
 		}
 

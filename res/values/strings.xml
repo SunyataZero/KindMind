@@ -2,6 +2,12 @@
 <resources>
     <!-- MainActivityC -->
     <string name="app_name">KindMind</string>
+
+    <string name="item_setup_activity_title">Item Setup</string>
+    <string name="file_chooser_activity_title">File Chooser</string>
+    <string name="bookmark_chooser_activity_title">Bookmark Chooser</string>
+    <string name="about_activity_title">About</string>
+    
     <string name="feelings_title">Feelings</string>
     <string name="needs_title">Needs</string>
     <string name="kindness_title">Kindness</string>

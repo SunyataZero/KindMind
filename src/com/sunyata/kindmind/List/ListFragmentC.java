@@ -308,7 +308,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		case R.id.menu_item_new_listitem: //------------New item
 			//Creating and inserting the new list item into the database
 			ContentValues tmpContentValuesToInsert = new ContentValues();
-	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, "no_name_set");
+	    	//tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, "no_name_set");
 	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LIST_TYPE, refListType.toString());
 	    	Uri tmpUriOfNewItem = getActivity().getContentResolver().insert(
 	    			ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);

@@ -4,9 +4,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <!-- focusable and focusableInTouchMode added to remove focus from edittext -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:focusable="true"
+    	android:focusableInTouchMode="true"
         android:orientation="vertical" >
         
 		<TextView
@@ -21,7 +24,7 @@
             android:id="@+id/listitem_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textNoSuggestions"
+            android:inputType="textNoSuggestions|textCapSentences"
             android:hint="@string/listitem_name_hint" />
 
         <TextView

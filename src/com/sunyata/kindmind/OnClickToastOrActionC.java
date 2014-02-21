@@ -81,7 +81,7 @@ public class OnClickToastOrActionC {
 		Intent tmpIntent = new Intent(Intent.ACTION_DIAL);
 		tmpIntent.setData(Uri.parse("tel:123"));
 		 */
-
+		
 		AudioManager tmpAudioManager = (AudioManager)inContext.getSystemService(Context.AUDIO_SERVICE);
 		String tmpTypeString = "*/*";
 
@@ -136,6 +136,7 @@ public class OnClickToastOrActionC {
 					inRandomlyGivenAction.toString().endsWith(".ogg")||
 					inRandomlyGivenAction.toString().endsWith(".mp3")){
 
+				
 				if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
 				/*
 				PLEASE NOTE: Half deprecated but this method can still be used for checking connectivity:
@@ -153,7 +154,7 @@ public class OnClickToastOrActionC {
 							.show();
 					return;
 				}
-
+			
 				tmpTypeString = "audio/*";
 
 			}else if(

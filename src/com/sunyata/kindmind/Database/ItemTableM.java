@@ -57,28 +57,32 @@ public class ItemTableM {
 	//-Contains both active or not, and the time, not active is stored as -1
 	public static final String COLUMN_KINDSORT_VALUE = "kindsort_value";
 	//-Alternative: Not storing this value here, but instead locally
+
 	
+	//-------------------Other constants
+	
+	public static final int FALSE = -1; //-All other values means TRUE
+	public static final String NO_NAME = "";
+
 	
 	//-------------------Create table constant
 	
 	private static final String CREATE_DATABASE =
 			"CREATE TABLE " + TABLE_ITEM + "("
 			+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-			+ COLUMN_CREATE_TIME + " INTEGER NOT NULL DEFAULT 0, "
-			+ COLUMN_MODIFICATION_TIME + " INTEGER NOT NULL DEFAULT 0, "
-			+ COLUMN_NAME + " TEXT NOT NULL DEFAULT 'no_name_set', "
-			+ COLUMN_DETAILS + " TEXT NOT NULL DEFAULT '-', "
-			+ COLUMN_LIST_TYPE + " TEXT NOT NULL DEFAULT 'no_listtype_set', "
-			+ COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT -1, "
-			+ COLUMN_ACTIONS + " TEXT NOT NULL DEFAULT '', "
-			+ COLUMN_NOTIFICATION + " INTEGER NOT NULL DEFAULT -1, "
+			+ COLUMN_NAME + " TEXT NOT NULL DEFAULT '" + NO_NAME + "', "
+			+ COLUMN_DETAILS + " TEXT NOT NULL DEFAULT '" + NO_NAME + "', "
+			+ COLUMN_LIST_TYPE + " TEXT NOT NULL DEFAULT '" + NO_NAME + "', "
+			+ COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT " + String.valueOf(FALSE) + ", "
+			+ COLUMN_ACTIONS + " TEXT NOT NULL DEFAULT '" + NO_NAME + "', "
+			+ COLUMN_NOTIFICATION + " INTEGER NOT NULL DEFAULT " + String.valueOf(FALSE) + ", "
 			+ COLUMN_KINDSORT_VALUE + " REAL NOT NULL DEFAULT 0"
 			+ ");";
 	
-	
-	//-------------------Other constants
-	
-	public static final int FALSE = -1; //-All other values means TRUE
+	/*
+			+ COLUMN_CREATE_TIME + " INTEGER NOT NULL DEFAULT 0, "
+			+ COLUMN_MODIFICATION_TIME + " INTEGER NOT NULL DEFAULT 0, "
+	 */
 	
 	
 	//-------------------Lifecycle methods
@@ -87,6 +91,9 @@ public class ItemTableM {
 		Log.i(Utils.getClassName(), "Database version = " + inDatabase.getVersion());
 	}
 	
+	
+	//PLEASE NOTE: SQLite is limited in its ALTER TABLE features compared to SQL, see this link:
+	// http://stackoverflow.com/questions/9935593/sqlite3-change-column-default-value
 	public static void upgradeTable(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
 		//Upgrading the database by changing the action separator character from " " to ";"
 		if(inOldVersion == 46 && inNewVersion == 47){
@@ -105,6 +112,7 @@ public class ItemTableM {
 				inDatabase.update(ItemTableM.TABLE_ITEM, tmpContentValues, COLUMN_ID + "=" + tmpId, null);
 			}
 			tmpItemCursor.close();
+			
 		}else{
 			Log.w(Utils.getClassName(), "Upgrade removed the database with a previous version and created a new one, " +
 					"all data was deleted");
