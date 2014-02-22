@@ -4,19 +4,30 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.sunyata.kindmind.Utils;
+
+/*
+ * Overview: DatabaseHelperM is a helper class that is used for database creation and upgrade between versions
+ * Extends: SQLiteOpenHelper
+ * Used in: ContentProviderM.onCreate, (Android OS ?)
+ * Notes: 
+ * Improvements: 
+ * Documentation: 
+ *  https://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html
+ */
 public class DatabaseHelperM extends SQLiteOpenHelper{
+
+	//-------------------Constants
 
 	public static final String DATABASE_NAME = "kindmind.db";
 	private static final int DATABASE_VERSION = 53;
-	//-PLEASE BE CAREFUL WHEN UPDATING THIS
-	// 1. Check the onUpgrade method and implement the change there
-	// 2. Make a backup of the current file (in onUpgrade?)
-	
+	//-PLEASE BE CAREFUL WHEN UPDATING THIS and add changes to the three onUpgrade methods
 	private static DatabaseHelperM sDatabaseHelper;
+	private static Context sContext = null; //-Used backup in onUpgrade
 	
-	private static Context sContext = null; //-Used for file handling in onUpgrade
 	
-	//Singelton get method
+	//-------------------Constructor, singleton get, and onCreate
+	
 	public static DatabaseHelperM get(Context inContext){
 		sContext = inContext;
 		if (sDatabaseHelper == null){
@@ -34,20 +45,25 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 		ItemTableM.createTable(inDatabase);
 		PatternTableM.createTable(inDatabase);
 	}
+	
+	
+	//-------------------onUpgrade
 
 	/*
 	 * Overview: onUpgrade backs up the database and then upgrades each of the tables.
-	 *  PLEASE NOTE: Currently we drop all tables
-	 * Improvements: Here is a discussion of onUpgrade on stackoverflow:
+	 * Notes: 1. SQLite does not support "REMOVE COLUMN" or "ALTER COLUMN".
+	 * 2. This class does not block the startup of the application, therefore we cannot trust that changes to
+	 *  the shared preferences file will be written before MainActivityC.onCreate()
+	 * Improvements: Here are places where onUpgrade is discussed:
 	 *  http://stackoverflow.com/questions/3505900/sqliteopenhelper-onupgrade-confusion-android
-	 *  There may be other ideas in "Enterprise Android"
-	 *  Here are another set of suggestions:
+	 *  "Enterprise Android" may have something on this
 	 *  http://codeblow.com/questions/sqliteopenhelper-onupgrade-confusion-android/
+	 *  **http://stackoverflow.com/questions/13554959/replace-sql-database-but-keep-old-records**
 	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
 		//Making a backup of the previous version of the database file
-		///Utils.databaseBackupInternal(sContext, DATABASE_NAME, inOldVersion);
+		Utils.databaseBackupInternal(sContext, DATABASE_NAME, inOldVersion);
 		
 		//Upgrading for all the tables
 		if(inOldVersion == 46 && inNewVersion == 47){

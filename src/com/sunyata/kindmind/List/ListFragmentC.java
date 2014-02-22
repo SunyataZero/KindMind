@@ -153,12 +153,12 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	}
 	
 	/*
-	 * Overview: updateCursorLoaderAndAdapter updates the data in the list.
-	 *  This is done by changing the cursor and giving the cursor to the adapter, and restarting the loader 
+	 * Overview: updateCursorAdapter updates the data in the list.
+	 *  This is done by changing the cursor and giving the cursor to the adapter
 	 * Used in: 
-	 * Uses Android lib: changeCursor, setAdapter, restartLoader
+	 * Uses Android lib: changeCursor, setAdapter
 	 */
-	void updateCursorLoaderAndAdapter() { //[list update]
+	public void updateCursorAdapter() { //[list update]
 		Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
 		
 		//Updating the cursor..
@@ -173,12 +173,13 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		// http://stackoverflow.com/questions/8213200/android-listview-update-with-simplecursoradapter
 
 		//Restarting the loader
-		getLoaderManager().restartLoader(0, null, this);
+		///////getLoaderManager().restartLoader(0, null, this);
 		//-PLEASE NOTE: We need this line, otherwise the checkbox status will not be updated
 		
 		//Scrolling to the top of the list
-		getListView().smoothScrollToPosition(0);
+		////////getListView().smoothScrollToPosition(0);
 	}
+	
 	
 	
 	//-------------------onCreate, onActivityCreated and click methods
@@ -208,7 +209,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		// but not in Reto's book: "genereally not recommended"
 		super.setHasOptionsMenu(true);
 		this.fillListWithDataFromAdapter();
-		this.updateCursorLoaderAndAdapter(); //-solves issue #83
+		this.updateCursorAdapter(); //-solves issue #83
 
 		//Setup for long click listener
     	super.getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -252,12 +253,12 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			OnClickToastOrActionC.randomKindAction(getActivity(), Utils.getItemUriFromId(inId));
 		}
 
-		//Sorting
+		//Sorting and updating
 		SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
-		this.updateCursorLoaderAndAdapter();
-		
-		mCursorAdapter.notifyDataSetChanged();
+		///////////this.updateCursorLoaderAndAdapter();
+		///////////mCursorAdapter.notifyDataSetChanged();
 		sCallbackListener.fireUpdateTabTitles();
+		getListView().smoothScrollToPosition(0);
     }
 	
     
@@ -308,7 +309,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		case R.id.menu_item_new_listitem: //------------New item
 			//Creating and inserting the new list item into the database
 			ContentValues tmpContentValuesToInsert = new ContentValues();
-	    	//tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, "no_name_set");
 	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LIST_TYPE, refListType.toString());
 	    	Uri tmpUriOfNewItem = getActivity().getContentResolver().insert(
 	    			ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);
@@ -318,7 +318,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			String tmpExtraString = tmpUriOfNewItem.toString();
 			intent.putExtra(EXTRA_ITEM_URI, tmpExtraString);
 			//-Extracted in SingleFragmentActivityC and sent to DataDetailsFragmentC
-			startActivityForResult(intent, 0); //-Calling DataDetailsActivityC
+			startActivityForResult(intent, 0);
 			
 			return true;
 		case R.id.menu_item_save_pattern: //------------Saving pattern
@@ -328,16 +328,21 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		case R.id.menu_item_sort_alphabetically: //------------Sort alphabeta
 			//Changing the sort method used and refreshing list
 			Utils.setSortType(SortTypeM.ALPHABETASORT);
-			this.updateCursorLoaderAndAdapter();
+			this.updateCursorAdapter();
+			getListView().smoothScrollToPosition(0);
 			
 			return true;
 		case R.id.menu_item_kindsort: //------------Sort kindsort
-			//Updating the sort values which will be used below
-			SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
+			if(Utils.isReleaseVersion(getActivity()) == false){
+				//Updating the sort values which will be used below
+				SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
+			}
 			
 			//Changing the sort method used and refreshing list
 			Utils.setSortType(SortTypeM.KINDSORT);
-			this.updateCursorLoaderAndAdapter();
+			this.updateCursorAdapter();
+			getListView().smoothScrollToPosition(0);
+			//////this.updateCursorLoaderAndAdapter();
 			
 			return true;
 		case R.id.menu_item_clear_all_list_selections: //------------Clear checkmarks for all lists

@@ -20,8 +20,10 @@ import android.widget.Toast;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternTableM;
+import com.sunyata.kindmind.List.CursorAdapterM;
 import com.sunyata.kindmind.List.ListFragmentC;
 import com.sunyata.kindmind.List.ListTypeM;
+import com.sunyata.kindmind.List.SortingAlgorithmM;
 
 /*
  * Overview: MainActivityC holds three ListFragments in a ViewPager and handles the corresponding tabs
@@ -250,6 +252,17 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		//Clearing data and side scrolling to the left
 		this.fireClearAllListsEvent();
 		
+		
+		
+		
+		
+		
+		SortingAlgorithmM.get(this).updateSortValuesForListType();
+		
+		/////((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getItem(0).updateCursorLoaderAndAdapter();
+		////((CursorAdapterM)((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getItem(0).getListAdapter()).notifyDataSetChanged();
+		
+		
 		tmpItemCur.close();
 	}
 	
@@ -270,13 +283,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		if(mViewPager.getCurrentItem() != 0){
 			mViewPager.setCurrentItem(0, true);
 		}
-		
-		/*
-		///this.updateCursorLoaderAndAdapter();
-		((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getItem(0).updateCursorLoaderAndAdapter();
-		///mCursorAdapter.notifyDataSetChanged();
-		((CursorAdapterM)((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getItem(0).getListAdapter()).notifyDataSetChanged();
-		*/
 		
 		this.fireUpdateTabTitles();
 	}
