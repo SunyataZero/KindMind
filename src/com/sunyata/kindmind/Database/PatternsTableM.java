@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-public class PatternTableM {
+public class PatternsTableM {
 
 	public static final String TABLE_PATTERNS = "patterns";
 	//-Plural here (and not for the list_item table) is intentional since one pattern will be made of several lines

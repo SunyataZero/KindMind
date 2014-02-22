@@ -36,6 +36,8 @@ public class Utils {
 	public static final String PREF_IS_FIRST_TIME_APP_STARTED = "IsFirstTimeApplicationStarted";
 	
 	public static final String ACTIONS_SEPARATOR = ";";
+
+	public static final int MAX_NR_OF_PATTERN_ROWS = 2000; //TODO: Auto test this value to see if we can increase it
 	
 	
 	public static int FEELINGS_INT = 0;
@@ -369,7 +371,7 @@ public class Utils {
 		}
 	}
 
-	public static void setSortType(SortTypeM inSortType) {
+	public static void setItemTableSortType(SortTypeM inSortType) {
 		switch(inSortType){
 		case ALPHABETASORT:
 			ContentProviderM.sSortType = ItemTableM.COLUMN_NAME + " ASC";
@@ -497,5 +499,9 @@ public class Utils {
 		}
 		
 		return true;
+	}
+	
+	public static int getMaxNumberOfPatternRows(){
+		return Utils.MAX_NR_OF_PATTERN_ROWS;
 	}
 }

@@ -58,7 +58,7 @@ public class ContentProviderM extends ContentProvider {
 	static final int ITEM = 11;
 	private static final int ITEM_SINGLE_ROW = 12;
 
-	private static final String PATTERNS_BASE_PATH = "pattern";
+	private static final String PATTERNS_BASE_PATH = "patterns";
 	private static final int PATTERNS = 21;
 
 	private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -88,7 +88,7 @@ public class ContentProviderM extends ContentProvider {
 	@Override
 	public boolean onCreate() {
 		mDatabaseHelper = DatabaseHelperM.get(getContext());
-		Utils.setSortType(SortTypeM.KINDSORT);
+		Utils.setItemTableSortType(SortTypeM.KINDSORT);
 		return true;
 	}
 	
@@ -110,7 +110,7 @@ public class ContentProviderM extends ContentProvider {
 			tmpQueryBuilder.appendWhere(ItemTableM.COLUMN_ID + "=" + inUri.getLastPathSegment());
 			break;
 		case PATTERNS:
-			tmpQueryBuilder.setTables(PatternTableM.TABLE_PATTERNS);
+			tmpQueryBuilder.setTables(PatternsTableM.TABLE_PATTERNS);
 			break;
 		default:
 			throw new IllegalArgumentException("Error in method ListContentProviderM.query(): Unknown URI: " + inUri);
@@ -167,7 +167,7 @@ public class ContentProviderM extends ContentProvider {
 			uriReturnString = ITEM_CONTENT_URI + "/" + tmpInsertRowId;
 			break;
 		case PATTERNS:
-			tmpInsertRowId = tmpSQLiteDatabase.insert(PatternTableM.TABLE_PATTERNS, null, inContentValues);
+			tmpInsertRowId = tmpSQLiteDatabase.insert(PatternsTableM.TABLE_PATTERNS, null, inContentValues);
 			uriReturnString = PATTERNS_CONTENT_URI + "/" + tmpInsertRowId;
 			break;
 		default:
@@ -207,7 +207,7 @@ public class ContentProviderM extends ContentProvider {
 			break;
 		case PATTERNS:
 			tmpNumberOfRowsDeleted = tmpSQLiteDatabase.delete(
-					PatternTableM.TABLE_PATTERNS, inSelection, inSelectionArguments);
+					PatternsTableM.TABLE_PATTERNS, inSelection, inSelectionArguments);
 			break;
 		default:
 			throw new IllegalArgumentException(
@@ -282,9 +282,9 @@ public class ContentProviderM extends ContentProvider {
 			tmpAvailableColumns.add(ItemTableM.COLUMN_DETAILS);
 			break;
 		case PATTERNS:
-			tmpAvailableColumns.add(PatternTableM.COLUMN_ID);
-			tmpAvailableColumns.add(PatternTableM.COLUMN_CREATE_TIME);
-			tmpAvailableColumns.add(PatternTableM.COLUMN_ITEM_REFERENCE);
+			tmpAvailableColumns.add(PatternsTableM.COLUMN_ID);
+			tmpAvailableColumns.add(PatternsTableM.COLUMN_CREATE_TIME);
+			tmpAvailableColumns.add(PatternsTableM.COLUMN_ITEM_REFERENCE);
 			break;
 		default:
 			throw new IllegalArgumentException(

@@ -155,7 +155,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	/*
 	 * Overview: updateCursorAdapter updates the data in the list.
 	 *  This is done by changing the cursor and giving the cursor to the adapter
-	 * Used in: 
+	 * Used in: onActivityCreated, onOptionsItemSelected
+	 * Notes: This method used to restart the loader "getLoaderManager().restartLoader(0, null, this)",
+	 *  but this is not necessary
 	 * Uses Android lib: changeCursor, setAdapter
 	 */
 	public void updateCursorAdapter() { //[list update]
@@ -171,13 +173,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		getListView().setAdapter(mCursorAdapter);
 		//-PLEASE NOTE: We need this line, and it was hard to find this info. It was found here:
 		// http://stackoverflow.com/questions/8213200/android-listview-update-with-simplecursoradapter
-
-		//Restarting the loader
-		///////getLoaderManager().restartLoader(0, null, this);
-		//-PLEASE NOTE: We need this line, otherwise the checkbox status will not be updated
-		
-		//Scrolling to the top of the list
-		////////getListView().smoothScrollToPosition(0);
 	}
 	
 	
@@ -255,8 +250,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
 		//Sorting and updating
 		SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
-		///////////this.updateCursorLoaderAndAdapter();
-		///////////mCursorAdapter.notifyDataSetChanged();
 		sCallbackListener.fireUpdateTabTitles();
 		getListView().smoothScrollToPosition(0);
     }
@@ -327,7 +320,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		case R.id.menu_item_sort_alphabetically: //------------Sort alphabeta
 			//Changing the sort method used and refreshing list
-			Utils.setSortType(SortTypeM.ALPHABETASORT);
+			Utils.setItemTableSortType(SortTypeM.ALPHABETASORT);
 			this.updateCursorAdapter();
 			getListView().smoothScrollToPosition(0);
 			
@@ -339,7 +332,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			}
 			
 			//Changing the sort method used and refreshing list
-			Utils.setSortType(SortTypeM.KINDSORT);
+			Utils.setItemTableSortType(SortTypeM.KINDSORT);
 			this.updateCursorAdapter();
 			getListView().smoothScrollToPosition(0);
 			//////this.updateCursorLoaderAndAdapter();
@@ -379,7 +372,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		case R.id.menu_item_reset_database: //------------Resetting database
 			sCallbackListener.fireResetData();
-		
+
+			return true;
 		case R.id.menu_item_about: //------------About
 			startActivity(new Intent(getActivity(), AboutActivityC.class));
 			

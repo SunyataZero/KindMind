@@ -19,8 +19,7 @@ import android.widget.Toast;
 
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.Database.PatternTableM;
-import com.sunyata.kindmind.List.CursorAdapterM;
+import com.sunyata.kindmind.Database.PatternsTableM;
 import com.sunyata.kindmind.List.ListFragmentC;
 import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SortingAlgorithmM;
@@ -112,7 +111,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				Log.d("ViewPager.OnPageChangeListener()", "onPageSelected()");
 				
 				//Resetting the sorting
-				Utils.setSortType(SortTypeM.KINDSORT);
+				Utils.setItemTableSortType(SortTypeM.KINDSORT);
 				
 				//Setting the active tab when the user has just side scrolled (swiped) to a new fragment
 				getActionBar().setSelectedNavigationItem(inPos);
@@ -241,35 +240,77 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				//..saving to pattern in database
 				ContentValues tmpInsertContentValues = new ContentValues();
 				long tmpItemId = tmpItemCur.getInt(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
-				tmpInsertContentValues.put(PatternTableM.COLUMN_ITEM_REFERENCE, tmpItemId);
-				tmpInsertContentValues.put(PatternTableM.COLUMN_CREATE_TIME, tmpCurrentTime);
+				tmpInsertContentValues.put(PatternsTableM.COLUMN_ITEM_REFERENCE, tmpItemId);
+				tmpInsertContentValues.put(PatternsTableM.COLUMN_CREATE_TIME, tmpCurrentTime);
 				this.getContentResolver().insert(ContentProviderM.PATTERNS_CONTENT_URI, tmpInsertContentValues);
 			}
 		}
-
 		Toast.makeText(this, "KindMind pattern saved", Toast.LENGTH_LONG).show();
+		
+		//Limiting the number of rows in the patterns table
+		this.limitPatternsTable();
 		
 		//Clearing data and side scrolling to the left
 		this.fireClearAllListsEvent();
-		
-		
-		
-		
-		
-		
+
+		//Updating the sort values
 		SortingAlgorithmM.get(this).updateSortValuesForListType();
-		
-		/////((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getItem(0).updateCursorLoaderAndAdapter();
-		////((CursorAdapterM)((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getItem(0).getListAdapter()).notifyDataSetChanged();
-		
+		//-this is done after we have cleared the checkboxes so that these values will not influence the sorting
 		
 		tmpItemCur.close();
+	}
+	/*
+	 * Overview: limitPatternsTable removes zero or more patterns, keeping the pattern table (1) relevant and
+	 *  (2) at a lenght which does not take too much resources for the sorting algorithm
+	 * Used in: fireSavePatternEvent
+	 * Notes: 1. We limit the pattern table based on the number of rows (and not the number of patterns).
+	 * 2. We expect the while loop to be run completely only one time on average since this method is called from
+	 *  the same method that adds new patterns (if we have just added a very large pattern it may be run many times)
+	 * 3. The only reason that a for loop is used is so that in case of some error with deletion from the database
+	 *  we don't get stuck in an infinite loop.
+	 * Improvements: 
+	 */
+	private void limitPatternsTable(){
+		
+		Cursor tmpPatternsCur = null;
+		final int WARNING_LIMIT = 100;
+
+		for(int i = 0; i < WARNING_LIMIT; i++){
+			//Sorting "by pattern" (by create time)
+			tmpPatternsCur = this.getContentResolver().query(
+					ContentProviderM.PATTERNS_CONTENT_URI, null, null, null,
+					PatternsTableM.COLUMN_CREATE_TIME + " ASC");
+			
+			//Looping until we are on or under the max limit or rows
+			if(tmpPatternsCur.getCount() <= Utils.getMaxNumberOfPatternRows()){
+				tmpPatternsCur.close();
+				return;
+			}
+			
+			//Extracting the first (and oldest) time entry
+			tmpPatternsCur.moveToFirst();
+			long tmpFirstTimeEntry = tmpPatternsCur.getLong(
+					tmpPatternsCur.getColumnIndexOrThrow(PatternsTableM.COLUMN_CREATE_TIME));
+			
+			//Using the first time entry as a selection value for removing all rows for this whole pattern from the db
+			String tmpSelection = PatternsTableM.COLUMN_CREATE_TIME + "=" + tmpFirstTimeEntry;
+			this.getContentResolver().delete(ContentProviderM.PATTERNS_CONTENT_URI, tmpSelection, null);
+			
+			tmpPatternsCur.close();
+		}
+		
+		//If we get here it means that we have looped more than the "warning limit" which is an indication that
+		// something has gone wrong
+		Log.w(Utils.getClassName(),
+				"Warning in limitPatternsTable: Number of iterations has reached " + WARNING_LIMIT
+				+ ", exiting method");
 	}
 	
 	/*
 	 * Overview: fireClearAllListsEvent clears all marks for checked/activated list items and scrolls to
 	 *  the leftmost position (then also calls fireUpdateTabTitles so that the numbers are cleared as well) 
 	 * Used in: 1. fireSavePatternEvent 2. ListFragmentC.onOptionsItemSelected()
+	 * Improvements: Possibly splitting the clearing and the side scrolling
 	 */
 	@Override
 	public void fireClearAllListsEvent() { //[list update]

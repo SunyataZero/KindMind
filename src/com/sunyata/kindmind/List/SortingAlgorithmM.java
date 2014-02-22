@@ -11,7 +11,7 @@ import android.util.Log;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.Database.PatternTableM;
+import com.sunyata.kindmind.Database.PatternsTableM;
 
 /*
  * Overview: SortingAlgorithmM handles sorting for the app
@@ -103,16 +103,16 @@ public class SortingAlgorithmM {
 		//2. Go through all patterns and save in matrix with pattern relevance..
 		ArrayList<Pattern> tmpPatternMatrix = new ArrayList<Pattern>();
 		Cursor tmpPatternCur = mContext.getContentResolver().query(
-				ContentProviderM.PATTERNS_CONTENT_URI, null, null, null, PatternTableM.COLUMN_CREATE_TIME);
+				ContentProviderM.PATTERNS_CONTENT_URI, null, null, null, PatternsTableM.COLUMN_CREATE_TIME);
 		long tmpOldPatternTime = -2;
 		for(tmpPatternCur.moveToFirst(); tmpPatternCur.isAfterLast() == false; tmpPatternCur.moveToNext()){
 			
 			long tmpNewPatternTime = Long.parseLong(tmpPatternCur.getString(
-					tmpPatternCur.getColumnIndexOrThrow(PatternTableM.COLUMN_CREATE_TIME)));
+					tmpPatternCur.getColumnIndexOrThrow(PatternsTableM.COLUMN_CREATE_TIME)));
 			//-the time is used to identify one specific pattern (and can be the same over several rows)
 			
 			long tmpItemRefId = Long.parseLong(tmpPatternCur.getString(
-					tmpPatternCur.getColumnIndexOrThrow(PatternTableM.COLUMN_ITEM_REFERENCE)));
+					tmpPatternCur.getColumnIndexOrThrow(PatternsTableM.COLUMN_ITEM_REFERENCE)));
 			//-will be compared to the list from step 1 above
 			
 			//..check to see if we have gone into a new pattern in the list..

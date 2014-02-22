@@ -20,7 +20,7 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 	//-------------------Constants
 
 	public static final String DATABASE_NAME = "kindmind.db";
-	private static final int DATABASE_VERSION = 53;
+	private static final int DATABASE_VERSION = 54;
 	//-PLEASE BE CAREFUL WHEN UPDATING THIS and add changes to the three onUpgrade methods
 	private static DatabaseHelperM sDatabaseHelper;
 	private static Context sContext = null; //-Used backup in onUpgrade
@@ -43,7 +43,7 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 	@Override
 	public void onCreate(SQLiteDatabase inDatabase) {
 		ItemTableM.createTable(inDatabase);
-		PatternTableM.createTable(inDatabase);
+		PatternsTableM.createTable(inDatabase);
 	}
 	
 	
@@ -70,7 +70,7 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 			ItemTableM.upgradeTable(inDatabase, inOldVersion, inNewVersion);
 		}else{
 	    	ItemTableM.upgradeTable(inDatabase, inOldVersion, inNewVersion);
-			PatternTableM.upgradeTable(inDatabase, inOldVersion, inNewVersion);
+			PatternsTableM.upgradeTable(inDatabase, inOldVersion, inNewVersion);
 		}
 	}
 }
