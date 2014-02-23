@@ -59,6 +59,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     private String mNeedTitle;
     private String mActionTitle;
     
+    public final static String EXTRA_URI_AS_STRING = "uri_as_string";
     
     //------------------------onCreate and OnPageChangeListener
     
@@ -184,15 +185,15 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         @Override
         public Object instantiateItem (ViewGroup inContainer, int inPosition){
         	switch(inPosition){
-        	case 0:
+        	case ListTypeM.FEELINGS:
         		mFeelingListFragment = ListFragmentC.newInstance(ListTypeM.FEELINGS,
         				(MainActivityCallbackListenerI)MainActivityC.this);
         		break;
-        	case 1:
+        	case ListTypeM.NEEDS:
         		mNeedListFragment = ListFragmentC.newInstance(ListTypeM.NEEDS,
         				(MainActivityCallbackListenerI)MainActivityC.this);
         		break;
-        	case 2:
+        	case ListTypeM.KINDNESS:
         		mActionListFragment = ListFragmentC.newInstance(ListTypeM.KINDNESS,
         				(MainActivityCallbackListenerI)MainActivityC.this);
         		break;
@@ -369,10 +370,22 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	super.onResume();
     	Log.d(Utils.getClassName(), Utils.getMethodName());
     	
-    	//Solves the problem in issue #41
     	if(sViewPagerPosition != mViewPager.getCurrentItem()){
     		mViewPager.setCurrentItem(sViewPagerPosition);
+    		//-solves the problem in issue #41
     	}
+    	
+    	/*
+    	//Extracting data from the intent given when calling this activity (used by widgets and notifications)
+    	Uri tmpItemUri = Uri.parse(this.getIntent().getStringExtra(EXTRA_URI_AS_STRING));
+    	if(tmpItemUri != null){
+        	Cursor tmpItemCur = getContentResolver().query(tmpItemUri, null, null, null, null);
+        	tmpItemCur.moveToFirst();
+        	
+        	//TODO
+        	///////////asdf
+    	}
+    	*/
+    	
     }
-    
 }

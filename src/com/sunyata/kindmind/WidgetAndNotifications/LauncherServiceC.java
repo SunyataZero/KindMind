@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.net.Uri;
 
+import com.sunyata.kindmind.MainActivityC;
 import com.sunyata.kindmind.OnClickToastOrActionC;
 
 /*
@@ -29,8 +30,19 @@ public class LauncherServiceC extends IntentService {
 	protected void onHandleIntent(Intent inIntent) {
 		Uri tmpItemUri = inIntent.getData();
 		if(tmpItemUri != null){
-			//Launching the kind action
+			//Launching the kind action (only for kindness)
 			OnClickToastOrActionC.randomKindAction(getApplicationContext(), tmpItemUri);
+			
+			/*
+			//Marking the item(only for feelings and needs)
+			Intent tmpMainActivityIntent = new Intent(getApplicationContext(), MainActivityC.class);
+			tmpMainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+			tmpMainActivityIntent.putExtra(MainActivityC.EXTRA_URI_AS_STRING, tmpItemUri);
+			startActivity(tmpMainActivityIntent);
+			
+			Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+			FLAG_ACTIVITY_NEW_TASK
+			*/
 		}
 	}
 }

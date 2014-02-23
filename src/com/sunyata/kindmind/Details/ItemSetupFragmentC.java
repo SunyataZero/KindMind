@@ -64,7 +64,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	
 	//----------------------------Fields
 	private EditText mItemEditText;
-	private ListTypeM refListType;
+	private int refListType;
 	private Button mNotificationTimePickerButton;
 	private Switch mNotificationSwitch;
 	private TextView mActionOnClickTextView;
@@ -131,8 +131,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     	}
 
     	//Setting the list type enum value
-    	refListType = ListTypeM.valueOf(
-    			tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE)));
+    	refListType = tmpItemCur.getInt(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE));
     	//-Please note: We need to move the cursor to the first position before using .getString() (see above)
 
     	
@@ -210,7 +209,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     	
     	mNewActionButton = (Button) v.findViewById(R.id.newActionButton);
     	
-    	if(this.refListType == ListTypeM.KINDNESS){
+    	if(refListType == ListTypeM.KINDNESS){
 	    	
 	    	ArrayList<CharSequence> tmpArrayList = new ArrayList<CharSequence>();
 	    	tmpArrayList.add("Image");
@@ -268,7 +267,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 								break;
 							case 4: //--------------Bookmark
 				    			final Intent tmpBookmarkIntent = new Intent(getActivity(), BookmarkChooserActivityC.class);
-				    			tmpBookmarkIntent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
+				    			tmpBookmarkIntent.putExtra(ListFragmentC.EXTRA_LIST_TYPE, refListType);
 				    			//-Extracted in SingleFragmentActivityC
 				    			startActivityForResult(tmpBookmarkIntent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
 								break;
@@ -604,6 +603,11 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			}
 			return true;
 		case R.id.menu_item_delete_listitem:
+			
+			//TODO: Remove any alarms
+
+			//TODO: Update the widget
+			
 			//Remove the list item from the database
 			getActivity().getContentResolver().delete(this.refItemUri, null, null);
 			

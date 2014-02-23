@@ -1,22 +1,24 @@
 package com.sunyata.kindmind.List;
 
-/*
- * Overview: ListTypeM represents the type of list. Each item in the item database table gets one of these
- *  values associated with it when created
- * Improvements: Making it possible to use something like "ListTypeM.FEELINGS" as the int 0, this could
- *  be useful for clarity in switch statements in for example MainActivityC
- * Documentation:
- *  http://docs.oracle.com/javase/tutorial/java/javaOO/enum.html
- */
-public enum ListTypeM{
-	FEELINGS(0),
-	NEEDS(1),
-	KINDNESS(2);
-	private final int mLevel; //-Corresponds to the order from the left (starting at zero) in viewpager
-	ListTypeM(int inLevel){
-		mLevel = inLevel;
-	}
-	public int getLevel(){
-		return mLevel;
+import android.util.Log;
+
+import com.sunyata.kindmind.Utils;
+
+public class ListTypeM {
+	public static final int NOT_SET = -1;
+	public static final int FEELINGS = 0;
+	public static final int NEEDS = 1;
+	public static final int KINDNESS = 2;
+	
+	public static String getListTypeString(int inListType){
+		switch(inListType){
+		case FEELINGS: return "Feelings";
+		case NEEDS: return "Needs";
+		case KINDNESS: return "Kindness";
+		case NOT_SET:
+		default:
+			Log.e(Utils.getClassName(), "Error in getListTypeString: Case not Covered or value has not been set");
+			return "";
+		}
 	}
 }

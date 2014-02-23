@@ -23,10 +23,10 @@ import com.sunyata.kindmind.Database.ItemTableM;
 public class CursorAdapterM extends SimpleCursorAdapter{
 
 	Context mContext;
-	ListTypeM mListType;
+	int mListType;
 	
 	public CursorAdapterM(Context context, int layout, Cursor c,
-			String[] from, int[] to, int flags, ListTypeM inListType) {
+			String[] from, int[] to, int flags, int inListType) {
 		super(context, layout, c, from, to, flags);
 		mContext = context;
 		mListType = inListType;
@@ -140,7 +140,9 @@ public class CursorAdapterM extends SimpleCursorAdapter{
 	@Override
 	public int getViewTypeCount(){
 		int retViewTypeCount = Utils.getListItemCount(mContext, mListType);
-		if(retViewTypeCount < 1){retViewTypeCount = 1;}
+		if(retViewTypeCount < 1){
+			retViewTypeCount = 1;
+		}
 		return retViewTypeCount;
 	}
 	

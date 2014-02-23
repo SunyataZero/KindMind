@@ -72,7 +72,7 @@ public class ItemTableM {
 			+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ COLUMN_NAME + " TEXT NOT NULL DEFAULT '" + NO_NAME + "', "
 			+ COLUMN_DETAILS + " TEXT NOT NULL DEFAULT '" + NO_NAME + "', "
-			+ COLUMN_LIST_TYPE + " TEXT NOT NULL DEFAULT '" + NO_NAME + "', "
+			+ COLUMN_LIST_TYPE + " INTEGER NOT NULL, "
 			+ COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT " + String.valueOf(FALSE) + ", "
 			+ COLUMN_ACTIONS + " TEXT NOT NULL DEFAULT '" + NO_NAME + "', "
 			+ COLUMN_NOTIFICATION + " INTEGER NOT NULL DEFAULT " + String.valueOf(FALSE) + ", "
@@ -92,8 +92,7 @@ public class ItemTableM {
 	}
 	
 	
-	//PLEASE NOTE: SQLite is limited in its ALTER TABLE features compared to SQL, see this link:
-	// http://stackoverflow.com/questions/9935593/sqlite3-change-column-default-value
+
 	public static void upgradeTable(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
 		//Upgrading the database by changing the action separator character from " " to ";"
 		if(inOldVersion == 46 && inNewVersion == 47){

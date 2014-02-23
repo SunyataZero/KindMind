@@ -56,16 +56,16 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	//-------------------Fields and constructor
 	
-	private ListTypeM refListType; //-Saved in onSaveInstanceState
+	private int refListType; //-Saved in onSaveInstanceState
 	private static MainActivityCallbackListenerI sCallbackListener; //-Does not have to be saved since it's static
 	private CursorAdapterM mCursorAdapter;
 
 	public static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
-	public static final String EXTRA_AND_BUNDLE_LIST_TYPE = "EXTRA_LIST_TYPE";
-
-	public static ListFragmentC newInstance(ListTypeM inListType, MainActivityCallbackListenerI inCallbackListener){
+	public static final String EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE";
+	
+	public static ListFragmentC newInstance(int inListTypeInt, MainActivityCallbackListenerI inCallbackListener){
 		ListFragmentC retListFragment = new ListFragmentC();
-		retListFragment.refListType = inListType;
+		retListFragment.refListType = inListTypeInt;
 		sCallbackListener = inCallbackListener;
 		return retListFragment;
 	}
@@ -92,8 +92,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 				ItemTableM.COLUMN_DETAILS, ItemTableM.COLUMN_ACTIVE, ItemTableM.COLUMN_KINDSORT_VALUE,
 				ItemTableM.COLUMN_ACTIONS};
 		//-kindsortvalue only needed here when used for debug purposes
-		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = ?";
-		String[] tmpSelectionArguments = {refListType.toString()};
+		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + "=?";
+		String[] tmpSelectionArguments = {String.valueOf(refListType)};
 
 		//Creating the CursorLoader
 		CursorLoader retCursorLoader = new CursorLoader(
@@ -164,7 +164,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
 		
 		//Updating the cursor..
-		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + "=" + "'" + this.refListType.toString() + "'";
+		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + "=" + String.valueOf(refListType);
 		Cursor tmpCursor = getActivity().getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
 		mCursorAdapter.changeCursor(tmpCursor);
@@ -194,7 +194,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
     	//Restoring state
 		if(inSavedInstanceState != null){
-			refListType = ListTypeM.valueOf(inSavedInstanceState.getString(EXTRA_AND_BUNDLE_LIST_TYPE));
+			refListType = inSavedInstanceState.getInt(EXTRA_LIST_TYPE);
 		}
     	
     	//Fundamental setup
@@ -267,7 +267,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
     	
     	//Saving the list type
-    	outBundle.putString(EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
+    	outBundle.putInt(EXTRA_LIST_TYPE, refListType);
     }
 
     
@@ -302,7 +302,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		case R.id.menu_item_new_listitem: //------------New item
 			//Creating and inserting the new list item into the database
 			ContentValues tmpContentValuesToInsert = new ContentValues();
-	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LIST_TYPE, refListType.toString());
+	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LIST_TYPE, refListType);
 	    	Uri tmpUriOfNewItem = getActivity().getContentResolver().insert(
 	    			ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);
 	    	
@@ -388,13 +388,13 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 * Overview: getFormattedStringForListType formats a list of a given type into a string
 	 * Used in: Used together with sendAsEmail
 	 */
-	private String getFormattedStringForListType(ListTypeM inListType){
+	private String getFormattedStringForListType(int inListType){
 		
 		//Title
-		String retString = "\n" + "===" + inListType.toString() + "===" + "\n\n";
+		String retString = "\n" + "===" + ListTypeM.getListTypeString(inListType) + "===" + "\n\n";
 		
 		//Setup of cursor and data set
-		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = " + "'" + inListType.toString() + "'";
+		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + "=" + inListType;
 		Cursor tmpCursor = getActivity().getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, null);
 		if(tmpCursor.getCount() == 0){

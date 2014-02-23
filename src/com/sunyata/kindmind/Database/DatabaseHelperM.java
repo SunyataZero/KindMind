@@ -20,7 +20,7 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 	//-------------------Constants
 
 	public static final String DATABASE_NAME = "kindmind.db";
-	private static final int DATABASE_VERSION = 54;
+	private static final int DATABASE_VERSION = 55;
 	//-PLEASE BE CAREFUL WHEN UPDATING THIS and add changes to the three onUpgrade methods
 	private static DatabaseHelperM sDatabaseHelper;
 	private static Context sContext = null; //-Used backup in onUpgrade
@@ -51,7 +51,8 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 
 	/*
 	 * Overview: onUpgrade backs up the database and then upgrades each of the tables.
-	 * Notes: 1. SQLite does not support "REMOVE COLUMN" or "ALTER COLUMN".
+	 * Notes: 1. SQLite is limited in its ALTER TABLE features compared to SQL, SQLite does not support "REMOVE COLUMN"
+	 * or "ALTER COLUMN".
 	 * 2. This class does not block the startup of the application, therefore we cannot trust that changes to
 	 *  the shared preferences file will be written before MainActivityC.onCreate()
 	 * Improvements: Here are places where onUpgrade is discussed:
@@ -68,6 +69,7 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 		//Upgrading for all the tables
 		if(inOldVersion == 46 && inNewVersion == 47){
 			ItemTableM.upgradeTable(inDatabase, inOldVersion, inNewVersion);
+			
 		}else{
 	    	ItemTableM.upgradeTable(inDatabase, inOldVersion, inNewVersion);
 			PatternsTableM.upgradeTable(inDatabase, inOldVersion, inNewVersion);

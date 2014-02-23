@@ -39,25 +39,17 @@ public class Utils {
 
 	public static final int MAX_NR_OF_PATTERN_ROWS = 2000; //TODO: Auto test this value to see if we can increase it
 	
-	
-	public static int FEELINGS_INT = 0;
-	public static int NEEDS_INT = 1;
-	public static int KINDNESS_INT = 2;
-	
-	//"\\|"
-	//-Please note: Escaped two times since it is both a special character in general and in Java.
-	// See this link for more info:
-	// http://www.rgagnon.com/javadetails/java-0438.html
-	
+
 	
 	//--------------------(Static) methods for debugging
 	
 	public static String getMethodName(String inPrefix){
 		return "[" + inPrefix + "]" + getMethodName();
 	}
-	public static String getMethodName(ListTypeM inListType){
-		if(inListType != null){
-			return Thread.currentThread().getStackTrace()[3].getMethodName() + "[" + inListType.toString() + "]";
+	public static String getMethodName(int inListType){
+		if(inListType != ListTypeM.NOT_SET){
+			return Thread.currentThread().getStackTrace()[3].getMethodName()
+					+ "[" + ListTypeM.getListTypeString(inListType) + "]";
 		}else{
 			return Thread.currentThread().getStackTrace()[3].getMethodName() + "[N/A]";
 		}
@@ -140,13 +132,12 @@ public class Utils {
     			.putBoolean(PREF_IS_FIRST_TIME_APP_STARTED, false)
     			.commit();
 	}
-	private static void createStartupItem(Context inContext, ListTypeM inListType, String inColumnName){
+	private static void createStartupItem(Context inContext, int inListTypeInt, String inColumnName){
 		ContentValues tmpContentValuesToInsert = new ContentValues();
-    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LIST_TYPE, inListType.toString());
+    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LIST_TYPE, inListTypeInt);
     	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, inColumnName);
     	inContext.getContentResolver().insert(ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);
-		Log.i(Utils.getClassName(),
-				"Added " + inColumnName + " with type " + inListType.toString() + " to the database");
+		Log.i(Utils.getClassName(), "Added a new item to the database");
 	}
 	
 	
@@ -212,10 +203,10 @@ public class Utils {
 		}
 	}
 	
-	public static int getListItemCount(Context inContext, ListTypeM inListType){
+	public static int getListItemCount(Context inContext, int inListType){
 		int retCount;
 		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = ?";
-		String[] tmpSelectionArguments = {inListType.toString()};
+		String[] tmpSelectionArguments = {String.valueOf(inListType)};
 		Cursor tmpCursor = inContext.getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, ContentProviderM.sSortType);
 		retCount = tmpCursor.getCount();
@@ -234,11 +225,11 @@ public class Utils {
 	}
 	
 	//Cmp with method getListOfNamesForActivatedData
-	public static int getActiveListItemCount(Context inContext, ListTypeM inListType){
+	public static int getActiveListItemCount(Context inContext, int inListTypeInt){
 		int retCount;
 		String tmpSelection =
 				ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE + " AND " +
-				ItemTableM.COLUMN_LIST_TYPE + "=" + "'" + inListType.toString() + "'";
+				ItemTableM.COLUMN_LIST_TYPE + "=" + inListTypeInt;
 		Cursor tmpCursor = inContext.getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
 		retCount = tmpCursor.getCount();
@@ -311,21 +302,21 @@ public class Utils {
 	
 	//-------------------------Toast
 	
-	public static String getToastString(Context inContext, ListTypeM inListType) {
+	public static String getToastString(Context inContext, int inListType) {
 		//-this method also updates the toast string (can be used for example for sharing)
 
 		String mToastFeelingsString;
 		String mToastNeedsString;
 
 		switch(inListType){
-		case FEELINGS:
+		case ListTypeM.FEELINGS:
 			mToastFeelingsString =
 					getFormattedStringOfActivatedDataListItems(
 					getListOfNamesForActivatedData(inContext, ListTypeM.FEELINGS))
 					.toLowerCase(Locale.getDefault());
 			return mToastFeelingsString;
 		
-		case NEEDS:
+		case ListTypeM.NEEDS:
 			mToastNeedsString =
 					getFormattedStringOfActivatedDataListItems(
 					getListOfNamesForActivatedData(inContext, ListTypeM.NEEDS))
@@ -338,11 +329,11 @@ public class Utils {
 			return null;
 		}
 	}
-	private static ArrayList<String> getListOfNamesForActivatedData(Context inContext, ListTypeM inListType) {
+	private static ArrayList<String> getListOfNamesForActivatedData(Context inContext, int inListType) {
 		ArrayList<String> retActivatedData = new ArrayList<String>();
 		String tmpSelection =
 				ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE + " AND " +
-				ItemTableM.COLUMN_LIST_TYPE + "=" + "'" + inListType.toString() + "'";
+				ItemTableM.COLUMN_LIST_TYPE + "=" + inListType;
 		//-Please note that we are adding ' signs around the String
 		Cursor tmpCursor = inContext.getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);

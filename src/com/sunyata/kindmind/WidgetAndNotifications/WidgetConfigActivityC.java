@@ -28,7 +28,7 @@ public class WidgetConfigActivityC extends Activity {
 	private RadioGroup mRadioGroup;
 
 	public static String WIDGET_CONFIG_LIST_TYPE_PREFERENCES = "widgetConfigListTypePreferences";
-	public static String WIDGET_CONFIG_LIST_TYPE_PREFERENCES_DEFAULT = "error";
+	//public static String WIDGET_CONFIG_LIST_TYPE_PREFERENCES_DEFAULT = "error";
 
 	
 	//https://developer.android.com/reference/android/widget/RadioGroup.html
@@ -66,19 +66,19 @@ public class WidgetConfigActivityC extends Activity {
 				}
 				
 				//Saving the list type to a special preferences file containing widget ids and list types
-				String tmpListTypeAsString = "";
+				int tmpListType = ListTypeM.NOT_SET;
 				if(mFeelingsRadioButton.isChecked()){
-					tmpListTypeAsString = ListTypeM.FEELINGS.toString();
+					tmpListType = ListTypeM.FEELINGS;
 				}else if(mNeedsRadioButton.isChecked()){
-					tmpListTypeAsString = ListTypeM.NEEDS.toString();
+					tmpListType = ListTypeM.NEEDS;
 				}else if(mKindnessRadioButton.isChecked()){
-					tmpListTypeAsString = ListTypeM.KINDNESS.toString();
+					tmpListType = ListTypeM.KINDNESS;
 				}else{
 					Log.e(Utils.getClassName(), "Error in onClick: Radio button not covered in if statements");
 					finish();
 				}
 				getSharedPreferences(WIDGET_CONFIG_LIST_TYPE_PREFERENCES, Context.MODE_PRIVATE).edit()
-						.putString(String.valueOf(mWidgetId), tmpListTypeAsString).commit();
+						.putInt(String.valueOf(mWidgetId), tmpListType).commit();
 
 				//Exiting with an intent (holding the id as an extra) and RESULT_OK
 				Intent retResultIntent = new Intent();

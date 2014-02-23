@@ -13,6 +13,7 @@ import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SortingAlgorithmM;
 
 public class RemoteViewsServiceC extends RemoteViewsService {
@@ -155,18 +156,19 @@ class RemoteViewsFactoryC implements RemoteViewsService.RemoteViewsFactory{
 		SortingAlgorithmM.get(mContext).updateSortValuesForListType();
 
 		//Setting the type of list we like to display
-		String tmpListType = mContext.getSharedPreferences(WidgetConfigActivityC.WIDGET_CONFIG_LIST_TYPE_PREFERENCES,
-				Context.MODE_PRIVATE).getString(String.valueOf(mWidgetId),
-							WidgetConfigActivityC.WIDGET_CONFIG_LIST_TYPE_PREFERENCES_DEFAULT);
-		if(tmpListType.equals(WidgetConfigActivityC.WIDGET_CONFIG_LIST_TYPE_PREFERENCES_DEFAULT)){
+		int tmpListType = mContext.getSharedPreferences(
+				WidgetConfigActivityC.WIDGET_CONFIG_LIST_TYPE_PREFERENCES,
+				Context.MODE_PRIVATE).getInt(String.valueOf(mWidgetId),
+				ListTypeM.NOT_SET);
+		if(tmpListType == ListTypeM.NOT_SET){
 			Log.e(Utils.getClassName(), "Error in onCreate: no list type given");
 			return null;
 		}
 		
 		//Getting and saving a reference to the cursor
 		String tmpSortType = ItemTableM.COLUMN_KINDSORT_VALUE + " DESC";
-		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = ?";
-		String[] tmpSelectionArguments = {tmpListType};
+		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + "=?";
+		String[] tmpSelectionArguments = {String.valueOf(tmpListType)};
 		return mContext.getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, tmpSortType);
 	}
