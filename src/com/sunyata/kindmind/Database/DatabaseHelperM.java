@@ -20,7 +20,7 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 	//-------------------Constants
 
 	public static final String DATABASE_NAME = "kindmind.db";
-	private static final int DATABASE_VERSION = 55;
+	private static final int DATABASE_VERSION = 56;
 	//-PLEASE BE CAREFUL WHEN UPDATING THIS and add changes to the three onUpgrade methods
 	private static DatabaseHelperM sDatabaseHelper;
 	private static Context sContext = null; //-Used backup in onUpgrade

@@ -16,8 +16,6 @@ public class PatternsTableM {
 	//public static final String COLUMN_RELEVANCE = "relevance";
 	public static final String COLUMN_ITEM_REFERENCE = "item_id";
 	
-	//TODO: Please remember to update the verifyColumns method and the updrade method when we add new columns
-	
 	private static final String CREATE_DATABASE =
 			"CREATE TABLE " + TABLE_PATTERNS + "("
 			+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "

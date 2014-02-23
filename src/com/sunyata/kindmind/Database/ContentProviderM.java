@@ -271,15 +271,15 @@ public class ContentProviderM extends ContentProvider {
 			//Please note: No break statement, so we continue to the next case
 		case ITEM_SINGLE_ROW:
 			tmpAvailableColumns.add(ItemTableM.COLUMN_ID);
-			tmpAvailableColumns.add(ItemTableM.COLUMN_CREATE_TIME);
-			tmpAvailableColumns.add(ItemTableM.COLUMN_MODIFICATION_TIME);
+			//tmpAvailableColumns.add(ItemTableM.COLUMN_CREATE_TIME);
+			//tmpAvailableColumns.add(ItemTableM.COLUMN_MODIFICATION_TIME);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_NAME);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_LIST_TYPE);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_ACTIVE);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_ACTIONS);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_NOTIFICATION);
 			tmpAvailableColumns.add(ItemTableM.COLUMN_KINDSORT_VALUE);
-			tmpAvailableColumns.add(ItemTableM.COLUMN_DETAILS);
+			//tmpAvailableColumns.add(ItemTableM.COLUMN_DETAILS);
 			break;
 		case PATTERNS:
 			tmpAvailableColumns.add(PatternsTableM.COLUMN_ID);

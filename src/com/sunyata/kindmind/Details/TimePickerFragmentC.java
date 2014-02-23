@@ -63,7 +63,6 @@ public class TimePickerFragmentC extends DialogFragment implements TimePickerDia
 	
 	@Override
 	public Dialog onCreateDialog(Bundle inSavedInstanceState){
-		//TODO: Set the time which is stored the SQL database
 		Calendar tmpCalendar = Calendar.getInstance();
 		int tmpHour = tmpCalendar.get(Calendar.HOUR_OF_DAY);
 		int tmpMinute = tmpCalendar.get(Calendar.MINUTE);

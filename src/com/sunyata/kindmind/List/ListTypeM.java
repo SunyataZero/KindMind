@@ -40,6 +40,9 @@ public class ListTypeM {
 	public static final int FEELINGS = 0;
 	public static final int NEEDS = 1;
 	public static final int KINDNESS = 2;
+	//-these constants are also used for the tabs and viewpager positions
+	
+	public static final int NUMBER_OF_TYPES = 3;
 	
 	public static String getListTypeString(int inListType){
 		switch(inListType){

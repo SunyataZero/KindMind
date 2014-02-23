@@ -8,6 +8,8 @@ import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -43,6 +45,7 @@ import com.sunyata.kindmind.List.ListFragmentC;
 import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SetupActionOnClickListenerC;
 import com.sunyata.kindmind.WidgetAndNotifications.NotificationServiceC;
+import com.sunyata.kindmind.WidgetAndNotifications.WidgetProviderC;
 
 /*
  * Overview: SetupFragmentC handles data for a single list item (row in the SQL database).
@@ -604,9 +607,12 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			return true;
 		case R.id.menu_item_delete_listitem:
 			
-			//TODO: Remove any alarms
+			//Removing any alarms
+			this.updateTimeInDB(ItemTableM.FALSE);
+			this.changeNotificationService();
 
-			//TODO: Update the widget
+			//Updating the app widgets
+			Utils.updateWidgets(getActivity());
 			
 			//Remove the list item from the database
 			getActivity().getContentResolver().delete(this.refItemUri, null, null);

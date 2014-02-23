@@ -85,7 +85,7 @@ public class SortingAlgorithmM {
 	 *  still use the SIMPLE_PATTERN_MATCH_ADDITION constant, once for each time that the item has been checked
 	 *  and saved into the pattern table
 	 * Improvements: To cut down on object creation and thereby memory usage, remove the PatternM private class and
-	 *  store "relevance" values in an array or ListArray
+	 *  store "relevance" values in an array to reduce object creation
 	 * Algorithm improvements: Many ideas, one is to use the timestamp from the patterns table to reduce relevance
 	 *  for patterns from a long time back
 	 */

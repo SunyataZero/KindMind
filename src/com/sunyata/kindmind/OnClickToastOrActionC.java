@@ -185,14 +185,6 @@ public class OnClickToastOrActionC {
 		}
 
 
-		/*
-		TODO:
-		choice of file
-		choice of number/contact (nerd book)
-		choice online url
-		future: pinterest api, other apis
-		 */
-
 		//Verifying that we have at least one app that can handle this intent before starting
 		PackageManager tmpPackageManager = inContext.getApplicationContext().getPackageManager();
 		List<ResolveInfo> tmpListOfAllPosibleAcitivtiesForStarting =

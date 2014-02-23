@@ -19,7 +19,6 @@ public class SetupActionOnClickListenerC implements OnClickListener {
 	
 	@Override
 	public void onClick(View v) {
-		// TODO Auto-generated method stub
 		OnClickToastOrActionC.kindAction(mContext, mAction);
 	}
 

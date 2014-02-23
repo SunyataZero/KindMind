@@ -46,10 +46,8 @@ public class ItemTableM {
 	
 	public static final String TABLE_ITEM = "item"; 
 	public static final String COLUMN_ID = BaseColumns._ID;
-	public static final String COLUMN_CREATE_TIME = "create_time"; //-unused
-	public static final String COLUMN_MODIFICATION_TIME = "modification_time"; //-unused
 	public static final String COLUMN_NAME = "name";
-	public static final String COLUMN_DETAILS = "details"; //PLEASE NOTE: Unused
+	//public static final String COLUMN_DETAILS = "details";
 	public static final String COLUMN_LIST_TYPE = "list_type";
 	public static final String COLUMN_ACTIVE = "active";
 	public static final String COLUMN_ACTIONS = "actions"; //-list of actions, each ends with the pipe ('|') character
@@ -71,7 +69,6 @@ public class ItemTableM {
 			"CREATE TABLE " + TABLE_ITEM + "("
 			+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ COLUMN_NAME + " TEXT NOT NULL DEFAULT '" + NO_NAME + "', "
-			+ COLUMN_DETAILS + " TEXT NOT NULL DEFAULT '" + NO_NAME + "', "
 			+ COLUMN_LIST_TYPE + " INTEGER NOT NULL, "
 			+ COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT " + String.valueOf(FALSE) + ", "
 			+ COLUMN_ACTIONS + " TEXT NOT NULL DEFAULT '" + NO_NAME + "', "
@@ -80,6 +77,7 @@ public class ItemTableM {
 			+ ");";
 	
 	/*
+			+ COLUMN_DETAILS + " TEXT NOT NULL DEFAULT '" + NO_NAME + "', "
 			+ COLUMN_CREATE_TIME + " INTEGER NOT NULL DEFAULT 0, "
 			+ COLUMN_MODIFICATION_TIME + " INTEGER NOT NULL DEFAULT 0, "
 	 */

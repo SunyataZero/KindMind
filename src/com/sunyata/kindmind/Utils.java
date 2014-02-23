@@ -13,6 +13,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +30,7 @@ import android.util.Log;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.List.ListTypeM;
+import com.sunyata.kindmind.WidgetAndNotifications.WidgetProviderC;
 
 public class Utils {
 
@@ -40,7 +43,6 @@ public class Utils {
 	public static final int MAX_NR_OF_PATTERN_ROWS = 2000; //TODO: Auto test this value to see if we can increase it
 	
 
-	
 	//--------------------(Static) methods for debugging
 	
 	public static String getMethodName(String inPrefix){
@@ -494,5 +496,12 @@ public class Utils {
 	
 	public static int getMaxNumberOfPatternRows(){
 		return Utils.MAX_NR_OF_PATTERN_ROWS;
+	}
+	
+	public static void updateWidgets(Context inContext) {
+		AppWidgetManager tmpAppWidgetManager = AppWidgetManager.getInstance(inContext);
+		ComponentName tmpComponentName = new ComponentName(inContext, WidgetProviderC.class);
+		int[] tmpWidgetIds = tmpAppWidgetManager.getAppWidgetIds(tmpComponentName);
+		tmpAppWidgetManager.notifyAppWidgetViewDataChanged(tmpWidgetIds, R.id.widget_listview);
 	}
 }

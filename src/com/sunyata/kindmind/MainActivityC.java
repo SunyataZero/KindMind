@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.style.UpdateAppearance;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -157,10 +158,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         refActionBar.addTab(refActionBar.newTab().setText(mNeedTitle).setTabListener(tmpTabListener));
         refActionBar.addTab(refActionBar.newTab().setText(mActionTitle).setTabListener(tmpTabListener));
         this.fireUpdateTabTitles();
-        
-        
-        //TODO: Extracting attached bundle data (used when starting from a pending intent through notifications)
-
     }
     
 
@@ -178,7 +175,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     class FragmentStatePagerAdapterM extends FragmentStatePagerAdapter {
         private ListFragmentC mFeelingListFragment;
         private ListFragmentC mNeedListFragment;
-        private ListFragmentC mActionListFragment;
+        private ListFragmentC mKindnessListFragment;
         public FragmentStatePagerAdapterM(FragmentManager inFragmentManager) {
             super(inFragmentManager);
         }
@@ -190,15 +187,16 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         				(MainActivityCallbackListenerI)MainActivityC.this);
         		break;
         	case ListTypeM.NEEDS:
-        		mNeedListFragment = ListFragmentC.newInstance(ListTypeM.NEEDS,
+           		mNeedListFragment = ListFragmentC.newInstance(ListTypeM.NEEDS,
         				(MainActivityCallbackListenerI)MainActivityC.this);
         		break;
         	case ListTypeM.KINDNESS:
-        		mActionListFragment = ListFragmentC.newInstance(ListTypeM.KINDNESS,
+           		mKindnessListFragment = ListFragmentC.newInstance(ListTypeM.KINDNESS,
         				(MainActivityCallbackListenerI)MainActivityC.this);
         		break;
+        	case ListTypeM.NOT_SET:
         	default:
-        		Log.e(Utils.getClassName(), "Error in instantiateItem: Case not covered");
+        		Log.e(Utils.getClassName(), "Error in instantiateItem: Case not covered or not set");
         		break;
         	}
         	return super.instantiateItem(inContainer, inPosition);
@@ -206,15 +204,18 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         @Override
         public ListFragmentC getItem(int inPosition) {
         	switch (inPosition){
-		    	case 0:	return mFeelingListFragment;
-				case 1: return mNeedListFragment;
-		    	case 2: return mActionListFragment;
-		    	default: Log.e(Utils.getClassName(), "Error in method getItem: case not covered");return null;
+		    	case ListTypeM.FEELINGS:	return mFeelingListFragment;
+				case ListTypeM.NEEDS:		return mNeedListFragment;
+		    	case ListTypeM.KINDNESS:	return mKindnessListFragment;
+		    	case ListTypeM.NOT_SET:
+		    	default:
+		    		Log.e(Utils.getClassName(), "Error in method getItem: case not covered or not set");
+		    		return null;
         	}
         }
         @Override
         public int getCount() {
-            return 3;
+            return ListTypeM.NUMBER_OF_TYPES;
         }
     }
 
@@ -251,12 +252,16 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		//Limiting the number of rows in the patterns table
 		this.limitPatternsTable();
 		
-		//Clearing data and side scrolling to the left
+		//Clearing data
 		this.fireClearAllListsEvent();
 
 		//Updating the sort values
 		SortingAlgorithmM.get(this).updateSortValuesForListType();
 		//-this is done after we have cleared the checkboxes so that these values will not influence the sorting
+		
+		//Updating gui
+		this.fireUpdateTabTitles();
+		this.fireScrollLeftmostEvent();
 		
 		tmpItemCur.close();
 	}
@@ -320,13 +325,14 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		tmpContentValueForUpdate.put(ItemTableM.COLUMN_ACTIVE, ItemTableM.FALSE);
 		Uri tmpUri = Uri.parse(ContentProviderM.ITEM_CONTENT_URI.toString());
 		this.getContentResolver().update(tmpUri, tmpContentValueForUpdate, null, null);
-		
+	}
+	
+	@Override
+	public void fireScrollLeftmostEvent(){
 		//Side scrolling to the leftmost viewpager position (feelings)
 		if(mViewPager.getCurrentItem() != 0){
 			mViewPager.setCurrentItem(0, true);
 		}
-		
-		this.fireUpdateTabTitles();
 	}
 	
 	/*
@@ -375,17 +381,31 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     		//-solves the problem in issue #41
     	}
     	
-    	/*
     	//Extracting data from the intent given when calling this activity (used by widgets and notifications)
-    	Uri tmpItemUri = Uri.parse(this.getIntent().getStringExtra(EXTRA_URI_AS_STRING));
-    	if(tmpItemUri != null){
-        	Cursor tmpItemCur = getContentResolver().query(tmpItemUri, null, null, null, null);
-        	tmpItemCur.moveToFirst();
-        	
-        	//TODO
-        	///////////asdf
+    	if(this.getIntent() != null && this.getIntent().hasExtra(EXTRA_URI_AS_STRING)){
+    		String tmpExtraFromString = this.getIntent().getStringExtra(EXTRA_URI_AS_STRING);
+        	Uri tmpItemUri = Uri.parse(tmpExtraFromString);
+        	if(tmpItemUri != null){
+            	this.fireClearAllListsEvent();
+            	
+            	//Updating the db value
+            	ContentValues tmpContentValues = new ContentValues();
+            	tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, 1);
+            	getContentResolver().update(tmpItemUri, tmpContentValues, null, null);
+            	
+            	this.fireUpdateTabTitles();
+
+            	//Setting up the cursor and extracting the list type..
+            	Cursor tmpItemCur = getContentResolver().query(tmpItemUri, null, null, null, null);
+            	tmpItemCur.moveToFirst();
+            	int tmpListType = tmpItemCur.getInt(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE));
+            	tmpItemCur.close();
+            	
+            	//..setting the Viewpager position
+            	if(mViewPager.getCurrentItem() != tmpListType){
+        			mViewPager.setCurrentItem(tmpListType, false);
+        		}
+        	}
     	}
-    	*/
-    	
     }
 }

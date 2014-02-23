@@ -89,8 +89,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		//Setup of variables used for selecting the database colums of rows
 		String[] tmpProjection = {ItemTableM.COLUMN_ID, ItemTableM.COLUMN_NAME,
-				ItemTableM.COLUMN_DETAILS, ItemTableM.COLUMN_ACTIVE, ItemTableM.COLUMN_KINDSORT_VALUE,
-				ItemTableM.COLUMN_ACTIONS};
+				ItemTableM.COLUMN_ACTIVE, ItemTableM.COLUMN_KINDSORT_VALUE, ItemTableM.COLUMN_ACTIONS};
 		//-kindsortvalue only needed here when used for debug purposes
 		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + "=?";
 		String[] tmpSelectionArguments = {String.valueOf(refListType)};
@@ -313,6 +312,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			//-Extracted in SingleFragmentActivityC and sent to DataDetailsFragmentC
 			startActivityForResult(intent, 0);
 			
+			//Updating the app widgets
+			////Utils.updateWidgets(getActivity());
+			
 			return true;
 		case R.id.menu_item_save_pattern: //------------Saving pattern
 			sCallbackListener.fireSavePatternEvent();
@@ -341,6 +343,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		case R.id.menu_item_clear_all_list_selections: //------------Clear checkmarks for all lists
 			//Clearing activated and going left
 			sCallbackListener.fireClearAllListsEvent();
+			sCallbackListener.fireUpdateTabTitles();
+			sCallbackListener.fireScrollLeftmostEvent();
 			
 			return true;
 		case R.id.menu_item_send_as_text_all: //------------Send lists as text (partial backup)
