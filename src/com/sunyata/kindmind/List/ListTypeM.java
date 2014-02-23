@@ -3,7 +3,38 @@ package com.sunyata.kindmind.List;
 import android.util.Log;
 
 import com.sunyata.kindmind.Utils;
-
+/*
+ * Overview: 
+ * 
+ * Details: 
+ * 
+ * Extends: 
+ * 
+ * Implements: 
+ * 
+ * Sections:
+ * 
+ * Used in: 
+ * 
+ * Uses app internal: 
+ * 
+ * Uses Android lib: 
+ * 
+ * In: 
+ * 
+ * Out: 
+ * 
+ * Does: 
+ * 
+ * Shows user: 
+ * 
+ * Notes: 
+ * 
+ * Improvements: 
+ * 
+ * Documentation: 
+ * 
+ */
 public class ListTypeM {
 	public static final int NOT_SET = -1;
 	public static final int FEELINGS = 0;
