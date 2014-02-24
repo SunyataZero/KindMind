@@ -13,7 +13,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.text.style.UpdateAppearance;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -158,6 +157,41 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         refActionBar.addTab(refActionBar.newTab().setText(mNeedTitle).setTabListener(tmpTabListener));
         refActionBar.addTab(refActionBar.newTab().setText(mActionTitle).setTabListener(tmpTabListener));
         this.fireUpdateTabTitles();
+        
+        
+        
+        
+        
+    	//Extracting data from the intent given when calling this activity (used by widgets and notifications)
+    	if(this.getIntent() != null && this.getIntent().hasExtra(EXTRA_URI_AS_STRING)){
+    		String tmpExtraFromString = this.getIntent().getStringExtra(EXTRA_URI_AS_STRING);
+        	Uri tmpItemUri = Uri.parse(tmpExtraFromString);
+        	if(tmpItemUri != null){
+            	this.fireClearAllListsEvent();
+            	
+            	//Updating the db value
+            	ContentValues tmpContentValues = new ContentValues();
+            	tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, 1);
+            	getContentResolver().update(tmpItemUri, tmpContentValues, null, null);
+            	
+            	this.fireUpdateTabTitles();
+
+            	//Setting up the cursor and extracting the list type..
+            	Cursor tmpItemCur = getContentResolver().query(tmpItemUri, null, null, null, null);
+            	tmpItemCur.moveToFirst();
+            	int tmpListType = tmpItemCur.getInt(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE));
+            	tmpItemCur.close();
+            	
+            	//..setting the Viewpager position
+            	if(mViewPager.getCurrentItem() != tmpListType){
+            		sViewPagerPosition = tmpListType;
+        			mViewPager.setCurrentItem(sViewPagerPosition);
+        		}
+        	}
+    	}
+    	
+    	
+    	
     }
     
 
@@ -379,33 +413,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	if(sViewPagerPosition != mViewPager.getCurrentItem()){
     		mViewPager.setCurrentItem(sViewPagerPosition);
     		//-solves the problem in issue #41
-    	}
-    	
-    	//Extracting data from the intent given when calling this activity (used by widgets and notifications)
-    	if(this.getIntent() != null && this.getIntent().hasExtra(EXTRA_URI_AS_STRING)){
-    		String tmpExtraFromString = this.getIntent().getStringExtra(EXTRA_URI_AS_STRING);
-        	Uri tmpItemUri = Uri.parse(tmpExtraFromString);
-        	if(tmpItemUri != null){
-            	this.fireClearAllListsEvent();
-            	
-            	//Updating the db value
-            	ContentValues tmpContentValues = new ContentValues();
-            	tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, 1);
-            	getContentResolver().update(tmpItemUri, tmpContentValues, null, null);
-            	
-            	this.fireUpdateTabTitles();
-
-            	//Setting up the cursor and extracting the list type..
-            	Cursor tmpItemCur = getContentResolver().query(tmpItemUri, null, null, null, null);
-            	tmpItemCur.moveToFirst();
-            	int tmpListType = tmpItemCur.getInt(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE));
-            	tmpItemCur.close();
-            	
-            	//..setting the Viewpager position
-            	if(mViewPager.getCurrentItem() != tmpListType){
-        			mViewPager.setCurrentItem(tmpListType, false);
-        		}
-        	}
     	}
     }
 }
