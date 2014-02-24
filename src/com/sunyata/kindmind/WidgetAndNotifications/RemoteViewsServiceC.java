@@ -14,7 +14,7 @@ import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.List.ListTypeM;
-import com.sunyata.kindmind.List.SortingAlgorithmM;
+import com.sunyata.kindmind.List.SortingAlgorithmServiceM;
 
 public class RemoteViewsServiceC extends RemoteViewsService {
 	@Override
@@ -153,7 +153,8 @@ class RemoteViewsFactoryC implements RemoteViewsService.RemoteViewsFactory{
 	 */
 	private Cursor createItemCursor(){
 		//Updating sort values
-		SortingAlgorithmM.get(mContext).updateSortValuesForListType();
+		///SortingAlgorithmM.get(mContext).updateSortValuesForListType();
+		mContext.startService(new Intent(mContext, SortingAlgorithmServiceM.class));
 
 		//Setting the type of list we like to display
 		int tmpListType = mContext.getSharedPreferences(

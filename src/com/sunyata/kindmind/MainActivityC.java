@@ -6,6 +6,7 @@ import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,7 +23,7 @@ import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternsTableM;
 import com.sunyata.kindmind.List.ListFragmentC;
 import com.sunyata.kindmind.List.ListTypeM;
-import com.sunyata.kindmind.List.SortingAlgorithmM;
+import com.sunyata.kindmind.List.SortingAlgorithmServiceM;
 
 /*
  * Overview: MainActivityC holds three ListFragments in a ViewPager and handles the corresponding tabs
@@ -167,12 +168,15 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     		String tmpExtraFromString = this.getIntent().getStringExtra(EXTRA_URI_AS_STRING);
         	Uri tmpItemUri = Uri.parse(tmpExtraFromString);
         	if(tmpItemUri != null){
-            	this.fireClearAllListsEvent();
+            	this.fireClearAllActiveInDatabase();
             	
             	//Updating the db value
             	ContentValues tmpContentValues = new ContentValues();
             	tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, 1);
             	getContentResolver().update(tmpItemUri, tmpContentValues, null, null);
+            	
+            	///SortingAlgorithmM.get(this).updateSortValuesForListType();
+            	this.startService(new Intent(this, SortingAlgorithmServiceM.class));
             	
             	this.fireUpdateTabTitles();
 
@@ -287,10 +291,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		this.limitPatternsTable();
 		
 		//Clearing data
-		this.fireClearAllListsEvent();
+		this.fireClearAllActiveInDatabase();
 
 		//Updating the sort values
-		SortingAlgorithmM.get(this).updateSortValuesForListType();
+		///SortingAlgorithmM.get(this).updateSortValuesForListType();
+		this.startService(new Intent(this, SortingAlgorithmServiceM.class));
 		//-this is done after we have cleared the checkboxes so that these values will not influence the sorting
 		
 		//Updating gui
@@ -347,13 +352,12 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	}
 	
 	/*
-	 * Overview: fireClearAllListsEvent clears all marks for checked/activated list items and scrolls to
-	 *  the leftmost position (then also calls fireUpdateTabTitles so that the numbers are cleared as well) 
-	 * Used in: 1. fireSavePatternEvent 2. ListFragmentC.onOptionsItemSelected()
-	 * Improvements: Possibly splitting the clearing and the side scrolling
+	 * Overview: fireClearAllListsEvent clears all marks for checked/activated list items
+	 * Used in:
+	 * Improvements:
 	 */
 	@Override
-	public void fireClearAllListsEvent() { //[list update]
+	public void fireClearAllActiveInDatabase() { //[list update]
 		//Clearing all the checks for all list items
 		ContentValues tmpContentValueForUpdate = new ContentValues();
 		tmpContentValueForUpdate.put(ItemTableM.COLUMN_ACTIVE, ItemTableM.FALSE);

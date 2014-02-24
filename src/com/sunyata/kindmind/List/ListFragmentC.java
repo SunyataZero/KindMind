@@ -248,7 +248,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		}
 
 		//Sorting and updating
-		SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
+		///SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
+		getActivity().startService(new Intent(getActivity(), SortingAlgorithmServiceM.class));
 		sCallbackListener.fireUpdateTabTitles();
 		getListView().smoothScrollToPosition(0);
     }
@@ -330,7 +331,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		case R.id.menu_item_kindsort: //------------Sort kindsort
 			if(Utils.isReleaseVersion(getActivity()) == false){
 				//Updating the sort values which will be used below
-				SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
+				///SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
+				getActivity().startService(new Intent(getActivity(), SortingAlgorithmServiceM.class));
 			}
 			
 			//Changing the sort method used and refreshing list
@@ -342,7 +344,9 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		case R.id.menu_item_clear_all_list_selections: //------------Clear checkmarks for all lists
 			//Clearing activated and going left
-			sCallbackListener.fireClearAllListsEvent();
+			sCallbackListener.fireClearAllActiveInDatabase();
+			///SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
+			getActivity().startService(new Intent(getActivity(), SortingAlgorithmServiceM.class));
 			sCallbackListener.fireUpdateTabTitles();
 			sCallbackListener.fireScrollLeftmostEvent();
 			

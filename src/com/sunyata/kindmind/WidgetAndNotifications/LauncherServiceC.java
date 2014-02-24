@@ -34,12 +34,7 @@ public class LauncherServiceC extends IntentService {
 			Intent tmpMainActivityIntent = new Intent(getApplicationContext(), MainActivityC.class);
 			tmpMainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			tmpMainActivityIntent.putExtra(MainActivityC.EXTRA_URI_AS_STRING, tmpItemUri.toString());
-			startActivity(tmpMainActivityIntent);
-			/*
-			FLAG_ACTIVITY_REORDER_TO_FRONT
-			Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-			FLAG_ACTIVITY_NEW_TASK
-			*/
+			startActivity(tmpMainActivityIntent); //-intent used in MainActivityC.onCreate
 
 			//Launching a kind action
 			OnClickToastOrActionC.randomKindAction(getApplicationContext(), tmpItemUri);
