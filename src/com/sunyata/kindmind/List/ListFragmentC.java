@@ -248,9 +248,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		}
 
 		//Sorting and updating
-		///SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
 		getActivity().startService(new Intent(getActivity(), SortingAlgorithmServiceM.class));
-		sCallbackListener.fireUpdateTabTitles();
+		sCallbackListener.fireUpdateTabTitlesEvent();
 		getListView().smoothScrollToPosition(0);
     }
 	
@@ -324,6 +323,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		case R.id.menu_item_save_pattern: //------------Saving pattern
 			sCallbackListener.fireSavePatternEvent();
+			getListView().smoothScrollToPosition(0);
 			
 			return true;
 		case R.id.menu_item_sort_alphabetically: //------------Sort alphabeta
@@ -350,6 +350,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		case R.id.menu_item_clear_all_list_selections: //------------Clear checkmarks for all lists
 			//Clearing activated and going left
 			sCallbackListener.fireClearDatabaseAndUpdateGuiEvent();
+			getListView().smoothScrollToPosition(0);
 			
 			return true;
 		case R.id.menu_item_send_as_text_all: //------------Send lists as text (partial backup)
@@ -384,7 +385,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
 			return true;
 		case R.id.menu_item_reset_database: //------------Resetting database
-			sCallbackListener.fireResetData();
+			sCallbackListener.fireResetDataEvent();
 
 			return true;
 		default:

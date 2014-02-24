@@ -157,7 +157,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         refActionBar.addTab(refActionBar.newTab().setText(mFeelingTitle).setTabListener(tmpTabListener));
         refActionBar.addTab(refActionBar.newTab().setText(mNeedTitle).setTabListener(tmpTabListener));
         refActionBar.addTab(refActionBar.newTab().setText(mActionTitle).setTabListener(tmpTabListener));
-        this.updateTabTitles();
+        this.fireUpdateTabTitlesEvent();
         
         
         
@@ -178,7 +178,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
             	///SortingAlgorithmM.get(this).updateSortValuesForListType();
             	this.startService(new Intent(this, SortingAlgorithmServiceM.class));
             	
-            	this.updateTabTitles();
+            	this.fireUpdateTabTitlesEvent();
 
             	//Setting up the cursor and extracting the list type..
             	Cursor tmpItemCur = getContentResolver().query(tmpItemUri, null, null, null, null);
@@ -291,7 +291,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		this.limitPatternsTable();
 		
 		//Clearing data and updating the gui
-		fireClearDatabaseAndUpdateGuiEvent();
+		this.fireClearDatabaseAndUpdateGuiEvent();
 		
 		tmpItemCur.close();
 	}
@@ -346,7 +346,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	public void fireClearDatabaseAndUpdateGuiEvent() {
 		this.clearAllActiveInDatabase();
 		this.startService(new Intent(this, SortingAlgorithmServiceM.class));
-		this.updateTabTitles();
+		this.fireUpdateTabTitlesEvent();
 		this.scrollLeftmost();
 	}
 
@@ -375,7 +375,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	 *  list items have been checked/activated - adds the number of checks for that list type/fragment
 	 * Used in: 1. fireSavePatternEvent 2. ListFragmentC.onListItemClick() 3. onCreate
 	 */
-	private void updateTabTitles() {
+	@Override
+	public void fireUpdateTabTitlesEvent() {
 		mFeelingTitle = getResources().getString(R.string.feelings_title);
         mNeedTitle = getResources().getString(R.string.needs_title);
         mActionTitle = getResources().getString(R.string.kindness_title);
@@ -393,7 +394,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     /*
 	 * Overview: resetData clears and repopulates the list of data items. Used for testing and debug purposes
 	 */
-    public void fireResetData(){
+    public void fireResetDataEvent(){
     	//Clearing the data
     	this.getContentResolver().delete(ContentProviderM.ITEM_CONTENT_URI, null, null);
     	this.getContentResolver().delete(ContentProviderM.PATTERNS_CONTENT_URI, null, null);
