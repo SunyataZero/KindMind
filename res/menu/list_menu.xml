@@ -11,19 +11,14 @@
         android:title="@string/save_pattern"
         android:showAsAction="always" />
     <item
-        android:id="@+id/menu_item_share_experience"
-        android:icon="@android:drawable/ic_menu_share"
-        android:title="@string/share_experience"
+        android:id="@+id/menu_item_sort_alphabetically"
+        android:icon="@android:drawable/ic_menu_sort_alphabetically"
+        android:title="@string/sort_alphabetically"
         android:showAsAction="never" />
     <item
         android:id="@+id/menu_item_kindsort"
         android:icon="@android:drawable/ic_menu_sort_by_size"
         android:title="@string/sort_by_rank"
-        android:showAsAction="never" />
-    <item
-        android:id="@+id/menu_item_sort_alphabetically"
-        android:icon="@android:drawable/ic_menu_sort_alphabetically"
-        android:title="@string/sort_alphabetically"
         android:showAsAction="never" />
     <!-- clear_all_list_selections: android:icon="@drawable/ic_menu_clear_playlist" -->
     <item
@@ -36,6 +31,10 @@
         android:title="@string/send_as_text_all"
         android:showAsAction="never" />
     <item
+        android:id="@+id/menu_item_about"
+        android:title="About"
+        android:showAsAction="never" />
+    <item
         android:id="@+id/menu_item_backup_database"
         android:title="@string/backup_database"
         android:showAsAction="never" />
@@ -44,7 +43,8 @@
         android:title="@string/reset_database"
         android:showAsAction="never" />
     <item
-        android:id="@+id/menu_item_about"
-        android:title="About"
+        android:id="@+id/menu_item_share_experience"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="@string/share_experience"
         android:showAsAction="never" />
 </menu>

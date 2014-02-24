@@ -139,11 +139,17 @@ public class CursorAdapterM extends SimpleCursorAdapter{
 	 */
 	@Override
 	public int getViewTypeCount(){
-		int retViewTypeCount = Utils.getListItemCount(mContext, mListType);
+		int retViewTypeCount = 1;
+		//Utils.getListItemCount(mContext, mListType);
+		if(this.mCursor != null){
+			retViewTypeCount = this.mCursor.getCount();
+		}else{
+			retViewTypeCount = this.getCount();
+		}
 		if(retViewTypeCount < 1){
 			retViewTypeCount = 1;
 		}
-		return retViewTypeCount;
+		return retViewTypeCount; //retViewTypeCount + 3; //1000; //retViewTypeCount + 1;
 	}
 	
 	@Override

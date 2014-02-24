@@ -611,6 +611,10 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			this.updateTimeInDB(ItemTableM.FALSE);
 			this.changeNotificationService();
 
+			//This may not be nessacary:
+			//Updating the adapter in ListFragmentC
+	    	///this.updateCursorAdapter();
+			
 			//Updating the app widgets
 			Utils.updateWidgets(getActivity());
 			

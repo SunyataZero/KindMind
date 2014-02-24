@@ -9,14 +9,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 public class AboutFragmentC extends Fragment {
 	
 	private TextView mVersionTextView;
-	private TextView mShareTextView;
+	//private TextView mShareTextView;
 	
 	public static Fragment newInstance(){
 		Fragment retFragment = new AboutFragmentC(); //-"Implicit" constructor used
@@ -44,8 +43,10 @@ public class AboutFragmentC extends Fragment {
 			Log.e(Utils.getClassName(), e.getMessage());
 			getActivity().finish();
 		}
-    	mVersionTextView.setText(tmpPackageInfo.packageName + " " + tmpPackageInfo.versionName);
+    	mVersionTextView.setText(tmpPackageInfo.versionName);
+    	///tmpPackageInfo.packageName + " " +
     	
+    	/*
     	//Clickable TextView for sharing the app
     	mShareTextView = (TextView)v.findViewById(R.id.shareTextView);
     	mShareTextView.setOnClickListener(new OnClickListener() {
@@ -55,6 +56,7 @@ public class AboutFragmentC extends Fragment {
 						"http://play.google.com/store/apps/details?id=com.sunyata.kindmind", null);
 			}
 		});
+		*/
     	
     	return v;
     }

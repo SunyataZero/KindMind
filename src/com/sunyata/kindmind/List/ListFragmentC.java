@@ -306,6 +306,11 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	    	Uri tmpUriOfNewItem = getActivity().getContentResolver().insert(
 	    			ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);
 	    	
+	    	//Updating the adapter
+	    	this.updateCursorAdapter();
+	    	//-otherwise we will get an arrayindexoutofboundsexception:
+	    	// http://stackoverflow.com/questions/2596547/arrayindexoutofboundsexception-with-custom-android-adapter-for-multiple-views-in#2597318
+	    	
 	    	//Launching the details fragment for the newly created item
 			Intent intent = new Intent(getActivity(), ItemSetupActivityC.class);
 			String tmpExtraString = tmpUriOfNewItem.toString();
@@ -344,11 +349,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		case R.id.menu_item_clear_all_list_selections: //------------Clear checkmarks for all lists
 			//Clearing activated and going left
-			sCallbackListener.fireClearAllActiveInDatabase();
-			///SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
-			getActivity().startService(new Intent(getActivity(), SortingAlgorithmServiceM.class));
-			sCallbackListener.fireUpdateTabTitles();
-			sCallbackListener.fireScrollLeftmostEvent();
+			sCallbackListener.fireClearDatabaseAndUpdateGuiEvent();
 			
 			return true;
 		case R.id.menu_item_send_as_text_all: //------------Send lists as text (partial backup)
@@ -358,6 +359,10 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 				this.getFormattedStringForListType(ListTypeM.KINDNESS);
 			Utils.sendAsEmail(getActivity(), "KindMind all lists as text", tmpAllListsAsText, null);
 
+			return true;
+		case R.id.menu_item_about: //------------About
+			startActivity(new Intent(getActivity(), AboutActivityC.class));
+			
 			return true;
 		case R.id.menu_item_share_experience: //TODO: Do this as a hard coded action instead
 			/*
@@ -381,10 +386,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		case R.id.menu_item_reset_database: //------------Resetting database
 			sCallbackListener.fireResetData();
 
-			return true;
-		case R.id.menu_item_about: //------------About
-			startActivity(new Intent(getActivity(), AboutActivityC.class));
-			
 			return true;
 		default:
 			return super.onOptionsItemSelected(inMenuItem);

@@ -157,7 +157,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         refActionBar.addTab(refActionBar.newTab().setText(mFeelingTitle).setTabListener(tmpTabListener));
         refActionBar.addTab(refActionBar.newTab().setText(mNeedTitle).setTabListener(tmpTabListener));
         refActionBar.addTab(refActionBar.newTab().setText(mActionTitle).setTabListener(tmpTabListener));
-        this.fireUpdateTabTitles();
+        this.updateTabTitles();
         
         
         
@@ -168,7 +168,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     		String tmpExtraFromString = this.getIntent().getStringExtra(EXTRA_URI_AS_STRING);
         	Uri tmpItemUri = Uri.parse(tmpExtraFromString);
         	if(tmpItemUri != null){
-            	this.fireClearAllActiveInDatabase();
+            	this.clearAllActiveInDatabase();
             	
             	//Updating the db value
             	ContentValues tmpContentValues = new ContentValues();
@@ -178,7 +178,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
             	///SortingAlgorithmM.get(this).updateSortValuesForListType();
             	this.startService(new Intent(this, SortingAlgorithmServiceM.class));
             	
-            	this.fireUpdateTabTitles();
+            	this.updateTabTitles();
 
             	//Setting up the cursor and extracting the list type..
             	Cursor tmpItemCur = getContentResolver().query(tmpItemUri, null, null, null, null);
@@ -290,17 +290,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		//Limiting the number of rows in the patterns table
 		this.limitPatternsTable();
 		
-		//Clearing data
-		this.fireClearAllActiveInDatabase();
-
-		//Updating the sort values
-		///SortingAlgorithmM.get(this).updateSortValuesForListType();
-		this.startService(new Intent(this, SortingAlgorithmServiceM.class));
-		//-this is done after we have cleared the checkboxes so that these values will not influence the sorting
-		
-		//Updating gui
-		this.fireUpdateTabTitles();
-		this.fireScrollLeftmostEvent();
+		//Clearing data and updating the gui
+		fireClearDatabaseAndUpdateGuiEvent();
 		
 		tmpItemCur.close();
 	}
@@ -351,13 +342,20 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				+ ", exiting method");
 	}
 	
+	@Override
+	public void fireClearDatabaseAndUpdateGuiEvent() {
+		this.clearAllActiveInDatabase();
+		this.startService(new Intent(this, SortingAlgorithmServiceM.class));
+		this.updateTabTitles();
+		this.scrollLeftmost();
+	}
+
 	/*
 	 * Overview: fireClearAllListsEvent clears all marks for checked/activated list items
 	 * Used in:
 	 * Improvements:
 	 */
-	@Override
-	public void fireClearAllActiveInDatabase() { //[list update]
+	private void clearAllActiveInDatabase() { //[list update]
 		//Clearing all the checks for all list items
 		ContentValues tmpContentValueForUpdate = new ContentValues();
 		tmpContentValueForUpdate.put(ItemTableM.COLUMN_ACTIVE, ItemTableM.FALSE);
@@ -365,8 +363,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		this.getContentResolver().update(tmpUri, tmpContentValueForUpdate, null, null);
 	}
 	
-	@Override
-	public void fireScrollLeftmostEvent(){
+	private void scrollLeftmost(){
 		//Side scrolling to the leftmost viewpager position (feelings)
 		if(mViewPager.getCurrentItem() != 0){
 			mViewPager.setCurrentItem(0, true);
@@ -378,8 +375,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	 *  list items have been checked/activated - adds the number of checks for that list type/fragment
 	 * Used in: 1. fireSavePatternEvent 2. ListFragmentC.onListItemClick() 3. onCreate
 	 */
-	@Override
-	public void fireUpdateTabTitles() {
+	private void updateTabTitles() {
 		mFeelingTitle = getResources().getString(R.string.feelings_title);
         mNeedTitle = getResources().getString(R.string.needs_title);
         mActionTitle = getResources().getString(R.string.kindness_title);
@@ -419,4 +415,5 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     		//-solves the problem in issue #41
     	}
     }
+    
 }
