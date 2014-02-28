@@ -92,9 +92,9 @@ public class CursorAdapterM extends SimpleCursorAdapter{
 		if(BuildConfig.DEBUG){
 			//Add the numbers to the end of the name of the list item
 			TextView tmpTextView = ((TextView)convertView.findViewById(R.id.list_item_titleTextView));
-			double tmpKindSortValue = Double.parseDouble(tmpLoaderItemCur.getString(
-					tmpLoaderItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_KINDSORT_VALUE)));
-			String tmpTextToAppend = " [" + tmpKindSortValue + "]";
+			double tmpKindSortValue = tmpLoaderItemCur.getDouble(
+					tmpLoaderItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_KINDSORT_VALUE));
+			String tmpTextToAppend = " [" + Utils.formatNumber(tmpKindSortValue) + "]";
 			tmpTextView.append(tmpTextToAppend);
 		}
 		

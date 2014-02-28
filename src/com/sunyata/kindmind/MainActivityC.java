@@ -10,18 +10,21 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternsTableM;
 import com.sunyata.kindmind.List.ListFragmentC;
+import com.sunyata.kindmind.List.ListFragmentC.AlgorithmServiceResultReceiver;
 import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SortingAlgorithmServiceM;
 
@@ -162,8 +165,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         
         
         
-        
-    	//Extracting data from the intent given when calling this activity (used by widgets and notifications)
+        //------------Extracting data from the intent given when calling this activity
+        // (used by widgets and notifications)
     	if(this.getIntent() != null && this.getIntent().hasExtra(EXTRA_URI_AS_STRING)){
     		String tmpExtraFromString = this.getIntent().getStringExtra(EXTRA_URI_AS_STRING);
         	Uri tmpItemUri = Uri.parse(tmpExtraFromString);
@@ -175,8 +178,21 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
             	tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, 1);
             	getContentResolver().update(tmpItemUri, tmpContentValues, null, null);
             	
-            	///SortingAlgorithmM.get(this).updateSortValuesForListType();
-            	this.startService(new Intent(this, SortingAlgorithmServiceM.class));
+            	
+            	
+            	
+            	
+            	/////((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService();
+            	
+            	//Sorting data for all lists without showing loading spinner
+            	// "((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService();"
+            	// which shows the loading spinner gives a NPE in a situation
+        		Intent tmpIntent = new Intent(this, SortingAlgorithmServiceM.class);
+        		this.startService(tmpIntent);
+            	
+        		
+        		
+        		
             	
             	this.fireUpdateTabTitlesEvent();
 
@@ -193,9 +209,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         		}
         	}
     	}
-    	
-    	
-    	
     }
     
 
@@ -255,6 +268,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         public int getCount() {
             return ListTypeM.NUMBER_OF_TYPES;
         }
+
+        public ListFragmentC getCurrentFragment(){
+        	ListFragmentC retListFragmentC = this.getItem(mViewPager.getCurrentItem());
+			return retListFragmentC;
+        }
     }
 
     
@@ -267,14 +285,13 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	 */
 	@Override
 	public void fireSavePatternEvent() {
-		Cursor tmpItemCur = this.getContentResolver().query(
-				ContentProviderM.ITEM_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
-		
 		long tmpCurrentTime = Calendar.getInstance().getTimeInMillis();
 		//-getting the time here instead of inside the for statement ensures that we are able
 		// to use the time as way to group items into a pattern.
 		
 		//Iterate through the list items to find the ones that are checked/active..
+		Cursor tmpItemCur = this.getContentResolver().query(
+				ContentProviderM.ITEM_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
 		for(tmpItemCur.moveToFirst(); tmpItemCur.isAfterLast() == false; tmpItemCur.moveToNext()){
 			if(Utils.sqlToBoolean(tmpItemCur, ItemTableM.COLUMN_ACTIVE)){
 				//..saving to pattern in database
@@ -285,6 +302,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				this.getContentResolver().insert(ContentProviderM.PATTERNS_CONTENT_URI, tmpInsertContentValues);
 			}
 		}
+		tmpItemCur.close();
 		Toast.makeText(this, "KindMind pattern saved", Toast.LENGTH_LONG).show();
 		
 		//Limiting the number of rows in the patterns table
@@ -293,7 +311,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		//Clearing data and updating the gui
 		this.fireClearDatabaseAndUpdateGuiEvent();
 		
-		tmpItemCur.close();
 	}
 	/*
 	 * Overview: limitPatternsTable removes zero or more patterns, keeping the pattern table (1) relevant and
@@ -309,7 +326,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	private void limitPatternsTable(){
 		
 		Cursor tmpPatternsCur = null;
-		final int WARNING_LIMIT = 100;
+		final int WARNING_LIMIT = 200;
 
 		for(int i = 0; i < WARNING_LIMIT; i++){
 			//Sorting "by pattern" (by create time)
@@ -331,6 +348,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			//Using the first time entry as a selection value for removing all rows for this whole pattern from the db
 			String tmpSelection = PatternsTableM.COLUMN_CREATE_TIME + "=" + tmpFirstTimeEntry;
 			this.getContentResolver().delete(ContentProviderM.PATTERNS_CONTENT_URI, tmpSelection, null);
+			//-please note that while debugging getCount will not be updated directly
 			
 			tmpPatternsCur.close();
 		}
@@ -345,9 +363,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	@Override
 	public void fireClearDatabaseAndUpdateGuiEvent() {
 		this.clearAllActiveInDatabase();
-		this.startService(new Intent(this, SortingAlgorithmServiceM.class));
-		this.fireUpdateTabTitlesEvent();
 		this.scrollLeftmost();
+		((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService(); ///this.startService(new Intent(this, SortingAlgorithmServiceM.class));
+		this.fireUpdateTabTitlesEvent();
+		((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().getListView()
+				.smoothScrollToPositionFromTop(0, 0);
 	}
 
 	/*
@@ -368,6 +388,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		if(mViewPager.getCurrentItem() != 0){
 			mViewPager.setCurrentItem(0, true);
 		}
+		
+		sViewPagerPosition = mViewPager.getCurrentItem();
 	}
 	
 	/*
@@ -417,4 +439,12 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	}
     }
     
+    //Used by testing
+    public ListView getListViewOfCurrentFragment(){
+        return ((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().getListView();
+    }
+    //Used for testing
+    public int getCurrentAdapterPosition(){
+    	return mViewPager.getCurrentItem();
+    }
 }

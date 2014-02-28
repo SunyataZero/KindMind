@@ -49,8 +49,9 @@
 			android:id="@+id/priceTextView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="This app is completely cost-free as of this writing. In the future there may be parts of
-the app that will be priced." />
+			android:text="This app is completely cost-free as of this writing. This may change and there may be parts of
+the app that will be priced. My hope is that in the future this software will be open source and free (free as in freedom)
+to the extent that this is possible on the platform." />
 		
 		<TextView
             android:id="@+id/photoCreditsTitletextView"

@@ -1,24 +1,32 @@
 package com.sunyata.kindmind.List;
 
+import java.io.ObjectInputStream.GetField;
+
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.sunyata.kindmind.AboutActivityC;
+import com.sunyata.kindmind.MainActivityCallbackListenerI;
 import com.sunyata.kindmind.OnClickToastOrActionC;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.SortTypeM;
@@ -27,7 +35,6 @@ import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.DatabaseHelperM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Details.ItemSetupActivityC;
-import com.sunyata.kindmind.MainActivityCallbackListenerI;
 
 /*
  * Overview: ListFragmentC shows a list of items, each item corresponding to a row in an SQL database
@@ -59,13 +66,19 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	private int refListType; //-Saved in onSaveInstanceState
 	private static MainActivityCallbackListenerI sCallbackListener; //-Does not have to be saved since it's static
 	private CursorAdapterM mCursorAdapter;
+	
+	private LinearLayout mLoadingLinearLayout;
 
 	public static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
 	public static final String EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE";
+    public static final String EXTRA_KINDSORT_RESULT = "kindsort_result";
 	
 	public static ListFragmentC newInstance(int inListTypeInt, MainActivityCallbackListenerI inCallbackListener){
 		ListFragmentC retListFragment = new ListFragmentC();
 		retListFragment.refListType = inListTypeInt;
+		
+
+		
 		sCallbackListener = inCallbackListener;
 		return retListFragment;
 	}
@@ -176,7 +189,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	
 	
-	//-------------------onCreate, onActivityCreated and click methods
+	//-------------------onCreate, onActivityCreated, onCreateView, and click methods
 	// Please note that one click method is inside onActivityCreated and the other is outside
 	
 	/*
@@ -219,6 +232,31 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			}
 		});
     }
+    
+    /*
+	 * Overview: onCreateView inflates the layout and prepares for the loading by storing a reference to
+	 *  the loading layout
+	 * Notes: 
+	 * Improvements: 
+	 * Documentation: 
+	 */
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
+    	//-super not called in the Big Nerd Ranch book
+    	Log.d(Utils.getClassName(), Utils.getMethodName());
+
+    	//Inflating the layout
+    	View v = inflater.inflate(R.layout.fragment_list, parent, false);
+
+    	//Getting reference to the views
+    	mLoadingLinearLayout = (LinearLayout)v.findViewById(R.id.loadingLinearLayout);
+    	//mProgressBar = (ProgressBar)v.findViewById(R.id.listProgressBar);
+    	//-we can access the listview with getListView() so we don't need to save this reference
+    	
+    	mLoadingLinearLayout.setVisibility(View.GONE);
+    	
+    	return v;
+    }
 
     /*
 	 * Overview: onListItemClick handles clicks on a list item, it updates the DB and refreshes the GUI
@@ -248,13 +286,11 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		}
 
 		//Sorting and updating
-		getActivity().startService(new Intent(getActivity(), SortingAlgorithmServiceM.class));
-		sCallbackListener.fireUpdateTabTitlesEvent();
-		getListView().smoothScrollToPosition(0);
+		this.sortDataWithService();
     }
 	
-    
-	//-------------------Other lifecycle methods
+
+    //-------------------Other lifecycle methods
     
     /*
 	 * Overview: onSaveInstanceState saves the state of the list fragment into a bundle.
@@ -323,34 +359,41 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			return true;
 		case R.id.menu_item_save_pattern: //------------Saving pattern
 			sCallbackListener.fireSavePatternEvent();
-			getListView().smoothScrollToPosition(0);
 			
 			return true;
 		case R.id.menu_item_sort_alphabetically: //------------Sort alphabeta
 			//Changing the sort method used and refreshing list
 			Utils.setItemTableSortType(SortTypeM.ALPHABETASORT);
 			this.updateCursorAdapter();
-			getListView().smoothScrollToPosition(0);
+			getListView().smoothScrollToPositionFromTop(0, 0);
 			
 			return true;
 		case R.id.menu_item_kindsort: //------------Sort kindsort
-			if(Utils.isReleaseVersion(getActivity()) == false){
-				//Updating the sort values which will be used below
-				///SortingAlgorithmM.get(getActivity()).updateSortValuesForListType();
-				getActivity().startService(new Intent(getActivity(), SortingAlgorithmServiceM.class));
-			}
+			//Sorting and updating
+			this.sortDataWithService();
 			
 			//Changing the sort method used and refreshing list
 			Utils.setItemTableSortType(SortTypeM.KINDSORT);
+			
+			
+			
+			
+			
+			
 			this.updateCursorAdapter();
-			getListView().smoothScrollToPosition(0);
+			getListView().smoothScrollToPositionFromTop(0, 0);
 			//////this.updateCursorLoaderAndAdapter();
+			
+			
+			
+			
+			
 			
 			return true;
 		case R.id.menu_item_clear_all_list_selections: //------------Clear checkmarks for all lists
 			//Clearing activated and going left
+			getListView().smoothScrollToPositionFromTop(0, 0);
 			sCallbackListener.fireClearDatabaseAndUpdateGuiEvent();
-			getListView().smoothScrollToPosition(0);
 			
 			return true;
 		case R.id.menu_item_send_as_text_all: //------------Send lists as text (partial backup)
@@ -422,4 +465,43 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		return retString;
 	}
+	
+	
+	//----------------------------Other methods
+    
+	/*
+	 * Overview: sortDataWithService displays a loading indicator and starts a service which sorts the
+	 *  rows in the item table (for all three lists: feelings, needs, kindness).
+	 * Details: A ResultReceiver is sent along as an extra, which is used for communication back to this
+	 *  fragment once the service has completed its calculations
+	 * Improvements: 
+	 * Documentation: 
+	 */
+    public void sortDataWithService(){
+    	//Showing the Loading progress bar / "spinner"
+    	mLoadingLinearLayout.setVisibility(View.VISIBLE);
+    	getListView().setVisibility(View.GONE);
+    	
+    	//Sorting data (for all lists)
+		Intent tmpIntent = new Intent(getActivity(), SortingAlgorithmServiceM.class);
+		tmpIntent.putExtra(ListFragmentC.EXTRA_KINDSORT_RESULT, new AlgorithmServiceResultReceiver(new Handler()));
+		getActivity().startService(tmpIntent);
+    }
+    public class AlgorithmServiceResultReceiver extends ResultReceiver{
+		public AlgorithmServiceResultReceiver(Handler handler) {
+			super(handler);
+		}
+		@Override
+		public void onReceiveResult(int inResultCode, Bundle inResultData){
+			super.onReceiveResult(inResultCode, inResultData);
+			if(inResultCode == SortingAlgorithmServiceM.UPDATE_SERVICE_DONE){
+				mLoadingLinearLayout.setVisibility(View.GONE);
+				getListView().setVisibility(View.VISIBLE);
+				
+				getListView().smoothScrollToPositionFromTop(0, 0);
+				//-http://stackoverflow.com/questions/11334207/smoothscrolltoposition-only-scrolls-partway-in-android-ics
+				sCallbackListener.fireUpdateTabTitlesEvent();
+			}
+		}
+    }
 }

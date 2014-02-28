@@ -81,6 +81,7 @@ public class Utils {
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Angry");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Anxious");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Concerned");
+    	createStartupItem(inContext, ListTypeM.FEELINGS, "Depressed");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Dissapointed");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Embarrassed");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Frustrated");
@@ -145,18 +146,10 @@ public class Utils {
 	
 	//--------------------Other
 	
-	public static String formatNumber(double inValue) {
-		BigDecimal tmpBigDecimal = new BigDecimal(inValue);
-		tmpBigDecimal = tmpBigDecimal.setScale(2, BigDecimal.ROUND_UP);
-		return "" + tmpBigDecimal;
-	}
-
 	public static String getKindMindDirectory(){
 		return Environment.getExternalStorageDirectory().getAbsolutePath() + "/KindMind";
 		//return Environment.getRootDirectory().getAbsolutePath() + "/KindMind";
 	}
-	
-	
 	
 	public static String getFilePathFromIntent(Context inContext, Intent inIntent){
 		Uri tmpUri = inIntent.getData();
@@ -504,4 +497,12 @@ public class Utils {
 		int[] tmpWidgetIds = tmpAppWidgetManager.getAppWidgetIds(tmpComponentName);
 		tmpAppWidgetManager.notifyAppWidgetViewDataChanged(tmpWidgetIds, R.id.widget_listview);
 	}
+	
+	
+	public static String formatNumber(double inValue) {
+		BigDecimal tmpBigDecimal = new BigDecimal(inValue);
+		tmpBigDecimal = tmpBigDecimal.setScale(2, BigDecimal.ROUND_UP);
+		return "" + tmpBigDecimal;
+	}
+	
 }

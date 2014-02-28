@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/loadingLinearLayout"
+        android:layout_width="match_parent"
+    	android:layout_height="match_parent"
+    	android:gravity="center"
+    	android:orientation="vertical" >
+    	<ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@android:style/Widget.ProgressBar" >
+        </ProgressBar>
+        <!-- 
+    	<TextView
+    	    android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textAlignment="center"
+            style="@android:style/TextAppearance.DeviceDefault"
+            android:text="KindSort algorithm updating list" >
+    	</TextView>
+    	 -->
+    	<!-- The space below has been added so that the user can see both the Toast text as well as the sorting
+    	text in the above TextView -->
+    	<Space
+    	    android:layout_width="0dp"
+            android:layout_height="100dp"/>
+	</LinearLayout>
+    
+    <!--
+    Please note "@id/android:list" below which means that we are using the default android listview id.
+    We need to avoid this problem:
+    java.lang.RuntimeException: Your content must have a ListView whose id attribute is 'android.R.id.list'
+     -->
+    <ListView
+        android:id="@id/android:list"
+        android:layout_width="match_parent"
+    	android:layout_height="match_parent" >
+    </ListView>
+
+</FrameLayout>

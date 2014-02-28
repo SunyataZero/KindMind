@@ -50,7 +50,7 @@ public class ItemTableM {
 	//public static final String COLUMN_DETAILS = "details";
 	public static final String COLUMN_LIST_TYPE = "list_type";
 	public static final String COLUMN_ACTIVE = "active";
-	public static final String COLUMN_ACTIONS = "actions"; //-list of actions, each ends with the pipe ('|') character
+	public static final String COLUMN_ACTIONS = "actions"; //-list of actions, each ends with a separation character
 	public static final String COLUMN_NOTIFICATION = "notification";
 	//-Contains both active or not, and the time, not active is stored as -1
 	public static final String COLUMN_KINDSORT_VALUE = "kindsort_value";

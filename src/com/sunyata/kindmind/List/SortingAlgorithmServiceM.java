@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.ResultReceiver;
 
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
@@ -26,6 +27,8 @@ public class SortingAlgorithmServiceM extends IntentService {
 	public static final double SIMPLE_PATTERN_MATCH_ADDITION = 1;
 	
 	private static final String TAG = "SortingAlgorithmServiceM";
+	
+	public static final int UPDATE_SERVICE_DONE = 89742;
 	
 	public SortingAlgorithmServiceM() {
 		super(TAG);
@@ -51,7 +54,7 @@ public class SortingAlgorithmServiceM extends IntentService {
 	 *  for patterns from a long time back
 	 */
 	@Override
-	protected void onHandleIntent(Intent intent) {
+	protected void onHandleIntent(Intent inIntent) {
 		//1. Go through all checked/active items and store them in an array
 		ArrayList<Long> tmpCheckedItems = new ArrayList<Long>();
 		String tmpSelection = ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE;
@@ -97,7 +100,7 @@ public class SortingAlgorithmServiceM extends IntentService {
 		//3. Go through the newly created matrix and compare with the list from step 1 to update relevance..
 		for(Pattern p : tmpPatternMatrix){
 			float tmpNumberOfMatches = 0;
-			float tmpDivider = (p.list.size() + tmpCheckedItems.size()) / 2;
+			float tmpDivider = (p.list.size() + tmpCheckedItems.size());
 			if(tmpDivider == 0){
 				continue;
 			}
@@ -138,9 +141,14 @@ public class SortingAlgorithmServiceM extends IntentService {
 		//Closing cursors
 		tmpItemCur.close();
 		tmpPatternCur.close();
+		
+		//Communicate the result (used for showing a progress bar (aka "loading spinner"))
+		ResultReceiver tmpResultReceiver = inIntent.getParcelableExtra(ListFragmentC.EXTRA_KINDSORT_RESULT);
+		if(tmpResultReceiver != null){
+			tmpResultReceiver.send(UPDATE_SERVICE_DONE, null);
+		}
 	}
 	
-
 	private class Pattern{
 		public float relevance;
 		public ArrayList<Long> list;

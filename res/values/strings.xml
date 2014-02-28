@@ -31,6 +31,7 @@
     <string name="notification_time_not_set_title">"--:--"</string>
     <string name="clear_chooser_button_title">Clear action</string>
     <string name="file_chooser_title">Choose one of the following actions to be performed when pressing the item in the list</string>
+    <string name="add_new_action">Add new action</string>
     
     <!-- DetailsFragmentC action choice popup -->
     <string name="image_file_chooser_button_title">Image</string>

@@ -53,10 +53,18 @@ public class OnClickToastOrActionC {
 		
 		//Extracting the actions string from the database
 		String[] tmpProjection = {ItemTableM.COLUMN_ACTIONS};
-		Cursor tmpItemCur = inContext.getContentResolver().query(
-				inItemUri, tmpProjection, null, null, null);
+		Cursor tmpItemCur = inContext.getContentResolver().query(inItemUri, tmpProjection, null, null, null);
 		tmpItemCur.moveToFirst();
 		String tmpActions = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
+		/*
+02-27 22:29:51.187: E/AndroidRuntime(20502): android.database.CursorIndexOutOfBoundsException: Index 0 requested, with a size of 0
+02-27 22:29:51.187: E/AndroidRuntime(20502): 	at android.database.AbstractCursor.checkPosition(AbstractCursor.java:400)
+02-27 22:29:51.187: E/AndroidRuntime(20502): 	at android.database.AbstractWindowedCursor.checkPosition(AbstractWindowedCursor.java:136)
+02-27 22:29:51.187: E/AndroidRuntime(20502): 	at android.database.AbstractWindowedCursor.getString(AbstractWindowedCursor.java:50)
+02-27 22:29:51.187: E/AndroidRuntime(20502): 	at android.database.CursorWrapper.getString(CursorWrapper.java:114)
+02-27 22:29:51.187: E/AndroidRuntime(20502): 	at com.sunyata.kindmind.OnClickToastOrActionC.randomKindAction(OnClickToastOrActionC.java:58)
+02-27 22:29:51.187: E/AndroidRuntime(20502): 	at com.sunyata.kindmind.WidgetAndNotifications.LauncherServiceC.onHandleIntent(LauncherServiceC.java:40)
+		 */
 		tmpItemCur.close();
 		
 		//If the string has been cleared (or not set) exiting
