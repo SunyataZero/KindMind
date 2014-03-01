@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -24,7 +23,6 @@ import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternsTableM;
 import com.sunyata.kindmind.List.ListFragmentC;
-import com.sunyata.kindmind.List.ListFragmentC.AlgorithmServiceResultReceiver;
 import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SortingAlgorithmServiceM;
 
@@ -53,9 +51,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	//------------------------Fields
 	
 	//Fragment changes
-    private ViewPager mViewPager;
+    private ViewPagerM mViewPagerWrapper;
 	private FragmentStatePagerAdapterM mPagerAdapter;
-    private static int sViewPagerPosition;
+    //private static int sViewPagerPosition;
+	
+	/////private int mViewPagerPosition;
 
     //Action bar
     private ActionBar refActionBar;
@@ -63,7 +63,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     private String mNeedTitle;
     private String mActionTitle;
     
+    
+    
+    
     public final static String EXTRA_URI_AS_STRING = "uri_as_string";
+	private static final String EXTRA_VIEW_PAGER_POSITION = "view_pager_position";
     
     //------------------------onCreate and OnPageChangeListener
     
@@ -101,14 +105,15 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         mPagerAdapter = new FragmentStatePagerAdapterM(getSupportFragmentManager());
 
         //Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mPagerAdapter);
-        mViewPager.setOffscreenPageLimit(0);
+        mViewPagerWrapper = (ViewPagerM)findViewById(R.id.pager);
+        /////mViewPagerPosition = ListTypeM.FEELINGS;
+        mViewPagerWrapper.setAdapter(mPagerAdapter);
+        mViewPagerWrapper.setOffscreenPageLimit(0);
         //-Using this becase getAdapter sometimes gives null, for more info, see this link:
         // http://stackoverflow.com/questions/13651262/getactivity-in-arrayadapter-sometimes-returns-null
 
         //Create and set the OnPageChangeListener for the ViewPager
-        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        mViewPagerWrapper.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 			//-To access one fragment from here we can use this line:
 			// ((CustomPagerAdapter)mViewPager.getAdapter()).getItem(pos).refreshListDataSupport();
 			@Override
@@ -126,10 +131,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			}
 			@Override
 			public void onPageScrollStateChanged(int inState) {
+				//-this is called even when we press one of the tab buttons
 				switch(inState){
 				case ViewPager.SCROLL_STATE_IDLE:
 					//Saving the position (solves the problem in issue #41)
-					sViewPagerPosition = mViewPager.getCurrentItem();
+					/////////mViewPagerPosition = mViewPager.getCurrentItem();
 					break;
 				default:
 					break;
@@ -146,8 +152,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				//Scrolling to the new fragment when the user selects a tab
 				int tmpPos = tab.getPosition();
 				
-				if(mViewPager.getCurrentItem() != tmpPos){
-					mViewPager.setCurrentItem(tmpPos);
+				if(mViewPagerWrapper.getCurrentItem() != tmpPos){
+					mViewPagerWrapper.setCurrentItem(tmpPos);
 				}
 			}
 			@Override
@@ -164,50 +170,52 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         
         
         
+
         
-        //------------Extracting data from the intent given when calling this activity
-        // (used by widgets and notifications)
+        
+    	//------------Extracting data from the intent given when calling this activity
+    	// (used by widgets and notifications)
     	if(this.getIntent() != null && this.getIntent().hasExtra(EXTRA_URI_AS_STRING)){
     		String tmpExtraFromString = this.getIntent().getStringExtra(EXTRA_URI_AS_STRING);
-        	Uri tmpItemUri = Uri.parse(tmpExtraFromString);
-        	if(tmpItemUri != null){
-            	this.clearAllActiveInDatabase();
-            	
-            	//Updating the db value
-            	ContentValues tmpContentValues = new ContentValues();
-            	tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, 1);
-            	getContentResolver().update(tmpItemUri, tmpContentValues, null, null);
-            	
-            	
-            	
-            	
-            	
-            	/////((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService();
-            	
-            	//Sorting data for all lists without showing loading spinner
-            	// "((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService();"
-            	// which shows the loading spinner gives a NPE in a situation
-        		Intent tmpIntent = new Intent(this, SortingAlgorithmServiceM.class);
-        		this.startService(tmpIntent);
-            	
-        		
-        		
-        		
-            	
-            	this.fireUpdateTabTitlesEvent();
+    		Uri tmpItemUri = Uri.parse(tmpExtraFromString);
+    		if(tmpItemUri != null){
+    			this.clearAllActiveInDatabase();
 
-            	//Setting up the cursor and extracting the list type..
-            	Cursor tmpItemCur = getContentResolver().query(tmpItemUri, null, null, null, null);
-            	tmpItemCur.moveToFirst();
-            	int tmpListType = tmpItemCur.getInt(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE));
-            	tmpItemCur.close();
-            	
-            	//..setting the Viewpager position
-            	if(mViewPager.getCurrentItem() != tmpListType){
-            		sViewPagerPosition = tmpListType;
-        			mViewPager.setCurrentItem(sViewPagerPosition);
-        		}
-        	}
+    			//Updating the db value
+    			ContentValues tmpContentValues = new ContentValues();
+    			tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, 1);
+    			getContentResolver().update(tmpItemUri, tmpContentValues, null, null);
+
+
+
+
+
+    			/////((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService();
+
+    			//Sorting data for all lists without showing loading spinner
+    			// "((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService();"
+    			// which shows the loading spinner gives a NPE in a situation
+    			Intent tmpIntent = new Intent(this, SortingAlgorithmServiceM.class);
+    			this.startService(tmpIntent);
+
+
+
+
+
+    			this.fireUpdateTabTitlesEvent();
+
+    			//Setting up the cursor and extracting the list type..
+    			Cursor tmpItemCur = getContentResolver().query(tmpItemUri, null, null, null, null);
+    			tmpItemCur.moveToFirst();
+    			int tmpListType = tmpItemCur.getInt(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE));
+    			tmpItemCur.close();
+
+
+	        	//Setting the Viewpager position
+	        	if(mViewPagerWrapper.getCurrentItem() != tmpListType){
+	        		mViewPagerWrapper.setCurrentItem(tmpListType);
+	    		}
+    		}
     	}
     }
     
@@ -223,7 +231,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	 * Documentation:
 	 *  http://developer.android.com/reference/android/support/v4/app/FragmentStatePagerAdapter.html
 	 */
-    class FragmentStatePagerAdapterM extends FragmentStatePagerAdapter {
+    private class FragmentStatePagerAdapterM extends FragmentStatePagerAdapter {
         private ListFragmentC mFeelingListFragment;
         private ListFragmentC mNeedListFragment;
         private ListFragmentC mKindnessListFragment;
@@ -270,7 +278,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         }
 
         public ListFragmentC getCurrentFragment(){
-        	ListFragmentC retListFragmentC = this.getItem(mViewPager.getCurrentItem());
+        	ListFragmentC retListFragmentC = this.getItem(mViewPagerWrapper.getCurrentItem());
 			return retListFragmentC;
         }
     }
@@ -364,9 +372,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	public void fireClearDatabaseAndUpdateGuiEvent() {
 		this.clearAllActiveInDatabase();
 		this.scrollLeftmost();
-		((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService(); ///this.startService(new Intent(this, SortingAlgorithmServiceM.class));
+		((FragmentStatePagerAdapterM)mViewPagerWrapper.getAdapter()).getCurrentFragment().sortDataWithService(); ///this.startService(new Intent(this, SortingAlgorithmServiceM.class));
 		this.fireUpdateTabTitlesEvent();
-		((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().getListView()
+		((FragmentStatePagerAdapterM)mViewPagerWrapper.getAdapter()).getCurrentFragment().getListView()
 				.smoothScrollToPositionFromTop(0, 0);
 	}
 
@@ -385,11 +393,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	
 	private void scrollLeftmost(){
 		//Side scrolling to the leftmost viewpager position (feelings)
-		if(mViewPager.getCurrentItem() != 0){
-			mViewPager.setCurrentItem(0, true);
+		if(mViewPagerWrapper.getCurrentItem() != ListTypeM.FEELINGS){
+			mViewPagerWrapper.setCurrentItem(ListTypeM.FEELINGS, true);
 		}
 		
-		sViewPagerPosition = mViewPager.getCurrentItem();
+		//////sViewPagerPosition = mViewPager.getCurrentItem();
 	}
 	
 	/*
@@ -423,28 +431,50 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	
     	//Adding new data
     	Utils.createAllStartupItems(this);
+    	
+    	//Resetting static variables
+    	mViewPagerWrapper.setCurrentItem(ListTypeM.FEELINGS);
     }
 
 	
     //------------------------Other methods
+    
+    //Used by testing
+    public ListView getListViewOfCurrentFragment(){
+        return ((FragmentStatePagerAdapterM)mViewPagerWrapper.getAdapter()).getCurrentFragment().getListView();
+    }
+    //Used for testing
+    public int getCurrentAdapterPosition(){
+    	return mViewPagerWrapper.getCurrentItem();
+    }
+    
+    /*
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+    	super.onSaveInstanceState(outState);
+
+    	///outState.putInt(EXTRA_VIEW_PAGER_POSITION, mViewPagerPosition);
+    	outState.putInt(EXTRA_VIEW_PAGER_POSITION, mViewPagerWrapper.getViewPager().getCurrentItem());
+    }
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState){
+    	super.onRestoreInstanceState(savedInstanceState);
+
+    	////mViewPagerPosition = savedInstanceState.getInt(EXTRA_VIEW_PAGER_POSITION);
+    	mViewPagerWrapper.getViewPager().setCurrentItem(savedInstanceState.getInt(EXTRA_VIEW_PAGER_POSITION));
+    }
+    */
     
     @Override
     public void onResume(){
     	super.onResume();
     	Log.d(Utils.getClassName(), Utils.getMethodName());
     	
-    	if(sViewPagerPosition != mViewPager.getCurrentItem()){
-    		mViewPager.setCurrentItem(sViewPagerPosition);
+    	/*
+    	if(mViewPagerPosition != mViewPager.getCurrentItem()){
+    		mViewPager.setCurrentItem(mViewPagerPosition);
     		//-solves the problem in issue #41
     	}
-    }
-    
-    //Used by testing
-    public ListView getListViewOfCurrentFragment(){
-        return ((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().getListView();
-    }
-    //Used for testing
-    public int getCurrentAdapterPosition(){
-    	return mViewPager.getCurrentItem();
+    	*/
     }
 }

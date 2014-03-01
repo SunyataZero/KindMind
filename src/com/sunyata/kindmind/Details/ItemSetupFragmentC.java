@@ -602,8 +602,13 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		case android.R.id.home:
 			//Navigating upwards in the activity heirarchy
 			if(NavUtils.getParentActivityName(getActivity()) != null){
-				NavUtils.navigateUpFromSameTask(getActivity());
+				//NavUtils.navigateUpFromSameTask(getActivity()); //-this will recreate MainActivityC (different from using the back button)
+				
+				Intent tmpLaunchParentIntent = NavUtils.getParentActivityIntent(getActivity());
+				tmpLaunchParentIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				NavUtils.navigateUpTo(getActivity(), tmpLaunchParentIntent);
 			}
+			
 			return true;
 		case R.id.menu_item_delete_listitem:
 			
