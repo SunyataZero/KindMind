@@ -2,8 +2,8 @@
 <!-- PLEASE NOTE: There is no error check or auto-complete suggestions for class and package names in this file -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sunyata.kindmind"
-    android:versionCode="33"
-    android:versionName="0.14.8_BETA" >
+    android:versionCode="35"
+    android:versionName="0.14.10_BETA" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />

@@ -80,7 +80,7 @@ public class NotificationServiceC extends IntentService {
 			
 			//..if the notification is active, calling setServiceNotificationSingle
 			if(tmpNotification > -1){
-				setServiceNotificationSingle(inContext, tmpItemUri, tmpNotification);
+				setServiceNotificationSingle(inContext, tmpItemUri);
 			}
 		}
 		
@@ -93,24 +93,22 @@ public class NotificationServiceC extends IntentService {
 	 * Usage: this.setServiceNotificationAll(), DetailsFragmentC.changeNotificationService()
 	 * Uses Android lib: AlarmManager.setRepeating()
 	 */
-	public static void setServiceNotificationSingle(Context inContext, Uri inItemUri, long inIntervalInMilliSeconds){
+	public static void setServiceNotificationSingle(Context inContext, Uri inItemUri){
 		//Setting up an SQL cursor to point to the row for the item URI
-		Cursor tmpCursor = inContext.getContentResolver().query(
-				inItemUri, null, null, null, ContentProviderM.sSortType);
-		if(tmpCursor.getCount() == 0){
-			tmpCursor.close();
+		Cursor tmpCur = inContext.getContentResolver().query(inItemUri, null, null, null, ContentProviderM.sSortType);
+		if(tmpCur.getCount() == 0){
+			tmpCur.close();
 			return;
 		}
-		tmpCursor.moveToFirst();
+		tmpCur.moveToFirst();
 		
 		//Extracting data values from the cursor/database-row for use later in this method..
 		String tmpItemIdAsString = Long.valueOf(
-				tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID)))
+				tmpCur.getLong(tmpCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ID)))
 						.toString();
-		String tmpItemName = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
+		String tmpItemName = tmpCur.getString(tmpCur.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
 		boolean tmpItemNotificationIsActive = true;
-		long tmpItemTimeInMilliSeconds = tmpCursor.getLong(
-				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
+		long tmpItemTimeInMilliSeconds = tmpCur.getLong(tmpCur.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
 		
 		//Checking whether or not notifications are active for this list item
 		if(tmpItemTimeInMilliSeconds == ItemTableM.FALSE ){
@@ -127,9 +125,16 @@ public class NotificationServiceC extends IntentService {
 		PendingIntent tmpPendingIntentToRepeat = PendingIntent.getService(
 				inContext, 0, tmpIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
 		AlarmManager tmpAlarmManager = (AlarmManager)inContext.getSystemService(Context.ALARM_SERVICE);
+
+		
+		
+		//long tmpNextTimeInFuture = findNextTimeInFuture(tmpItemTimeInMilliSeconds);
+
+		
+		
 		if(tmpItemNotificationIsActive == true){
 			Log.i(Utils.getClassName(), "date = " + new Date(tmpItemTimeInMilliSeconds));
-			tmpAlarmManager.setRepeating(AlarmManager.RTC, tmpItemTimeInMilliSeconds, inIntervalInMilliSeconds,
+			tmpAlarmManager.setRepeating(AlarmManager.RTC, tmpItemTimeInMilliSeconds, AlarmManager.INTERVAL_DAY,
 					tmpPendingIntentToRepeat);
 			//-PLEASE NOTE: Initial time inUserTimeInMillseconds is not modified with
 			// TimeZone.getDefault().getRawOffset() in spite of the documentation for AlarmManager.RTC which indicates
@@ -140,9 +145,18 @@ public class NotificationServiceC extends IntentService {
 			tmpPendingIntentToRepeat.cancel();
 		}
 		
-		tmpCursor.close();
+		tmpCur.close();
 	}
 	
+	/*
+	private static long findNextTimeInFuture(long inOriginalTime){
+		long retFutureTime = 0;
+		
+		asdf
+		
+		return retFutureTime;
+	}
+	*/
 	
 	//-------------------Overridden IntentService methods
 	

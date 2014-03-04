@@ -581,10 +581,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	}
 
 	void changeNotificationService(){
-		NotificationServiceC.setServiceNotificationSingle(
-				getActivity().getApplicationContext(),
-				refItemUri,
-				AlarmManager.INTERVAL_DAY);
+		NotificationServiceC.setServiceNotificationSingle(getActivity().getApplicationContext(), refItemUri);
 	}
 
 	

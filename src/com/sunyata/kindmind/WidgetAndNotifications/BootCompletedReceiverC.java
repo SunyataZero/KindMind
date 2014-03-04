@@ -13,6 +13,10 @@ public class BootCompletedReceiverC extends BroadcastReceiver {
 	public void onReceive(Context inContext, Intent inIntent) {
 		Log.d(Utils.getClassName(), "onReceive(Context inContext, Intent inIntent)");
 		
+		
+		//TODO: We could try to get a reference to the application context here with the Utils method
+		
+		
 		NotificationServiceC.setServiceNotificationAll(inContext);
 	}
 }
