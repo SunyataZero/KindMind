@@ -287,6 +287,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
 		//Sorting and updating
 		this.sortDataWithService();
+		this.updateCursorAdapter();
     }
 	
 

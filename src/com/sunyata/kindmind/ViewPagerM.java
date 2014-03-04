@@ -33,7 +33,9 @@ public class ViewPagerM extends ViewPager{
 	
 	public void setCurrentItem(int inPos){
 		sPosition = inPos;
-		super.setCurrentItem(sPosition);
+		if(super.getCurrentItem() != sPosition){
+			super.setCurrentItem(sPosition);
+		}
 	}
 	public void CurrentItem(int inPos, boolean inSmoothScroll){
 		sPosition = inPos;

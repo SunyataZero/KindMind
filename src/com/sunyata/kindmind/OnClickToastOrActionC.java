@@ -71,7 +71,7 @@ public class OnClickToastOrActionC {
 		if(tmpActions.equals("")){
 			return;
 		}
-			
+		
 		ArrayList<String> tmpActionList = Utils.actionsStringToArrayList(tmpActions);
 		
 		Random tmpRandomNumberGenerator = new Random();

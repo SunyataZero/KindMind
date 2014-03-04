@@ -59,13 +59,16 @@ public class Utils {
 	public static String getMethodName(){
 		return Thread.currentThread().getStackTrace()[3].getMethodName();
 	}
-	public static String getClassName(){
-		String tmpClassWithPackage = Thread.currentThread().getStackTrace()[3].getClassName();
+	public static String getClassName(int inStackTraceLine){
+		String tmpClassWithPackage = Thread.currentThread().getStackTrace()[inStackTraceLine].getClassName();
 		String[] tmpSplitString = tmpClassWithPackage.split("\\."); //NOTE: Regular experssion so "." means "all"
 		//String tmpOrganization = tmpSplitString[tmpSplitString.length-3];
 		//String tmpProject = tmpSplitString[tmpSplitString.length-2];
 		String tmpComponent = tmpSplitString[tmpSplitString.length-1];
 		return tmpComponent;
+	}
+	public static String getClassName(){
+		return getClassName(3);
 	}
 	
 	
@@ -503,6 +506,17 @@ public class Utils {
 		BigDecimal tmpBigDecimal = new BigDecimal(inValue);
 		tmpBigDecimal = tmpBigDecimal.setScale(2, BigDecimal.ROUND_UP);
 		return "" + tmpBigDecimal;
+	}
+	public static Context getContentProviderContext(Context inOtherContext) {
+		Context retContext = null;
+		String tmpPackageName = "com.sunyata.kindmind";
+		try {
+			retContext = inOtherContext.createPackageContext(tmpPackageName, Context.CONTEXT_IGNORE_SECURITY);
+		} catch (NameNotFoundException e) {
+			Log.e(Utils.getClassName(), "Package name " + tmpPackageName + " not found");
+			e.printStackTrace();
+		}
+		return retContext;
 	}
 	
 }
