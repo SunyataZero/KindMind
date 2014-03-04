@@ -7,6 +7,7 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -28,7 +29,8 @@ import com.sunyata.kindmind.Database.ItemTableM;
  * Extends: IntentService
  * Sections:
  *  //-------------------Fields and constructor
- *  //-------------------Overridden IntentService methods
+ *  //-------------------Static methods for setting alarms
+ *  //-------------------Overridden IntentService method: onHandleIntent
  * Used in: 
  * Notes: 
  * Improvements: 
@@ -40,7 +42,7 @@ public class NotificationServiceC extends IntentService {
 	
 	private static final String TAG = "NotificationServiceC";
 	public static final String PREFERENCES_NOTIFICATION_LIST = "NotificationList";
-	private static final String NOTIFICATION_ID = "NotificationUUID";
+	private static final String ITEM_ID = "NotificationUUID";
 	private static final String NOTIFICATION_TITLE = "NotificationTitle";
 
 	public NotificationServiceC() {
@@ -48,7 +50,7 @@ public class NotificationServiceC extends IntentService {
 	}
 
 	
-	//----------------------------Static methods for setting repeating alarm/alarms
+	//-------------------Static methods for setting alarms
 	
 	/*
 	 * Overview: setServiceNotificationAll iterates through the rows in the database and calls
@@ -118,7 +120,7 @@ public class NotificationServiceC extends IntentService {
 		//Creation and setup of an Intent pointing to this class which has the onHandleIntent method
 		Intent tmpIntent = new Intent(inContext, NotificationServiceC.class);
 		tmpIntent.setType(tmpItemIdAsString); //This is what makes the intents differ
-		tmpIntent.putExtra(NOTIFICATION_ID, tmpItemIdAsString);
+		tmpIntent.putExtra(ITEM_ID, tmpItemIdAsString);
 		tmpIntent.putExtra(NOTIFICATION_TITLE, tmpItemName);
 
 		//Setting the repeating alarm, or cancelling it (depending on database value)
@@ -126,12 +128,18 @@ public class NotificationServiceC extends IntentService {
 				inContext, 0, tmpIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
 		AlarmManager tmpAlarmManager = (AlarmManager)inContext.getSystemService(Context.ALARM_SERVICE);
 
+		/*
 		long tmpNextTimeInFuture = findNextTimeInFuture(tmpItemTimeInMilliSeconds);
+		*/
 		
 		if(tmpItemNotificationIsActive == true){
-			Log.i(Utils.getClassName(), "date = " + new Date(tmpNextTimeInFuture));
+			tmpAlarmManager.cancel(tmpPendingIntentToRepeat); //-Cancelling first
+			Log.i(Utils.getClassName(), "date = " + new Date(tmpItemTimeInMilliSeconds));
+			tmpAlarmManager.set(AlarmManager.RTC, tmpItemTimeInMilliSeconds, tmpPendingIntentToRepeat);
+			/*
 			tmpAlarmManager.setRepeating(AlarmManager.RTC, tmpNextTimeInFuture, AlarmManager.INTERVAL_DAY,
 					tmpPendingIntentToRepeat);
+			*/
 			//-PLEASE NOTE: Initial time inUserTimeInMillseconds is not modified with
 			// TimeZone.getDefault().getRawOffset() in spite of the documentation for AlarmManager.RTC which indicates
 			// that UTC is used.
@@ -144,25 +152,13 @@ public class NotificationServiceC extends IntentService {
 		tmpCur.close();
 	}
 	
-	/*
-	 * Overview: findNextTimeInFuture finds the next time in the future that occurs on the sime time of day
-	 * Used in: setServiceNotificationSingle above
-	 */
-	private static long findNextTimeInFuture(long inOriginalTime){
-		long retFutureTime = inOriginalTime;
-		
-		while(retFutureTime < System.currentTimeMillis()){
-			retFutureTime = retFutureTime + AlarmManager.INTERVAL_DAY;
-		}
-		
-		return retFutureTime;
-	}
 	
-	//-------------------Overridden IntentService methods
+	//-------------------Overridden IntentService method: onHandleIntent
 	
 	/*
 	 * Overview: onHandleIntent is called at a regular interval set by AlarmManager.setRepeating()
-	 *  and shows a notification to the user
+	 *  and shows a notification to the user. Also updates the notification value in the database so that
+	 *  a notification will be shown in 24 hours
 	 * Usage: this.setServiceNotificationSingle()
 	 * Uses Android libs: NotificationCompat.Builder, NotificationManager
 	 * Notes: Please note that there are two pending intents in this method, one that is sent to the method from the
@@ -177,15 +173,16 @@ public class NotificationServiceC extends IntentService {
 		Log.d(Utils.getClassName(), "In method onHandleIntent: One intent received");
 		
 		//Extracting data attached to the intent coming in to this method
-		String tmpIdStringFromListDataItem = inIntent.getStringExtra(NOTIFICATION_ID);
+		String tmpIdStringFromListDataItem = inIntent.getStringExtra(ITEM_ID);
+		Uri tmpItemUri = Utils.getItemUriFromId(Long.valueOf(tmpIdStringFromListDataItem));
 		String tmpTitleStringFromListDataItem = inIntent.getStringExtra(NOTIFICATION_TITLE);
 
 		//Building the pending intent that will start LauncherServiceC
 		Intent tmpIntentToAttach = new Intent(this, LauncherServiceC.class);
-		tmpIntentToAttach.setData(Utils.getItemUriFromId(Long.valueOf(tmpIdStringFromListDataItem)));
+		tmpIntentToAttach.setData(tmpItemUri);
 		PendingIntent tmpPendingIntent = PendingIntent.getService(this, 0, tmpIntentToAttach, 0);
 		
-		//Building the notification..
+		//Building the notification
 		Notification tmpNotification = new NotificationCompat.Builder(this)
 				.setTicker(tmpTitleStringFromListDataItem)
 				.setSmallIcon(R.drawable.kindmind_icon)
@@ -193,11 +190,36 @@ public class NotificationServiceC extends IntentService {
 				.setContentIntent(tmpPendingIntent)
 				.setAutoCancel(true)
 				.build();
-		///.setContentText(tmpTitleStringFromListDataItem)
+		///setContentText(tmpTitleStringFromListDataItem)
 		
-		//..and displaying it
+		//Displaying the notification
 		NotificationManager tmpNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 		tmpNotificationManager.notify(tmpIdStringFromListDataItem,
 				Utils.longToIntCutOff(Long.parseLong(tmpIdStringFromListDataItem)), tmpNotification);
+		
+		//Updating the value of the notification in the database
+		Context tmpContext = Utils.getContentProviderContext(this.getApplicationContext());
+		Cursor tmpCursor = tmpContext.getContentResolver().query(tmpItemUri, null, null, null, null);
+		tmpCursor.moveToFirst();
+		long tmpOldNotificationValue = tmpCursor.getLong(
+				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
+		long tmpNewNotificationValue = findNextTimeInFuture(tmpOldNotificationValue);
+		ContentValues tmpContentValue = new ContentValues();
+		tmpContentValue.put(ItemTableM.COLUMN_NOTIFICATION, tmpNewNotificationValue);
+		tmpContext.getContentResolver().update(tmpItemUri, tmpContentValue, null, null);
+	}
+	
+	/*
+	 * Overview: findNextTimeInFuture finds the next time in the future that occurs on the sime time of day
+	 * Used in: onHandleIntent
+	 */
+	private static long findNextTimeInFuture(long inOriginalTime){
+		long retFutureTime = inOriginalTime;
+		
+		while(retFutureTime <= System.currentTimeMillis()){
+			retFutureTime = retFutureTime + AlarmManager.INTERVAL_DAY;
+		}
+		
+		return retFutureTime;
 	}
 }
