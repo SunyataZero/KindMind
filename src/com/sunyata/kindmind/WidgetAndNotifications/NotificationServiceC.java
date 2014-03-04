@@ -126,15 +126,11 @@ public class NotificationServiceC extends IntentService {
 				inContext, 0, tmpIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
 		AlarmManager tmpAlarmManager = (AlarmManager)inContext.getSystemService(Context.ALARM_SERVICE);
 
-		
-		
-		//long tmpNextTimeInFuture = findNextTimeInFuture(tmpItemTimeInMilliSeconds);
-
-		
+		long tmpNextTimeInFuture = findNextTimeInFuture(tmpItemTimeInMilliSeconds);
 		
 		if(tmpItemNotificationIsActive == true){
-			Log.i(Utils.getClassName(), "date = " + new Date(tmpItemTimeInMilliSeconds));
-			tmpAlarmManager.setRepeating(AlarmManager.RTC, tmpItemTimeInMilliSeconds, AlarmManager.INTERVAL_DAY,
+			Log.i(Utils.getClassName(), "date = " + new Date(tmpNextTimeInFuture));
+			tmpAlarmManager.setRepeating(AlarmManager.RTC, tmpNextTimeInFuture, AlarmManager.INTERVAL_DAY,
 					tmpPendingIntentToRepeat);
 			//-PLEASE NOTE: Initial time inUserTimeInMillseconds is not modified with
 			// TimeZone.getDefault().getRawOffset() in spite of the documentation for AlarmManager.RTC which indicates
@@ -149,14 +145,18 @@ public class NotificationServiceC extends IntentService {
 	}
 	
 	/*
+	 * Overview: findNextTimeInFuture finds the next time in the future that occurs on the sime time of day
+	 * Used in: setServiceNotificationSingle above
+	 */
 	private static long findNextTimeInFuture(long inOriginalTime){
-		long retFutureTime = 0;
+		long retFutureTime = inOriginalTime;
 		
-		asdf
+		while(retFutureTime < System.currentTimeMillis()){
+			retFutureTime = retFutureTime + AlarmManager.INTERVAL_DAY;
+		}
 		
 		return retFutureTime;
 	}
-	*/
 	
 	//-------------------Overridden IntentService methods
 	
