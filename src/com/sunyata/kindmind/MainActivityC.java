@@ -1,5 +1,6 @@
 package com.sunyata.kindmind;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import android.app.ActionBar;
@@ -9,6 +10,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -215,13 +217,15 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	 *  the same method that adds new patterns (if we have just added a very large pattern it may be run many times)
 	 * 3. The only reason that a for loop is used is so that in case of some error with deletion from the database
 	 *  we don't get stuck in an infinite loop.
-	 * Improvements: 
+	 * Improvements: Calling update after we have closed the cursor so that there is no risk of
 	 */
 	private void limitPatternsTable(){
 		
 		Cursor tmpPatternsCur = null;
 		final int WARNING_LIMIT = 200;
 
+		ArrayList<String> tmpSelectionsForDeletionList = new ArrayList<String>();
+		
 		for(int i = 0; i < WARNING_LIMIT; i++){
 			//Sorting "by pattern" (by create time)
 			tmpPatternsCur = this.getContentResolver().query(
@@ -230,6 +234,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			
 			//Looping until we are on or under the max limit or rows
 			if(tmpPatternsCur.getCount() <= Utils.getMaxNumberOfPatternRows()){
+				//-please note that while debugging getCount will not be updated directly
 				tmpPatternsCur.close();
 				return;
 			}
@@ -241,10 +246,14 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			
 			//Using the first time entry as a selection value for removing all rows for this whole pattern from the db
 			String tmpSelection = PatternsTableM.COLUMN_CREATE_TIME + "=" + tmpFirstTimeEntry;
-			this.getContentResolver().delete(ContentProviderM.PATTERNS_CONTENT_URI, tmpSelection, null);
-			//-please note that while debugging getCount will not be updated directly
+			tmpSelectionsForDeletionList.add(tmpSelection);
 			
 			tmpPatternsCur.close();
+		}
+		
+		//After the cursor has been closed, we remove the items
+		for(String selection : tmpSelectionsForDeletionList){
+			this.getContentResolver().delete(ContentProviderM.PATTERNS_CONTENT_URI, selection, null);
 		}
 		
 		//If we get here it means that we have looped more than the "warning limit" which is an indication that
@@ -359,14 +368,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 
     			
     			Context tmpContentProviderContext = Utils.getContentProviderContext(this);
-    			/*
-03-02 01:12:39.717: E/AndroidRuntime(2230): Caused by: android.database.CursorIndexOutOfBoundsException: Index 0 requested, with a size of 0
-03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractCursor.checkPosition(AbstractCursor.java:400)
-03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractWindowedCursor.checkPosition(AbstractWindowedCursor.java:136)
-03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractWindowedCursor.getInt(AbstractWindowedCursor.java:68)
-03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.CursorWrapper.getInt(CursorWrapper.java:102)
-03-02 01:12:39.717: E/AndroidRuntime(2230): 	at com.sunyata.kindmind.MainActivityC.onCreate(MainActivityC.java:210)
-    			 */
 
     			
     			this.clearAllActiveInDatabase(tmpContentProviderContext);
@@ -389,8 +390,27 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     					tmpItemUri, null, null, null, null);
     			///if(tmpItemCur != null && tmpItemCur.moveToFirst()){}
     			tmpItemCur.moveToFirst();
-    			int tmpListType = tmpItemCur.getInt(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE));
+    			int tmpListType = 0;
+    			try{
+        			tmpListType = tmpItemCur.getInt(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE));
+    			}catch(CursorIndexOutOfBoundsException cioobe){
+    				Log.e(Utils.getClassName(), "extractDataFromLauncherIntent: CursorIndexOutOfBoundsException. "
+    						+ "tmpItemUri = " + tmpItemUri, cioobe);
+    				finish();
+    			}
     			tmpItemCur.close();
+
+    			/*
+    			 * This problem has only been seen on an emulator and only after we have run auto tests
+    			 * 
+03-02 01:12:39.717: E/AndroidRuntime(2230): Caused by: android.database.CursorIndexOutOfBoundsException: Index 0 requested, with a size of 0
+03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractCursor.checkPosition(AbstractCursor.java:400)
+03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractWindowedCursor.checkPosition(AbstractWindowedCursor.java:136)
+03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractWindowedCursor.getInt(AbstractWindowedCursor.java:68)
+03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.CursorWrapper.getInt(CursorWrapper.java:102)
+03-02 01:12:39.717: E/AndroidRuntime(2230): 	at com.sunyata.kindmind.MainActivityC.onCreate(MainActivityC.java:210)
+    			 */
+
     			
 	        	//Setting the Viewpager position
 	        	mViewPager.setCurrentItem(tmpListType);
