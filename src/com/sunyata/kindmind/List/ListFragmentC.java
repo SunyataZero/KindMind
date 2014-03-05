@@ -1,7 +1,5 @@
 package com.sunyata.kindmind.List;
 
-import java.io.ObjectInputStream.GetField;
-
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -94,6 +92,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 * Overview: onCreateLoader creates and returns the CursorLoader, which contains the mapping to the database
 	 * Used in:
 	 * Documentation: 
+	 *  http://www.grokkingandroid.com/using-loaders-in-android/
 	 *  http://developer.android.com/reference/android/app/LoaderManager.LoaderCallbacks.html#onCreateLoader%28int,%20android.os.Bundle%29
 	 */
 	@Override
@@ -242,7 +241,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
-    	//-super not called in the Big Nerd Ranch book
+    	super.onCreateView(inflater, parent, savedInstanceState);
+    	//-TODO: Verify ok (super not called in the Big Nerd Ranch book, or in Reto's book)
     	Log.d(Utils.getClassName(), Utils.getMethodName());
 
     	//Inflating the layout
@@ -299,11 +299,11 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 */
     @Override
     public void onSaveInstanceState(Bundle outBundle){
-    	super.onSaveInstanceState(outBundle);
     	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
-    	
-    	//Saving the list type
-    	outBundle.putInt(EXTRA_LIST_TYPE, refListType);
+
+    	outBundle.putInt(EXTRA_LIST_TYPE, refListType); //-saving the list type
+
+    	super.onSaveInstanceState(outBundle);
     }
 
     
@@ -329,7 +329,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 * Overview: onOptionsItemSelected is called when an options item is clicked
 	 * Details: Please see each section in the method for details about the different responses for the buttons
 	 * Documentation:
-	 * http://developer.android.com/reference/android/app/Activity.html#onOptionsItemSelected%28android.view.MenuItem%29
+	 *  http://developer.android.com/reference/android/app/Activity.html#onOptionsItemSelected%28android.view.MenuItem%29
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem inMenuItem){

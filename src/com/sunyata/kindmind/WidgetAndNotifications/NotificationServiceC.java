@@ -199,27 +199,32 @@ public class NotificationServiceC extends IntentService {
 		
 		//Updating the value of the notification in the database
 		Context tmpContext = Utils.getContentProviderContext(this.getApplicationContext());
-		Cursor tmpCursor = tmpContext.getContentResolver().query(tmpItemUri, null, null, null, null);
-		tmpCursor.moveToFirst();
-		long tmpOldNotificationValue = tmpCursor.getLong(
-				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
-		long tmpNewNotificationValue = findNextTimeInFuture(tmpOldNotificationValue);
+		long tmpNewNotificationValue = findNextTimeInFuture(tmpContext, tmpItemUri);
 		ContentValues tmpContentValue = new ContentValues();
 		tmpContentValue.put(ItemTableM.COLUMN_NOTIFICATION, tmpNewNotificationValue);
 		tmpContext.getContentResolver().update(tmpItemUri, tmpContentValue, null, null);
 	}
 	
 	/*
-	 * Overview: findNextTimeInFuture finds the next time in the future that occurs on the sime time of day
+	 * Overview: findNextTimeInFuture finds and returns the next notification time in the future that occurs on
+	 *  the same time of day as the old notification time
 	 * Used in: onHandleIntent
 	 */
-	private static long findNextTimeInFuture(long inOriginalTime){
-		long retFutureTime = inOriginalTime;
+	private static long findNextTimeInFuture(Context inContentProviderContext, Uri inItemUri){
+		long retNotificationTime;
 		
-		while(retFutureTime <= System.currentTimeMillis()){
-			retFutureTime = retFutureTime + AlarmManager.INTERVAL_DAY;
+		//Extracting notification time from database
+		Cursor tmpCursor = inContentProviderContext.getContentResolver().query(inItemUri, null, null, null, null);
+		tmpCursor.moveToFirst();
+		retNotificationTime = tmpCursor.getLong(
+				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
+		tmpCursor.close();
+		
+		//Loop past previous times until we find a time in the future
+		while(retNotificationTime <= System.currentTimeMillis()){
+			retNotificationTime = retNotificationTime + AlarmManager.INTERVAL_DAY;
 		}
 		
-		return retFutureTime;
+		return retNotificationTime;
 	}
 }
