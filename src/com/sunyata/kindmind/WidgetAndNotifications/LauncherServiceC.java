@@ -1,17 +1,13 @@
 package com.sunyata.kindmind.WidgetAndNotifications;
 
 import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.Handler;
 import android.util.Log;
 
 import com.sunyata.kindmind.MainActivityC;
 import com.sunyata.kindmind.OnClickToastOrActionC;
 import com.sunyata.kindmind.Utils;
-import com.sunyata.kindmind.Database.ItemTableM;
 
 /*
  * Overview: LauncherServiceC starts actions using OnClickToastOrAction.kindAction after the user has
@@ -63,8 +59,8 @@ public class LauncherServiceC extends IntentService {
 				e.printStackTrace();
 			}
 			
-			Context tmpContentProviderContext = Utils.getContentProviderContext(getApplicationContext());
-			OnClickToastOrActionC.randomKindAction(tmpContentProviderContext, tmpItemUri);
+			////Context tmpContentProviderContext = Utils.getContentProviderContext(getApplicationContext());
+			OnClickToastOrActionC.randomKindAction(getApplicationContext(), tmpItemUri);
 		}
 	}
 

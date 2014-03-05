@@ -8,13 +8,12 @@ import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -28,36 +27,39 @@ import com.sunyata.kindmind.List.ListFragmentC;
 import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SortingAlgorithmServiceM;
 
-/*
- * Overview: MainActivityC holds three ListFragments in a ViewPager and handles the corresponding tabs
+/**
+ * \brief MainActivityC holds three ListFragments in a ViewPager and handles the corresponding tabs
+ * 
  * Sections:
- * ------------------------Fields
- * ------------------------onCreate and OnPageChangeListener
- * ------------------------Pager adapter
- * ------------------------Callback methods
- * ------------------------Other methods
- * Improvements: Saving the view pager position in a bundle instead of a static variable
- * Notes: In various places in this class a check is made before calling setCurrentItem for the ViewPager,
+ * + ------------------------Fields
+ * + ------------------------onCreate and OnPageChangeListener
+ * + ------------------------Pager adapter
+ * + ------------------------Callback methods
+ * + ------------------------Other methods
+ * 
+ * Improvements:
+ *  Saving the view pager position in a bundle instead of a static variable.
+ *  
+ * Notes:
+ *  + In various places in this class a check is made before calling setCurrentItem for the ViewPager,
  *  for example: "if(mViewPager.getCurrentItem() != tmpPos){". The reason for this is what is an Android bug
  *  which makes action bar items invisible because of a race condition and therefore we remove unnecessary
  *  calls to setCurrentItem. For more info, please see the following links:
- *  http://stackoverflow.com/questions/13998473/disappearing-action-bar-buttons-when-swiping-between-fragments
- *  http://code.google.com/p/android/issues/detail?id=29472
+ *   + http://stackoverflow.com/questions/13998473/disappearing-action-bar-buttons-when-swiping-between-fragments
+ *   + http://code.google.com/p/android/issues/detail?id=29472
+ * 
  * Documentation: 
- *  http://developer.android.com/training/implementing-navigation/lateral.html
- *  http://developer.android.com/reference/android/support/v4/app/FragmentActivity.html
- *  http://developer.android.com/reference/android/support/v4/view/ViewPager.html
+ *  + http://developer.android.com/training/implementing-navigation/lateral.html
+ *  + http://developer.android.com/reference/android/support/v4/app/FragmentActivity.html
+ *  + http://developer.android.com/reference/android/support/v4/view/ViewPager.html
+ *  
+ * \nosubgrouping
  */
 public class MainActivityC extends FragmentActivity implements MainActivityCallbackListenerI{
+    public final static String EXTRA_URI_AS_STRING = "uri_as_string";
 
-	//------------------------Fields
-	
-	//Fragment changes
     private ViewPagerM mViewPager;
 	private FragmentStatePagerAdapterM mPagerAdapter;
-    //private static int sViewPagerPosition;
-	
-	/////private int mViewPagerPosition;
 
     //Action bar
     private ActionBar refActionBar;
@@ -65,15 +67,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     private String mNeedTitle;
     private String mActionTitle;
     
-    
-    
-    
-    public final static String EXTRA_URI_AS_STRING = "uri_as_string";
-	private static final String EXTRA_VIEW_PAGER_POSITION = "view_pager_position";
-    
-    //------------------------onCreate and OnPageChangeListener
-    
-    /*
+    ///@name Lifecycle methods
+    ///@{
+    /**
 	 * Overview: onCreate does fundamental setup for the app, including an OnPageChangeListener,
 	 *  a TabListener and creation of the startup list items
 	 * Notes: This method may be called not only at the start of the application but also later
@@ -110,7 +106,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         mViewPager = (ViewPagerM)findViewById(R.id.pager);
         /////mViewPagerPosition = ListTypeM.FEELINGS;
         mViewPager.setAdapter(mPagerAdapter);
-        mViewPager.setOffscreenPageLimit(0);
+        mViewPager.setOffscreenPageLimit(ListTypeM.NUMBER_OF_TYPES - 1);
         //-Using this becase getAdapter sometimes gives null, for more info, see this link:
         // http://stackoverflow.com/questions/13651262/getactivity-in-arrayadapter-sometimes-returns-null
 
@@ -170,81 +166,13 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         refActionBar.addTab(refActionBar.newTab().setText(mActionTitle).setTabListener(tmpTabListener));
         this.fireUpdateTabTitlesEvent();
         
-        
-        
-
         this.extractDataFromLauncherIntent();
-
     }
-    
+	///@}
 
-	//------------------------Pager adapter
-    
-    /*
-	 * Overview: PagerAdapterM handles the listfragments that makes up the core of the app
-	 * Used in: In onCreate setAdapater is called: "mViewPager.setAdapter(mPagerAdapter);"
-	 * PLEASE NOTE: Was previously a FragmentPagerAdapter, but this resulted in bugs (one of which was outside
-	 *  of the app code) so we use FragmentStatePagerAdapter instead even though the docs recommend the other
-	 *  for cases where we have only a few tabs as in our case
-	 * Documentation:
-	 *  http://developer.android.com/reference/android/support/v4/app/FragmentStatePagerAdapter.html
-	 */
-    private class FragmentStatePagerAdapterM extends FragmentStatePagerAdapter {
-        private ListFragmentC mFeelingListFragment;
-        private ListFragmentC mNeedListFragment;
-        private ListFragmentC mKindnessListFragment;
-        public FragmentStatePagerAdapterM(FragmentManager inFragmentManager) {
-            super(inFragmentManager);
-        }
-        @Override
-        public Object instantiateItem (ViewGroup inContainer, int inPosition){
-        	switch(inPosition){
-        	case ListTypeM.FEELINGS:
-        		mFeelingListFragment = ListFragmentC.newInstance(ListTypeM.FEELINGS,
-        				(MainActivityCallbackListenerI)MainActivityC.this);
-        		break;
-        	case ListTypeM.NEEDS:
-           		mNeedListFragment = ListFragmentC.newInstance(ListTypeM.NEEDS,
-        				(MainActivityCallbackListenerI)MainActivityC.this);
-        		break;
-        	case ListTypeM.KINDNESS:
-           		mKindnessListFragment = ListFragmentC.newInstance(ListTypeM.KINDNESS,
-        				(MainActivityCallbackListenerI)MainActivityC.this);
-        		break;
-        	case ListTypeM.NOT_SET:
-        	default:
-        		Log.e(Utils.getClassName(), "Error in instantiateItem: Case not covered or not set");
-        		break;
-        	}
-        	return super.instantiateItem(inContainer, inPosition);
-        }
-        @Override
-        public ListFragmentC getItem(int inPosition) {
-        	switch (inPosition){
-		    	case ListTypeM.FEELINGS:	return mFeelingListFragment;
-				case ListTypeM.NEEDS:		return mNeedListFragment;
-		    	case ListTypeM.KINDNESS:	return mKindnessListFragment;
-		    	case ListTypeM.NOT_SET:
-		    	default:
-		    		Log.e(Utils.getClassName(), "Error in method getItem: case not covered or not set");
-		    		return null;
-        	}
-        }
-        @Override
-        public int getCount() {
-            return ListTypeM.NUMBER_OF_TYPES;
-        }
+	///@name Callback methods
 
-        public ListFragmentC getCurrentFragment(){
-        	ListFragmentC retListFragmentC = this.getItem(mViewPager.getCurrentItem());
-			return retListFragmentC;
-        }
-    }
-
-    
-    //------------------------Callback methods
-
-    /*
+    /**
 	 * Overview: fireSavePatternEvent saves as a pattern all the currently checked list items
 	 * Used in: ListFragmentC when the user presses the save button menu item
 	 * Uses app internal: fireClearAllListsEvent
@@ -278,7 +206,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		this.fireClearDatabaseAndUpdateGuiEvent();
 		
 	}
-	/*
+	/**
 	 * Overview: limitPatternsTable removes zero or more patterns, keeping the pattern table (1) relevant and
 	 *  (2) at a lenght which does not take too much resources for the sorting algorithm
 	 * Used in: fireSavePatternEvent
@@ -330,14 +258,14 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	public void fireClearDatabaseAndUpdateGuiEvent() {
 		this.clearAllActiveInDatabase(this);
 		this.scrollLeftmost();
-		((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService(); ///this.startService(new Intent(this, SortingAlgorithmServiceM.class));
+		((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService();
 		this.fireUpdateTabTitlesEvent();
 		((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().getListView()
 				.smoothScrollToPositionFromTop(0, 0);
 	}
 
 	/*
-	 * Overview: fireClearAllListsEvent clears all marks for checked/activated list items
+	 * Overview: clearAllActiveInDatabase clears all marks for checked/activated list items
 	 * Used in:
 	 * Improvements:
 	 */
@@ -354,11 +282,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		if(mViewPager.getCurrentItem() != ListTypeM.FEELINGS){
 			mViewPager.setCurrentItem(ListTypeM.FEELINGS, true);
 		}
-		
-		//////sViewPagerPosition = mViewPager.getCurrentItem();
 	}
 	
-	/*
+	/**
 	 * Overview: fireUpdateTabTitles updates tab titles with the name of the listtype and - if one or more
 	 *  list items have been checked/activated - adds the number of checks for that list type/fragment
 	 * Used in: 1. fireSavePatternEvent 2. ListFragmentC.onListItemClick() 3. onCreate
@@ -379,7 +305,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         refActionBar.getTabAt(2).setText(mActionTitle);
 	}
 
-    /*
+    /**
 	 * Overview: resetData clears and repopulates the list of data items. Used for testing and debug purposes
 	 */
     public void fireResetDataEvent(){
@@ -395,7 +321,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     }
 
 	
-    //------------------------Other methods
+    ///@name Testing methods
     
     //Used for testing
     public ListView getListViewOfCurrentFragment(){
@@ -418,40 +344,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		return true;
 	}
     
-    /*
-    @Override
-    public void onSaveInstanceState(Bundle outState){
-    	super.onSaveInstanceState(outState);
-
-    	///outState.putInt(EXTRA_VIEW_PAGER_POSITION, mViewPagerPosition);
-    	outState.putInt(EXTRA_VIEW_PAGER_POSITION, mViewPagerWrapper.getViewPager().getCurrentItem());
-    }
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState){
-    	super.onRestoreInstanceState(savedInstanceState);
-
-    	////mViewPagerPosition = savedInstanceState.getInt(EXTRA_VIEW_PAGER_POSITION);
-    	mViewPagerWrapper.getViewPager().setCurrentItem(savedInstanceState.getInt(EXTRA_VIEW_PAGER_POSITION));
-    }
-    */
-    
-    @Override
-    public void onResume(){
-    	super.onResume();
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
-    	
-    	
-    	
-    	
-    	/*
-    	if(mViewPagerPosition != mViewPager.getCurrentItem()){
-    		mViewPager.setCurrentItem(mViewPagerPosition);
-    		//-solves the problem in issue #41
-    	}
-    	*/
-    }
-    
-    
+	
+	//-------------------Private methods
     
     private void extractDataFromLauncherIntent(){
     	
@@ -505,4 +399,98 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	
     }
 
+    
+    
+	//------------------------Pager adapter
+    
+    /**
+	 * Overview: PagerAdapterM handles the listfragments that makes up the core of the app
+	 * Used in: In onCreate setAdapater is called: "mViewPager.setAdapter(mPagerAdapter);"
+	 * Documentation:
+	 *  http://developer.android.com/reference/android/support/v4/app/FragmentStatePagerAdapter.html
+	 */
+    private class FragmentStatePagerAdapterM extends FragmentPagerAdapter {
+        private ListFragmentC mFeelingListFragment;
+        private ListFragmentC mNeedListFragment;
+        private ListFragmentC mKindnessListFragment;
+        public FragmentStatePagerAdapterM(FragmentManager inFragmentManager) {
+            super(inFragmentManager);
+        }
+        @Override
+        public Object instantiateItem (ViewGroup inContainer, int inPosition){
+        	switch(inPosition){
+        	case ListTypeM.FEELINGS:
+        		mFeelingListFragment = ListFragmentC.newInstance(ListTypeM.FEELINGS,
+        				(MainActivityCallbackListenerI)MainActivityC.this);
+        		break;
+        	case ListTypeM.NEEDS:
+           		mNeedListFragment = ListFragmentC.newInstance(ListTypeM.NEEDS,
+        				(MainActivityCallbackListenerI)MainActivityC.this);
+        		break;
+        	case ListTypeM.KINDNESS:
+           		mKindnessListFragment = ListFragmentC.newInstance(ListTypeM.KINDNESS,
+        				(MainActivityCallbackListenerI)MainActivityC.this);
+        		break;
+        	case ListTypeM.NOT_SET:
+        	default:
+        		Log.e(Utils.getClassName(), "Error in instantiateItem: Case not covered or not set");
+        		break;
+        	}
+        	return super.instantiateItem(inContainer, inPosition);
+        }
+        @Override
+        public ListFragmentC getItem(int inPosition) {
+        	switch (inPosition){
+		    	case ListTypeM.FEELINGS:	return mFeelingListFragment;
+				case ListTypeM.NEEDS:		return mNeedListFragment;
+		    	case ListTypeM.KINDNESS:	return mKindnessListFragment;
+		    	case ListTypeM.NOT_SET:
+		    	default:
+		    		Log.e(Utils.getClassName(), "Error in method getItem: case not covered or not set");
+		    		return null;
+        	}
+        }
+        @Override
+        public int getCount() {
+            return ListTypeM.NUMBER_OF_TYPES;
+        }
+
+        public ListFragmentC getCurrentFragment(){
+        	ListFragmentC retListFragmentC = this.getItem(mViewPager.getCurrentItem());
+			return retListFragmentC;
+        }
+    }
+
+    
+    /*
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+    	super.onSaveInstanceState(outState);
+
+    	///outState.putInt(EXTRA_VIEW_PAGER_POSITION, mViewPagerPosition);
+    	outState.putInt(EXTRA_VIEW_PAGER_POSITION, mViewPagerWrapper.getViewPager().getCurrentItem());
+    }
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState){
+    	super.onRestoreInstanceState(savedInstanceState);
+
+    	////mViewPagerPosition = savedInstanceState.getInt(EXTRA_VIEW_PAGER_POSITION);
+    	mViewPagerWrapper.getViewPager().setCurrentItem(savedInstanceState.getInt(EXTRA_VIEW_PAGER_POSITION));
+    }
+    */
+    /*
+    @Override
+    public void onResume(){
+    	super.onResume();
+    	Log.d(Utils.getClassName(), Utils.getMethodName());
+    	
+    	if(mViewPagerPosition != mViewPager.getCurrentItem()){
+    		mViewPager.setCurrentItem(mViewPagerPosition);
+    		//-solves the problem in issue #41
+    	}
+    }
+	*/
+    
+
+    
 }

@@ -194,7 +194,8 @@ public class OnClickToastOrActionC {
 
 
 		//Verifying that we have at least one app that can handle this intent before starting
-		PackageManager tmpPackageManager = inContext.getApplicationContext().getPackageManager();
+		Context tmpAppContext = inContext.getApplicationContext();
+		PackageManager tmpPackageManager = tmpAppContext.getPackageManager();
 		List<ResolveInfo> tmpListOfAllPosibleAcitivtiesForStarting =
 				tmpPackageManager.queryIntentActivities(tmpIntent, 0);
 		if(tmpListOfAllPosibleAcitivtiesForStarting.size() > 0){
