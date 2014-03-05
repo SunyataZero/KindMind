@@ -210,7 +210,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		}
     	
     	//Fundamental setup
-		super.setRetainInstance(true);
+		super.setRetainInstance(false); //////////////////////////////true
 		//-Recommended by CommonsWare:
 		// http://stackoverflow.com/questions/11160412/why-use-fragmentsetretaininstanceboolean
 		// but not in Reto's book: "genereally not recommended"

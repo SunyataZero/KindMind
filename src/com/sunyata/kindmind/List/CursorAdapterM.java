@@ -59,7 +59,7 @@ public class CursorAdapterM extends SimpleCursorAdapter{
 		//Getting the view that we like to modify
 		convertView = super.getView(position, convertView, parent);
 		
-    	//Getting the SQL cursor..
+    	//Getting the SQL cursor (will not be closed)..
     	Cursor tmpLoaderItemCur = getCursor();
     	
     	//..moving to the current position (position in database is matched by position in gui list)

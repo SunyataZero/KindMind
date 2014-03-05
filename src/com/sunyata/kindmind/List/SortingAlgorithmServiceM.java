@@ -50,6 +50,8 @@ public class SortingAlgorithmServiceM extends IntentService {
 	 *  and saved into the pattern table
 	 * Improvements: To cut down on object creation and thereby memory usage, remove the PatternM private class and
 	 *  store "relevance" values in an array to reduce object creation
+	 * Updating the sort values after the cursor has been closed
+	 *  http://stackoverflow.com/questions/11633581/attempt-to-re-open-an-already-closed-object-java-lang-illegalstateexception
 	 * Algorithm improvements: Many ideas, one is to use the timestamp from the patterns table to reduce relevance
 	 *  for patterns from a long time back
 	 */
@@ -97,6 +99,9 @@ public class SortingAlgorithmServiceM extends IntentService {
 			tmpPatternMatrix.get(tmpPatternMatrix.size() - 1).list.add(tmpItemRefId);
 		}
 		
+		//..closing pattern cursor
+		tmpPatternCur.close();
+		
 		//3. Go through the newly created matrix and compare with the list from step 1 to update relevance..
 		for(Pattern p : tmpPatternMatrix){
 			float tmpNumberOfMatches = 0;
@@ -115,6 +120,8 @@ public class SortingAlgorithmServiceM extends IntentService {
 		}
 		
 		//4. Go through all list items and use the relevance to update the kindsortvalue for each item..
+		ArrayList<Double> tmpUpdateListSortValue = new ArrayList<Double>();
+		ArrayList<Uri> tmpUpdateListUri = new ArrayList<Uri>();
 		tmpItemCur = getApplicationContext().getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
 		for(tmpItemCur.moveToFirst(); tmpItemCur.isAfterLast() == false; tmpItemCur.moveToNext()){
@@ -122,7 +129,7 @@ public class SortingAlgorithmServiceM extends IntentService {
 			long tmpItemId = Long.parseLong(tmpItemCur.getString(
 					tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ID)));
 			Uri tmpItemUri = Uri.parse(ContentProviderM.ITEM_CONTENT_URI + "/" + tmpItemId);
-			ContentValues tmpUpdateVal;
+			
 			for(Pattern p : tmpPatternMatrix){
 				if(p.list.contains(tmpItemId)){
 					//..calculating and adding to the kindsort value
@@ -131,16 +138,21 @@ public class SortingAlgorithmServiceM extends IntentService {
 							+ p.relevance * PATTERN_MULTIPLIER;
 				}
 			}
-			
-			//..updating the kindsort value in the database
-			tmpUpdateVal = new ContentValues();
-			tmpUpdateVal.put(ItemTableM.COLUMN_KINDSORT_VALUE, tmpNewKindSortValue);
-			getApplicationContext().getContentResolver().update(tmpItemUri, tmpUpdateVal, null, null);
+			//..adding value to list (will be written to database after the cursor has been closed)
+			tmpUpdateListSortValue.add(tmpNewKindSortValue);
+			tmpUpdateListUri.add(tmpItemUri);
 		}
 		
-		//Closing cursors
+		//..closing item cursor
 		tmpItemCur.close();
-		tmpPatternCur.close();
+		
+		//5. Updating the kindsort values in the database
+		ContentValues tmpUpdateVal;
+		for(int i = 0; i < tmpUpdateListSortValue.size(); i++){
+			tmpUpdateVal = new ContentValues();
+			tmpUpdateVal.put(ItemTableM.COLUMN_KINDSORT_VALUE, tmpUpdateListSortValue.get(i));
+			getApplicationContext().getContentResolver().update(tmpUpdateListUri.get(i), tmpUpdateVal, null, null);
+		}
 		
 		//Communicate the result (used for showing a progress bar (aka "loading spinner"))
 		ResultReceiver tmpResultReceiver = inIntent.getParcelableExtra(ListFragmentC.EXTRA_KINDSORT_RESULT);
