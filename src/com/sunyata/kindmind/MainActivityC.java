@@ -431,6 +431,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     			
 	        	//Setting the Viewpager position
 	        	mViewPager.setCurrentItem(tmpListType);
+	        	
+	        	//Clearing the intent
+	        	this.setIntent(null);
     		}
     	}
     	
