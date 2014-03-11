@@ -134,7 +134,7 @@ public class NotificationServiceC extends IntentService {
 		
 		if(tmpItemNotificationIsActive == true){
 			tmpAlarmManager.cancel(tmpPendingIntentToRepeat); //-Cancelling first
-			Log.i(Utils.getClassName(), "date = " + new Date(tmpItemTimeInMilliSeconds));
+			Log.i(Utils.getAppTag(), "date = " + new Date(tmpItemTimeInMilliSeconds));
 			tmpAlarmManager.set(AlarmManager.RTC, tmpItemTimeInMilliSeconds, tmpPendingIntentToRepeat);
 			/*
 			tmpAlarmManager.setRepeating(AlarmManager.RTC, tmpNextTimeInFuture, AlarmManager.INTERVAL_DAY,
@@ -170,7 +170,7 @@ public class NotificationServiceC extends IntentService {
 	 */
 	@Override
 	protected void onHandleIntent(Intent inIntent) {
-		Log.d(Utils.getClassName(), "In method onHandleIntent: One intent received");
+		Log.d(Utils.getAppTag(), "In method onHandleIntent: One intent received");
 		
 		//Extracting data attached to the intent coming in to this method
 		String tmpIdStringFromListDataItem = inIntent.getStringExtra(ITEM_ID);

@@ -108,7 +108,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
     	//-super not called in the Big Nerd Ranch book
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
+    	Log.d(Utils.getAppTag(), Utils.getMethodName());
 
     	//Inflating the layout
     	View v = inflater.inflate(R.layout.fragment_item_setup, parent, false);
@@ -128,7 +128,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     			refItemUri, tmpProjection, null, null, null);
     	boolean tmpCursorIsEmpty = !tmpItemCur.moveToFirst();
     	if(tmpCursorIsEmpty){
-    		Log.e(Utils.getClassName(), "Error in method fillDataFromContentProvider: Cursor is empty");
+    		Log.e(Utils.getAppTag(), "Error in method fillDataFromContentProvider: Cursor is empty");
     		getActivity().finish();
     		return v;
     	}
@@ -155,7 +155,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     				tmpContentValues.put(ItemTableM.COLUMN_NAME, s.toString());
     				getActivity().getContentResolver().update(refItemUri, tmpContentValues, null, null);
     			}catch(NullPointerException npe){
-    				Log.e(Utils.getClassName(), "NullPointerException in method onTextChanged");
+    				Log.e(Utils.getAppTag(), "NullPointerException in method onTextChanged");
     			}
     		}
     		@Override
@@ -319,7 +319,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		String tmpFilePath = "";
 		
 		if(inResultCode != Activity.RESULT_OK){
-			Log.w(Utils.getClassName(),"Warning in onActivityResult(): inResultCode was not RESULT_OK");
+			Log.w(Utils.getAppTag(),"Warning in onActivityResult(): inResultCode was not RESULT_OK");
 			return;
 		}
 		
@@ -373,7 +373,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 					BookmarkChooserFragmentC.EXTRA_RETURN_VALUE_FROM_BOOKMARK_CHOOSER_FRAGMENT);
 			break;
 		default:
-			Log.e(Utils.getClassName(), "Error in onActivityResult(): Case not covered");
+			Log.e(Utils.getAppTag(), "Error in onActivityResult(): Case not covered");
 			return;
 		}
 		
@@ -381,7 +381,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		//--------------Updating file/dir string value in the database
 		
 		if(tmpFilePath == ""){
-			Log.w(Utils.getClassName(),
+			Log.w(Utils.getAppTag(),
 					"Waring in onActivityResult: tmpFilePath is empty even though the result code was RESULT_OK");
 			return;
 		}
@@ -395,7 +395,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		
 		//Verify that the string to be added does not contain the separator
 		if(tmpFilePath.contains(Utils.ACTIONS_SEPARATOR)){
-			Log.e(Utils.getClassName(), "Error in onActivityResult: String contains separator character");
+			Log.e(Utils.getAppTag(), "Error in onActivityResult: String contains separator character");
 			return;
 		}
 		
@@ -428,7 +428,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		Log.d(Utils.getClassName(), Utils.getMethodName());
+		Log.d(Utils.getAppTag(), Utils.getMethodName());
 		setRetainInstance(true);
 		//-Recommended by CommonsWare:
 		// http://stackoverflow.com/questions/11160412/why-use-fragmentsetretaininstanceboolean

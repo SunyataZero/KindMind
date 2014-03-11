@@ -16,7 +16,7 @@ public abstract class SingleFragmentActivityC extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		Log.d(Utils.getClassName(), Utils.getMethodName());
+		Log.d(Utils.getAppTag(), Utils.getMethodName());
 		
 		setContentView(R.layout.activity_fragment);
 		FragmentManager fm = getFragmentManager();

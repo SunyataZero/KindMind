@@ -78,7 +78,7 @@ public class OnClickToastOrActionC {
 		int tmpRandomNumber = tmpRandomNumberGenerator.nextInt(tmpActionList.size());
 
 		String tmpRandomlyGivenAction = tmpActionList.get(tmpRandomNumber);
-		Log.d(Utils.getClassName(), "tmpRandomlyGivenAction = " + tmpRandomlyGivenAction);
+		Log.d(Utils.getAppTag(), "tmpRandomlyGivenAction = " + tmpRandomlyGivenAction);
 
 		kindAction(inContext, tmpRandomlyGivenAction);
 	}

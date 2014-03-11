@@ -26,12 +26,12 @@ public class PatternsTableM {
 	
 	public static void createTable(SQLiteDatabase inDatabase) {
 		inDatabase.execSQL(CREATE_DATABASE);
-		Log.i(Utils.getClassName(), "Database version = " + inDatabase.getVersion());
+		Log.i(Utils.getAppTag(), "Database version = " + inDatabase.getVersion());
 	}
 
 	public static void upgradeTable(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
 		
-		Log.w(Utils.getClassName(), "Upgrade removed the database with a previous version and created a new one, " +
+		Log.w(Utils.getAppTag(), "Upgrade removed the database with a previous version and created a new one, " +
 				"all data was deleted");
 		
 		inDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_PATTERNS);

@@ -67,7 +67,7 @@ public class BookmarkChooserFragmentC extends ListFragment {
 	@Override
     public void onActivityCreated(Bundle inSavedInstanceState){
     	super.onActivityCreated(inSavedInstanceState);
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
+    	Log.d(Utils.getAppTag(), Utils.getMethodName());
     	
     	
     	this.updateListWithNewData();

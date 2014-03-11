@@ -24,7 +24,7 @@ public class AboutFragmentC extends Fragment {
 	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
+    	Log.d(Utils.getAppTag(), Utils.getMethodName());
 
     	//Inflating the layout
     	View v = inflater.inflate(R.layout.fragment_about, parent, false);
@@ -40,7 +40,7 @@ public class AboutFragmentC extends Fragment {
 		try {
 			tmpPackageInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
 		} catch (NameNotFoundException e) {
-			Log.e(Utils.getClassName(), e.getMessage());
+			Log.e(Utils.getAppTag(), e.getMessage());
 			getActivity().finish();
 		}
     	mVersionTextView.setText(tmpPackageInfo.versionName);
@@ -85,7 +85,7 @@ public class AboutFragmentC extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		Log.d(Utils.getClassName(), Utils.getMethodName());
+		Log.d(Utils.getAppTag(), Utils.getMethodName());
 		setRetainInstance(true);
 		//-Recommended by CommonsWare:
 		// http://stackoverflow.com/questions/11160412/why-use-fragmentsetretaininstanceboolean

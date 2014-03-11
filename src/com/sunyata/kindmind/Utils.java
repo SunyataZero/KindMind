@@ -35,13 +35,11 @@ import com.sunyata.kindmind.WidgetAndNotifications.WidgetProviderC;
 public class Utils {
 
 	public static final String LIST_TYPE = "LIST_TYPE";
-	
 	public static final String PREF_IS_FIRST_TIME_APP_STARTED = "IsFirstTimeApplicationStarted";
-	
 	public static final String ACTIONS_SEPARATOR = ";";
-
-	public static final int MAX_NR_OF_PATTERN_ROWS = 2000; //TODO: Auto test this value to see if we can increase it
-	
+	public static final int MAX_NR_OF_PATTERN_ROWS = 2000;
+	private static final int STACK_TRACE_LINE = 3;
+	private static final String APP_TAG = "kindmind";
 
 	//--------------------(Static) methods for debugging
 	
@@ -56,19 +54,22 @@ public class Utils {
 			return Thread.currentThread().getStackTrace()[3].getMethodName() + "[N/A]";
 		}
 	}
-	public static String getMethodName(){
-		return Thread.currentThread().getStackTrace()[3].getMethodName();
+	//Used for filtering with logcat, the class name has been moved into getMethodName
+	public static String getAppTag(){
+		return APP_TAG;
 	}
-	public static String getClassName(int inStackTraceLine){
-		String tmpClassWithPackage = Thread.currentThread().getStackTrace()[inStackTraceLine].getClassName();
+	public static String getMethodName(){
+		//Extracting the class ("component") name
+		String tmpClassWithPackage = Thread.currentThread().getStackTrace()[STACK_TRACE_LINE].getClassName();
 		String[] tmpSplitString = tmpClassWithPackage.split("\\."); //NOTE: Regular experssion so "." means "all"
 		//String tmpOrganization = tmpSplitString[tmpSplitString.length-3];
 		//String tmpProject = tmpSplitString[tmpSplitString.length-2];
 		String tmpComponent = tmpSplitString[tmpSplitString.length-1];
-		return tmpComponent;
-	}
-	public static String getClassName(){
-		return getClassName(3);
+		
+		//Extracting the method name
+		String tmpMethodName = Thread.currentThread().getStackTrace()[3].getMethodName();
+		
+		return tmpComponent + "." + tmpMethodName;
 	}
 	
 	
@@ -80,6 +81,7 @@ public class Utils {
 		return retVal;
 	}
 	public static void createAllStartupItems(Context inContext) {
+		Log.i(Utils.getAppTag(), "Creating startup items");
 		
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Angry");
     	createStartupItem(inContext, ListTypeM.FEELINGS, "Anxious");
@@ -118,6 +120,7 @@ public class Utils {
     	createStartupItem(inContext, ListTypeM.NEEDS, "Support");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Trust");
     	createStartupItem(inContext, ListTypeM.NEEDS, "Understanding");
+    	//Self-worth, to matter
 
     	createStartupItem(inContext, ListTypeM.KINDNESS, "Awareness of a feeling in the body");
     	createStartupItem(inContext, ListTypeM.KINDNESS, "Calling a friend");
@@ -143,7 +146,6 @@ public class Utils {
     	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LIST_TYPE, inListTypeInt);
     	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, inColumnName);
     	inContext.getContentResolver().insert(ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);
-		Log.i(Utils.getClassName(), "Added a new item to the database");
 	}
 	
 	
@@ -271,7 +273,7 @@ public class Utils {
 		//Copying the file
 		Utils.copyFile(tmpSourceFile, tmpDestinationFile);
 		
-		Log.i(Utils.getClassName(),"Database backup successful");
+		Log.i(Utils.getAppTag(),"Database backup successful");
 	}
 	
 	
@@ -322,7 +324,7 @@ public class Utils {
 			return mToastNeedsString;
 			
 		default:
-			Log.e(Utils.getClassName(),
+			Log.e(Utils.getAppTag(),
 					"Error in getFormattedStringOfActivatedDataListItems: case not covered in switch statement");
 			return null;
 		}
@@ -370,7 +372,7 @@ public class Utils {
 					+ ItemTableM.COLUMN_KINDSORT_VALUE + " DESC";
 			break;
 		default:
-			Log.e(Utils.getClassName(), "Error in setSortType: Case not covered");
+			Log.e(Utils.getAppTag(), "Error in setSortType: Case not covered");
 			break;
 		}
 	}
@@ -474,7 +476,7 @@ public class Utils {
 		try {
 			tmpPackageInfo = inContext.getPackageManager().getPackageInfo(inContext.getPackageName(), 0);
 		} catch (NameNotFoundException e) {
-			Log.e(Utils.getClassName(), e.getMessage());
+			Log.e(Utils.getAppTag(), e.getMessage());
 		}
 		String tmpVerName = tmpPackageInfo.versionName;
 		if(tmpVerName.contains("alpha") || tmpVerName.contains("Alpha") || tmpVerName.contains("ALPHA")
@@ -513,7 +515,7 @@ public class Utils {
 		try {
 			retContext = inOtherContext.createPackageContext(tmpPackageName, Context.CONTEXT_IGNORE_SECURITY);
 		} catch (NameNotFoundException e) {
-			Log.e(Utils.getClassName(), "Package name " + tmpPackageName + " not found");
+			Log.e(Utils.getAppTag(), "Package name " + tmpPackageName + " not found");
 			e.printStackTrace();
 		}
 		return retContext;

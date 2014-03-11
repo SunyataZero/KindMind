@@ -47,7 +47,7 @@ import com.sunyata.kindmind.List.SortingAlgorithmServiceM;
  *  for example: "if(mViewPager.getCurrentItem() != tmpPos){". The reason for this is what is an Android bug
  *  which makes action bar items invisible because of a race condition and therefore we remove unnecessary
  *  calls to setCurrentItem. For more info, please see the following links:
- *   + http://stackoverflow.com/questions/13998473/disappearing-action-bar-buttons-when-swiping-between-fragments
+ *   + http://stackoverflow.com/questions/13998473/disappearing-action-bar-buttons-when-swiping-between-fragment
  *   + http://code.google.com/p/android/issues/detail?id=29472
  * 
  * Documentation: 
@@ -82,7 +82,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     @Override
     protected void onCreate(Bundle inSavedInstanceState) {
         super.onCreate(inSavedInstanceState);
-        Log.d(Utils.getClassName(), Utils.getMethodName());
+        Log.d(Utils.getAppTag(), Utils.getMethodName());
         
         //Activating strict mode for debug builds
         // More info: http://developer.android.com/reference/android/os/StrictMode.html
@@ -168,8 +168,25 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         refActionBar.addTab(refActionBar.newTab().setText(mActionTitle).setTabListener(tmpTabListener));
         this.fireUpdateTabTitlesEvent();
         
-        this.extractDataFromLauncherIntent();
+        
     }
+    
+    
+    @Override
+    public void onResume(){
+    	super.onResume();
+    	Log.d(Utils.getAppTag(), Utils.getMethodName());
+
+    	this.extractDataFromLauncherIntent();
+    	/*
+    	if(mViewPagerPosition != mViewPager.getCurrentItem()){
+    		mViewPager.setCurrentItem(mViewPagerPosition);
+    		//-solves the problem in issue #41
+    	}
+    	*/
+    }
+    
+    
 	///@}
 
 	///@name Callback methods
@@ -258,7 +275,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		
 		//If we get here it means that we have looped more than the "warning limit" which is an indication that
 		// something has gone wrong
-		Log.w(Utils.getClassName(),
+		Log.w(Utils.getAppTag(),
 				"Warning in limitPatternsTable: Number of iterations has reached " + WARNING_LIMIT
 				+ ", exiting method");
 	}
@@ -394,7 +411,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     			try{
         			tmpListType = tmpItemCur.getInt(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE));
     			}catch(CursorIndexOutOfBoundsException cioobe){
-    				Log.e(Utils.getClassName(), "extractDataFromLauncherIntent: CursorIndexOutOfBoundsException. "
+    				Log.e(Utils.getAppTag(), "extractDataFromLauncherIntent: CursorIndexOutOfBoundsException. "
     						+ "tmpItemUri = " + tmpItemUri, cioobe);
     				finish();
     			}
@@ -453,7 +470,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         		break;
         	case ListTypeM.NOT_SET:
         	default:
-        		Log.e(Utils.getClassName(), "Error in instantiateItem: Case not covered or not set");
+        		Log.e(Utils.getAppTag(), "Error in instantiateItem: Case not covered or not set");
         		break;
         	}
         	return super.instantiateItem(inContainer, inPosition);
@@ -466,7 +483,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		    	case ListTypeM.KINDNESS:	return mKindnessListFragment;
 		    	case ListTypeM.NOT_SET:
 		    	default:
-		    		Log.e(Utils.getClassName(), "Error in method getItem: case not covered or not set");
+		    		Log.e(Utils.getAppTag(), "Error in method getItem: case not covered or not set");
 		    		return null;
         	}
         }
@@ -498,19 +515,4 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	mViewPagerWrapper.getViewPager().setCurrentItem(savedInstanceState.getInt(EXTRA_VIEW_PAGER_POSITION));
     }
     */
-    /*
-    @Override
-    public void onResume(){
-    	super.onResume();
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
-    	
-    	if(mViewPagerPosition != mViewPager.getCurrentItem()){
-    		mViewPager.setCurrentItem(mViewPagerPosition);
-    		//-solves the problem in issue #41
-    	}
-    }
-	*/
-    
-
-    
 }

@@ -55,7 +55,7 @@ public class LauncherServiceC extends IntentService {
 			try {
 				Thread.sleep(1800);
 			} catch (InterruptedException e) {
-				Log.e(Utils.getClassName(), "Thread.sleep was interrupted. " + e.getMessage());
+				Log.e(Utils.getAppTag(), "Thread.sleep was interrupted. " + e.getMessage());
 				e.printStackTrace();
 			}
 			

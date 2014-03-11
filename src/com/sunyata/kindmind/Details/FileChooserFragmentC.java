@@ -68,7 +68,7 @@ public class FileChooserFragmentC extends ListFragment {
     	
     	List<String> tmpList = Arrays.asList(mDirectoryPath.list());
     	if(tmpList == null || tmpList.size() == 0){
-    		Log.w(Utils.getClassName(), "No files in directory or directory not present");
+    		Log.w(Utils.getAppTag(), "No files in directory or directory not present");
     		getActivity().finish();
     		return;
     	}
@@ -92,7 +92,7 @@ public class FileChooserFragmentC extends ListFragment {
 			
 			//Setting a prefix that describes if the item that the user is choosing is a file or a directory
 			File tmpFileOrDirectory = new File(Utils.getKindMindDirectory() + "/" + tmpString);
-			Log.i(Utils.getClassName(), "tmpFileOrDirectory = " + tmpFileOrDirectory);
+			Log.i(Utils.getAppTag(), "tmpFileOrDirectory = " + tmpFileOrDirectory);
 			String tmpDirectoryOrFileString = "";
 			if(tmpFileOrDirectory.isDirectory() == true){
 				tmpDirectoryOrFileString = "[Dir]  ";

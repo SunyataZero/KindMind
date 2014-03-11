@@ -44,7 +44,7 @@ class RemoteViewsFactoryC implements RemoteViewsService.RemoteViewsFactory{
 		mWidgetId = inIntent.getExtras().getInt(
 				AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
 		if(mWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID){
-			Log.e(Utils.getClassName(), "Error in constructor KindMindRemoteViewsFactory: INVALID_APPWIDGET_ID");
+			Log.e(Utils.getAppTag(), "Error in constructor KindMindRemoteViewsFactory: INVALID_APPWIDGET_ID");
 			return;
 		}
 	}
@@ -59,7 +59,7 @@ class RemoteViewsFactoryC implements RemoteViewsService.RemoteViewsFactory{
 	 */
 	@Override
 	public void onCreate() {
-		Log.d(Utils.getClassName(), "onCreate()");
+		Log.d(Utils.getAppTag(), "onCreate()");
 
 		mItemCursor = createItemCursor();
 	}
@@ -162,7 +162,7 @@ class RemoteViewsFactoryC implements RemoteViewsService.RemoteViewsFactory{
 				Context.MODE_PRIVATE).getInt(String.valueOf(mWidgetId),
 				ListTypeM.NOT_SET);
 		if(tmpListType == ListTypeM.NOT_SET){
-			Log.e(Utils.getClassName(), "Error in onCreate: no list type given");
+			Log.e(Utils.getAppTag(), "Error in onCreate: no list type given");
 			return null;
 		}
 		

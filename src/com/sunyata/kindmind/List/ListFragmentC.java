@@ -97,7 +97,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 */
 	@Override
 	public android.support.v4.content.Loader<Cursor> onCreateLoader(int inIdUnused, Bundle inArgumentsUnused) {
-		Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
+		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
 		
 		//Setup of variables used for selecting the database colums of rows
 		String[] tmpProjection = {ItemTableM.COLUMN_ID, ItemTableM.COLUMN_NAME,
@@ -120,7 +120,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 */
 	@Override
 	public void onLoadFinished(android.support.v4.content.Loader<Cursor> inCursorLoader, Cursor inCursor) {
-		Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
+		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
 		
 		mCursorAdapter.swapCursor(inCursor);
 	}
@@ -130,7 +130,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 */
 	@Override
 	public void onLoaderReset(android.support.v4.content.Loader<Cursor> inCursorUnused) {
-		Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
+		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
 		
 		mCursorAdapter.swapCursor(null);
 	}
@@ -145,7 +145,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 *  this is handled in another place (getView in CustomCursorAdapter)
 	 */
 	void fillListWithDataFromAdapter(){
-		Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
+		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
 		
 		//Creating the SimpleCursorAdapter for the specified database columns linked to the specified GUI views..
 		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME}; ///, ItemTableM.COLUMN_DETAILS
@@ -172,7 +172,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 * Uses Android lib: changeCursor, setAdapter
 	 */
 	public void updateCursorAdapter() { //[list update]
-		Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
+		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
 		
 		//Updating the cursor..
 		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + "=" + String.valueOf(refListType);
@@ -201,7 +201,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     @Override
     public void onActivityCreated(Bundle inSavedInstanceState){
     	super.onActivityCreated(inSavedInstanceState);
-    	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
+    	Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
 
     	//Restoring state
 		if(inSavedInstanceState != null){
@@ -243,7 +243,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
     	super.onCreateView(inflater, parent, savedInstanceState);
     	//-TODO: Verify ok (super not called in the Big Nerd Ranch book, or in Reto's book)
-    	Log.d(Utils.getClassName(), Utils.getMethodName());
+    	Log.d(Utils.getAppTag(), Utils.getMethodName());
 
     	//Inflating the layout
     	View v = inflater.inflate(R.layout.fragment_list, parent, false);
@@ -299,7 +299,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 */
     @Override
     public void onSaveInstanceState(Bundle outBundle){
-    	Log.d(Utils.getClassName(), Utils.getMethodName(refListType));
+    	Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
 
     	outBundle.putInt(EXTRA_LIST_TYPE, refListType); //-saving the list type
 

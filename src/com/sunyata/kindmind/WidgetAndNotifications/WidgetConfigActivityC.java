@@ -74,7 +74,7 @@ public class WidgetConfigActivityC extends Activity {
 				}else if(mKindnessRadioButton.isChecked()){
 					tmpListType = ListTypeM.KINDNESS;
 				}else{
-					Log.e(Utils.getClassName(), "Error in onClick: Radio button not covered in if statements");
+					Log.e(Utils.getAppTag(), "Error in onClick: Radio button not covered in if statements");
 					finish();
 				}
 				getSharedPreferences(WIDGET_CONFIG_LIST_TYPE_PREFERENCES, Context.MODE_PRIVATE).edit()

@@ -51,7 +51,7 @@ public class ListTypeM {
 		case KINDNESS: return "Kindness";
 		case NOT_SET:
 		default:
-			Log.e(Utils.getClassName(), "Error in getListTypeString: Case not Covered or value has not been set");
+			Log.e(Utils.getAppTag(), "Error in getListTypeString: Case not Covered or value has not been set");
 			return "";
 		}
 	}
