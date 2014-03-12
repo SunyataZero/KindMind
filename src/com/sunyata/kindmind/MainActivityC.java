@@ -30,54 +30,38 @@ import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SortingAlgorithmServiceM;
 
 /**
- * \brief MainActivityC holds three ListFragments in a ViewPager and handles the corresponding tabs
+ * \brief MainActivityC holds three ListFragments in a ViewPagerM using a FragmentAdapterM
  * 
- * Sections:
- * + ------------------------Fields
- * + ------------------------onCreate and OnPageChangeListener
- * + ------------------------Pager adapter
- * + ------------------------Callback methods
- * + ------------------------Other methods
- * 
- * Improvements:
- *  Saving the view pager position in a bundle instead of a static variable.
- *  
- * Notes:
- *  + In various places in this class a check is made before calling setCurrentItem for the ViewPager,
- *  for example: "if(mViewPager.getCurrentItem() != tmpPos){". The reason for this is what is an Android bug
- *  which makes action bar items invisible because of a race condition and therefore we remove unnecessary
- *  calls to setCurrentItem. For more info, please see the following links:
- *   + http://stackoverflow.com/questions/13998473/disappearing-action-bar-buttons-when-swiping-between-fragment
- *   + http://code.google.com/p/android/issues/detail?id=29472
+ * MainActivitC also contains:
+ * + Callback methods from ListFragmentC, for updating the whole gui (used for example when saving)
+ * + Callback methods from the test project (for example for resetting all data)
  * 
  * Documentation: 
- *  + http://developer.android.com/training/implementing-navigation/lateral.html
- *  + http://developer.android.com/reference/android/support/v4/app/FragmentActivity.html
- *  + http://developer.android.com/reference/android/support/v4/view/ViewPager.html
- *  
+ * + http://developer.android.com/training/implementing-navigation/lateral.html
+ * + http://developer.android.com/reference/android/support/v4/app/FragmentActivity.html
+ * + http://developer.android.com/reference/android/support/v4/view/ViewPager.html
+ * 
  * \nosubgrouping
  */
 public class MainActivityC extends FragmentActivity implements MainActivityCallbackListenerI{
+	
     public final static String EXTRA_URI_AS_STRING = "uri_as_string";
 
     private ViewPagerM mViewPager;
-	private FragmentStatePagerAdapterM mPagerAdapter;
-
-    //Action bar
+	private FragmentAdapterM mPagerAdapter;
     private ActionBar refActionBar;
     private String mFeelingTitle;
     private String mNeedTitle;
     private String mActionTitle;
     
-    ///@name Lifecycle methods
+    ///@name Life cycle
     ///@{
     /**
-	 * Overview: onCreate does fundamental setup for the app, including an OnPageChangeListener,
-	 *  a TabListener and creation of the startup list items
-	 * Notes: This method may be called not only at the start of the application but also later
-	 *  to recreate the activity, for example after coming back from a details screen.
+	 * \brief onCreate does fundamental setup for the app, including creation of the startup list items,
+	 * creating an instance of ViewPagerM and setting the OnPageChangeListener for it, and adding a TabListener
+	 * 
 	 * Documentation: 
-	 *  http://developer.android.com/reference/android/support/v4/view/ViewPager.OnPageChangeListener.html
+	 * + http://developer.android.com/reference/android/support/v4/view/ViewPager.OnPageChangeListener.html
 	 */
     @Override
     protected void onCreate(Bundle inSavedInstanceState) {
@@ -102,7 +86,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         setTitle(R.string.app_name);
         
         //Create the adapter that will return a fragment for each section of the app
-        mPagerAdapter = new FragmentStatePagerAdapterM(getSupportFragmentManager());
+        mPagerAdapter = new FragmentAdapterM(getSupportFragmentManager());
 
         //Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPagerM)findViewById(R.id.pager);
@@ -167,11 +151,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         refActionBar.addTab(refActionBar.newTab().setText(mNeedTitle).setTabListener(tmpTabListener));
         refActionBar.addTab(refActionBar.newTab().setText(mActionTitle).setTabListener(tmpTabListener));
         this.fireUpdateTabTitlesEvent();
-        
-        
     }
     
-    
+    /**
+     * \brief onResume is used for extracting data from an intent coming from \ref LauncherServiceC
+     */
     @Override
     public void onResume(){
     	super.onResume();
@@ -185,16 +169,18 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	}
     	*/
     }
+    ///@}
     
-    
-	///@}
-
-	///@name Callback methods
-
+    ///@name Callback
+    ///@{
     /**
-	 * Overview: fireSavePatternEvent saves as a pattern all the currently checked list items
+	 * \brief fireSavePatternEvent saves as a pattern all the currently checked list items
+	 * 
+	 * Details: The pattern table is also cut down if over the max number of rows
+	 * 
 	 * Used in: ListFragmentC when the user presses the save button menu item
-	 * Uses app internal: fireClearAllListsEvent
+	 * 
+	 * Uses app internal: \ref fireClearDatabaseAndUpdateGuiEvent
 	 */
 	@Override
 	public void fireSavePatternEvent() {
@@ -223,97 +209,44 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		
 		//Clearing data and updating the gui
 		this.fireClearDatabaseAndUpdateGuiEvent();
-		
-	}
-	/**
-	 * Overview: limitPatternsTable removes zero or more patterns, keeping the pattern table (1) relevant and
-	 *  (2) at a lenght which does not take too much resources for the sorting algorithm
-	 * Used in: fireSavePatternEvent
-	 * Notes: 1. We limit the pattern table based on the number of rows (and not the number of patterns).
-	 * 2. We expect the while loop to be run completely only one time on average since this method is called from
-	 *  the same method that adds new patterns (if we have just added a very large pattern it may be run many times)
-	 * 3. The only reason that a for loop is used is so that in case of some error with deletion from the database
-	 *  we don't get stuck in an infinite loop.
-	 * Improvements: Calling update after we have closed the cursor so that there is no risk of
-	 */
-	private void limitPatternsTable(){
-		
-		Cursor tmpPatternsCur = null;
-		final int WARNING_LIMIT = 200;
-
-		ArrayList<String> tmpSelectionsForDeletionList = new ArrayList<String>();
-		
-		for(int i = 0; i < WARNING_LIMIT; i++){
-			//Sorting "by pattern" (by create time)
-			tmpPatternsCur = this.getContentResolver().query(
-					ContentProviderM.PATTERNS_CONTENT_URI, null, null, null,
-					PatternsTableM.COLUMN_CREATE_TIME + " ASC");
-			
-			//Looping until we are on or under the max limit or rows
-			if(tmpPatternsCur.getCount() <= Utils.getMaxNumberOfPatternRows()){
-				//-please note that while debugging getCount will not be updated directly
-				tmpPatternsCur.close();
-				return;
-			}
-			
-			//Extracting the first (and oldest) time entry
-			tmpPatternsCur.moveToFirst();
-			long tmpFirstTimeEntry = tmpPatternsCur.getLong(
-					tmpPatternsCur.getColumnIndexOrThrow(PatternsTableM.COLUMN_CREATE_TIME));
-			
-			//Using the first time entry as a selection value for removing all rows for this whole pattern from the db
-			String tmpSelection = PatternsTableM.COLUMN_CREATE_TIME + "=" + tmpFirstTimeEntry;
-			tmpSelectionsForDeletionList.add(tmpSelection);
-			
-			tmpPatternsCur.close();
-		}
-		
-		//After the cursor has been closed, we remove the items
-		for(String selection : tmpSelectionsForDeletionList){
-			this.getContentResolver().delete(ContentProviderM.PATTERNS_CONTENT_URI, selection, null);
-		}
-		
-		//If we get here it means that we have looped more than the "warning limit" which is an indication that
-		// something has gone wrong
-		Log.w(Utils.getAppTag(),
-				"Warning in limitPatternsTable: Number of iterations has reached " + WARNING_LIMIT
-				+ ", exiting method");
 	}
 	
 	@Override
 	public void fireClearDatabaseAndUpdateGuiEvent() {
 		this.clearAllActiveInDatabase(this);
 		this.scrollLeftmost();
-		((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService();
+		((FragmentAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService();
 		this.fireUpdateTabTitlesEvent();
-		((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().getListView()
+		((FragmentAdapterM)mViewPager.getAdapter()).getCurrentFragment().getListView()
 				.smoothScrollToPositionFromTop(0, 0);
 	}
 
-	/*
-	 * Overview: clearAllActiveInDatabase clears all marks for checked/activated list items
-	 * Used in:
-	 * Improvements:
+    /**
+	 * \brief fireResetDataEvent clears and repopulates the list of data items. Used for testing and debug purposes
+	 * 
+	 * Notes: This method is not in the test group below since we call it from a ListFragment menu item (which is only
+	 * enabled when running in debug mode)
 	 */
-	private void clearAllActiveInDatabase(Context inContext) { //[list update]
-		//Clearing all the checks for all list items
-		ContentValues tmpContentValueForUpdate = new ContentValues();
-		tmpContentValueForUpdate.put(ItemTableM.COLUMN_ACTIVE, ItemTableM.FALSE);
-		Uri tmpUri = Uri.parse(ContentProviderM.ITEM_CONTENT_URI.toString());
-		inContext.getContentResolver().update(tmpUri, tmpContentValueForUpdate, null, null);
-	}
-	
-	private void scrollLeftmost(){
-		//Side scrolling to the leftmost viewpager position (feelings)
-		if(mViewPager.getCurrentItem() != ListTypeM.FEELINGS){
-			mViewPager.setCurrentItem(ListTypeM.FEELINGS, true);
-		}
-	}
-	
+    public void fireResetDataEvent(){
+    	//Clearing the data
+    	this.getContentResolver().delete(ContentProviderM.ITEM_CONTENT_URI, null, null);
+    	this.getContentResolver().delete(ContentProviderM.PATTERNS_CONTENT_URI, null, null);
+    	
+    	//Adding new data
+    	Utils.createAllStartupItems(this);
+    	
+    	//Resetting static variables
+    	mViewPager.setCurrentItem(ListTypeM.FEELINGS);
+    }
+    
 	/**
-	 * Overview: fireUpdateTabTitles updates tab titles with the name of the listtype and - if one or more
+	 * \brief fireUpdateTabTitlesEvent updates tab titles with the name of the listtype and - if one or more
 	 *  list items have been checked/activated - adds the number of checks for that list type/fragment
-	 * Used in: 1. fireSavePatternEvent 2. ListFragmentC.onListItemClick() 3. onCreate
+	 *  
+	 * Used in:
+	 * + fireSavePatternEvent
+	 * + ListFragmentC.onListItemClick()
+	 * + onCreate
 	 */
 	@Override
 	public void fireUpdateTabTitlesEvent() {
@@ -330,52 +263,37 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         refActionBar.getTabAt(1).setText(mNeedTitle);
         refActionBar.getTabAt(2).setText(mActionTitle);
 	}
-
-    /**
-	 * Overview: resetData clears and repopulates the list of data items. Used for testing and debug purposes
-	 */
-    public void fireResetDataEvent(){
-    	//Clearing the data
-    	this.getContentResolver().delete(ContentProviderM.ITEM_CONTENT_URI, null, null);
-    	this.getContentResolver().delete(ContentProviderM.PATTERNS_CONTENT_URI, null, null);
-    	
-    	//Adding new data
-    	Utils.createAllStartupItems(this);
-    	
-    	//Resetting static variables
-    	mViewPager.setCurrentItem(ListTypeM.FEELINGS);
-    }
-
-	
-    ///@name Testing methods
+	///@}
     
-    //Used for testing
+    ///@name Testing methods
+    ///@{
     public ListView getListViewOfCurrentFragment(){
-        return ((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().getListView();
+        return ((FragmentAdapterM)mViewPager.getAdapter()).getCurrentFragment().getListView();
     }
-    //Used for testing
+    
     public void updateListViewAdapter(){
-        ((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().updateCursorAdapter();
+        ((FragmentAdapterM)mViewPager.getAdapter()).getCurrentFragment().updateCursorAdapter();
     }
-    //Used for testing
+    
     public int getCurrentAdapterPosition(){
     	return mViewPager.getCurrentItem();
     }
+    
 	public boolean isListViewPresent() {
 		try{
-			((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().getListView();
+			((FragmentAdapterM)mViewPager.getAdapter()).getCurrentFragment().getListView();
 		}catch(Exception e){
 			return false;
 		}
 		return true;
 	}
+	///@}
     
 	
-	//-------------------Private methods
+	//-------------------------------------------Private-------------------------------------------
     
     private void extractDataFromLauncherIntent(){
     	
-        
     	//------------Extracting data from the intent given when calling this activity
     	// (used by widgets and notifications)
     	if(this.getIntent() != null && this.getIntent().hasExtra(EXTRA_URI_AS_STRING)){
@@ -436,12 +354,84 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	        	this.setIntent(null);
     		}
     	}
-    	
     }
 
     
-    
-	//------------------------Pager adapter
+	/*
+	 * Overview: clearAllActiveInDatabase clears all marks for checked/activated list items
+	 * Used in:
+	 * Improvements:
+	 */
+	private void clearAllActiveInDatabase(Context inContext) { //[list update]
+		//Clearing all the checks for all list items
+		ContentValues tmpContentValueForUpdate = new ContentValues();
+		tmpContentValueForUpdate.put(ItemTableM.COLUMN_ACTIVE, ItemTableM.FALSE);
+		Uri tmpUri = Uri.parse(ContentProviderM.ITEM_CONTENT_URI.toString());
+		inContext.getContentResolver().update(tmpUri, tmpContentValueForUpdate, null, null);
+	}
+	
+	private void scrollLeftmost(){
+		//Side scrolling to the leftmost ViewPager position (feelings)
+		if(mViewPager.getCurrentItem() != ListTypeM.FEELINGS){
+			mViewPager.setCurrentItem(ListTypeM.FEELINGS, true);
+		}
+	}
+	
+	/**
+	 * Overview: limitPatternsTable removes zero or more patterns, keeping the pattern table (1) relevant and
+	 *  (2) at a lenght which does not take too much resources for the sorting algorithm
+	 * Used in: fireSavePatternEvent
+	 * Notes: 1. We limit the pattern table based on the number of rows (and not the number of patterns).
+	 * 2. We expect the while loop to be run completely only one time on average since this method is called from
+	 *  the same method that adds new patterns (if we have just added a very large pattern it may be run many times)
+	 * 3. The only reason that a for loop is used is so that in case of some error with deletion from the database
+	 *  we don't get stuck in an infinite loop.
+	 * Improvements: Calling update after we have closed the cursor so that there is no risk of
+	 */
+	private void limitPatternsTable(){
+		Log.d(Utils.getAppTag(), Utils.getMethodName());
+		
+		Cursor tmpPatternsCur = null;
+		final int WARNING_LIMIT = 200;
+
+		ArrayList<String> tmpSelectionsForDeletionList = new ArrayList<String>();
+		
+		for(int i = 0; i < WARNING_LIMIT; i++){
+			//Sorting "by pattern" (by create time)
+			tmpPatternsCur = this.getContentResolver().query(
+					ContentProviderM.PATTERNS_CONTENT_URI, null, null, null,
+					PatternsTableM.COLUMN_CREATE_TIME + " ASC");
+			
+			//Looping until we are on or under the max limit or rows
+			if(tmpPatternsCur.getCount() <= Utils.getMaxNumberOfPatternRows()){
+				//-please note that while debugging getCount will not be updated directly
+				tmpPatternsCur.close();
+				return;
+			}
+			
+			//Extracting the first (and oldest) time entry
+			tmpPatternsCur.moveToFirst();
+			long tmpFirstTimeEntry = tmpPatternsCur.getLong(
+					tmpPatternsCur.getColumnIndexOrThrow(PatternsTableM.COLUMN_CREATE_TIME));
+			
+			//Using the first time entry as a selection value for removing all rows for this whole pattern from the db
+			String tmpSelection = PatternsTableM.COLUMN_CREATE_TIME + "=" + tmpFirstTimeEntry;
+			tmpSelectionsForDeletionList.add(tmpSelection);
+			
+			tmpPatternsCur.close();
+		}
+		
+		//After the cursor has been closed, we remove the items
+		for(String selection : tmpSelectionsForDeletionList){
+			this.getContentResolver().delete(ContentProviderM.PATTERNS_CONTENT_URI, selection, null);
+		}
+		
+		//If we get here it means that we have looped more than the "warning limit" which is an indication that
+		// something has gone wrong
+		Log.w(Utils.getAppTag(),
+				"Warning in limitPatternsTable: Number of iterations has reached " + WARNING_LIMIT
+				+ ", exiting method");
+	}
     
     /**
 	 * Overview: PagerAdapterM handles the listfragments that makes up the core of the app
@@ -449,15 +439,17 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	 * Documentation:
 	 *  http://developer.android.com/reference/android/support/v4/app/FragmentStatePagerAdapter.html
 	 */
-    private class FragmentStatePagerAdapterM extends FragmentPagerAdapter {
+    private class FragmentAdapterM extends FragmentPagerAdapter {
         private ListFragmentC mFeelingListFragment;
         private ListFragmentC mNeedListFragment;
         private ListFragmentC mKindnessListFragment;
-        public FragmentStatePagerAdapterM(FragmentManager inFragmentManager) {
+        public FragmentAdapterM(FragmentManager inFragmentManager) {
             super(inFragmentManager);
         }
         @Override
         public Object instantiateItem (ViewGroup inContainer, int inPosition){
+        	Log.v(Utils.getAppTag(), Utils.getMethodName() + ", position = " + inPosition);
+        	
         	switch(inPosition){
         	case ListTypeM.FEELINGS:
         		mFeelingListFragment = ListFragmentC.newInstance(ListTypeM.FEELINGS,
@@ -480,6 +472,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         }
         @Override
         public ListFragmentC getItem(int inPosition) {
+        	Log.v(Utils.getAppTag(), Utils.getMethodName() + ", position = " + inPosition);
+        	
         	switch (inPosition){
 		    	case ListTypeM.FEELINGS:	return mFeelingListFragment;
 				case ListTypeM.NEEDS:		return mNeedListFragment;
@@ -496,26 +490,10 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         }
 
         public ListFragmentC getCurrentFragment(){
+        	Log.v(Utils.getAppTag(), Utils.getMethodName());
+        	
         	ListFragmentC retListFragmentC = this.getItem(mViewPager.getCurrentItem());
 			return retListFragmentC;
         }
     }
-
-    
-    /*
-    @Override
-    public void onSaveInstanceState(Bundle outState){
-    	super.onSaveInstanceState(outState);
-
-    	///outState.putInt(EXTRA_VIEW_PAGER_POSITION, mViewPagerPosition);
-    	outState.putInt(EXTRA_VIEW_PAGER_POSITION, mViewPagerWrapper.getViewPager().getCurrentItem());
-    }
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState){
-    	super.onRestoreInstanceState(savedInstanceState);
-
-    	////mViewPagerPosition = savedInstanceState.getInt(EXTRA_VIEW_PAGER_POSITION);
-    	mViewPagerWrapper.getViewPager().setCurrentItem(savedInstanceState.getInt(EXTRA_VIEW_PAGER_POSITION));
-    }
-    */
 }

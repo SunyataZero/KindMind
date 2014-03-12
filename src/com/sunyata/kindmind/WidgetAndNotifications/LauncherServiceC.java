@@ -32,6 +32,8 @@ public class LauncherServiceC extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent inIntent) {
+		Log.d(Utils.getAppTag(), Utils.getMethodName());
+		
 		Uri tmpItemUri = inIntent.getData();
 		if(tmpItemUri != null){
 			//Marking the item

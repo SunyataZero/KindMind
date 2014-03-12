@@ -2,8 +2,8 @@
 <!-- PLEASE NOTE: There is no error check or auto-complete suggestions for class and package names in this file -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sunyata.kindmind"
-    android:versionCode="43"
-    android:versionName="0.14.18_BETA" >
+    android:versionCode="44"
+    android:versionName="0.14.19_BETA" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -33,17 +33,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Details.ItemSetupActivityC"
+            android:name="com.sunyata.kindmind.Setup.ItemSetupActivityC"
             android:label="@string/item_setup_activity_title" >
             <!-- android:windowSoftInputMode="stateHidden" -->
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".MainActivityC" />
         </activity>
         <activity 
-            android:name="com.sunyata.kindmind.Details.FileChooserActivityC"
+            android:name="com.sunyata.kindmind.Setup.FileChooserActivityC"
             android:label="@string/file_chooser_activity_title">
         </activity>
         <activity 
-            android:name="com.sunyata.kindmind.Details.BookmarkChooserActivityC"
+            android:name="com.sunyata.kindmind.Setup.BookmarkChooserActivityC"
             android:label="@string/bookmark_chooser_activity_title">
         </activity>
         <receiver android:name="com.sunyata.kindmind.WidgetAndNotifications.BootCompletedReceiverC">

@@ -3,6 +3,7 @@ package com.sunyata.kindmind.List;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -55,14 +56,31 @@ public class CursorAdapterM extends SimpleCursorAdapter{
 	 */
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent){
-		
-		//Getting the view that we like to modify
+
+		//Getting the SQL cursor (will not be closed)..
+    	Cursor tmpLoaderItemCur = getCursor();
+
+    	//Waiting for the cursor to be available
+    	for(int i = 0; tmpLoaderItemCur.isClosed(); i++){
+    		Utils.waitForCondition(500, 10, i);
+    	}
+    	/* -the lines above were added because of the following problem:
+java.lang.IllegalStateException: attempt to re-open an already-closed object: android.database.sqlite.SQLiteQuery (mSql = SELECT _id, name, active, kindsort_value, actions FROM item WHERE (list_type=?) ORDER BY active DESC, kindsort_value DESC)
+at android.database.sqlite.SQLiteClosable.acquireReference(SQLiteClosable.java:33)
+at android.database.sqlite.SQLiteQuery.fillWindow(SQLiteQuery.java:82)
+at android.database.sqlite.SQLiteCursor.fillWindow(SQLiteCursor.java:164)
+at android.database.sqlite.SQLiteCursor.onMove(SQLiteCursor.java:147)
+at android.database.AbstractCursor.moveToPosition(AbstractCursor.java:178)
+at android.database.CursorWrapper.moveToPosition(CursorWrapper.java:162)
+at android.support.v4.widget.CursorAdapter.getView(CursorAdapter.java:247)
+at com.sunyata.kindmind.List.CursorAdapterM.getView(CursorAdapterM.java:60)
+at android.widget.AbsListView.obtainView(AbsListView.java:2045)
+    	 */
+    	
+    	//Getting the view that we like to modify
 		convertView = super.getView(position, convertView, parent);
 		
-    	//Getting the SQL cursor (will not be closed)..
-    	Cursor tmpLoaderItemCur = getCursor();
-    	
-    	//..moving to the current position (position in database is matched by position in gui list)
+    	//Moving to the current position (position in database is matched by position in gui list)
     	tmpLoaderItemCur.moveToPosition(position);
 
 		//Setting status of the checkbox (checked / not checked)

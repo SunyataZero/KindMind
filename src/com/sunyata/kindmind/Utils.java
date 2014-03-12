@@ -520,5 +520,18 @@ public class Utils {
 		}
 		return retContext;
 	}
-	
+	public static void waitForCondition(int inStepTime, int inNumberOfSteps, int inCurrentStepNumber) {
+		try {
+			Thread.sleep(inStepTime);
+		} catch (InterruptedException e) {}
+		if(inCurrentStepNumber > inNumberOfSteps){
+			String tmpErrorMessage = "Error in CursorAdapter.getView, waited a long time for cursor to open";
+			Log.e(Utils.getAppTag(), tmpErrorMessage);
+			try {
+				throw new Exception(tmpErrorMessage);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }

@@ -32,39 +32,31 @@ import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.DatabaseHelperM;
 import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.Details.ItemSetupActivityC;
+import com.sunyata.kindmind.Setup.ItemSetupActivityC;
 
-/*
- * Overview: ListFragmentC shows a list of items, each item corresponding to a row in an SQL database
- * Sections:
- *  -------------------Fields and constructor
- *  -------------------Loader and update methods
- *  -------------------onCreate, onActivityCreated and click methods
- *  -------------------Other lifecycle methods
- *  -------------------Options menu
- *  -------------------Toast and Action Behaviour
- * Implements: LoaderManager.LoaderCallbacks<Cursor>
- * Extends: ListFragment
- * Uses Android lib: *ListView*, ListFragment, LoaderManager, CursorLoader
- *  http://developer.android.com/reference/android/widget/ListView.html
- *  https://developer.android.com/reference/android/support/v4/app/ListFragment.html
- *  https://developer.android.com/reference/android/support/v4/app/LoaderManager.html
- *  https://developer.android.com/reference/android/support/v4/content/CursorLoader.html
- * Notes: *Support classes are used*
- *  import android.support.v4.app.ListFragment;
- *  import android.support.v4.app.LoaderManager;
- *  import android.support.v4.content.CursorLoader;
- *  The reason for this is that the ViewPager only is available in a support version and is not compatible
- *  with other versions
+/**
+ * \brief ListFragmentC shows a list of items, each item corresponding to a row in an SQL database
+ * 
+ * Uses Android libs:
+ * + *ListView*, http://developer.android.com/reference/android/widget/ListView.html
+ * + ListFragment, http://developer.android.com/reference/android/support/v4/app/ListFragment.html
+ * + LoaderManager, http://developer.android.com/reference/android/support/v4/app/LoaderManager.html
+ * + CursorLoader, http://developer.android.com/reference/android/support/v4/content/CursorLoader.html
+ * 
+ * Notes:
+ * + *Support classes are used*, the reason for this is that the ViewPager only is available in a support version
+ * and is not compatible with other versions.
+ *  + import android.support.v4.app.ListFragment;
+ *  + import android.support.v4.app.LoaderManager;
+ *  + import android.support.v4.content.CursorLoader;
+ *  
+ *  \nosubgrouping
  */
 public class ListFragmentC extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	
-	//-------------------Fields and constructor
-	
-	private int refListType; //-Saved in onSaveInstanceState
-	private static MainActivityCallbackListenerI sCallbackListener; //-Does not have to be saved since it's static
+	private int refListType; //-saved in onSaveInstanceState
+	private static MainActivityCallbackListenerI sCallbackListener;
 	private CursorAdapterM mCursorAdapter;
-	
 	private LinearLayout mLoadingLinearLayout;
 
 	public static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
@@ -74,26 +66,26 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	public static ListFragmentC newInstance(int inListTypeInt, MainActivityCallbackListenerI inCallbackListener){
 		ListFragmentC retListFragment = new ListFragmentC();
 		retListFragment.refListType = inListTypeInt;
-		
-
-		
 		sCallbackListener = inCallbackListener;
 		return retListFragment;
 	}
 
 	
-	//-------------------Loader and update methods
-	//A very good example is available at the top of the following page:
-	// http://developer.android.com/reference/android/app/LoaderManager.html
-	//Please note that we never close the cursor that we get through the loader since this is handled by the
-	// loader (closing ourselves may cause problems)
+	/**@name Loader and update
+	 * A very good example is available at the top of the following page:
+	 * http://developer.android.com/reference/android/app/LoaderManager.html
+	 * 
+	 * Please note that we never close the cursor that we get through the loader since this is handled by the
+	 * loader (closing ourselves may cause problems)
+	 */
+	///@{
 	
-	/*
-	 * Overview: onCreateLoader creates and returns the CursorLoader, which contains the mapping to the database
-	 * Used in:
+	/**
+	 * \brief onCreateLoader creates and returns the CursorLoader, which contains the mapping to the database
+	 * 
 	 * Documentation: 
-	 *  http://www.grokkingandroid.com/using-loaders-in-android/
-	 *  http://developer.android.com/reference/android/app/LoaderManager.LoaderCallbacks.html#onCreateLoader%28int,%20android.os.Bundle%29
+	 * + http://www.grokkingandroid.com/using-loaders-in-android/
+	 * + http://developer.android.com/reference/android/app/LoaderManager.LoaderCallbacks.html#onCreateLoader%28int,%20android.os.Bundle%29
 	 */
 	@Override
 	public android.support.v4.content.Loader<Cursor> onCreateLoader(int inIdUnused, Bundle inArgumentsUnused) {
@@ -112,9 +104,12 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 				tmpProjection, tmpSelection, tmpSelectionArguments, ContentProviderM.sSortType);
 		return retCursorLoader;
 	}
-	/*
-	 * Overview: onLoadFinished
-	 * Used in: Docs: "Called when a previously created loader has finished its load"
+	
+	/**
+	 * \brief onLoadFinished changes (swaps) the old cursor in the adapter to the new one
+	 * 
+	 * Android reference docs: "Called when a previously created loader has finished its load"
+	 * 
 	 * Documentation *interesting to read*:
 	 *  http://developer.android.com/reference/android/app/LoaderManager.LoaderCallbacks.html#onLoadFinished%28android.content.Loader%3CD%3E,%20D%29
 	 */
@@ -124,9 +119,12 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		mCursorAdapter.swapCursor(inCursor);
 	}
-	/*
-	 * Overview: onLoaderReset
-	 * Used in: Docs: "Called when a previously created loader is being reset, and thus making its data unavailable"
+	
+	/**
+	 * \brief onLoaderReset clears the cursor in the adapter
+	 * 
+	 * Android reference docs: "Called when a previously created loader is being reset, and thus making its data
+	 * unavailable"
 	 */
 	@Override
 	public void onLoaderReset(android.support.v4.content.Loader<Cursor> inCursorUnused) {
@@ -135,16 +133,20 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		mCursorAdapter.swapCursor(null);
 	}
 	
-	/* 
-	 * Overview: createListDataSupport fills the data from the database into the loader
-	 *  by creating a cursor adapter (with mapping to database columns) and initiating the loader
-	 * Used in: onActivityCreated
+	/**
+	 * \brief createListDataSupport fills the data from the database into the loader
+	 * by (re-/)creating a cursor adapter (with mapping to database columns) and initiating the loader
+	 * 
+	 * Used in: onActivityCreated (not used by update methods)
+	 * 
 	 * Uses app internal: CursorAdapterM
+	 * 
 	 * Uses Android lib: setListAdapter, initLoader
+	 * 
 	 * Notes: The synching of the state of the checkboxes with the database is not done automatically,
 	 *  this is handled in another place (getView in CustomCursorAdapter)
 	 */
-	void fillListWithDataFromAdapter(){
+	public void fillListWithDataFromAdapter(){
 		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
 		
 		//Creating the SimpleCursorAdapter for the specified database columns linked to the specified GUI views..
@@ -163,12 +165,16 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		//-initLoader seems to be preferrable to restartLoader
 	}
 	
-	/*
-	 * Overview: updateCursorAdapter updates the data in the list.
-	 *  This is done by changing the cursor and giving the cursor to the adapter
-	 * Used in: onActivityCreated, onOptionsItemSelected
+	/**
+	 * \brief updateCursorAdapter updates the data in the list
+	 * 
+	 * This is done by changing the cursor and giving the cursor to the adapter
+	 * 
+	 * Used in: onActivityCreated, onOptionsItemSelected, ............
+	 * 
 	 * Notes: This method used to restart the loader "getLoaderManager().restartLoader(0, null, this)",
-	 *  but this is not necessary
+	 * but this is not necessary
+	 * 
 	 * Uses Android lib: changeCursor, setAdapter
 	 */
 	public void updateCursorAdapter() { //[list update]
@@ -186,17 +192,75 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		// http://stackoverflow.com/questions/8213200/android-listview-update-with-simplecursoradapter
 	}
 	
+	///@}
+	///@name Sorting
+	///@{
 	
-	
-	//-------------------onCreate, onActivityCreated, onCreateView, and click methods
-	// Please note that one click method is inside onActivityCreated and the other is outside
+	/**
+	 * Overview: sortDataWithService displays a loading indicator and starts a service which sorts the
+	 *  rows in the item table (for all three lists: feelings, needs, kindness).
+	 * Details: A ResultReceiver is sent along as an extra, which is used for communication back to this
+	 *  fragment once the service has completed its calculations
+	 * Improvements: 
+	 * Documentation: 
+	 */
+    public void sortDataWithService(){
+    	
+    	
+    	for(int i = 0; mLoadingLinearLayout == null; i++){
+    		Utils.waitForCondition(500, 10, i);
+    	}
+    	/* -the lines above were added because of the following problem:
+java.lang.NullPointerException
+at com.sunyata.kindmind.List.ListFragmentC.sortDataWithService(ListFragmentC.java:483)
+at com.sunyata.kindmind.MainActivityC.fireClearDatabaseAndUpdateGuiEvent(MainActivityC.java:287)
+at com.sunyata.kindmind.MainActivityC.fireSavePatternEvent(MainActivityC.java:225)
+at com.sunyata.kindmind.List.ListFragmentC.onOptionsItemSelected(ListFragmentC.java:362)
+at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568)
+    	 */
+    	
+    	
+    	//Showing the Loading progress bar / "spinner"
+    	
+    	mLoadingLinearLayout.setVisibility(View.VISIBLE);
+    	getListView().setVisibility(View.GONE);
+    	
+    	//Sorting data (for all lists)
+		Intent tmpIntent = new Intent(getActivity(), SortingAlgorithmServiceM.class);
+		tmpIntent.putExtra(ListFragmentC.EXTRA_KINDSORT_RESULT, new AlgorithmServiceResultReceiver(new Handler()));
+		getActivity().startService(tmpIntent);
+    }
+    public class AlgorithmServiceResultReceiver extends ResultReceiver{
+		public AlgorithmServiceResultReceiver(Handler handler) {
+			super(handler);
+		}
+		@Override
+		public void onReceiveResult(int inResultCode, Bundle inResultData){
+			super.onReceiveResult(inResultCode, inResultData);
+			if(inResultCode == SortingAlgorithmServiceM.UPDATE_SERVICE_DONE){
+				mLoadingLinearLayout.setVisibility(View.GONE);
+				getListView().setVisibility(View.VISIBLE);
+				
+				getListView().smoothScrollToPositionFromTop(0, 0);
+				//-http://stackoverflow.com/questions/11334207/smoothscrolltoposition-only-scrolls-partway-in-android-ics
+				sCallbackListener.fireUpdateTabTitlesEvent();
+			}
+		}
+    }
+
+    ///@}
+	/**@name Lifecycle
+	 * Please note that one click method is inside onActivityCreated and the other is outside
+	 */
+	///@{
 	
 	/*
-	 * Overview: onActivityCreated restores the state, does fundamental setup for the fragment
+	 * \brief onActivityCreated restores the state, does fundamental setup for the fragment
 	 *  and setup for the long click
-	 * Note 1: Long click is handled separately from the short click because there is no method to override for the
-	 *  long click
-	 * Note 2: Restore of state used to be in onCreate()
+	 *  
+	 * Notes:
+	 * + *Contains event handler for long clicks*. Long click is handled separately from the short click because
+	 * there is no method to override for the long click
 	 */
     @Override
     public void onActivityCreated(Bundle inSavedInstanceState){
@@ -258,6 +322,24 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
     	return v;
     }
 
+
+    /*
+	 * Overview: onSaveInstanceState saves the state of the list fragment into a bundle.
+	 *  Loading is done in onActivityCreated()
+	 */
+    @Override
+    public void onSaveInstanceState(Bundle outBundle){
+    	Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
+
+    	outBundle.putInt(EXTRA_LIST_TYPE, refListType); //-saving the list type
+
+    	super.onSaveInstanceState(outBundle);
+    }
+    
+    ///@}
+	///@name onListItemClick and options menu
+	///@{
+    
     /*
 	 * Overview: onListItemClick handles clicks on a list item, it updates the DB and refreshes the GUI
 	 * Uses app internal: updateCursorLoaderAndAdapter, fireUpdateTabTitles
@@ -290,25 +372,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		this.updateCursorAdapter();
     }
 	
-
-    //-------------------Other lifecycle methods
-    
-    /*
-	 * Overview: onSaveInstanceState saves the state of the list fragment into a bundle.
-	 *  Loading is done in onActivityCreated()
-	 */
-    @Override
-    public void onSaveInstanceState(Bundle outBundle){
-    	Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
-
-    	outBundle.putInt(EXTRA_LIST_TYPE, refListType); //-saving the list type
-
-    	super.onSaveInstanceState(outBundle);
-    }
-
-    
-	//-------------------Options menu
-
     /*
 	 * Overview: onCreateOptionsMenu inflates the options menu and hides a few options if we have a release build
 	 */
@@ -437,6 +500,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		}
 	}
 	
+    ///@}
+	//-------------------------------------------Private-------------------------------------------
 	
 	/*
 	 * Overview: getFormattedStringForListType formats a list of a given type into a string
@@ -466,43 +531,4 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		
 		return retString;
 	}
-	
-	
-	//----------------------------Other methods
-    
-	/*
-	 * Overview: sortDataWithService displays a loading indicator and starts a service which sorts the
-	 *  rows in the item table (for all three lists: feelings, needs, kindness).
-	 * Details: A ResultReceiver is sent along as an extra, which is used for communication back to this
-	 *  fragment once the service has completed its calculations
-	 * Improvements: 
-	 * Documentation: 
-	 */
-    public void sortDataWithService(){
-    	//Showing the Loading progress bar / "spinner"
-    	mLoadingLinearLayout.setVisibility(View.VISIBLE);
-    	getListView().setVisibility(View.GONE);
-    	
-    	//Sorting data (for all lists)
-		Intent tmpIntent = new Intent(getActivity(), SortingAlgorithmServiceM.class);
-		tmpIntent.putExtra(ListFragmentC.EXTRA_KINDSORT_RESULT, new AlgorithmServiceResultReceiver(new Handler()));
-		getActivity().startService(tmpIntent);
-    }
-    public class AlgorithmServiceResultReceiver extends ResultReceiver{
-		public AlgorithmServiceResultReceiver(Handler handler) {
-			super(handler);
-		}
-		@Override
-		public void onReceiveResult(int inResultCode, Bundle inResultData){
-			super.onReceiveResult(inResultCode, inResultData);
-			if(inResultCode == SortingAlgorithmServiceM.UPDATE_SERVICE_DONE){
-				mLoadingLinearLayout.setVisibility(View.GONE);
-				getListView().setVisibility(View.VISIBLE);
-				
-				getListView().smoothScrollToPositionFromTop(0, 0);
-				//-http://stackoverflow.com/questions/11334207/smoothscrolltoposition-only-scrolls-partway-in-android-ics
-				sCallbackListener.fireUpdateTabTitlesEvent();
-			}
-		}
-    }
 }

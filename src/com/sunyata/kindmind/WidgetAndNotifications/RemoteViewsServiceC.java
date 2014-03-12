@@ -23,22 +23,28 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 	}
 }
 
-/*
- * Overview: RemoteViewsFactoryC works as an adapter giving the (for example) home screen process
- *  views that can be displayed (the data is taken from the database)
+/**
+ * RemoteViewsFactoryC works as an adapter giving the process showing/running the home screen
+ * views that can be displayed (the data is taken from the database)
+ * 
  * Implements: RemoteViewsService.RemoteViewsFactory which is a thin wrapper for an Adapter
+ * 
  * Used in: Called by RemoteViewsServiceC.onGetViewFactory above
- * In: ApplicationContext, Intent containing the widget id
- * Notes: 
- * Improvements: 
+ * 
  * Documentation: See Reto's book p596-597
+ * 
+ * \nosubgrouping
  */
 class RemoteViewsFactoryC implements RemoteViewsService.RemoteViewsFactory{
 
-	Context mContext;
-	Cursor mItemCursor;
-	int mWidgetId;
+	private Context mContext;
+	private Cursor mItemCursor;
+	private int mWidgetId;
 	
+	/**
+	 * \brief The RemoteViewsFactoryC constructor extracts the id of the widget from an intent, and also
+	 * stores an ApplicationContext for later use
+	 */
 	RemoteViewsFactoryC(Context inContext, Intent inIntent){
 		mContext = inContext;
 		mWidgetId = inIntent.getExtras().getInt(
@@ -49,13 +55,11 @@ class RemoteViewsFactoryC implements RemoteViewsService.RemoteViewsFactory{
 		}
 	}
 
-	/*
-	 * Overview: onCreate
-	 * In: The type of list has - in the widget configuration activity - been stored in a special
-	 *  preferences file which is read in this method
-	 * Notes: 
-	 * Improvements: 
-	 * Documentation: 
+	/**
+	 * \brief onCreate sets up the list of data by calling private method createItemCursor
+	 * 
+	 * The type of list has - in the widget configuration activity - been stored in a special
+	 * preferences file which is read in createItemCursor()
 	 */
 	@Override
 	public void onCreate() {
@@ -65,7 +69,21 @@ class RemoteViewsFactoryC implements RemoteViewsService.RemoteViewsFactory{
 	}
 	@Override
 	public void onDestroy() {
-		mItemCursor.close();
+		if(mItemCursor != null){
+			mItemCursor.close();
+		}
+		/*
+		 * Null-check added because we want to avoid this problem which happens after first restoring a backup file
+		 * and then removing the widget:
+java.lang.NullPointerException
+at com.sunyata.kindmind.WidgetAndNotifications.RemoteViewsFactoryC.onDestroy(RemoteViewsServiceC.java:68)
+at android.widget.RemoteViewsService$RemoteViewsFactoryAdapter.onDestroy(RemoteViewsService.java:220)
+at com.android.internal.widget.IRemoteViewsFactory$Stub.onTransact(IRemoteViewsFactory.java:69)
+at android.os.Binder.execTransact(Binder.java:338)
+at dalvik.system.NativeStart.run(Native Method)
+		 */
+		
+		//TODO: add (manual) test for removing, scrolling, clicking in widget list after backup restore
 	}
 
 	@Override
@@ -101,14 +119,19 @@ class RemoteViewsFactoryC implements RemoteViewsService.RemoteViewsFactory{
 		return null;
 	}
 	
-	/*
-	 * Overview: onDataSetChanged is called when WidgetManager.notifyAppWidgetViewDataChanged has been invoked
-	 *  and can be used for updating the list of data (it is the most efficient way since the other three alternatives
-	 *  all recreate the whole widget).
-	 * Notes: Will always be called before the Widget is updated
+	/**
+	 * \brief onDataSetChanged updates/recreates the list of data
+	 * 
+	 * It is called when WidgetManager.notifyAppWidgetViewDataChanged has been invoked
+	 * and can be used for updating the list of data. It is the most efficient way since the other three alternatives
+	 * all recreate the whole widget).
+	 * 
+	 * Notes: This callback method will always be called by the system before the Widget is updated
+	 * 
 	 * Improvements: In the future we may want to implement this method as another way to update the widget
-	 *  (currently the widget is updated after an interval)
-	 *  Documentation: PA4AD p598
+	 * (currently the widget is updated after an interval)
+	 * 
+	 * Documentation: PA4AD p598
 	 */
 	@Override
 	public void onDataSetChanged() {
@@ -116,14 +139,13 @@ class RemoteViewsFactoryC implements RemoteViewsService.RemoteViewsFactory{
 		mItemCursor = createItemCursor();
 	}
 	
-	/*
-	 * Overview: getViewAt (1) updates the template intent with an URI which can be used for launching actions,
+	/**
+	 * \brief getViewAt (1) updates the template intent with an URI which can be used for launching actions
 	 *  and (2) updates and returns a RemoteViews view hierarchy (in our case only one view)
-	 * Notes: The plural for RemoteViews comes from the fact that it is a View hieraracy (in our case it happens
-	 *  to be only one view)
+	 *  
 	 * Documentation: 
-	 *  https://developer.android.com/reference/android/widget/RemoteViewsService.RemoteViewsFactory.html#getViewAt%28int%29
-	 *  https://developer.android.com/reference/android/widget/RemoteViews.html
+	 * + https://developer.android.com/reference/android/widget/RemoteViewsService.RemoteViewsFactory.html#getViewAt%28int%29
+	 * + https://developer.android.com/reference/android/widget/RemoteViews.html
 	 */
 	@Override
 	public RemoteViews getViewAt(int inPosition) {
@@ -147,13 +169,14 @@ class RemoteViewsFactoryC implements RemoteViewsService.RemoteViewsFactory{
 		return retRemoteViews;
 	}
 	
-	/*
-	 * Overview: createItemCursor (1) updates sort values with KindSort, and (2) returns a cursor pointing to
+	/**
+	 * \brief createItemCursor (1) updates sort values with KindSort, and (2) returns a cursor pointing to
 	 *  a data set for one of the three ListTypeM values
+	 *  
+	 *  This method is called from both onCreate and onDataSetChanged
 	 */
 	private Cursor createItemCursor(){
 		//Updating sort values
-		///SortingAlgorithmM.get(mContext).updateSortValuesForListType();
 		mContext.startService(new Intent(mContext, SortingAlgorithmServiceM.class));
 
 		//Setting the type of list we like to display

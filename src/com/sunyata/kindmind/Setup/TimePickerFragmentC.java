@@ -1,4 +1,4 @@
-package com.sunyata.kindmind.Details;
+package com.sunyata.kindmind.Setup;
 
 import java.util.Calendar;
 

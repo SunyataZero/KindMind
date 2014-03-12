@@ -13,47 +13,55 @@ import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternsTableM;
 
-/*
- * Overview: SortingAlgorithmM handles sorting for the three list fragments contained in the main activity
- * Details: Sorting is done by extracting values from the database and working with them, then updating values
- *  in the kindsort column in the items table in the database
- * Notes: We use an IntentService which runs the calculations in the background
+/**
+ * Overview: SortingAlgorithmM handles sorting for the three instances of \ref ListFragmentC contained in the
+ * (single instance of) \ref MainActivityC
+ * 
+ * Sorting is done by extracting values from the database and working with them, then updating values
+ * in the kindsort column in the items table in the database
+ * 
+ * Notes:
+ * + We use an IntentService which runs the calculations in the background
  */
 public class SortingAlgorithmServiceM extends IntentService {
 
-	//-------------------------Fields and constructor
-	
 	public static final double PATTERN_MULTIPLIER = 8;
 	public static final double SIMPLE_PATTERN_MATCH_ADDITION = 1;
+	public static final int UPDATE_SERVICE_DONE = 89742;
 	
 	private static final String TAG = "SortingAlgorithmServiceM";
-	
-	public static final int UPDATE_SERVICE_DONE = 89742;
 	
 	public SortingAlgorithmServiceM() {
 		super(TAG);
 	}
 
 	
-	//-------------------------Algorithm
-	
-	/*
-	 * Overview: updateOnBackgroundThread updates the sort values for all list items
-	 * Details: These things will have effect on the sort value:
-	 *  1. The number of times an item has been marked (this has an effect even when no checkbox is active)
-	 *  2. The history of correlations between a checked list item and other items. Ex: If an item has been
-	 *  checked and saved with another previously and the first item is now checked, the second will get
-	 *  an increase in sort value
-	 * Used in: Called when a user checks or uncheks a checkbox
-	 * Notes: In cases where the relevance is zero (maybe because we have not checked any of the items yet) we
-	 *  still use the SIMPLE_PATTERN_MATCH_ADDITION constant, once for each time that the item has been checked
-	 *  and saved into the pattern table
-	 * Improvements: To cut down on object creation and thereby memory usage, remove the PatternM private class and
-	 *  store "relevance" values in an array to reduce object creation
-	 * Updating the sort values after the cursor has been closed
-	 *  http://stackoverflow.com/questions/11633581/attempt-to-re-open-an-already-closed-object-java-lang-illegalstateexception
-	 * Algorithm improvements: Many ideas, one is to use the timestamp from the patterns table to reduce relevance
-	 *  for patterns from a long time back
+	/**
+	 * \brief updateOnBackgroundThread updates the sort values for all list items
+	 * 
+	 * These things will have effect on the sort value:
+	 * + 1. The number of times an item has been marked (this has an effect even when no checkbox is active)
+	 * + 2. The history of correlations between a checked list item and other items. Ex: If an item has been
+	 * checked and saved with another previously and the first item is now checked, the second will get
+	 * an increase in sort value
+	 *  
+	 * Used in:
+	 * + Called when a user checks or uncheks a checkbox
+	 * 
+	 * Uses Android libs:
+	 * 
+	 * Notes:
+	 * + In cases where the relevance is zero (maybe because we have not checked any of the items yet) we
+	 * still use the SIMPLE_PATTERN_MATCH_ADDITION constant, once for each time that the item has been checked
+	 * and saved into the pattern table
+	 *  
+	 * Improvements:
+	 * + To cut down on object creation and thereby memory usage, remove the PatternM private class and
+	 * store "relevance" values in an array to reduce object creation
+	 * + Updating the sort values after the cursor has been closed
+	 * http://stackoverflow.com/questions/11633581/attempt-to-re-open-an-already-closed-object-java-lang-illegalstateexception
+	 * + Algorithm improvements: Many ideas, one is to use the timestamp from the patterns table to reduce relevance
+	 * for patterns from a long time back
 	 */
 	@Override
 	protected void onHandleIntent(Intent inIntent) {
