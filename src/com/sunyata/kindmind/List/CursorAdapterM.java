@@ -84,7 +84,7 @@ at android.widget.AbsListView.obtainView(AbsListView.java:2045)
 		*/
     	
 
-    	
+    	/*
 		//Updating the action indications
 		String tmpActions = tmpLoaderItemCur.getString(
 				tmpLoaderItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
@@ -98,7 +98,9 @@ at android.widget.AbsListView.obtainView(AbsListView.java:2045)
 			tmpRectangle.setVisibility(View.VISIBLE);
 			tmpRectangle.setBackgroundColor(mContext.getResources().getColor(R.color.multiple_actions));
 		}
+		*/
 
+    	/*
 		if(BuildConfig.DEBUG){
 			//Add the numbers to the end of the name of the list item
 			TextView tmpTextView = ((TextView)modConvertView.findViewById(R.id.list_item_titleTextView));
@@ -107,6 +109,7 @@ at android.widget.AbsListView.obtainView(AbsListView.java:2045)
 			String tmpTextToAppend = " [" + Utils.formatNumber(tmpKindSortValue) + "]";
 			tmpTextView.append(tmpTextToAppend);
 		}
+		*/
 		
 		//Cursor not closed since the loader handles the cursor
 		

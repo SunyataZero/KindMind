@@ -1,6 +1,9 @@
 package com.sunyata.kindmind.List;
 
+import java.lang.ref.WeakReference;
+
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -10,6 +13,7 @@ import android.os.ResultReceiver;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.sunyata.kindmind.AboutActivityC;
+import com.sunyata.kindmind.BuildConfig;
 import com.sunyata.kindmind.MainActivityCallbackListenerI;
 import com.sunyata.kindmind.OnClickToastOrActionC;
 import com.sunyata.kindmind.R;
@@ -56,7 +61,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	private int refListType = ListTypeM.NOT_SET; //-saved in onSaveInstanceState
 	private static MainActivityCallbackListenerI sCallbackListener;
-	private CursorAdapterM mCursorAdapter;
+	private SimpleCursorAdapter mCursorAdapter;
 	private LinearLayout mLoadingLinearLayout;
 
 	public static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
@@ -75,7 +80,11 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 * A very good example is available at the top of the following page:
 	 * http://developer.android.com/reference/android/app/LoaderManager.html
 	 * 
-	 * Please note that we never close the cursor that we get through the loader since this is handled by the
+	 * Improvement: Since we are using a standard loader and have not made our own implementation we get many calls
+	 * to onLoadFinished (one of the methods below) when we click on an item and sort the data. If we made our own
+	 * Loader implementation we could for example supress updates until the end of the sorting.
+	 * 
+	 * Note: We never close the cursor that we get through the loader since this is handled by the
 	 * loader (closing ourselves may cause problems)
 	 */
 	///@{
@@ -467,7 +476,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 	 *  this is handled in another place (getView in CustomCursorAdapter)
 	 */
 	private void fillListWithDataFromAdapter(){
-		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
+		Log.i(Utils.getAppTag(), Utils.getMethodName(refListType));
 		
 		if(refListType == ListTypeM.NOT_SET){
 			Log.e(Utils.getAppTag(), "Error in fillListWithDataFromAdapter, refListType has not been set");
@@ -480,45 +489,88 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		//-refListType used as the identifier
 
 		//Creating the SimpleCursorAdapter for the specified database columns linked to the specified GUI views..
-		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_ACTIVE}; ///, ItemTableM.COLUMN_ACTIVE, ItemTableM.COLUMN_DETAILS
-		int[] tmpDatabaseTo = {R.id.list_item_titleTextView, R.id.list_item_activeCheckBox}; ///, R.id.list_item_tagsTextView
-		mCursorAdapter = new CursorAdapterM(
+		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_ACTIVE,
+				ItemTableM.COLUMN_ACTIONS};
+		int[] tmpDatabaseTo = {R.id.list_item_titleTextView, R.id.list_item_activeCheckBox,
+				R.id.list_item_indicatorRectangle,}; ///, R.id.list_item_tagsTextView
+		mCursorAdapter = new SimpleCursorAdapter(
 				getActivity(), R.layout.fnk_list_item, null, tmpDatabaseFrom, tmpDatabaseTo,
-				android.support.v4.widget.CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER, refListType);
-		
+				android.support.v4.widget.CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER); //, refListType
+
+		if(BuildConfig.DEBUG){
+			//ItemTableM.COLUMN_KINDSORT_VALUE
+		}
 
 		
 		
-		mCursorAdapter.setViewBinder(new android.support.v4.widget.SimpleCursorAdapter.ViewBinder() {
-			@Override
-			public boolean setViewValue(View inView, Cursor inCursor, int inColumnIndex) {
-				//if(inView.getId() == R.id.list_item_activeCheckBox){
-				if(inColumnIndex == inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)){
-					////inColumnIndex == inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)
-					//Setting status of the checkbox (checked / not checked)
-			    	// The other child views of this view have already been changed by the mapping done by SimpleCursorAdapter
-			    	// above in the super.getView() method
-					long tmpActive = Long.parseLong(
-							inCursor.getString(inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)));
-					CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox));
-					if (tmpCheckBox != null){
-			    		tmpCheckBox.setChecked(tmpActive != ItemTableM.FALSE);
-					}
-					return true;
-					//-hilarious if we don't have this, the checkboxes displays the expected state,
-					//but we get a number representation as well to the right of the checkboxes! 
-				}
-				//For every other value: Returning false, which means that the default mapping will be done
-				return false;
-			}
-		});
-
-		
-		
+		mCursorAdapter.setViewBinder(new ViewBinderM((Context)getActivity()));
 		
 		//..using this CursorAdapter as the adapter for this ListFragment
 		super.setListAdapter(mCursorAdapter);
 		
+	}
+	
+	/**
+	 * \brief ViewBinderM is a binder which binds values in the database to parts of the listitem views
+	 * 
+	 * Some bindings are supported by default, in those cases we can simply return false and the adapter
+	 * will take care of the mapping. The modifications we have made include:
+	 * + We do the binding for checkboxes ourselves
+	 * + ViewBinderM also displays the coloured rectangles indicating no, a single, or multiple actions.
+	 * 
+	 * Notes: When running with the debug window open in eclipse we can see that many binder threads are created,
+	 * more than we would expect normally, but this is not an error according to one info source, and we can see
+	 * that even though many binder threads are created, there is a limit
+	 * 
+	 * The classis static to avoid memory leaks and holds a WeakReference to a Context. For more info about
+	 * memory leaks, please see this link:
+	 * http://www.androiddesignpatterns.com/2013/01/inner-class-handler-memory-leak.html
+	 */
+	private static class ViewBinderM implements android.support.v4.widget.SimpleCursorAdapter.ViewBinder{
+		private final WeakReference<Context> mWeakRefToContext;
+		
+		public ViewBinderM(Context inContext){
+			mWeakRefToContext = new WeakReference<Context>(inContext);
+		}
+		
+		@Override
+		public boolean setViewValue(View inView, Cursor inCursor, int inColumnIndex) {
+			//if(inView.getId() == R.id.list_item_activeCheckBox){
+			
+			if(inColumnIndex == inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)){
+				////inColumnIndex == inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)
+				//Setting status of the checkbox (checked / not checked)
+		    	// The other child views of this view have already been changed by the mapping done by SimpleCursorAdapter
+		    	// above in the super.getView() method
+				long tmpActive = Long.parseLong(
+						inCursor.getString(inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)));
+				CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox));
+				if (tmpCheckBox != null){
+		    		tmpCheckBox.setChecked(tmpActive != ItemTableM.FALSE);
+				}
+				return true;
+				//-hilarious if we don't have this, the checkboxes displays the expected state,
+				//but we get a number representation as well to the right of the checkboxes! 
+
+			}else if(inColumnIndex == inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS)){
+				//Updating the action indications
+				String tmpActions = inCursor.getString(inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
+				LinearLayout tmpRectangle = (LinearLayout)inView.findViewById(R.id.list_item_indicatorRectangle);
+				if(tmpActions == null || tmpActions.equals("")){
+					tmpRectangle.setVisibility(View.INVISIBLE); //.setBackgroundColor(mContext.getResources().getColor(R.color.no_action));
+				}else if(Utils.numberOfActions(tmpActions) == 1){
+					tmpRectangle.setVisibility(View.VISIBLE);
+					tmpRectangle.setBackgroundColor(mWeakRefToContext.get().getResources().getColor(R.color.one_action));
+				}else if(Utils.numberOfActions(tmpActions) > 1){
+					tmpRectangle.setVisibility(View.VISIBLE);
+					tmpRectangle.setBackgroundColor(mWeakRefToContext.get().getResources().getColor(R.color.multiple_actions));
+				}
+				return true;
+			}
+			
+			//For every other value: Returning false, which means that the default mapping will be done
+			return false;
+		}
 	}
 	
 	/**
