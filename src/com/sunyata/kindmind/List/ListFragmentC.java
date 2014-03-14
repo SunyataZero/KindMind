@@ -185,6 +185,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 				getListView().smoothScrollToPositionFromTop(0, 0);
 				//-http://stackoverflow.com/questions/11334207/smoothscrolltoposition-only-scrolls-partway-in-android-ics
 				sCallbackListener.fireUpdateTabTitlesEvent();
+				
 			}
 		}
     }
@@ -280,22 +281,21 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 	///@name onListItemClick and options menu
 	///@{
     
-    /*
-	 * Overview: onListItemClick handles clicks on a list item, it updates the DB and refreshes the GUI
-	 * Uses app internal: updateCursorLoaderAndAdapter, fireUpdateTabTitles
+    /**
+	 * \brief onListItemClick handles clicks on a list item: it updates the DB and refreshes the GUI
 	 */
     @Override
     public void onListItemClick(ListView l, View inView, int pos, long inId){ //[list update]
     	super.onListItemClick(l, inView, pos, inId);
-    	
+
     	//Switching the checkbox off/on
 		CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox));
-		tmpCheckBox.toggle();
+		boolean tmpNewCheckedState = !tmpCheckBox.isChecked();
 
 		//Updating the database value
 		Uri tmpUri = Uri.parse(ContentProviderM.ITEM_CONTENT_URI + "/" + inId);
 		ContentValues tmpContentValues = new ContentValues();
-		tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpCheckBox.isChecked() ? 1 : ItemTableM.FALSE);
+		tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpNewCheckedState ? 1 : ItemTableM.FALSE);
 		getActivity().getContentResolver().update(tmpUri, tmpContentValues, null, null);
 		
 		//Performing the various toasts or actions
@@ -303,7 +303,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 			OnClickToastOrActionC.feelingsToast(getActivity());
 		}else if(refListType == ListTypeM.NEEDS){
 			OnClickToastOrActionC.needsToast(getActivity());
-    	}else if(refListType == ListTypeM.KINDNESS && tmpCheckBox.isChecked() == true){
+    	}else if(refListType == ListTypeM.KINDNESS && tmpNewCheckedState){
 			OnClickToastOrActionC.randomKindAction(getActivity(), Utils.getItemUriFromId(inId));
 		}
 
@@ -480,11 +480,41 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		//-refListType used as the identifier
 
 		//Creating the SimpleCursorAdapter for the specified database columns linked to the specified GUI views..
-		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME}; ///, ItemTableM.COLUMN_DETAILS
-		int[] tmpDatabaseTo = {R.id.list_item_titleTextView}; ///, R.id.list_item_tagsTextView
+		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_ACTIVE}; ///, ItemTableM.COLUMN_ACTIVE, ItemTableM.COLUMN_DETAILS
+		int[] tmpDatabaseTo = {R.id.list_item_titleTextView, R.id.list_item_activeCheckBox}; ///, R.id.list_item_tagsTextView
 		mCursorAdapter = new CursorAdapterM(
 				getActivity(), R.layout.fnk_list_item, null, tmpDatabaseFrom, tmpDatabaseTo,
 				android.support.v4.widget.CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER, refListType);
+		
+
+		
+		
+		mCursorAdapter.setViewBinder(new android.support.v4.widget.SimpleCursorAdapter.ViewBinder() {
+			@Override
+			public boolean setViewValue(View inView, Cursor inCursor, int inColumnIndex) {
+				//if(inView.getId() == R.id.list_item_activeCheckBox){
+				if(inColumnIndex == inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)){
+					////inColumnIndex == inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)
+					//Setting status of the checkbox (checked / not checked)
+			    	// The other child views of this view have already been changed by the mapping done by SimpleCursorAdapter
+			    	// above in the super.getView() method
+					long tmpActive = Long.parseLong(
+							inCursor.getString(inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)));
+					CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox));
+					if (tmpCheckBox != null){
+			    		tmpCheckBox.setChecked(tmpActive != ItemTableM.FALSE);
+					}
+					return true;
+					//-hilarious if we don't have this, the checkboxes displays the expected state,
+					//but we get a number representation as well to the right of the checkboxes! 
+				}
+				//For every other value: Returning false, which means that the default mapping will be done
+				return false;
+			}
+		});
+
+		
+		
 		
 		//..using this CursorAdapter as the adapter for this ListFragment
 		super.setListAdapter(mCursorAdapter);

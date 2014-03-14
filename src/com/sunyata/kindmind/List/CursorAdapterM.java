@@ -14,11 +14,10 @@ import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ItemTableM;
 
-/*
- * Overview: CursorAdapterM maps database values into list item views, views are available through getView()
- * Extends: SimpleCursorAdapter
- * Documentation: 
- *  http://developer.android.com/reference/android/widget/SimpleCursorAdapter.html
+/**
+ * \brief CursorAdapterM maps database values into list item views, views are available through getView()
+ * 
+ * Documentation: http://developer.android.com/reference/android/widget/SimpleCursorAdapter.html
  */
 public class CursorAdapterM extends SimpleCursorAdapter{
 
@@ -32,29 +31,17 @@ public class CursorAdapterM extends SimpleCursorAdapter{
 		mListType = inListType;
 	}
 
-	/*
-	 * Overview: getView is overridden so that we can update the status of the checkboxes in the list
-	 * In: position is the position in the list
-	 *  convertView is a reference to the (parent) view that we get the checkbox view from;
-	 *  parent is the parent of the list item (so it is the "grand parent" of the checkbox);
-	 * Out: The updated View
-	 * Does: Updates the checkbox child view inside a list item view
-	 * Notes: A long time was spent on this method and it has been saved in the cloud as well as
-	 *  part of the CustomCursorAdapter
-	 * The cursor will remain open, we will get an error if we try to close it:
-		01-21 20:55:18.033: E/AndroidRuntime(6357): FATAL EXCEPTION: main
-		01-21 20:55:18.033: E/AndroidRuntime(6357): java.lang.IllegalStateException: attempt to re-open an already-closed object: android.database.sqlite.SQLiteQuery (mSql = SELECT _id, name, tags, active FROM item WHERE (listtype = ?)) 
-		01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.sqlite.SQLiteClosable.acquireReference(SQLiteClosable.java:33)
-		01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.sqlite.SQLiteQuery.fillWindow(SQLiteQuery.java:82)
-		01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.sqlite.SQLiteCursor.fillWindow(SQLiteCursor.java:164)
-		01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.sqlite.SQLiteCursor.onMove(SQLiteCursor.java:147)
-		01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.AbstractCursor.moveToPosition(AbstractCursor.java:178)
-		01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.database.CursorWrapper.moveToPosition(CursorWrapper.java:162)
-		01-21 20:55:18.033: E/AndroidRuntime(6357): 	at android.widget.CursorAdapter.getView(CursorAdapter.java:241)
-		01-21 20:55:18.033: E/AndroidRuntime(6357): 	at com.sunyata.kindmind.ListFragmentC$CustomCursorAdapter.getView(ListFragmentC.java:120)
+	/**
+	 * \brief getView updates the checkbox child view inside a list item view. This method is overridden
+	 * so that we can update the status of the checkboxes in the list
+	 * 
+	 * @param[in] inPosition The position in the list that we are going to update
+	 * @param[in,out] modConvertView The list item View holding the CheckBox we are going update
+	 * @param[in] inParent The parent of the list item (so it is the "grand parent" of the checkbox)
+	 * @return The modified list item view (unknown if this or is used by Android)
 	 */
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent){
+	public View getView(int inPosition, View modConvertView, ViewGroup inParent){
 
 		//Getting the SQL cursor (will not be closed)..
     	Cursor tmpLoaderItemCur = getCursor();
@@ -77,25 +64,31 @@ at android.widget.AbsListView.obtainView(AbsListView.java:2045)
     	 */
     	
     	//Getting the view that we like to modify
-		convertView = super.getView(position, convertView, parent);
+		modConvertView = super.getView(inPosition, modConvertView, inParent);
 		
     	//Moving to the current position (position in database is matched by position in gui list)
-    	tmpLoaderItemCur.moveToPosition(position);
+    	tmpLoaderItemCur.moveToPosition(inPosition);
 
+
+    	
+    	/*
 		//Setting status of the checkbox (checked / not checked)
     	// The other child views of this view have already been changed by the mapping done by SimpleCursorAdapter
     	// above in the super.getView() method
 		long tmpActive = Long.parseLong(
 				tmpLoaderItemCur.getString(tmpLoaderItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)));
-		CheckBox tmpCheckBox = ((CheckBox)convertView.findViewById(R.id.list_item_activeCheckBox));
+		CheckBox tmpCheckBox = ((CheckBox)modConvertView.findViewById(R.id.list_item_activeCheckBox));
 		if (tmpCheckBox != null){
     		tmpCheckBox.setChecked(tmpActive != ItemTableM.FALSE);
 		}
-		
+		*/
+    	
+
+    	
 		//Updating the action indications
 		String tmpActions = tmpLoaderItemCur.getString(
 				tmpLoaderItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
-		LinearLayout tmpRectangle = (LinearLayout)convertView.findViewById(R.id.list_item_indicatorRectangle);
+		LinearLayout tmpRectangle = (LinearLayout)modConvertView.findViewById(R.id.list_item_indicatorRectangle);
 		if(tmpActions == null || tmpActions.equals("")){
 			tmpRectangle.setVisibility(View.INVISIBLE); //.setBackgroundColor(mContext.getResources().getColor(R.color.no_action));
 		}else if(Utils.numberOfActions(tmpActions) == 1){
@@ -108,7 +101,7 @@ at android.widget.AbsListView.obtainView(AbsListView.java:2045)
 
 		if(BuildConfig.DEBUG){
 			//Add the numbers to the end of the name of the list item
-			TextView tmpTextView = ((TextView)convertView.findViewById(R.id.list_item_titleTextView));
+			TextView tmpTextView = ((TextView)modConvertView.findViewById(R.id.list_item_titleTextView));
 			double tmpKindSortValue = tmpLoaderItemCur.getDouble(
 					tmpLoaderItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_KINDSORT_VALUE));
 			String tmpTextToAppend = " [" + Utils.formatNumber(tmpKindSortValue) + "]";
@@ -117,42 +110,49 @@ at android.widget.AbsListView.obtainView(AbsListView.java:2045)
 		
 		//Cursor not closed since the loader handles the cursor
 		
-		return convertView;
+		return modConvertView;
 	}
 
-	/*
-	 * Overview: getViewTypeCount returns the number of different types of elements for the list
+	/**
+	 * \brief getViewTypeCount returns the number of different types of elements for the list
+	 * 
 	 * Details: This information is used by the Loader (<- verify this), if the number is lower than
-	 *  the number of items in the list Android can reuse the item view for repainting at a lower
-	 *  performance cost. We can still see different names and the reason is that the Loader knows about
-	 *  the name (see method onCreateLoader in ListFragmentC).
+	 * the number of items in the list Android can reuse the item view for repainting at a lower
+	 * performance cost. We can still see different names and the reason is that the Loader knows about
+	 * the name (see method onCreateLoader in ListFragmentC).
+	 * 
 	 * In our case we have chosen to return the total number of elements because we otherwise run into
-	 *  a problem for the checkboxes which can't be included in the onCreateLoader mapping. The problem
-	 *  shows itself in a strange way: After we have checked one checkbox and then scrolls down, we can
-	 *  see another checked checkbox in the same relative position.
+	 * a problem for the checkboxes which can't be included in the onCreateLoader mapping. The problem
+	 * shows itself in a strange way: After we have checked one checkbox and then scroll down, we can
+	 * see another checked checkbox in the same relative position.
+	 * 
 	 * Used: getViewTypeCount is called after the setListAdapter call:
 		ListFragmentC$CustomCursorAdapter.getViewTypeCount() line: 172	
 		ListView.setAdapter(ListAdapter) line: 466	
 		ListFragmentC(ListFragment).setListAdapter(ListAdapter) line: 182	
 		ListFragmentC.updateListWithNewData() line: 267	
-	 * Out: The number of distinct views
-	 * Notes: Please note that super.getCount() can not be used here (as suggested in threads on stackoverflow)
-	 *  since the Loader has not finished when the call to this method is made. (In the cases where it is
-	 *  presented loaders are not used, only adapters)
-	 * The check against < 1 is done because of the following problem (only seen on physical device):
+	 * 
+	 * @return The number of distinct views
+	 * 
+	 * Notes:
+	 * + Please note that super.getCount() can not be used here (as suggested in threads on stackoverflow)
+	 * since the Loader has not finished when the call to this method is made. (In the cases where it is
+	 * presented loaders are not used, only adapters)
+	 * + The check against < 1 is done because of the following problem (only seen on physical device):
 	01-20 22:24:26.398: E/AndroidRuntime(25136): java.lang.IllegalArgumentException: Can't have a viewTypeCount < 1
 	01-20 22:24:26.398: E/AndroidRuntime(25136): 	at android.widget.AbsListView$RecycleBin.setViewTypeCount(AbsListView.java:5817)
 	01-20 22:24:26.398: E/AndroidRuntime(25136): 	at android.widget.ListView.setAdapter(ListView.java:466)
 	01-20 22:24:26.398: E/AndroidRuntime(25136): 	at android.support.v4.app.ListFragment.setListAdapter(ListFragment.java:182)
 	01-20 22:24:26.398: E/AndroidRuntime(25136): 	at com.sunyata.kindmind.ListFragmentC.updateListWithNewData(ListFragmentC.java:253)
-	 * This method is used in conjunction with getItemViewType (see below)
+	 * + This method is used in conjunction with getItemViewType (see below)
+	 * 
 	 * Improvements: 
-	 * 1. This may be a more efficient solution:
-	 *  http://www.lalit3686.blogspot.in/2012/06/today-i-am-going-to-show-how-to-deal.html
-	 *  We may end up having to use this solution since we need to solve the problem of showing the
-	 *  checkmarks in the first place (after database loading and before any click has been done)
-	 * 2. An alternative solution (very popular: 37+ votes) is presented by Vikas Patidar on StackOverflow:
-	 *  http://stackoverflow.com/questions/4803756/android-cursoradapter-listview-and-checkbox
+	 * + This may be a more efficient solution:
+	 * http://www.lalit3686.blogspot.in/2012/06/today-i-am-going-to-show-how-to-deal.html
+	 * We may end up having to use this solution since we need to solve the problem of showing the
+	 * checkmarks in the first place (after database loading and before any click has been done)
+	 * + An alternative solution (very popular: 37+ votes) is presented by Vikas Patidar on StackOverflow:
+	 * http://stackoverflow.com/questions/4803756/android-cursoradapter-listview-and-checkbox
 	 */
 	@Override
 	public int getViewTypeCount(){
