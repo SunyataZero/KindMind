@@ -271,10 +271,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         return ((FragmentAdapterM)mViewPager.getAdapter()).getCurrentFragment().getListView();
     }
     
-    public void updateListViewAdapter(){
-        ((FragmentAdapterM)mViewPager.getAdapter()).getCurrentFragment().updateCursorAdapter();
-    }
-    
     public int getCurrentAdapterPosition(){
     	return mViewPager.getCurrentItem();
     }
@@ -332,27 +328,30 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     				Log.e(Utils.getAppTag(), "extractDataFromLauncherIntent: CursorIndexOutOfBoundsException. "
     						+ "tmpItemUri = " + tmpItemUri, cioobe);
     				finish();
+        			/*
+        			 * This problem has only been seen on an emulator and only after we have run auto tests
+        			 * 
+    03-02 01:12:39.717: E/AndroidRuntime(2230): Caused by: android.database.CursorIndexOutOfBoundsException: Index 0 requested, with a size of 0
+    03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractCursor.checkPosition(AbstractCursor.java:400)
+    03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractWindowedCursor.checkPosition(AbstractWindowedCursor.java:136)
+    03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractWindowedCursor.getInt(AbstractWindowedCursor.java:68)
+    03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.CursorWrapper.getInt(CursorWrapper.java:102)
+    03-02 01:12:39.717: E/AndroidRuntime(2230): 	at com.sunyata.kindmind.MainActivityC.onCreate(MainActivityC.java:210)
+        			 */
+
     			}
     			tmpItemCur.close();
 
-    			/*
-    			 * This problem has only been seen on an emulator and only after we have run auto tests
-    			 * 
-03-02 01:12:39.717: E/AndroidRuntime(2230): Caused by: android.database.CursorIndexOutOfBoundsException: Index 0 requested, with a size of 0
-03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractCursor.checkPosition(AbstractCursor.java:400)
-03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractWindowedCursor.checkPosition(AbstractWindowedCursor.java:136)
-03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractWindowedCursor.getInt(AbstractWindowedCursor.java:68)
-03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.CursorWrapper.getInt(CursorWrapper.java:102)
-03-02 01:12:39.717: E/AndroidRuntime(2230): 	at com.sunyata.kindmind.MainActivityC.onCreate(MainActivityC.java:210)
-    			 */
 
     			
 	        	//Setting the Viewpager position
 	        	mViewPager.setCurrentItem(tmpListType);
 	        	
-	        	//Clearing the intent
-	        	this.setIntent(null);
     		}
+        	//Clearing the intent
+        	this.getIntent().removeExtra(EXTRA_URI_AS_STRING);
+        	//-we need this line together with the line below, why is unknown
+        	this.setIntent(null);
     	}
     }
 

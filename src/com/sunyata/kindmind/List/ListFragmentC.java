@@ -54,7 +54,7 @@ import com.sunyata.kindmind.Setup.ItemSetupActivityC;
  */
 public class ListFragmentC extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	
-	private int refListType; //-saved in onSaveInstanceState
+	private int refListType = ListTypeM.NOT_SET; //-saved in onSaveInstanceState
 	private static MainActivityCallbackListenerI sCallbackListener;
 	private CursorAdapterM mCursorAdapter;
 	private LinearLayout mLoadingLinearLayout;
@@ -71,7 +71,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	}
 
 	
-	/**@name Loader and update
+	/**@name Loader
 	 * A very good example is available at the top of the following page:
 	 * http://developer.android.com/reference/android/app/LoaderManager.html
 	 * 
@@ -131,65 +131,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
 		
 		mCursorAdapter.swapCursor(null);
-	}
-	
-	/**
-	 * \brief createListDataSupport fills the data from the database into the loader
-	 * by (re-/)creating a cursor adapter (with mapping to database columns) and initiating the loader
-	 * 
-	 * Used in: onActivityCreated (not used by update methods)
-	 * 
-	 * Uses app internal: CursorAdapterM
-	 * 
-	 * Uses Android lib: setListAdapter, initLoader
-	 * 
-	 * Notes: The synching of the state of the checkboxes with the database is not done automatically,
-	 *  this is handled in another place (getView in CustomCursorAdapter)
-	 */
-	public void fillListWithDataFromAdapter(){
-		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
-		
-		//Creating the SimpleCursorAdapter for the specified database columns linked to the specified GUI views..
-		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME}; ///, ItemTableM.COLUMN_DETAILS
-		int[] tmpDatabaseTo = {R.id.list_item_titleTextView}; ///, R.id.list_item_tagsTextView
-		mCursorAdapter = new CursorAdapterM(
-				getActivity(), R.layout.fnk_list_item, null,
-				tmpDatabaseFrom, tmpDatabaseTo, 0, refListType);
-		
-		//..using this CursorAdapter as the adapter for this ListFragment
-		super.setListAdapter(mCursorAdapter);
-		
-		//Creating (or re-creating) the loader
-		getLoaderManager().initLoader(0, null, this);
-		//-using the non-support LoaderManager import gives an error
-		//-initLoader seems to be preferrable to restartLoader
-	}
-	
-	/**
-	 * \brief updateCursorAdapter updates the data in the list
-	 * 
-	 * This is done by changing the cursor and giving the cursor to the adapter
-	 * 
-	 * Used in: onActivityCreated, onOptionsItemSelected, ............
-	 * 
-	 * Notes: This method used to restart the loader "getLoaderManager().restartLoader(0, null, this)",
-	 * but this is not necessary
-	 * 
-	 * Uses Android lib: changeCursor, setAdapter
-	 */
-	public void updateCursorAdapter() { //[list update]
-		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
-		
-		//Updating the cursor..
-		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + "=" + String.valueOf(refListType);
-		Cursor tmpCursor = getActivity().getContentResolver().query(
-				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
-		mCursorAdapter.changeCursor(tmpCursor);
-		
-		//..and using the new cursor for the adapter
-		getListView().setAdapter(mCursorAdapter);
-		//-PLEASE NOTE: We need this line, and it was hard to find this info. It was found here:
-		// http://stackoverflow.com/questions/8213200/android-listview-update-with-simplecursoradapter
 	}
 	
 	///@}
@@ -279,7 +220,6 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		// but not in Reto's book: "genereally not recommended"
 		super.setHasOptionsMenu(true);
 		this.fillListWithDataFromAdapter();
-		this.updateCursorAdapter(); //-solves issue #83
 
 		//Setup for long click listener
     	super.getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -367,9 +307,8 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 			OnClickToastOrActionC.randomKindAction(getActivity(), Utils.getItemUriFromId(inId));
 		}
 
-		//Sorting and updating
+		//Sorting
 		this.sortDataWithService();
-		this.updateCursorAdapter();
     }
 	
     /*
@@ -405,11 +344,6 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 	    	Uri tmpUriOfNewItem = getActivity().getContentResolver().insert(
 	    			ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);
 	    	
-	    	//Updating the adapter
-	    	this.updateCursorAdapter();
-	    	//-otherwise we will get an arrayindexoutofboundsexception:
-	    	// http://stackoverflow.com/questions/2596547/arrayindexoutofboundsexception-with-custom-android-adapter-for-multiple-views-in#2597318
-	    	
 	    	//Launching the details fragment for the newly created item
 			Intent intent = new Intent(getActivity(), ItemSetupActivityC.class);
 			String tmpExtraString = tmpUriOfNewItem.toString();
@@ -428,7 +362,6 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		case R.id.menu_item_sort_alphabetically: //------------Sort alphabeta
 			//Changing the sort method used and refreshing list
 			Utils.setItemTableSortType(SortTypeM.ALPHABETASORT);
-			this.updateCursorAdapter();
 			getListView().smoothScrollToPositionFromTop(0, 0);
 			
 			return true;
@@ -439,19 +372,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 			//Changing the sort method used and refreshing list
 			Utils.setItemTableSortType(SortTypeM.KINDSORT);
 			
-			
-			
-			
-			
-			
-			this.updateCursorAdapter();
 			getListView().smoothScrollToPositionFromTop(0, 0);
-			//////this.updateCursorLoaderAndAdapter();
-			
-			
-			
-			
-			
 			
 			return true;
 		case R.id.menu_item_clear_all_list_selections: //------------Clear checkmarks for all lists
@@ -531,4 +452,72 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		
 		return retString;
 	}
+	
+	/**
+	 * \brief createListDataSupport fills the data from the database into the loader
+	 * by (re-/)creating a cursor adapter (with mapping to database columns) and initiating the loader
+	 * 
+	 * Used in: onActivityCreated (not used by update methods)
+	 * 
+	 * Uses app internal: CursorAdapterM
+	 * 
+	 * Uses Android lib: setListAdapter, initLoader
+	 * 
+	 * Notes: The synching of the state of the checkboxes with the database is not done automatically,
+	 *  this is handled in another place (getView in CustomCursorAdapter)
+	 */
+	private void fillListWithDataFromAdapter(){
+		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
+		
+		if(refListType == ListTypeM.NOT_SET){
+			Log.e(Utils.getAppTag(), "Error in fillListWithDataFromAdapter, refListType has not been set");
+		}
+
+		//Creating (or re-creating) the loader
+		getLoaderManager().initLoader(refListType, null, this);
+		//-using the non-support LoaderManager import gives an error
+		//-initLoader seems to be preferrable to restartLoader
+		//-refListType used as the identifier
+
+		//Creating the SimpleCursorAdapter for the specified database columns linked to the specified GUI views..
+		String[] tmpDatabaseFrom = {ItemTableM.COLUMN_NAME}; ///, ItemTableM.COLUMN_DETAILS
+		int[] tmpDatabaseTo = {R.id.list_item_titleTextView}; ///, R.id.list_item_tagsTextView
+		mCursorAdapter = new CursorAdapterM(
+				getActivity(), R.layout.fnk_list_item, null, tmpDatabaseFrom, tmpDatabaseTo,
+				android.support.v4.widget.CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER, refListType);
+		
+		//..using this CursorAdapter as the adapter for this ListFragment
+		super.setListAdapter(mCursorAdapter);
+		
+	}
+	
+	/**
+	 * \brief updateCursorAdapter updates the data in the list
+	 * 
+	 * This is done by changing the cursor and giving the cursor to the adapter
+	 * 
+	 * Used in: onActivityCreated, onOptionsItemSelected, ............
+	 * 
+	 * Notes: This method used to restart the loader "getLoaderManager().restartLoader(0, null, this)",
+	 * but this is not necessary
+	 * 
+	 * Uses Android lib: changeCursor, setAdapter
+	 */
+	/*
+	public void updateCursorAdapter() { //[list update]
+		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
+		
+		//Updating the cursor..
+		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + "=" + String.valueOf(refListType);
+		Cursor tmpCursor = getActivity().getContentResolver().query(
+				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
+		mCursorAdapter.changeCursor(tmpCursor);
+		
+		//..and using the new cursor for the adapter
+		getListView().setAdapter(mCursorAdapter);
+		//-PLEASE NOTE: We need this line, and it was hard to find this info. It was found here:
+		// http://stackoverflow.com/questions/8213200/android-listview-update-with-simplecursoradapter
+
+	}
+	*/
 }

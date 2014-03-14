@@ -6,9 +6,11 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.Utils;
 
 /*
  * Overview: WidgetProviderC contains the onUpdate method which remotely updates the views that are contained
@@ -28,8 +30,20 @@ import com.sunyata.kindmind.R;
  */
 public class WidgetProviderC extends AppWidgetProvider {
 	
+	/**
+	 * 
+	 * Notes:
+	 * + When onUpdate is called this will remove the problem with an unresponsive list (for clicking)
+	 * 
+	 * Can be called/triggered in these ways:
+	 * + notifyAppWidgetViewDataChanged (there is a Utils method for this)
+	 * + 
+	 * + 
+	 */
 	@Override
 	public void onUpdate(Context inContext, AppWidgetManager inAppWidgetManager, int[] inAppWidgetIds){
+		Log.d(Utils.getAppTag(), Utils.getMethodName());
+		
 		//Going through all widgets placed (could be more than one)
 		for(int i = 0; i < inAppWidgetIds.length; i++){
 			//Setting up the remote view service

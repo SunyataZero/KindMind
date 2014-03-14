@@ -3,8 +3,8 @@
     android:id="@+id/widget_listitem_textView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="32dp"
+    android:minHeight="48dp"
     android:layout_gravity="center_vertical"
 	android:paddingLeft="4dp"
-    android:textSize="16sp" >
+    android:textSize="18sp" >
 </TextView>
