@@ -13,8 +13,8 @@ import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.Utils;
 
 /*
- * Overview: WidgetProviderC contains the onUpdate method which remotely updates the views that are contained
- *  in the (for example) home screen process
+ * Overview: WidgetProviderC contains the onUpdate method which remotely updates the views that are
+ * contained in the (for example) home screen process
  * Details: Because of security considerations Android uses RemoteViews to update widget views
  * Extends: AppWidgetProvider
  * Used in: 
@@ -61,7 +61,9 @@ public class WidgetProviderC extends AppWidgetProvider {
 			//-the id will be filled in later in RemoteViewsFactoryC.getViewAt()
 			tmpTemplateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, inAppWidgetIds[i]);
 			PendingIntent tmpPendingIntent = PendingIntent.getService(
-					inContext, 0, tmpTemplateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+					inContext, i, tmpTemplateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			//-Please note: i is used as unique request code, this solves the problem with the
+			//unresponsive widgets by making each PendingIntent unique.
 			tmpRemoteViews.setPendingIntentTemplate(R.id.widget_listview, tmpPendingIntent);
 
 			//Applying the update for the views

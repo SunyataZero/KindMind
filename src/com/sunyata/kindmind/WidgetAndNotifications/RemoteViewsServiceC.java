@@ -23,8 +23,8 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 	}
 	
 	/**
-	 * \brief RemoteViewsFactoryC works as an adapter giving the process showing/running the home screen
-	 * views that can be displayed (the data is taken from the database)
+	 * \brief RemoteViewsFactoryC works as an adapter giving the process showing/running the home
+	 * screen views that can be displayed (the data is taken from the database)
 	 * 
 	 * Implements: RemoteViewsService.RemoteViewsFactory which is a thin wrapper for an Adapter
 	 * 
@@ -128,13 +128,13 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 		 * \brief onDataSetChanged updates/recreates the list of data
 		 * 
 		 * It is called when WidgetManager.notifyAppWidgetViewDataChanged has been invoked
-		 * and can be used for updating the list of data. It is the most efficient way since the other three alternatives
-		 * all recreate the whole widget).
+		 * and can be used for updating the list of data. It is the most efficient way since the other
+		 * three alternatives all recreate the whole widget).
 		 * 
 		 * Notes: This callback method will always be called by the system before the Widget is updated
 		 * 
-		 * Improvements: In the future we may want to implement this method as another way to update the widget
-		 * (currently the widget is updated after an interval)
+		 * Improvements: In the future we may want to implement this method as another way to update the
+		 * widget (currently the widget is updated after an interval)
 		 * 
 		 * Documentation: PA4AD p598
 		 */
@@ -147,8 +147,8 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 		}
 		
 		/**
-		 * \brief getViewAt (1) updates the template intent with an URI which can be used for launching actions
-		 *  and (2) updates and returns a RemoteViews view hierarchy (in our case only one view)
+		 * \brief getViewAt (1) updates the template intent with an URI which can be used for launching
+		 * actions and (2) updates and returns a RemoteViews view hierarchy (in our case only one view)
 		 *  
 		 * Documentation: 
 		 * + https://developer.android.com/reference/android/widget/RemoteViewsService.RemoteViewsFactory.html#getViewAt%28int%29
