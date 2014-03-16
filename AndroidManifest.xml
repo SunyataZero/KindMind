@@ -2,8 +2,8 @@
 <!-- PLEASE NOTE: There is no error check or auto-complete suggestions for class and package names in this file -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sunyata.kindmind"
-    android:versionCode="46"
-    android:versionName="0.14.21_BETA" >
+    android:versionCode="48"
+    android:versionName="0.14.23_BETA" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -21,7 +21,6 @@
         android:icon="@drawable/kindmind_icon"
         android:label="@string/app_name"
         android:theme="@style/AppThemeKindMind">
-        <!-- please note "singleInstance" below -->
         <activity
             android:name="com.sunyata.kindmind.MainActivityC"
             android:label="@string/app_name"

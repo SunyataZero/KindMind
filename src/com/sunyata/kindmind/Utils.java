@@ -10,8 +10,6 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
 
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
@@ -41,7 +39,8 @@ public class Utils {
 	private static final int STACK_TRACE_LINE = 3;
 	private static final String APP_TAG = "kindmind";
 
-	//--------------------(Static) methods for debugging
+	///@name Debugging
+	///@{
 	
 	public static String getMethodName(String inPrefix){
 		return "[" + inPrefix + "]" + getMethodName();
@@ -72,8 +71,9 @@ public class Utils {
 		return tmpComponent + "." + tmpMethodName;
 	}
 	
-	
-	//--------------------Adding new items to the lists
+	///@}
+	///@name Adding new items
+	///@{
 	
 	public static boolean isFirstTimeApplicationStarted(Context inContext){
 		boolean retVal = PreferenceManager.getDefaultSharedPreferences(inContext).getBoolean(
@@ -148,8 +148,8 @@ public class Utils {
     	inContext.getContentResolver().insert(ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);
 	}
 	
-	
-	//--------------------Other
+	///@}
+
 	
 	public static String getKindMindDirectory(){
 		return Environment.getExternalStorageDirectory().getAbsolutePath() + "/KindMind";
@@ -172,28 +172,6 @@ public class Utils {
 		return retFilePath;
 	}
 	
-/*
-	static boolean sqlToBoolean(Context inContext, Uri inItemUri, String inColumn, int inFalseAsInt)
-			throws Exception{
-		Cursor tmpCursor = inContext.getContentResolver().query(inItemUri, null, null, null, Utils.sSortType);
-		if(tmpCursor.getCount() == 0){
-			tmpCursor.close();
-			throw new Exception("Error in Utils.sqlToBoolean: Cursor empty");
-		}
-		tmpCursor.moveToFirst();
-		
-		boolean retItemNotificationIsActive = true;
-		long tmpItemTimeInMilliSeconds = tmpCursor.getLong(
-				tmpCursor.getColumnIndexOrThrow(inColumn));
-		if(tmpItemTimeInMilliSeconds == inFalseAsInt ){
-			retItemNotificationIsActive = false;
-		}
-		
-		tmpCursor.close();
-		return retItemNotificationIsActive;
-	}
-	*/
-	
 	public static boolean sqlToBoolean(Cursor inCursor, String inColumn){
 		long tmpItemIsActiveInteger = inCursor.getLong(inCursor.getColumnIndexOrThrow(inColumn));
 		if(tmpItemIsActiveInteger == ItemTableM.FALSE){
@@ -203,35 +181,14 @@ public class Utils {
 		}
 	}
 	
-	public static int getListItemCount(Context inContext, int inListType){
-		int retCount;
-		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + " = ?";
-		String[] tmpSelectionArguments = {String.valueOf(inListType)};
-		Cursor tmpCursor = inContext.getContentResolver().query(
-				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, tmpSelectionArguments, ContentProviderM.sSortType);
-		retCount = tmpCursor.getCount();
-		tmpCursor.close();
-		/* -PLEASE NOTE: This cursor has to be closed (why this and not others?) otherwise we will
-		 *  get four of the following warning log messages:
-		 * 01-21 21:08:32.975: W/CursorWrapperInner(7757): Cursor finalized without prior close()
-		 *  According to Diane Hackborn:
-		 *  "A content provider is created when its hosting process is created, and remains around for as long
-		 *  as the process does, so there is no need to close the database -- it will get closed as part of the
-		 *  kernel cleaning up the process's resources when the process is killed."
-		 *  http://stackoverflow.com/questions/4547461/closing-the-database-in-a-contentprovider
-		 *  We have also tried leaving other cursors open and have seen no problems there 
-		 */
-		return retCount;
-	}
-	
 	//Cmp with method getListOfNamesForActivatedData
 	public static int getActiveListItemCount(Context inContext, int inListTypeInt){
 		int retCount;
-		String tmpSelection =
+		String tSel =
 				ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE + " AND " +
 				ItemTableM.COLUMN_LIST_TYPE + "=" + inListTypeInt;
 		Cursor tmpCursor = inContext.getContentResolver().query(
-				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
+				ContentProviderM.ITEM_CONTENT_URI, null, tSel, null, ContentProviderM.sSortType);
 		retCount = tmpCursor.getCount();
 		tmpCursor.close();
 		//-PLEASE NOTE: This cursor has to be closed (see comments in method getListItemCount)
@@ -251,6 +208,8 @@ public class Utils {
 	 * Uses app internal: Utils.copyFile()
 	 */
 	public static void databaseBackupInternal(Context inContext, String inDataBaseName, int inOldVersion){
+		Log.d(Utils.getAppTag(),"Database backup");
+
 		//Construction of the dir path and file name for the backup file
 		String tmpDestinationPath = inContext.getDir("db_backup", Context.MODE_PRIVATE).toString();
 		Calendar tmpCal = Calendar.getInstance();
@@ -272,15 +231,13 @@ public class Utils {
 
 		//Copying the file
 		Utils.copyFile(tmpSourceFile, tmpDestinationFile);
-		
-		Log.i(Utils.getAppTag(),"Database backup successful");
 	}
 	
 	
-	/*
-	 * Overview: copyFile copies one file to another place, possibly with another file name
+	/**
+	 * \brief copyFile copies one file to another place, possibly with another file name.
 	 */
-	public static void copyFile(File inInFile, File inOutFile){
+	private static void copyFile(File inInFile, File inOutFile){
 		try {
 			inOutFile.createNewFile(); //-creating the new file
 			FileInputStream tmpSourceStream = new FileInputStream(inInFile);
@@ -300,68 +257,6 @@ public class Utils {
 	}
 	
 	
-	//-------------------------Toast
-	
-	public static String getToastString(Context inContext, int inListType) {
-		//-this method also updates the toast string (can be used for example for sharing)
-
-		String mToastFeelingsString;
-		String mToastNeedsString;
-
-		switch(inListType){
-		case ListTypeM.FEELINGS:
-			mToastFeelingsString =
-					getFormattedStringOfActivatedDataListItems(
-					getListOfNamesForActivatedData(inContext, ListTypeM.FEELINGS))
-					.toLowerCase(Locale.getDefault());
-			return mToastFeelingsString;
-		
-		case ListTypeM.NEEDS:
-			mToastNeedsString =
-					getFormattedStringOfActivatedDataListItems(
-					getListOfNamesForActivatedData(inContext, ListTypeM.NEEDS))
-					.toLowerCase(Locale.getDefault());
-			return mToastNeedsString;
-			
-		default:
-			Log.e(Utils.getAppTag(),
-					"Error in getFormattedStringOfActivatedDataListItems: case not covered in switch statement");
-			return null;
-		}
-	}
-	private static ArrayList<String> getListOfNamesForActivatedData(Context inContext, int inListType) {
-		ArrayList<String> retActivatedData = new ArrayList<String>();
-		String tmpSelection =
-				ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE + " AND " +
-				ItemTableM.COLUMN_LIST_TYPE + "=" + inListType;
-		//-Please note that we are adding ' signs around the String
-		Cursor tmpCursor = inContext.getContentResolver().query(
-				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
-		for(tmpCursor.moveToFirst(); tmpCursor.isAfterLast() == false; tmpCursor.moveToNext()){
-			//add name to return list
-			String tmpStringToAdd = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
-			retActivatedData.add(tmpStringToAdd);
-		}
-		
-		tmpCursor.close();
-		return retActivatedData;
-	}
-	//Recursive method
-	private static String getFormattedStringOfActivatedDataListItems(List<String> inList) {
-		if(inList.size() == 0){
-			return "";
-		}else if(inList.size() == 1){
-			return inList.get(0);
-		}else if(inList.size() == 2){
-			return inList.get(0) + " and " + inList.get(1);
-		}else{
-			return 
-				inList.get(0) +
-				", " +
-				getFormattedStringOfActivatedDataListItems(inList.subList(1, inList.size()));
-		}
-	}
-
 	public static void setItemTableSortType(SortTypeM inSortType) {
 		switch(inSortType){
 		case ALPHABETASORT:
@@ -416,26 +311,7 @@ public class Utils {
 		
 		return retString;
 	}
-	//return Long.parseLong(inUri.toString().substring(inUri.toString().lastIndexOf("/") + 1));
-	/*
-	private static String cleanString(String inString, String inCharacterToRemove){
-		String retString = inString;
-		
-		retString.replace(oldChar, newChar)
-		
-	}
-	*/
-	/*
-	public static int numberOfCharacterAppearances(String inString, char inCharacter){
-		int retInt = 0;
-		for(int i=0; i < inString.length(); i++){
-			if(inCharacter == inString.charAt(i)){
-				retInt++;
-			}
-		}
-		return retInt;
-	}
-	*/
+
 	public static int numberOfActions(String inActions) {
 		if(inActions == ""){
 			return 0;
@@ -449,9 +325,11 @@ public class Utils {
 		return retInt;
 	}
 	
-	/*
-	 * Overview: sendAsEmail sends an email with title, text and optionally an attachment
+	/**
+	 * \brief sendAsEmail sends an email with title, text and optionally an attachment
+	 * 
 	 * Used in: Helper method for onOptionsItemSelected above
+	 * 
 	 * Uses app internal: Utils.copyFile
 	 * Notes: File must be stored on the external storage to be accessible by email applications (not enough to
 	 *  use the internal cache dir for example)
@@ -492,10 +370,6 @@ public class Utils {
 		return true;
 	}
 	
-	public static int getMaxNumberOfPatternRows(){
-		return Utils.MAX_NR_OF_PATTERN_ROWS;
-	}
-	
 	public static void updateWidgets(Context inContext) {
 		AppWidgetManager tmpAppWidgetManager = AppWidgetManager.getInstance(inContext);
 		ComponentName tmpComponentName = new ComponentName(inContext, WidgetProviderC.class);
@@ -525,7 +399,7 @@ public class Utils {
 			Thread.sleep(inStepTime);
 		} catch (InterruptedException e) {}
 		if(inCurrentStepNumber > inNumberOfSteps){
-			String tmpErrorMessage = "Error in CursorAdapter.getView, waited a long time for cursor to open";
+			String tmpErrorMessage = "Error: Waited a long time for condition";
 			Log.e(Utils.getAppTag(), tmpErrorMessage);
 			try {
 				throw new Exception(tmpErrorMessage);

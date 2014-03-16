@@ -43,6 +43,13 @@ import com.sunyata.kindmind.Utils;
  * 
  * Notes: 
  * 
+ * Diane Hackborn:
+ * "A content provider is created when its hosting process is created, and remains
+ * around for as long as the process does, so there is no need to close the database
+ * -- it will get closed as part of the kernel cleaning up the process's resources
+ * when the process is killed."
+ *
+ * 
  * Improvements: See Reto's example (in book or online code) for ideas about how to improve (had only read Vogella's
  *  guide before writing the code)
  * Documentation: 

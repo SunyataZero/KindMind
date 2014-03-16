@@ -1,5 +1,6 @@
 package com.sunyata.kindmind;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -30,10 +31,11 @@ import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SortingAlgorithmServiceM;
 
 /**
- * \brief MainActivityC holds three ListFragments in a ViewPagerM using a FragmentAdapterM
+ * \brief MainActivityC holds three ListFragments in a ViewPagerM using FragmentAdapterM.
  * 
  * MainActivitC also contains:
- * + Callback methods from ListFragmentC, for updating the whole gui (used for example when saving)
+ * + Callback methods from ListFragmentC, for updating the whole gui (used for example
+ * when saving)
  * + Callback methods from the test project (for example for resetting all data)
  * 
  * Documentation: 
@@ -49,7 +51,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 
 	private ViewPagerM mViewPager;
 	private FragmentAdapterM mPagerAdapter;
-	private ActionBar refActionBar;
+	private ActionBar rActionBar;
 	private String mFeelingTitle;
 	private String mNeedTitle;
 	private String mActionTitle;
@@ -86,11 +88,12 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		setContentView(R.layout.activity_main);
 		setTitle(R.string.app_name);
 
-		//Create the adapter that will return a fragment for each section of the app
-		mPagerAdapter = new FragmentAdapterM(getSupportFragmentManager());
-
 		//Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPagerM)findViewById(R.id.pager);
+
+		//Create the adapter that will return a fragment for each section of the app
+		mPagerAdapter = new FragmentAdapterM(this, mViewPager, getSupportFragmentManager());
+
 		/////mViewPagerPosition = ListTypeM.FEELINGS;
 		mViewPager.setAdapter(mPagerAdapter);
 		mViewPager.setOffscreenPageLimit(ListTypeM.NUMBER_OF_TYPES - 1);
@@ -98,64 +101,22 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		// http://stackoverflow.com/questions/13651262/getactivity-in-arrayadapter-sometimes-returns-null
 
 		//Create and set the OnPageChangeListener for the ViewPager
-		mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-			//-To access one fragment from here we can use this line:
-			// ((CustomPagerAdapter)mViewPager.getAdapter()).getItem(pos).refreshListDataSupport();
-			@Override
-			public void onPageSelected(int inPos) { //[list update]
-				Log.d("ViewPager.OnPageChangeListener()", "onPageSelected()");
+		mViewPager.setOnPageChangeListener(new OnPageChangeListenerM(this));
 
-				//Resetting the sorting
-				Utils.setItemTableSortType(SortTypeM.KINDSORT);
+		//Setup of action bar with tabs
+		rActionBar = this.getActionBar();
+		rActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		ActionBar.TabListener tmpTabListener = new TabListenerM(mViewPager);
 
-				//Setting the active tab when the user has just side scrolled (swiped) to a new fragment
-				getActionBar().setSelectedNavigationItem(inPos);
-			}
-			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) {
-			}
-			@Override
-			public void onPageScrollStateChanged(int inState) {
-				//-this is called even when we press one of the tab buttons
-				switch(inState){
-				case ViewPager.SCROLL_STATE_IDLE:
-					//Saving the position (solves the problem in issue #41)
-					/////////mViewPagerPosition = mViewPager.getCurrentItem();
-					break;
-				default:
-					break;
-				}
-			}
-		});
-
-		//Setup of actionbar with tabs
-		refActionBar = this.getActionBar();
-		refActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		ActionBar.TabListener tmpTabListener = new ActionBar.TabListener() {
-			@Override
-			public void onTabSelected(Tab tab, FragmentTransaction ft) {
-				//Scrolling to the new fragment when the user selects a tab
-				int tmpPos = tab.getPosition();
-
-				if(mViewPager.getCurrentItem() != tmpPos){
-					mViewPager.setCurrentItem(tmpPos);
-				}
-			}
-			@Override
-			public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-			}
-			@Override
-			public void onTabReselected(Tab tab, FragmentTransaction ft) {
-			}
-		};
-		refActionBar.addTab(refActionBar.newTab().setText(mFeelingTitle).setTabListener(tmpTabListener));
-		refActionBar.addTab(refActionBar.newTab().setText(mNeedTitle).setTabListener(tmpTabListener));
-		refActionBar.addTab(refActionBar.newTab().setText(mActionTitle).setTabListener(tmpTabListener));
+		rActionBar.addTab(rActionBar.newTab().setText(mFeelingTitle).setTabListener(tmpTabListener));
+		rActionBar.addTab(rActionBar.newTab().setText(mNeedTitle).setTabListener(tmpTabListener));
+		rActionBar.addTab(rActionBar.newTab().setText(mActionTitle).setTabListener(tmpTabListener));
 		this.fireUpdateTabTitlesEvent();
 	}
 
 	/**
-	 * \brief onResume is used for extracting data from an intent coming from \ref LauncherServiceC
+	 * \brief onResume is used for extracting data from an intent coming from
+	 * LauncherServiceC
 	 */
 	@Override
 	public void onResume(){
@@ -170,10 +131,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     	}
 		 */
 	}
-	///@}
 
+	///@}
 	///@name Callback
 	///@{
+
 	/**
 	 * \brief fireSavePatternEvent saves as a pattern all the currently checked list items
 	 * 
@@ -260,14 +222,15 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		if(tmpFeelingsCount != 0){mFeelingTitle = mFeelingTitle + " (" + tmpFeelingsCount + ")";}
 		if(tmpNeedsCount != 0){mNeedTitle = mNeedTitle + " (" + tmpNeedsCount + ")";}
 		if(tmpActionsCount != 0){mActionTitle = mActionTitle + " (" + tmpActionsCount + ")";}
-		refActionBar.getTabAt(0).setText(mFeelingTitle);
-		refActionBar.getTabAt(1).setText(mNeedTitle);
-		refActionBar.getTabAt(2).setText(mActionTitle);
+		rActionBar.getTabAt(0).setText(mFeelingTitle);
+		rActionBar.getTabAt(1).setText(mNeedTitle);
+		rActionBar.getTabAt(2).setText(mActionTitle);
 	}
+	
 	///@}
-
 	///@name Testing methods
 	///@{
+	
 	public ListView getListViewOfCurrentFragment(){
 		return ((FragmentAdapterM)mViewPager.getAdapter()).getCurrentFragment().getListView();
 	}
@@ -284,10 +247,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		}
 		return true;
 	}
+	
 	///@}
 
 
-	//-------------------------------------------Private-------------------------------------------
+	//----------------------------------Private----------------------------------
 
 	private void extractDataFromLauncherIntent(){
 
@@ -295,40 +259,38 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		// (used by widgets and notifications)
 		if(this.getIntent() != null && this.getIntent().hasExtra(EXTRA_URI_AS_STRING)){
 			String tmpExtraFromString = this.getIntent().getStringExtra(EXTRA_URI_AS_STRING);
-			Uri tmpItemUri = Uri.parse(tmpExtraFromString);
-			if(tmpItemUri != null){
-
+			Uri tItemUri = Uri.parse(tmpExtraFromString);
+			if(tItemUri != null){
 
 				Context tmpContentProviderContext = Utils.getContentProviderContext(this);
-
 
 				this.clearAllActiveInDatabase(tmpContentProviderContext);
 
 				//Updating the db value
-				ContentValues tmpContentValues = new ContentValues();
-				tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, 1);
-				tmpContentProviderContext.getContentResolver().update(tmpItemUri, tmpContentValues, null, null);
+				ContentValues tContVals = new ContentValues();
+				tContVals.put(ItemTableM.COLUMN_ACTIVE, 1);
+				tmpContentProviderContext.getContentResolver().update(
+						tItemUri, tContVals, null, null);
 
 				//Sorting data for all lists without showing loading spinner
-				// "((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService();"
-				// which shows the loading spinner gives a NPE in a situation
+				//"((FragmentStatePagerAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService();"
+				//which shows the loading spinner gives a NPE in a situation
 				Intent tmpIntent = new Intent(this, SortingAlgorithmServiceM.class);
 				this.startService(tmpIntent);
 
 				this.fireUpdateTabTitlesEvent();
 
 				//Setting up the cursor and extracting the list type..
-				Cursor tmpItemCur = tmpContentProviderContext.getContentResolver().query(
-						tmpItemUri, null, null, null, null);
-				///if(tmpItemCur != null && tmpItemCur.moveToFirst()){}
-				tmpItemCur.moveToFirst();
+				Cursor tItemCr = tmpContentProviderContext.getContentResolver().query(
+						tItemUri, null, null, null, null);
+				tItemCr.moveToFirst();
 				int tmpListType = 0;
 				try{
-					tmpListType = tmpItemCur.getInt(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE));
+					tmpListType = tItemCr.getInt(tItemCr.getColumnIndexOrThrow(
+							ItemTableM.COLUMN_LIST_TYPE));
 				}catch(CursorIndexOutOfBoundsException cioobe){
 					Log.e(Utils.getAppTag(), "extractDataFromLauncherIntent: CursorIndexOutOfBoundsException. "
-							+ "tmpItemUri = " + tmpItemUri, cioobe);
-					finish();
+							+ "tmpItemUri = " + tItemUri, cioobe);
 					/*
 					 * This problem has only been seen on an emulator and only after we have run auto tests
 					 * 
@@ -339,15 +301,12 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
     03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.CursorWrapper.getInt(CursorWrapper.java:102)
     03-02 01:12:39.717: E/AndroidRuntime(2230): 	at com.sunyata.kindmind.MainActivityC.onCreate(MainActivityC.java:210)
 					 */
-
+				}finally{
+					tItemCr.close();
 				}
-				tmpItemCur.close();
-
-
 
 				//Setting the Viewpager position
 				mViewPager.setCurrentItem(tmpListType);
-
 			}
 			//Clearing the intent
 			this.getIntent().removeExtra(EXTRA_URI_AS_STRING);
@@ -356,11 +315,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		}
 	}
 
-
-	/*
-	 * Overview: clearAllActiveInDatabase clears all marks for checked/activated list items
-	 * Used in:
-	 * Improvements:
+	/**
+	 * \brief clearAllActiveInDatabase clears all marks for checked/activated list items
 	 */
 	private void clearAllActiveInDatabase(Context inContext) { //[list update]
 		//Clearing all the checks for all list items
@@ -370,23 +326,30 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		inContext.getContentResolver().update(tmpUri, tmpContentValueForUpdate, null, null);
 	}
 
+	/**
+	 * \brief scrollLeftmost scrolls sideways to the leftmost ViewPager position (feelings)
+	 */
 	private void scrollLeftmost(){
-		//Side scrolling to the leftmost ViewPager position (feelings)
 		if(mViewPager.getCurrentItem() != ListTypeM.FEELINGS){
 			mViewPager.setCurrentItem(ListTypeM.FEELINGS, true);
 		}
 	}
 
 	/**
-	 * Overview: limitPatternsTable removes zero or more patterns, keeping the pattern table (1) relevant and
-	 *  (2) at a lenght which does not take too much resources for the sorting algorithm
+	 * brief limitPatternsTable removes zero or more patterns, keeping the pattern table
+	 * (1) relevant and (2) at a lenght which does not take too much resources for the
+	 * sorting algorithm
+	 * 
 	 * Used in: fireSavePatternEvent
-	 * Notes: 1. We limit the pattern table based on the number of rows (and not the number of patterns).
-	 * 2. We expect the while loop to be run completely only one time on average since this method is called from
-	 *  the same method that adds new patterns (if we have just added a very large pattern it may be run many times)
-	 * 3. The only reason that a for loop is used is so that in case of some error with deletion from the database
-	 *  we don't get stuck in an infinite loop.
-	 * Improvements: Calling update after we have closed the cursor so that there is no risk of
+	 * 
+	 * Notes:
+	 * + We limit the pattern table based on the number of rows (and not the number of
+	 * patterns).
+	 * + We expect the while loop to be run completely only one time on average since
+	 * this method is called from the same method that adds new patterns (if we have just
+	 * added a very large pattern it may be run many times)
+	 * + The only reason that a for loop is used is so that in case of some error with
+	 * deletion from the database we don't get stuck in an infinite loop.
 	 */
 	private void limitPatternsTable(){
 		Log.d(Utils.getAppTag(), Utils.getMethodName());
@@ -403,7 +366,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 					PatternsTableM.COLUMN_CREATE_TIME + " ASC");
 
 			//Looping until we are on or under the max limit or rows
-			if(tmpPatternsCur.getCount() <= Utils.getMaxNumberOfPatternRows()){
+			if(tmpPatternsCur.getCount() <= Utils.MAX_NR_OF_PATTERN_ROWS){
 				//-please note that while debugging getCount will not be updated directly
 				tmpPatternsCur.close();
 				return;
@@ -427,24 +390,31 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		}
 
 		//If we get here it means that we have looped more than the "warning limit" which is an indication that
-		// something has gone wrong
+		//something has gone wrong
 		Log.w(Utils.getAppTag(),
 				"Warning in limitPatternsTable: Number of iterations has reached " + WARNING_LIMIT
 				+ ", exiting method");
 	}
 
 	/**
-	 * Overview: PagerAdapterM handles the listfragments that makes up the core of the app
-	 * Used in: In onCreate setAdapater is called: "mViewPager.setAdapter(mPagerAdapter);"
-	 * Documentation:
-	 *  http://developer.android.com/reference/android/support/v4/app/FragmentStatePagerAdapter.html
+	 * \brief FragmentAdapterM handles the listfragments that makes up the core of the app
+	 * 
+	 * Used in: onCreate
+	 * 
+	 * Documentation: http://developer.android.com/reference/android/support/v4/app/FragmentStatePagerAdapter.html
 	 */
-	private class FragmentAdapterM extends FragmentPagerAdapter {
+	private static class FragmentAdapterM extends FragmentPagerAdapter {
 		private ListFragmentC mFeelingListFragment;
 		private ListFragmentC mNeedListFragment;
 		private ListFragmentC mKindnessListFragment;
-		public FragmentAdapterM(FragmentManager inFragmentManager) {
+		private final WeakReference<Context> mWeakRefToContext;
+		private final WeakReference<ViewPagerM> mWeakRefToViewPager;
+		
+		public FragmentAdapterM(Context inContext, ViewPagerM iViewPager,
+				FragmentManager inFragmentManager) {
 			super(inFragmentManager);
+			mWeakRefToContext = new WeakReference<Context>(inContext);
+			mWeakRefToViewPager = new WeakReference<ViewPagerM>(iViewPager);
 		}
 		@Override
 		public Object instantiateItem (ViewGroup inContainer, int inPosition){
@@ -453,15 +423,15 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			switch(inPosition){
 			case ListTypeM.FEELINGS:
 				mFeelingListFragment = ListFragmentC.newInstance(ListTypeM.FEELINGS,
-						(MainActivityCallbackListenerI)MainActivityC.this);
+						(MainActivityCallbackListenerI)mWeakRefToContext.get());
 				break;
 			case ListTypeM.NEEDS:
 				mNeedListFragment = ListFragmentC.newInstance(ListTypeM.NEEDS,
-						(MainActivityCallbackListenerI)MainActivityC.this);
+						(MainActivityCallbackListenerI)mWeakRefToContext.get());
 				break;
 			case ListTypeM.KINDNESS:
 				mKindnessListFragment = ListFragmentC.newInstance(ListTypeM.KINDNESS,
-						(MainActivityCallbackListenerI)MainActivityC.this);
+						(MainActivityCallbackListenerI)mWeakRefToContext.get());
 				break;
 			case ListTypeM.NOT_SET:
 			default:
@@ -475,9 +445,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			Log.v(Utils.getAppTag(), Utils.getMethodName() + ", position = " + inPosition);
 
 			switch (inPosition){
-			case ListTypeM.FEELINGS:	return mFeelingListFragment;
-			case ListTypeM.NEEDS:		return mNeedListFragment;
-			case ListTypeM.KINDNESS:	return mKindnessListFragment;
+			case ListTypeM.FEELINGS: return mFeelingListFragment;
+			case ListTypeM.NEEDS: return mNeedListFragment;
+			case ListTypeM.KINDNESS: return mKindnessListFragment;
 			case ListTypeM.NOT_SET:
 			default:
 				Log.e(Utils.getAppTag(), "Error in method getItem: case not covered or not set");
@@ -492,8 +462,74 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		public ListFragmentC getCurrentFragment(){
 			Log.v(Utils.getAppTag(), Utils.getMethodName());
 
-			ListFragmentC retListFragmentC = this.getItem(mViewPager.getCurrentItem());
+			ListFragmentC retListFragmentC = this.getItem(
+					mWeakRefToViewPager.get().getCurrentItem());
 			return retListFragmentC;
 		}
+	}
+	
+	
+	private static class OnPageChangeListenerM implements ViewPager.OnPageChangeListener {
+		//-To access one fragment from here we can use this line:
+		// ((CustomPagerAdapter)mViewPager.getAdapter()).getItem(pos).refreshListDataSupport();
+		
+		private final WeakReference<MainActivityC> mWeakRefToMainActivity;
+		
+		public OnPageChangeListenerM(MainActivityC iMainActivity) {
+			super();
+			mWeakRefToMainActivity = new WeakReference<MainActivityC>(iMainActivity);
+		}
+		
+		@Override
+		public void onPageSelected(int inPos) { //[list update]
+			Log.d("ViewPager.OnPageChangeListener()", "onPageSelected()");
+
+			//Resetting the sorting
+			Utils.setItemTableSortType(SortTypeM.KINDSORT);
+
+			//Setting the active tab when the user has just side scrolled (swiped) to a new fragment
+			mWeakRefToMainActivity.get().getActionBar().setSelectedNavigationItem(inPos);
+		}
+		@Override
+		public void onPageScrolled(int arg0, float arg1, int arg2) {
+		}
+		@Override
+		public void onPageScrollStateChanged(int inState) {
+			//-this is called even when we press one of the tab buttons
+			switch(inState){
+			case ViewPager.SCROLL_STATE_IDLE:
+				//Saving the position (solves the problem in issue #41)
+				/////////mViewPagerPosition = mViewPager.getCurrentItem();
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	
+	private static class TabListenerM implements ActionBar.TabListener {
+		
+		private final WeakReference<ViewPagerM> mWeakRefToViewPager;
+		
+		public TabListenerM(ViewPagerM iViewPager){
+			mWeakRefToViewPager = new WeakReference<ViewPagerM>(iViewPager);
+		}
+		
+		@Override
+		public void onTabSelected(Tab tab, FragmentTransaction ft) {
+			//Scrolling to the new fragment when the user selects a tab
+			mWeakRefToViewPager.get().setCurrentItem(tab.getPosition());
+
+			/*
+			int tmpPos = tab.getPosition();
+			if(mWeakRefToViewPager.get().getCurrentItem() != tmpPos){
+				mWeakRefToViewPager.get().setCurrentItem(tmpPos);
+			}
+			*/
+		}
+		@Override
+		public void onTabUnselected(Tab tab, FragmentTransaction ft) {}
+		@Override
+		public void onTabReselected(Tab tab, FragmentTransaction ft) {}
 	}
 }

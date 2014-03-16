@@ -3,6 +3,7 @@ package com.sunyata.kindmind;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import android.content.Context;
@@ -17,13 +18,14 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.List.ListTypeM;
 
 public class OnClickToastOrActionC {
 
 	public static void feelingsToast(Context inContext) {
-		String tmpToastFeelingsString = Utils.getToastString(inContext, ListTypeM.FEELINGS);
+		String tmpToastFeelingsString = getToastString(inContext, ListTypeM.FEELINGS);
 		if(tmpToastFeelingsString.length() > 0){
 			Toast.makeText(
 					inContext, "I am feeling " + tmpToastFeelingsString, Toast.LENGTH_LONG)
@@ -32,8 +34,8 @@ public class OnClickToastOrActionC {
 	}
 	
 	public static void needsToast(Context inContext) {
-		String tmpToastFeelingsString = Utils.getToastString(inContext, ListTypeM.FEELINGS);
-		String tmpToastNeedsString = Utils.getToastString(inContext, ListTypeM.NEEDS);
+		String tmpToastFeelingsString = getToastString(inContext, ListTypeM.FEELINGS);
+		String tmpToastNeedsString = getToastString(inContext, ListTypeM.NEEDS);
 		if(tmpToastFeelingsString.length() > 0 & tmpToastNeedsString.length() > 0){
 			Toast.makeText(
 					inContext,
@@ -209,6 +211,66 @@ public class OnClickToastOrActionC {
 							"please install an app that supports this operation",
 							Toast.LENGTH_LONG)
 							.show();
+		}
+	}
+	
+	private static String getToastString(Context inContext, int inListType) {
+		//-this method also updates the toast string (can be used for example for sharing)
+
+		String mToastFeelingsString;
+		String mToastNeedsString;
+
+		switch(inListType){
+		case ListTypeM.FEELINGS:
+			mToastFeelingsString =
+					getFormattedStringOfActivatedDataListItems(
+					getListOfNamesForActivatedData(inContext, ListTypeM.FEELINGS))
+					.toLowerCase(Locale.getDefault());
+			return mToastFeelingsString;
+		
+		case ListTypeM.NEEDS:
+			mToastNeedsString =
+					getFormattedStringOfActivatedDataListItems(
+					getListOfNamesForActivatedData(inContext, ListTypeM.NEEDS))
+					.toLowerCase(Locale.getDefault());
+			return mToastNeedsString;
+			
+		default:
+			Log.e(Utils.getAppTag(),
+					"Error in getFormattedStringOfActivatedDataListItems: case not covered in switch statement");
+			return null;
+		}
+	}
+	private static ArrayList<String> getListOfNamesForActivatedData(Context inContext, int inListType) {
+		ArrayList<String> retActivatedData = new ArrayList<String>();
+		String tmpSelection =
+				ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE + " AND " +
+				ItemTableM.COLUMN_LIST_TYPE + "=" + inListType;
+		//-Please note that we are adding ' signs around the String
+		Cursor tmpCursor = inContext.getContentResolver().query(
+				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
+		for(tmpCursor.moveToFirst(); tmpCursor.isAfterLast() == false; tmpCursor.moveToNext()){
+			//add name to return list
+			String tmpStringToAdd = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
+			retActivatedData.add(tmpStringToAdd);
+		}
+		
+		tmpCursor.close();
+		return retActivatedData;
+	}
+	//Recursive method
+	private static String getFormattedStringOfActivatedDataListItems(List<String> inList) {
+		if(inList.size() == 0){
+			return "";
+		}else if(inList.size() == 1){
+			return inList.get(0);
+		}else if(inList.size() == 2){
+			return inList.get(0) + " and " + inList.get(1);
+		}else{
+			return 
+				inList.get(0) +
+				", " +
+				getFormattedStringOfActivatedDataListItems(inList.subList(1, inList.size()));
 		}
 	}
 }

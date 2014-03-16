@@ -2,6 +2,7 @@ package com.sunyata.kindmind.List;
 
 import java.lang.ref.WeakReference;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -34,6 +35,7 @@ import com.sunyata.kindmind.OnClickToastOrActionC;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.SortTypeM;
 import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.ViewPagerM;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.DatabaseHelperM;
 import com.sunyata.kindmind.Database.ItemTableM;
@@ -62,7 +64,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	private int refListType = ListTypeM.NOT_SET; //-saved in onSaveInstanceState
 	private static MainActivityCallbackListenerI sCallbackListener;
 	private SimpleCursorAdapter mCursorAdapter;
-	private LinearLayout mLoadingLinearLayout;
+	private LinearLayout mLoadingLayout;
 
 	public static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
 	public static final String EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE";
@@ -154,52 +156,71 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 * Improvements: 
 	 * Documentation: 
 	 */
-    public void sortDataWithService(){
-    	
-    	
-    	for(int i = 0; mLoadingLinearLayout == null; i++){
+	public void sortDataWithService(){
+
+		if(mLoadingLayout == null){
+			mLoadingLayout = (LinearLayout)getView().findViewById(R.id.loadingLinearLayout);
+			Log.w(Utils.getAppTag(), Utils.getMethodName()
+					+ " mLoadingLayout was null and was recreated");
+		}
+
+		/*
+    	for(int i = 0; mLoadingLinearLayout != null; i++){
     		Utils.waitForCondition(500, 10, i);
     	}
-    	/* -the lines above were added because of the following problem:
+		 */
+		/* -the lines above were added because of the following problem:
 java.lang.NullPointerException
 at com.sunyata.kindmind.List.ListFragmentC.sortDataWithService(ListFragmentC.java:483)
 at com.sunyata.kindmind.MainActivityC.fireClearDatabaseAndUpdateGuiEvent(MainActivityC.java:287)
 at com.sunyata.kindmind.MainActivityC.fireSavePatternEvent(MainActivityC.java:225)
 at com.sunyata.kindmind.List.ListFragmentC.onOptionsItemSelected(ListFragmentC.java:362)
 at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568)
-    	 */
-    	
-    	
-    	//Showing the Loading progress bar / "spinner"
-    	
-    	mLoadingLinearLayout.setVisibility(View.VISIBLE);
-    	getListView().setVisibility(View.GONE);
-    	
-    	//Sorting data (for all lists)
+		 */
+
+
+		//Showing the Loading progress bar / "spinner"
+
+		mLoadingLayout.setVisibility(View.VISIBLE);
+		getListView().setVisibility(View.GONE);
+
+		//Sorting data (for all lists)
 		Intent tmpIntent = new Intent(getActivity(), SortingAlgorithmServiceM.class);
-		tmpIntent.putExtra(ListFragmentC.EXTRA_KINDSORT_RESULT, new AlgorithmServiceResultReceiver(new Handler()));
+		AlgorithmServiceResultReceiver tReceiver = new AlgorithmServiceResultReceiver(
+				new Handler(), mLoadingLayout, getListView());
+		tmpIntent.putExtra(ListFragmentC.EXTRA_KINDSORT_RESULT, tReceiver);
 		getActivity().startService(tmpIntent);
-    }
-    public class AlgorithmServiceResultReceiver extends ResultReceiver{
-		public AlgorithmServiceResultReceiver(Handler handler) {
+	}
+	
+	private static class AlgorithmServiceResultReceiver extends ResultReceiver{
+		
+		private final WeakReference<LinearLayout> mWeakRefToLoadingLayout;
+		private final WeakReference<ListView> mWeakRefToListView;
+		
+		public AlgorithmServiceResultReceiver(Handler handler,
+				LinearLayout iLoadingLayout, ListView iListView) {
 			super(handler);
+			mWeakRefToLoadingLayout = new WeakReference<LinearLayout>(iLoadingLayout);
+			mWeakRefToListView = new WeakReference<ListView>(iListView);
 		}
+		
 		@Override
 		public void onReceiveResult(int inResultCode, Bundle inResultData){
 			super.onReceiveResult(inResultCode, inResultData);
 			if(inResultCode == SortingAlgorithmServiceM.UPDATE_SERVICE_DONE){
-				mLoadingLinearLayout.setVisibility(View.GONE);
-				getListView().setVisibility(View.VISIBLE);
-				
-				getListView().smoothScrollToPositionFromTop(0, 0);
+				mWeakRefToLoadingLayout.get().setVisibility(View.GONE);
+				mWeakRefToListView.get().setVisibility(View.VISIBLE);
+
+				mWeakRefToLoadingLayout.get().setVisibility(View.GONE);
+
+				mWeakRefToListView.get().smoothScrollToPositionFromTop(0, 0);
 				//-http://stackoverflow.com/questions/11334207/smoothscrolltoposition-only-scrolls-partway-in-android-ics
 				sCallbackListener.fireUpdateTabTitlesEvent();
-				
 			}
 		}
-    }
+	}
 
-    ///@}
+  ///@}
 	/**@name Lifecycle
 	 * Please note that one click method is inside onActivityCreated and the other is outside
 	 */
@@ -213,18 +234,18 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 	 * + *Contains event handler for long clicks*. Long click is handled separately from the short click because
 	 * there is no method to override for the long click
 	 */
-    @Override
-    public void onActivityCreated(Bundle inSavedInstanceState){
-    	super.onActivityCreated(inSavedInstanceState);
-    	Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
+	@Override
+	public void onActivityCreated(Bundle inSavedInstanceState){
+		super.onActivityCreated(inSavedInstanceState);
+		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
 
-    	//Restoring state
+		//Restoring state
 		if(inSavedInstanceState != null){
 			refListType = inSavedInstanceState.getInt(EXTRA_LIST_TYPE);
 		}
-    	
-    	//Fundamental setup
-		super.setRetainInstance(false); //////////////////////////////true
+
+		//Fundamental setup
+		//super.setRetainInstance(true);
 		//-Recommended by CommonsWare:
 		// http://stackoverflow.com/questions/11160412/why-use-fragmentsetretaininstanceboolean
 		// but not in Reto's book: "genereally not recommended"
@@ -232,72 +253,81 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		this.fillListWithDataFromAdapter();
 
 		//Setup for long click listener
-    	super.getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
-			@Override
-			public boolean onItemLongClick(AdapterView<?> a1, View a2, int a3, long inId) {
-				//Opening the details for the list item
-				Uri tmpUri = Uri.parse(ContentProviderM.ITEM_CONTENT_URI + "/" + inId);
-				Intent intent = new Intent(getActivity(), ItemSetupActivityC.class);
-				String tmpExtraString = tmpUri.toString();
-				intent.putExtra(EXTRA_ITEM_URI, tmpExtraString); //-Extracted in DataDetailsFragmentC
-				startActivityForResult(intent, 0); //-Calling DataDetailsActivityC
-				return false;
-			}
-		});
-    }
-    
-    /*
+		super.getListView().setOnItemLongClickListener(new OnItemLongClickListenerC(getActivity()));
+	}
+	
+	private static class OnItemLongClickListenerC implements OnItemLongClickListener{
+		
+		private final WeakReference<Activity> mWeakRefToActivity;
+		
+		public OnItemLongClickListenerC(Activity iActivity){
+			mWeakRefToActivity = new WeakReference<Activity>(iActivity);
+		}
+		
+		@Override
+		public boolean onItemLongClick(AdapterView<?> a1, View a2, int a3, long inId) {
+			//Opening the details for the list item
+			Uri tmpUri = Uri.parse(ContentProviderM.ITEM_CONTENT_URI + "/" + inId);
+			Intent intent = new Intent(mWeakRefToActivity.get(), ItemSetupActivityC.class);
+			String tmpExtraString = tmpUri.toString();
+			intent.putExtra(EXTRA_ITEM_URI, tmpExtraString);
+			//-Extracted in DataDetailsFragmentC
+			mWeakRefToActivity.get().startActivityForResult(intent, 0);
+			//-Calling DataDetailsActivityC
+			return false;
+		}
+	}
+
+	/*
 	 * Overview: onCreateView inflates the layout and prepares for the loading by storing a reference to
 	 *  the loading layout
 	 * Notes: 
 	 * Improvements: 
 	 * Documentation: 
 	 */
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
-    	super.onCreateView(inflater, parent, savedInstanceState);
-    	//-TODO: Verify ok (super not called in the Big Nerd Ranch book, or in Reto's book)
-    	Log.d(Utils.getAppTag(), Utils.getMethodName());
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
+		super.onCreateView(inflater, parent, savedInstanceState);
+		//-TODO: Verify ok (super not called in the Big Nerd Ranch book, or in Reto's book)
+		Log.d(Utils.getAppTag(), Utils.getMethodName());
 
-    	//Inflating the layout
-    	View v = inflater.inflate(R.layout.fragment_list, parent, false);
+		//Inflating the layout
+		View v = inflater.inflate(R.layout.fragment_list, parent, false);
 
-    	//Getting reference to the views
-    	mLoadingLinearLayout = (LinearLayout)v.findViewById(R.id.loadingLinearLayout);
-    	//mProgressBar = (ProgressBar)v.findViewById(R.id.listProgressBar);
-    	//-we can access the listview with getListView() so we don't need to save this reference
-    	
-    	mLoadingLinearLayout.setVisibility(View.GONE);
-    	
-    	return v;
-    }
+		//Getting reference to the views
+		mLoadingLayout = (LinearLayout)v.findViewById(R.id.loadingLinearLayout);
+		//mProgressBar = (ProgressBar)v.findViewById(R.id.listProgressBar);
+		//-we can access the listview with getListView() so we don't need to save this reference
+		mLoadingLayout.setVisibility(View.GONE);
 
+		return v;
+	}
 
-    /*
+	/*
 	 * Overview: onSaveInstanceState saves the state of the list fragment into a bundle.
 	 *  Loading is done in onActivityCreated()
 	 */
-    @Override
-    public void onSaveInstanceState(Bundle outBundle){
-    	Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
+	@Override
+	public void onSaveInstanceState(Bundle outBundle){
+		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
 
-    	outBundle.putInt(EXTRA_LIST_TYPE, refListType); //-saving the list type
+		outBundle.putInt(EXTRA_LIST_TYPE, refListType); //-saving the list type
 
-    	super.onSaveInstanceState(outBundle);
-    }
-    
-    ///@}
+		super.onSaveInstanceState(outBundle);
+	}
+
+  ///@}
 	///@name onListItemClick and options menu
 	///@{
-    
-    /**
+
+	/**
 	 * \brief onListItemClick handles clicks on a list item: it updates the DB and refreshes the GUI
 	 */
-    @Override
-    public void onListItemClick(ListView l, View inView, int pos, long inId){ //[list update]
-    	super.onListItemClick(l, inView, pos, inId);
+	@Override
+	public void onListItemClick(ListView l, View inView, int pos, long inId){ //[list update]
+		super.onListItemClick(l, inView, pos, inId);
 
-    	//Switching the checkbox off/on
+		//Switching the checkbox off/on
 		CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox));
 		boolean tmpNewCheckedState = !tmpCheckBox.isChecked();
 
@@ -306,21 +336,21 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		ContentValues tmpContentValues = new ContentValues();
 		tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpNewCheckedState ? 1 : ItemTableM.FALSE);
 		getActivity().getContentResolver().update(tmpUri, tmpContentValues, null, null);
-		
+
 		//Performing the various toasts or actions
 		if(refListType == ListTypeM.FEELINGS){
 			OnClickToastOrActionC.feelingsToast(getActivity());
 		}else if(refListType == ListTypeM.NEEDS){
 			OnClickToastOrActionC.needsToast(getActivity());
-    	}else if(refListType == ListTypeM.KINDNESS && tmpNewCheckedState){
+		}else if(refListType == ListTypeM.KINDNESS && tmpNewCheckedState){
 			OnClickToastOrActionC.randomKindAction(getActivity(), Utils.getItemUriFromId(inId));
 		}
 
 		//Sorting
 		this.sortDataWithService();
-    }
-	
-    /*
+	}
+
+	/*
 	 * Overview: onCreateOptionsMenu inflates the options menu and hides a few options if we have a release build
 	 */
 	@Override
@@ -542,8 +572,8 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 				//Setting status of the checkbox (checked / not checked)
 		    	// The other child views of this view have already been changed by the mapping done by SimpleCursorAdapter
 		    	// above in the super.getView() method
-				long tmpActive = Long.parseLong(
-						inCursor.getString(inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)));
+				long tmpActive = Long.parseLong(inCursor.getString(
+						inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)));
 				CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox));
 				if (tmpCheckBox != null){
 		    		tmpCheckBox.setChecked(tmpActive != ItemTableM.FALSE);
@@ -560,10 +590,12 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 					tmpRectangle.setVisibility(View.INVISIBLE); //.setBackgroundColor(mContext.getResources().getColor(R.color.no_action));
 				}else if(Utils.numberOfActions(tmpActions) == 1){
 					tmpRectangle.setVisibility(View.VISIBLE);
-					tmpRectangle.setBackgroundColor(mWeakRefToContext.get().getResources().getColor(R.color.one_action));
+					tmpRectangle.setBackgroundColor(mWeakRefToContext.get().getResources()
+							.getColor(R.color.one_action));
 				}else if(Utils.numberOfActions(tmpActions) > 1){
 					tmpRectangle.setVisibility(View.VISIBLE);
-					tmpRectangle.setBackgroundColor(mWeakRefToContext.get().getResources().getColor(R.color.multiple_actions));
+					tmpRectangle.setBackgroundColor(mWeakRefToContext.get().getResources()
+							.getColor(R.color.multiple_actions));
 				}
 				return true;
 			}
