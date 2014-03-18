@@ -1,8 +1,8 @@
 package com.sunyata.kindmind.List;
 
-import android.util.Log;
+import com.sunyata.kindmind.util.DbgU;
 
-import com.sunyata.kindmind.Utils;
+import android.util.Log;
 /*
  * Overview: 
  * 
@@ -51,7 +51,7 @@ public class ListTypeM {
 		case KINDNESS: return "Kindness";
 		case NOT_SET:
 		default:
-			Log.e(Utils.getAppTag(), "Error in getListTypeString: Case not Covered or value has not been set");
+			Log.wtf(DbgU.getAppTag(), "Error in getListTypeString: Case not Covered or value has not been set");
 			return "";
 		}
 	}

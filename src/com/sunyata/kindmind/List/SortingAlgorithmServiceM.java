@@ -8,10 +8,13 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternsTableM;
+import com.sunyata.kindmind.util.DatabaseU;
+import com.sunyata.kindmind.util.DbgU;
 
 /**
  * Overview: SortingAlgorithmM handles sorting for the three instances of \ref ListFragmentC contained in the
@@ -65,51 +68,68 @@ public class SortingAlgorithmServiceM extends IntentService {
 	 */
 	@Override
 	protected void onHandleIntent(Intent inIntent) {
-		//1. Go through all checked/active items and store them in an array
 		ArrayList<Long> tmpCheckedItems = new ArrayList<Long>();
-		String tmpSelection = ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE;
-		Cursor tmpItemCur = getApplicationContext().getContentResolver().query(
-				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
-		for(tmpItemCur.moveToFirst(); tmpItemCur.isAfterLast() == false; tmpItemCur.moveToNext()){
-			tmpCheckedItems.add(Long.parseLong(tmpItemCur.getString(
-					tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ID))));
-		}
+		ArrayList<Double> tmpUpdateListSortValue = new ArrayList<Double>();
+		ArrayList<Uri> tmpUpdateListUri = new ArrayList<Uri>();
 
+		
+		//1. Go through all checked/active items and store them in an array
+		String tItemSel = ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE;
+		Cursor tmpItemCur1 = getApplicationContext().getContentResolver().query(
+				ContentProviderM.ITEM_CONTENT_URI, null, tItemSel, null, null);
+		tmpItemCur1.moveToFirst();
+		try{
+			for(; tmpItemCur1.isAfterLast() == false; tmpItemCur1.moveToNext()){
+				tmpCheckedItems.add(Long.parseLong(tmpItemCur1.getString(
+						tmpItemCur1.getColumnIndexOrThrow(ItemTableM.COLUMN_ID))));
+			}
+		}catch(Exception e){
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName());
+		}finally{
+			if(tmpItemCur1 != null){
+				tmpItemCur1.close();
+			}
+		}
+		
+		
 		//2. Go through all patterns and save in matrix with pattern relevance..
 		ArrayList<Pattern> tmpPatternMatrix = new ArrayList<Pattern>();
 		Cursor tmpPatternCur = getApplicationContext().getContentResolver().query(
-				ContentProviderM.PATTERNS_CONTENT_URI, null, null, null, PatternsTableM.COLUMN_CREATE_TIME);
-/*
-   		long[][] tmpPatternsMatrix = new long[10][10]; //-[Pattern][DB sub-row]
-		float[] tmpPatternRelevance = new float[10];
- */
-		long tmpOldPatternTime = -2;
-		for(tmpPatternCur.moveToFirst(); tmpPatternCur.isAfterLast() == false; tmpPatternCur.moveToNext()){
-			
-			long tmpNewPatternTime = Long.parseLong(tmpPatternCur.getString(
-					tmpPatternCur.getColumnIndexOrThrow(PatternsTableM.COLUMN_CREATE_TIME)));
-			//-the time is used to identify one specific pattern (and can be the same over several rows)
-			
-			long tmpItemRefId = Long.parseLong(tmpPatternCur.getString(
-					tmpPatternCur.getColumnIndexOrThrow(PatternsTableM.COLUMN_ITEM_REFERENCE)));
-			//-will be compared to the list from step 1 above
-			
-			//..check to see if we have gone into a new pattern in the list..
-			if(tmpNewPatternTime != tmpOldPatternTime){
-				tmpOldPatternTime = tmpNewPatternTime;
+				ContentProviderM.PATTERNS_CONTENT_URI, null, null, null,
+				PatternsTableM.COLUMN_CREATE_TIME);
+		tmpPatternCur.moveToFirst();
+		try{
+			long tmpOldPatternTime = -2;
+			for(; tmpPatternCur.isAfterLast() == false; tmpPatternCur.moveToNext()){
 				
-				//..if so create a new pattern list and add it to the matrix
-				Pattern tmpPatternList = new Pattern();
-				tmpPatternMatrix.add(tmpPatternList);
+				long tmpNewPatternTime = Long.parseLong(tmpPatternCur.getString(
+						tmpPatternCur.getColumnIndexOrThrow(PatternsTableM.COLUMN_CREATE_TIME)));
+				//-the time is used to identify one specific pattern (and can be the same over several rows)
+				
+				long tmpItemRefId = Long.parseLong(tmpPatternCur.getString(
+						tmpPatternCur.getColumnIndexOrThrow(PatternsTableM.COLUMN_ITEM_REFERENCE)));
+				//-will be compared to the list from step 1 above
+				
+				//..check to see if we have gone into a new pattern in the list..
+				if(tmpNewPatternTime != tmpOldPatternTime){
+					tmpOldPatternTime = tmpNewPatternTime;
+					
+					//..if so create a new pattern list and add it to the matrix
+					Pattern tmpPatternList = new Pattern();
+					tmpPatternMatrix.add(tmpPatternList);
+				}
+				
+				//..adding the item reference to the end of the last pattern in the matrix
+				tmpPatternMatrix.get(tmpPatternMatrix.size() - 1).list.add(tmpItemRefId);
 			}
-			
-			//..adding the item reference to the end of the last pattern in the matrix
-			tmpPatternMatrix.get(tmpPatternMatrix.size() - 1).list.add(tmpItemRefId);
+		}catch(Exception e){Log.wtf(DbgU.getAppTag(), DbgU.getMethodName());
+		}finally{
+			if(tmpPatternCur != null){
+				tmpPatternCur.close();
+			}
 		}
 		
-		//..closing pattern cursor
-		tmpPatternCur.close();
-		
+
 		//3. Go through the newly created matrix and compare with the list from step 1 to update relevance..
 		for(Pattern p : tmpPatternMatrix){
 			float tmpNumberOfMatches = 0;
@@ -122,37 +142,41 @@ public class SortingAlgorithmServiceM extends IntentService {
 					tmpNumberOfMatches++;
 				}
 			}
-			
 			//..updating the relevance
 			p.relevance = tmpNumberOfMatches / tmpDivider;
 		}
 		
+		
 		//4. Go through all list items and use the relevance to update the kindsortvalue for each item..
-		ArrayList<Double> tmpUpdateListSortValue = new ArrayList<Double>();
-		ArrayList<Uri> tmpUpdateListUri = new ArrayList<Uri>();
-		tmpItemCur = getApplicationContext().getContentResolver().query(
+		Cursor tmpItemCur2 = getApplicationContext().getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
-		for(tmpItemCur.moveToFirst(); tmpItemCur.isAfterLast() == false; tmpItemCur.moveToNext()){
-			double tmpNewKindSortValue = 0; 
-			long tmpItemId = Long.parseLong(tmpItemCur.getString(
-					tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ID)));
-			Uri tmpItemUri = Uri.parse(ContentProviderM.ITEM_CONTENT_URI + "/" + tmpItemId);
-			
-			for(Pattern p : tmpPatternMatrix){
-				if(p.list.contains(tmpItemId)){
-					//..calculating and adding to the kindsort value
-					tmpNewKindSortValue = tmpNewKindSortValue
-							+ SIMPLE_PATTERN_MATCH_ADDITION
-							+ p.relevance * PATTERN_MULTIPLIER;
+		tmpItemCur2.moveToFirst();
+		try{
+			for(; tmpItemCur2.isAfterLast() == false; tmpItemCur2.moveToNext()){
+				double tmpNewKindSortValue = 0; 
+				long tmpItemId = Long.parseLong(tmpItemCur2.getString(
+						tmpItemCur2.getColumnIndexOrThrow(ItemTableM.COLUMN_ID)));
+				Uri tmpItemUri = Uri.parse(ContentProviderM.ITEM_CONTENT_URI + "/" + tmpItemId);
+				
+				for(Pattern p : tmpPatternMatrix){
+					if(p.list.contains(tmpItemId)){
+						//..calculating and adding to the kindsort value
+						tmpNewKindSortValue = tmpNewKindSortValue
+								+ SIMPLE_PATTERN_MATCH_ADDITION
+								+ p.relevance * PATTERN_MULTIPLIER;
+					}
 				}
+				//..adding value to list (will be written to database after the cursor has been closed)
+				tmpUpdateListSortValue.add(tmpNewKindSortValue);
+				tmpUpdateListUri.add(tmpItemUri);
 			}
-			//..adding value to list (will be written to database after the cursor has been closed)
-			tmpUpdateListSortValue.add(tmpNewKindSortValue);
-			tmpUpdateListUri.add(tmpItemUri);
+		}catch(Exception e){Log.wtf(DbgU.getAppTag(), DbgU.getMethodName());
+		}finally{
+			if(tmpItemCur2 != null){
+				tmpItemCur2.close();
+			}
 		}
 		
-		//..closing item cursor
-		tmpItemCur.close();
 		
 		//5. Updating the kindsort values in the database
 		ContentValues tmpUpdateVal;
@@ -169,7 +193,7 @@ public class SortingAlgorithmServiceM extends IntentService {
 		}
 	}
 	
-	private class Pattern{
+	private static class Pattern{
 		public float relevance;
 		public ArrayList<Long> list;
 		public Pattern(){

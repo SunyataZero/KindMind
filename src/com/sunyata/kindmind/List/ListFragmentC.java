@@ -34,12 +34,14 @@ import com.sunyata.kindmind.MainActivityCallbackListenerI;
 import com.sunyata.kindmind.OnClickToastOrActionC;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.SortTypeM;
-import com.sunyata.kindmind.Utils;
-import com.sunyata.kindmind.ViewPagerM;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.DatabaseHelperM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Setup.ItemSetupActivityC;
+import com.sunyata.kindmind.util.DatabaseU;
+import com.sunyata.kindmind.util.DbgU;
+import com.sunyata.kindmind.util.ItemActionsU;
+import com.sunyata.kindmind.util.OtherU;
 
 /**
  * \brief ListFragmentC shows a list of items, each item corresponding to a row in an SQL database
@@ -63,6 +65,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	
 	private int refListType = ListTypeM.NOT_SET; //-saved in onSaveInstanceState
 	private static MainActivityCallbackListenerI sCallbackListener;
+	//-static because we want to be sure that it is the same for all fragments
 	private SimpleCursorAdapter mCursorAdapter;
 	private LinearLayout mLoadingLayout;
 
@@ -100,7 +103,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 */
 	@Override
 	public android.support.v4.content.Loader<Cursor> onCreateLoader(int inIdUnused, Bundle inArgumentsUnused) {
-		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName(refListType));
 		
 		//Setup of variables used for selecting the database colums of rows
 		String[] tmpProjection = {ItemTableM.COLUMN_ID, ItemTableM.COLUMN_NAME,
@@ -126,7 +129,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 */
 	@Override
 	public void onLoadFinished(android.support.v4.content.Loader<Cursor> inCursorLoader, Cursor inCursor) {
-		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName(refListType));
 		
 		mCursorAdapter.swapCursor(inCursor);
 	}
@@ -139,7 +142,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 */
 	@Override
 	public void onLoaderReset(android.support.v4.content.Loader<Cursor> inCursorUnused) {
-		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName(refListType));
 		
 		mCursorAdapter.swapCursor(null);
 	}
@@ -160,7 +163,7 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
 		if(mLoadingLayout == null){
 			mLoadingLayout = (LinearLayout)getView().findViewById(R.id.loadingLinearLayout);
-			Log.w(Utils.getAppTag(), Utils.getMethodName()
+			Log.w(DbgU.getAppTag(), DbgU.getMethodName()
 					+ " mLoadingLayout was null and was recreated");
 		}
 
@@ -211,8 +214,6 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 				mWeakRefToLoadingLayout.get().setVisibility(View.GONE);
 				mWeakRefToListView.get().setVisibility(View.VISIBLE);
 
-				mWeakRefToLoadingLayout.get().setVisibility(View.GONE);
-
 				mWeakRefToListView.get().smoothScrollToPositionFromTop(0, 0);
 				//-http://stackoverflow.com/questions/11334207/smoothscrolltoposition-only-scrolls-partway-in-android-ics
 				sCallbackListener.fireUpdateTabTitlesEvent();
@@ -237,7 +238,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 	@Override
 	public void onActivityCreated(Bundle inSavedInstanceState){
 		super.onActivityCreated(inSavedInstanceState);
-		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName(refListType));
 
 		//Restoring state
 		if(inSavedInstanceState != null){
@@ -289,7 +290,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 	public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
 		super.onCreateView(inflater, parent, savedInstanceState);
 		//-TODO: Verify ok (super not called in the Big Nerd Ranch book, or in Reto's book)
-		Log.d(Utils.getAppTag(), Utils.getMethodName());
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 
 		//Inflating the layout
 		View v = inflater.inflate(R.layout.fragment_list, parent, false);
@@ -309,7 +310,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 	 */
 	@Override
 	public void onSaveInstanceState(Bundle outBundle){
-		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName(refListType));
 
 		outBundle.putInt(EXTRA_LIST_TYPE, refListType); //-saving the list type
 
@@ -322,6 +323,8 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 
 	/**
 	 * \brief onListItemClick handles clicks on a list item: it updates the DB and refreshes the GUI
+	 * 
+	 * Improvement: This method is called when long clicking as well, why is unknown.
 	 */
 	@Override
 	public void onListItemClick(ListView l, View inView, int pos, long inId){ //[list update]
@@ -343,7 +346,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		}else if(refListType == ListTypeM.NEEDS){
 			OnClickToastOrActionC.needsToast(getActivity());
 		}else if(refListType == ListTypeM.KINDNESS && tmpNewCheckedState){
-			OnClickToastOrActionC.randomKindAction(getActivity(), Utils.getItemUriFromId(inId));
+			OnClickToastOrActionC.randomKindAction(getActivity(), DatabaseU.getItemUriFromId(inId));
 		}
 
 		//Sorting
@@ -359,7 +362,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		inMenuInflater.inflate(R.menu.list_menu, inMenu);
 
 		//If we are not running in debug mode, hide the following option items
-		if(Utils.isReleaseVersion(getActivity())){
+		if(DbgU.isReleaseVersion(getActivity())){
 			inMenu.findItem(R.id.menu_item_share_experience).setVisible(false);
 			inMenu.findItem(R.id.menu_item_backup_database).setVisible(false);
 			inMenu.findItem(R.id.menu_item_reset_database).setVisible(false);
@@ -400,7 +403,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 			return true;
 		case R.id.menu_item_sort_alphabetically: //------------Sort alphabeta
 			//Changing the sort method used and refreshing list
-			Utils.setItemTableSortType(SortTypeM.ALPHABETASORT);
+			DatabaseU.setItemTableSortType(SortTypeM.ALPHABETASORT);
 			getListView().smoothScrollToPositionFromTop(0, 0);
 			
 			return true;
@@ -409,7 +412,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 			this.sortDataWithService();
 			
 			//Changing the sort method used and refreshing list
-			Utils.setItemTableSortType(SortTypeM.KINDSORT);
+			DatabaseU.setItemTableSortType(SortTypeM.KINDSORT);
 			
 			getListView().smoothScrollToPositionFromTop(0, 0);
 			
@@ -425,7 +428,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 				this.getFormattedStringForListType(ListTypeM.FEELINGS) +
 				this.getFormattedStringForListType(ListTypeM.NEEDS) +
 				this.getFormattedStringForListType(ListTypeM.KINDNESS);
-			Utils.sendAsEmail(getActivity(), "KindMind all lists as text", tmpAllListsAsText, null);
+			OtherU.sendAsEmail(getActivity(), "KindMind all lists as text", tmpAllListsAsText, null);
 
 			return true;
 		case R.id.menu_item_about: //------------About
@@ -447,7 +450,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 			 */
 			return true;
 		case R.id.menu_item_backup_database: //------------Backup of database by sending database file
-			Utils.sendAsEmail(getActivity(), "Backup of KindMind database", "Database file is attached",
+			OtherU.sendAsEmail(getActivity(), "Backup of KindMind database", "Database file is attached",
 					getActivity().getDatabasePath(DatabaseHelperM.DATABASE_NAME));
 
 			return true;
@@ -468,27 +471,26 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 	 * Used in: Used together with sendAsEmail
 	 */
 	private String getFormattedStringForListType(int inListType){
-		
-		//Title
 		String retString = "\n" + "===" + ListTypeM.getListTypeString(inListType) + "===" + "\n\n";
 		
-		//Setup of cursor and data set
 		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + "=" + inListType;
-		Cursor tmpCursor = getActivity().getContentResolver().query(
+		Cursor tItemCr = getActivity().getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, null);
-		if(tmpCursor.getCount() == 0){
-			tmpCursor.close();
-			return retString;
+		tItemCr.moveToFirst();
+		try{
+			//For each list data item..
+			for(; tItemCr.isAfterLast() == false; tItemCr.moveToNext()){
+				//..adding the name to the string
+				retString = retString + tItemCr.getString(tItemCr.getColumnIndexOrThrow(
+						ItemTableM.COLUMN_NAME)) + "\n";
+			}
+		}catch(Exception e){Log.wtf(DbgU.getAppTag(), DbgU.getMethodName());
+		}finally{
+			if(tItemCr != null){
+				tItemCr.close();
+			}
 		}
 
-		//For each list data item..
-		for(tmpCursor.moveToFirst(); tmpCursor.isAfterLast() == false; tmpCursor.moveToNext()){
-			//..save the name
-			retString = retString
-					+ tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME)) + "\n";
-		}
-		tmpCursor.close();
-		
 		return retString;
 	}
 	
@@ -506,10 +508,10 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 	 *  this is handled in another place (getView in CustomCursorAdapter)
 	 */
 	private void fillListWithDataFromAdapter(){
-		Log.i(Utils.getAppTag(), Utils.getMethodName(refListType));
+		Log.i(DbgU.getAppTag(), DbgU.getMethodName(refListType));
 		
 		if(refListType == ListTypeM.NOT_SET){
-			Log.e(Utils.getAppTag(), "Error in fillListWithDataFromAdapter, refListType has not been set");
+			Log.wtf(DbgU.getAppTag(), "Error in fillListWithDataFromAdapter, refListType has not been set");
 		}
 
 		//Creating (or re-creating) the loader
@@ -541,42 +543,45 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 	}
 	
 	/**
-	 * \brief ViewBinderM is a binder which binds values in the database to parts of the listitem views
+	 * \brief ViewBinderM is a binder which binds values in the database to parts of the
+	 * listitem views.
 	 * 
-	 * Some bindings are supported by default, in those cases we can simply return false and the adapter
-	 * will take care of the mapping. The modifications we have made include:
+	 * Some bindings are supported by default, in those cases we can simply return false
+	 * and the adapter will take care of the mapping. The modifications we have made
+	 * include:
 	 * + We do the binding for checkboxes ourselves
-	 * + ViewBinderM also displays the coloured rectangles indicating no, a single, or multiple actions.
+	 * + ViewBinderM also displays the coloured rectangles indicating no, a single, or
+	 * multiple actions.
 	 * 
-	 * Notes: When running with the debug window open in eclipse we can see that many binder threads are created,
-	 * more than we would expect normally, but this is not an error according to one info source, and we can see
-	 * that even though many binder threads are created, there is a limit
-	 * 
-	 * The classis static to avoid memory leaks and holds a WeakReference to a Context. For more info about
-	 * memory leaks, please see this link:
+	 * The class is static to avoid memory leaks and holds a WeakReference to a Context.
+	 * For more info about memory leaks, please see this link:
 	 * http://www.androiddesignpatterns.com/2013/01/inner-class-handler-memory-leak.html
+	 * 
+	 * Note: When running with the debug window open in eclipse we can see that many
+	 * binder threads are created, more than we would expect normally, but this is not an
+	 * error according to one info source, and we can see that even though many binder
+	 * threads are created, there is a limit
 	 */
-	private static class ViewBinderM implements android.support.v4.widget.SimpleCursorAdapter.ViewBinder{
+	private static class ViewBinderM
+			implements android.support.v4.widget.SimpleCursorAdapter.ViewBinder{
 		private final WeakReference<Context> mWeakRefToContext;
-		
+
 		public ViewBinderM(Context inContext){
 			mWeakRefToContext = new WeakReference<Context>(inContext);
 		}
-		
+
 		@Override
 		public boolean setViewValue(View inView, Cursor inCursor, int inColumnIndex) {
 			//if(inView.getId() == R.id.list_item_activeCheckBox){
-			
+
 			if(inColumnIndex == inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)){
-				////inColumnIndex == inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)
 				//Setting status of the checkbox (checked / not checked)
-		    	// The other child views of this view have already been changed by the mapping done by SimpleCursorAdapter
-		    	// above in the super.getView() method
 				long tmpActive = Long.parseLong(inCursor.getString(
 						inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIVE)));
-				CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox));
+				CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(
+						R.id.list_item_activeCheckBox));
 				if (tmpCheckBox != null){
-		    		tmpCheckBox.setChecked(tmpActive != ItemTableM.FALSE);
+					tmpCheckBox.setChecked(tmpActive != ItemTableM.FALSE);
 				}
 				return true;
 				//-hilarious if we don't have this, the checkboxes displays the expected state,
@@ -584,54 +589,26 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 
 			}else if(inColumnIndex == inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS)){
 				//Updating the action indications
-				String tmpActions = inCursor.getString(inCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
-				LinearLayout tmpRectangle = (LinearLayout)inView.findViewById(R.id.list_item_indicatorRectangle);
+				String tmpActions = inCursor.getString(inCursor.getColumnIndexOrThrow(
+						ItemTableM.COLUMN_ACTIONS));
+				LinearLayout tmpRectangle = (LinearLayout)inView.findViewById(
+						R.id.list_item_indicatorRectangle);
 				if(tmpActions == null || tmpActions.equals("")){
-					tmpRectangle.setVisibility(View.INVISIBLE); //.setBackgroundColor(mContext.getResources().getColor(R.color.no_action));
-				}else if(Utils.numberOfActions(tmpActions) == 1){
+					tmpRectangle.setVisibility(View.INVISIBLE);
+				}else if(ItemActionsU.numberOfActions(tmpActions) == 1){
 					tmpRectangle.setVisibility(View.VISIBLE);
 					tmpRectangle.setBackgroundColor(mWeakRefToContext.get().getResources()
 							.getColor(R.color.one_action));
-				}else if(Utils.numberOfActions(tmpActions) > 1){
+				}else if(ItemActionsU.numberOfActions(tmpActions) > 1){
 					tmpRectangle.setVisibility(View.VISIBLE);
 					tmpRectangle.setBackgroundColor(mWeakRefToContext.get().getResources()
 							.getColor(R.color.multiple_actions));
 				}
 				return true;
 			}
-			
-			//For every other value: Returning false, which means that the default mapping will be done
+
+			//Returning false for other values, which means that default mapping will be done
 			return false;
 		}
 	}
-	
-	/**
-	 * \brief updateCursorAdapter updates the data in the list
-	 * 
-	 * This is done by changing the cursor and giving the cursor to the adapter
-	 * 
-	 * Used in: onActivityCreated, onOptionsItemSelected, ............
-	 * 
-	 * Notes: This method used to restart the loader "getLoaderManager().restartLoader(0, null, this)",
-	 * but this is not necessary
-	 * 
-	 * Uses Android lib: changeCursor, setAdapter
-	 */
-	/*
-	public void updateCursorAdapter() { //[list update]
-		Log.d(Utils.getAppTag(), Utils.getMethodName(refListType));
-		
-		//Updating the cursor..
-		String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + "=" + String.valueOf(refListType);
-		Cursor tmpCursor = getActivity().getContentResolver().query(
-				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
-		mCursorAdapter.changeCursor(tmpCursor);
-		
-		//..and using the new cursor for the adapter
-		getListView().setAdapter(mCursorAdapter);
-		//-PLEASE NOTE: We need this line, and it was hard to find this info. It was found here:
-		// http://stackoverflow.com/questions/8213200/android-listview-update-with-simplecursoradapter
-
-	}
-	*/
 }

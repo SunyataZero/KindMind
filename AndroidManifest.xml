@@ -2,8 +2,8 @@
 <!-- PLEASE NOTE: There is no error check or auto-complete suggestions for class and package names in this file -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sunyata.kindmind"
-    android:versionCode="48"
-    android:versionName="0.14.23_BETA" >
+    android:versionCode="49"
+    android:versionName="0.14.24_BETA" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -35,6 +35,10 @@
             android:label="@string/item_setup_activity_title" >
             <!-- android:windowSoftInputMode="stateHidden" -->
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".MainActivityC" />
+        </activity>
+        <activity 
+            android:name="com.sunyata.kindmind.Setup.VideoChooserActivity"
+            android:label="@string/media_chooser_activity_title">
         </activity>
         <activity 
             android:name="com.sunyata.kindmind.Setup.FileChooserActivityC"

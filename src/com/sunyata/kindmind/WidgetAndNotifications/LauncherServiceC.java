@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.sunyata.kindmind.MainActivityC;
 import com.sunyata.kindmind.OnClickToastOrActionC;
-import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.util.DbgU;
 
 /*
  * Overview: LauncherServiceC starts actions using OnClickToastOrAction.kindAction after the user has
@@ -32,13 +32,15 @@ public class LauncherServiceC extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent inIntent) {
-		Log.d(Utils.getAppTag(), Utils.getMethodName());
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 		
 		Uri tmpItemUri = inIntent.getData();
 		if(tmpItemUri != null){
 			//Marking the item
 			Intent tmpMainActivityIntent = new Intent(getApplicationContext(), MainActivityC.class);
-			tmpMainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			tmpMainActivityIntent.setFlags(
+					Intent.FLAG_ACTIVITY_NEW_TASK
+					|Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			tmpMainActivityIntent.putExtra(MainActivityC.EXTRA_URI_AS_STRING, tmpItemUri.toString());
 			startActivity(tmpMainActivityIntent); //-intent used in MainActivityC.onCreate
 
@@ -57,7 +59,7 @@ public class LauncherServiceC extends IntentService {
 			try {
 				Thread.sleep(1800);
 			} catch (InterruptedException e) {
-				Log.e(Utils.getAppTag(), "Thread.sleep was interrupted. " + e.getMessage());
+				Log.e(DbgU.getAppTag(), DbgU.getMethodName() + " Thread.sleep interrupted");
 				e.printStackTrace();
 			}
 			

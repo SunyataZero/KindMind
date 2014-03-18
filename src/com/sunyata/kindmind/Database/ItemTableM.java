@@ -6,7 +6,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.util.DatabaseU;
+import com.sunyata.kindmind.util.DbgU;
+import com.sunyata.kindmind.util.OtherU;
+
 
 /*
  * Overview: ItemTableM
@@ -86,7 +89,7 @@ public class ItemTableM {
 	//-------------------Lifecycle methods
 	public static void createTable(SQLiteDatabase inDatabase) {
 		inDatabase.execSQL(CREATE_DATABASE);
-		Log.i(Utils.getAppTag(), "Database version = " + inDatabase.getVersion());
+		Log.i(DbgU.getAppTag(), "Database version = " + inDatabase.getVersion());
 	}
 	
 	
@@ -94,24 +97,25 @@ public class ItemTableM {
 	public static void upgradeTable(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
 		//Upgrading the database by changing the action separator character from " " to ";"
 		if(inOldVersion == 46 && inNewVersion == 47){
-			Cursor tmpItemCursor = inDatabase.query(ItemTableM.TABLE_ITEM, null, null, null, null, null, null);
-			if(tmpItemCursor.getCount() == 0){
-				tmpItemCursor.close();
+			
+			Cursor tItemCr = inDatabase.query(ItemTableM.TABLE_ITEM, null, null, null, null, null, null);
+			if(tItemCr.getCount() == 0){
+				tItemCr.close();
 				return;
 			}
 			final String OLD_SEPARATOR = " ";
-			for(tmpItemCursor.moveToFirst(); tmpItemCursor.isAfterLast() == false; tmpItemCursor.moveToNext()){
-				String tmpActions = tmpItemCursor.getString(tmpItemCursor.getColumnIndexOrThrow(COLUMN_ACTIONS));
-				String tmpId = tmpItemCursor.getString(tmpItemCursor.getColumnIndexOrThrow(COLUMN_ID));
-				tmpActions = tmpActions.replace(OLD_SEPARATOR, Utils.ACTIONS_SEPARATOR);
+			for(tItemCr.moveToFirst(); tItemCr.isAfterLast() == false; tItemCr.moveToNext()){
+				String tmpActions = tItemCr.getString(tItemCr.getColumnIndexOrThrow(COLUMN_ACTIONS));
+				String tmpId = tItemCr.getString(tItemCr.getColumnIndexOrThrow(COLUMN_ID));
+				tmpActions = tmpActions.replace(OLD_SEPARATOR, OtherU.ACTIONS_SEPARATOR);
 				ContentValues tmpContentValues = new ContentValues();
 				tmpContentValues.put(ItemTableM.COLUMN_ACTIONS, tmpActions);
 				inDatabase.update(ItemTableM.TABLE_ITEM, tmpContentValues, COLUMN_ID + "=" + tmpId, null);
 			}
-			tmpItemCursor.close();
+			tItemCr.close();
 			
 		}else{
-			Log.w(Utils.getAppTag(), "Upgrade removed the database with a previous version and created a new one, " +
+			Log.w(DbgU.getAppTag(), "Upgrade removed the database with a previous version and created a new one, " +
 					"all data was deleted");
 			inDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ITEM);
 			createTable(inDatabase);

@@ -29,6 +29,9 @@ import com.sunyata.kindmind.Database.PatternsTableM;
 import com.sunyata.kindmind.List.ListFragmentC;
 import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SortingAlgorithmServiceM;
+import com.sunyata.kindmind.util.DatabaseU;
+import com.sunyata.kindmind.util.DbgU;
+import com.sunyata.kindmind.util.OtherU;
 
 /**
  * \brief MainActivityC holds three ListFragments in a ViewPagerM using FragmentAdapterM.
@@ -69,7 +72,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	@Override
 	protected void onCreate(Bundle inSavedInstanceState) {
 		super.onCreate(inSavedInstanceState);
-		Log.d(Utils.getAppTag(), Utils.getMethodName());
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 
 		//Activating strict mode for debug builds
 		// More info: http://developer.android.com/reference/android/os/StrictMode.html
@@ -80,8 +83,8 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		 */
 
 		//Creation of new list items
-		if(Utils.isFirstTimeApplicationStarted(this) == true){
-			Utils.createAllStartupItems(this);
+		if(DatabaseU.isFirstTimeApplicationStarted(this) == true){
+			DatabaseU.createAllStartupItems(this);
 		}
 
 		//Setting layout and title
@@ -121,7 +124,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	@Override
 	public void onResume(){
 		super.onResume();
-		Log.d(Utils.getAppTag(), Utils.getMethodName());
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 
 		this.extractDataFromLauncherIntent();
 		/*
@@ -147,24 +150,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	 */
 	@Override
 	public void fireSavePatternEvent() {
-		long tmpCurrentTime = Calendar.getInstance().getTimeInMillis();
-		//-getting the time here instead of inside the for statement ensures that we are able
-		// to use the time as way to group items into a pattern.
+	
+		this.saveItemIdsToPatternTable();
 
-		//Iterate through the list items to find the ones that are checked/active..
-		Cursor tItemCr = this.getContentResolver().query(
-				ContentProviderM.ITEM_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
-		for(tItemCr.moveToFirst(); tItemCr.isAfterLast() == false; tItemCr.moveToNext()){
-			if(Utils.sqlToBoolean(tItemCr, ItemTableM.COLUMN_ACTIVE)){
-				//..saving to pattern in database
-				ContentValues tInsContVals = new ContentValues();
-				long tItemId = tItemCr.getInt(tItemCr.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
-				tInsContVals.put(PatternsTableM.COLUMN_ITEM_REFERENCE, tItemId);
-				tInsContVals.put(PatternsTableM.COLUMN_CREATE_TIME, tmpCurrentTime);
-				this.getContentResolver().insert(ContentProviderM.PATTERNS_CONTENT_URI, tInsContVals);
-			}
-		}
-		tItemCr.close();
 		Toast.makeText(this, "KindMind pattern saved", Toast.LENGTH_LONG).show();
 
 		//Limiting the number of rows in the patterns table
@@ -172,6 +160,42 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 
 		//Clearing data and updating the gui
 		this.fireClearDatabaseAndUpdateGuiEvent();
+	}
+	private void saveItemIdsToPatternTable(){
+		long tCurrentTime = Calendar.getInstance().getTimeInMillis();
+		//-getting the time here instead of inside the for statement ensures that we are able
+		// to use the time as way to group items into a pattern.
+
+		Cursor tItemCr = this.getContentResolver().query(
+				ContentProviderM.ITEM_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
+		try{
+			if(tItemCr != null && tItemCr.moveToFirst()){
+				
+				//Iterate through the list items to find the ones that are checked/active..
+				for(tItemCr.moveToFirst(); tItemCr.isAfterLast() == false; tItemCr.moveToNext()){
+					if(DatabaseU.sqlToBoolean(tItemCr, ItemTableM.COLUMN_ACTIVE)){
+						//..saving to pattern in database
+						ContentValues tInsContVals = new ContentValues();
+						long tItemId = tItemCr.getInt(tItemCr.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
+						tInsContVals.put(PatternsTableM.COLUMN_ITEM_REFERENCE, tItemId);
+						tInsContVals.put(PatternsTableM.COLUMN_CREATE_TIME, tCurrentTime);
+						this.getContentResolver().insert(ContentProviderM.PATTERNS_CONTENT_URI, tInsContVals);
+						//-it's ok to access the db like this since we are dealing with two separate tables
+					}
+				}
+				
+			}else{
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), new Exception());
+			}
+		}catch(Exception e){
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), e);
+		}finally{
+			if(tItemCr != null){
+				tItemCr.close();
+			}else{
+				Log.w(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor was null when trying to close");
+			}
+		}
 	}
 
 	@Override
@@ -196,7 +220,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		this.getContentResolver().delete(ContentProviderM.PATTERNS_CONTENT_URI, null, null);
 
 		//Adding new data
-		Utils.createAllStartupItems(this);
+		DatabaseU.createAllStartupItems(this);
 
 		//Resetting static variables
 		mViewPager.setCurrentItem(ListTypeM.FEELINGS);
@@ -216,9 +240,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		mFeelingTitle = getResources().getString(R.string.feelings_title);
 		mNeedTitle = getResources().getString(R.string.needs_title);
 		mActionTitle = getResources().getString(R.string.kindness_title);
-		int tmpFeelingsCount = Utils.getActiveListItemCount(this, ListTypeM.FEELINGS);
-		int tmpNeedsCount = Utils.getActiveListItemCount(this, ListTypeM.NEEDS);
-		int tmpActionsCount = Utils.getActiveListItemCount(this, ListTypeM.KINDNESS);
+		int tmpFeelingsCount = DatabaseU.getActiveListItemCount(this, ListTypeM.FEELINGS);
+		int tmpNeedsCount = DatabaseU.getActiveListItemCount(this, ListTypeM.NEEDS);
+		int tmpActionsCount = DatabaseU.getActiveListItemCount(this, ListTypeM.KINDNESS);
 		if(tmpFeelingsCount != 0){mFeelingTitle = mFeelingTitle + " (" + tmpFeelingsCount + ")";}
 		if(tmpNeedsCount != 0){mNeedTitle = mNeedTitle + " (" + tmpNeedsCount + ")";}
 		if(tmpActionsCount != 0){mActionTitle = mActionTitle + " (" + tmpActionsCount + ")";}
@@ -262,7 +286,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			Uri tItemUri = Uri.parse(tmpExtraFromString);
 			if(tItemUri != null){
 
-				Context tmpContentProviderContext = Utils.getContentProviderContext(this);
+				Context tmpContentProviderContext = DatabaseU.getContentProviderContext(this);
 
 				this.clearAllActiveInDatabase(tmpContentProviderContext);
 
@@ -280,33 +304,11 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 
 				this.fireUpdateTabTitlesEvent();
 
-				//Setting up the cursor and extracting the list type..
-				Cursor tItemCr = tmpContentProviderContext.getContentResolver().query(
-						tItemUri, null, null, null, null);
-				tItemCr.moveToFirst();
-				int tmpListType = 0;
-				try{
-					tmpListType = tItemCr.getInt(tItemCr.getColumnIndexOrThrow(
-							ItemTableM.COLUMN_LIST_TYPE));
-				}catch(CursorIndexOutOfBoundsException cioobe){
-					Log.e(Utils.getAppTag(), "extractDataFromLauncherIntent: CursorIndexOutOfBoundsException. "
-							+ "tmpItemUri = " + tItemUri, cioobe);
-					/*
-					 * This problem has only been seen on an emulator and only after we have run auto tests
-					 * 
-    03-02 01:12:39.717: E/AndroidRuntime(2230): Caused by: android.database.CursorIndexOutOfBoundsException: Index 0 requested, with a size of 0
-    03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractCursor.checkPosition(AbstractCursor.java:400)
-    03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractWindowedCursor.checkPosition(AbstractWindowedCursor.java:136)
-    03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractWindowedCursor.getInt(AbstractWindowedCursor.java:68)
-    03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.CursorWrapper.getInt(CursorWrapper.java:102)
-    03-02 01:12:39.717: E/AndroidRuntime(2230): 	at com.sunyata.kindmind.MainActivityC.onCreate(MainActivityC.java:210)
-					 */
-				}finally{
-					tItemCr.close();
-				}
+				//Extracting the list type from the database
+				int tListType = getListTypeFromDb(tmpContentProviderContext, tItemUri);
 
 				//Setting the Viewpager position
-				mViewPager.setCurrentItem(tmpListType);
+				mViewPager.setCurrentItem(tListType);
 			}
 			//Clearing the intent
 			this.getIntent().removeExtra(EXTRA_URI_AS_STRING);
@@ -314,6 +316,49 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			this.setIntent(null);
 		}
 	}
+	
+	private int getListTypeFromDb(Context iContentProviderContext, Uri iItemUri){
+		int rListType = ListTypeM.NOT_SET;
+		
+		Cursor tItemCr = iContentProviderContext.getContentResolver().query(
+				iItemUri, null, null, null, null);
+		tItemCr.moveToFirst();
+		try{
+			if(tItemCr != null && tItemCr.moveToFirst()){
+				
+				rListType = tItemCr.getInt(tItemCr.getColumnIndexOrThrow(
+						ItemTableM.COLUMN_LIST_TYPE));
+				
+			}else{
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), new Exception());
+			}
+		}catch(Exception e){
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), e);
+			/*
+			 * This problem has only been seen on an emulator and only after we have run auto tests
+			 * 
+03-02 01:12:39.717: E/AndroidRuntime(2230): Caused by: android.database.CursorIndexOutOfBoundsException: Index 0 requested, with a size of 0
+03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractCursor.checkPosition(AbstractCursor.java:400)
+03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractWindowedCursor.checkPosition(AbstractWindowedCursor.java:136)
+03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.AbstractWindowedCursor.getInt(AbstractWindowedCursor.java:68)
+03-02 01:12:39.717: E/AndroidRuntime(2230): 	at android.database.CursorWrapper.getInt(CursorWrapper.java:102)
+03-02 01:12:39.717: E/AndroidRuntime(2230): 	at com.sunyata.kindmind.MainActivityC.onCreate(MainActivityC.java:210)
+			 */
+		}finally{
+			if(tItemCr != null){
+				tItemCr.close();
+			}
+		}
+		if(rListType == ListTypeM.NOT_SET){
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " ListType not set",
+					new Exception());
+		}
+		
+		return rListType;
+	}
+	
+	
+	
 
 	/**
 	 * \brief clearAllActiveInDatabase clears all marks for checked/activated list items
@@ -352,7 +397,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	 * deletion from the database we don't get stuck in an infinite loop.
 	 */
 	private void limitPatternsTable(){
-		Log.d(Utils.getAppTag(), Utils.getMethodName());
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 
 		Cursor tmpPatternsCur = null;
 		final int WARNING_LIMIT = 200;
@@ -366,7 +411,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 					PatternsTableM.COLUMN_CREATE_TIME + " ASC");
 
 			//Looping until we are on or under the max limit or rows
-			if(tmpPatternsCur.getCount() <= Utils.MAX_NR_OF_PATTERN_ROWS){
+			if(tmpPatternsCur.getCount() <= OtherU.MAX_NR_OF_PATTERN_ROWS){
 				//-please note that while debugging getCount will not be updated directly
 				tmpPatternsCur.close();
 				return;
@@ -391,7 +436,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 
 		//If we get here it means that we have looped more than the "warning limit" which is an indication that
 		//something has gone wrong
-		Log.w(Utils.getAppTag(),
+		Log.w(DbgU.getAppTag(),
 				"Warning in limitPatternsTable: Number of iterations has reached " + WARNING_LIMIT
 				+ ", exiting method");
 	}
@@ -418,7 +463,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		}
 		@Override
 		public Object instantiateItem (ViewGroup inContainer, int inPosition){
-			Log.v(Utils.getAppTag(), Utils.getMethodName() + ", position = " + inPosition);
+			Log.v(DbgU.getAppTag(), DbgU.getMethodName() + ", position = " + inPosition);
 
 			switch(inPosition){
 			case ListTypeM.FEELINGS:
@@ -435,14 +480,14 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 				break;
 			case ListTypeM.NOT_SET:
 			default:
-				Log.e(Utils.getAppTag(), "Error in instantiateItem: Case not covered or not set");
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Case not covered or not set");
 				break;
 			}
 			return super.instantiateItem(inContainer, inPosition);
 		}
 		@Override
 		public ListFragmentC getItem(int inPosition) {
-			Log.v(Utils.getAppTag(), Utils.getMethodName() + ", position = " + inPosition);
+			Log.d(DbgU.getAppTag(), DbgU.getMethodName() + ", position = " + inPosition);
 
 			switch (inPosition){
 			case ListTypeM.FEELINGS: return mFeelingListFragment;
@@ -450,7 +495,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			case ListTypeM.KINDNESS: return mKindnessListFragment;
 			case ListTypeM.NOT_SET:
 			default:
-				Log.e(Utils.getAppTag(), "Error in method getItem: case not covered or not set");
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Case not covered or not set");
 				return null;
 			}
 		}
@@ -460,7 +505,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		}
 
 		public ListFragmentC getCurrentFragment(){
-			Log.v(Utils.getAppTag(), Utils.getMethodName());
+			Log.v(DbgU.getAppTag(), DbgU.getMethodName());
 
 			ListFragmentC retListFragmentC = this.getItem(
 					mWeakRefToViewPager.get().getCurrentItem());
@@ -485,7 +530,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			Log.d("ViewPager.OnPageChangeListener()", "onPageSelected()");
 
 			//Resetting the sorting
-			Utils.setItemTableSortType(SortTypeM.KINDSORT);
+			DatabaseU.setItemTableSortType(SortTypeM.KINDSORT);
 
 			//Setting the active tab when the user has just side scrolled (swiped) to a new fragment
 			mWeakRefToMainActivity.get().getActionBar().setSelectedNavigationItem(inPos);

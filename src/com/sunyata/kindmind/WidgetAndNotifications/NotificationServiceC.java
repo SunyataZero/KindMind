@@ -16,10 +16,12 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.sunyata.kindmind.R;
-import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 //-NotificationCompat is for api lvl 15 and downwards
+import com.sunyata.kindmind.util.DatabaseU;
+import com.sunyata.kindmind.util.DbgU;
+import com.sunyata.kindmind.util.OtherU;
 
 /*
  * Overview: NotificationServiceC both contain the static method for setting alarms (setServiceNotificationSingle)
@@ -59,34 +61,42 @@ public class NotificationServiceC extends IntentService {
 	 * Uses app internal: this.setServiceNotificationSingle()
 	 */
 	public static void setServiceNotificationAll(Context inContext){
-		long tmpNotification = -1;
-		Uri tmpItemUri = null;
-		
 		//Creating SQL cursor
 		Cursor tmpCursor = inContext.getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
-		if(tmpCursor.getCount() == 0){
-			tmpCursor.close();
-			return;
-		}
-		
-		//Iterating through all the database rows..
-		for(tmpCursor.moveToFirst(); tmpCursor.isAfterLast() == false; tmpCursor.moveToNext()){
-			
-			//..extracting notification data and list item URI
-			tmpNotification = tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
-			tmpItemUri = Uri.withAppendedPath(
-					ContentProviderM.ITEM_CONTENT_URI,
-					"/" +
-					(tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID))));
-			
-			//..if the notification is active, calling setServiceNotificationSingle
-			if(tmpNotification > -1){
-				setServiceNotificationSingle(inContext, tmpItemUri);
+		try{
+			long tmpNotification = -1;
+			Uri tmpItemUri = null;
+			if(tmpCursor != null && tmpCursor.moveToFirst()){
+
+				//Iterating through all the database rows..
+				while(tmpCursor.moveToNext()){
+					
+					//..extracting notification data and list item URI
+					tmpNotification = tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
+					tmpItemUri = Uri.withAppendedPath(
+							ContentProviderM.ITEM_CONTENT_URI,
+							"/" +
+							(tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID))));
+					
+					//..if the notification is active, calling setServiceNotificationSingle
+					if(tmpNotification > -1){
+						setServiceNotificationSingle(inContext, tmpItemUri);
+					}
+					
+				}
+			}else{
+				Log.w(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor was null or empty");
+			}
+		}catch(Exception e){
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), e);
+		}finally{
+			if(tmpCursor != null){
+				tmpCursor.close();
+			}else{
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), new Exception());
 			}
 		}
-		
-		tmpCursor.close();
 	}
 	
 	
@@ -96,21 +106,37 @@ public class NotificationServiceC extends IntentService {
 	 * Uses Android lib: AlarmManager.setRepeating()
 	 */
 	public static void setServiceNotificationSingle(Context inContext, Uri inItemUri){
-		//Setting up an SQL cursor to point to the row for the item URI
-		Cursor tmpCur = inContext.getContentResolver().query(inItemUri, null, null, null, ContentProviderM.sSortType);
-		if(tmpCur.getCount() == 0){
-			tmpCur.close();
-			return;
+		//Extracting several values from the db
+		long tItemId = 0;
+		String tmpItemIdAsString = "";
+		String tmpItemName = "";
+		boolean tmpItemNotificationIsActive = false;
+		long tmpItemTimeInMilliSeconds = DbgU.NO_VALUE_SET;
+		Cursor tItemCr = inContext.getContentResolver().query(
+				inItemUri, null, null, null, ContentProviderM.sSortType);
+		try{
+			if(tItemCr != null && tItemCr.moveToFirst()){
+
+				//Extracting data values from the cursor/database-row for use later in this method..
+				tItemId = tItemCr.getLong(tItemCr.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
+				tmpItemIdAsString = Long.valueOf(tItemId).toString();
+				tmpItemName = tItemCr.getString(tItemCr.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
+				tmpItemNotificationIsActive = true;
+				tmpItemTimeInMilliSeconds = tItemCr.getLong(tItemCr.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
+
+			}else{
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor was null or empty",
+						new Exception());
+			}
+		}catch(Exception e){
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), e);
+		}finally{
+			if(tItemCr != null){
+				tItemCr.close();
+			}else{
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), new Exception());
+			}
 		}
-		tmpCur.moveToFirst();
-		
-		//Extracting data values from the cursor/database-row for use later in this method..
-		String tmpItemIdAsString = Long.valueOf(
-				tmpCur.getLong(tmpCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ID)))
-						.toString();
-		String tmpItemName = tmpCur.getString(tmpCur.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
-		boolean tmpItemNotificationIsActive = true;
-		long tmpItemTimeInMilliSeconds = tmpCur.getLong(tmpCur.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
 		
 		//Checking whether or not notifications are active for this list item
 		if(tmpItemTimeInMilliSeconds == ItemTableM.FALSE ){
@@ -124,8 +150,8 @@ public class NotificationServiceC extends IntentService {
 		tmpIntent.putExtra(NOTIFICATION_TITLE, tmpItemName);
 
 		//Setting the repeating alarm, or cancelling it (depending on database value)
-		PendingIntent tmpPendingIntentToRepeat = PendingIntent.getService(
-				inContext, 0, tmpIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
+		PendingIntent tPendingIntentToRepeat = PendingIntent.getService(inContext,
+				OtherU.longToIntCutOff(tItemId), tmpIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
 		AlarmManager tmpAlarmManager = (AlarmManager)inContext.getSystemService(Context.ALARM_SERVICE);
 
 		/*
@@ -133,9 +159,9 @@ public class NotificationServiceC extends IntentService {
 		*/
 		
 		if(tmpItemNotificationIsActive == true){
-			tmpAlarmManager.cancel(tmpPendingIntentToRepeat); //-Cancelling first
-			Log.i(Utils.getAppTag(), "date = " + new Date(tmpItemTimeInMilliSeconds));
-			tmpAlarmManager.set(AlarmManager.RTC, tmpItemTimeInMilliSeconds, tmpPendingIntentToRepeat);
+			tmpAlarmManager.cancel(tPendingIntentToRepeat); //-Cancelling first
+			Log.i(DbgU.getAppTag(), "date = " + new Date(tmpItemTimeInMilliSeconds));
+			tmpAlarmManager.set(AlarmManager.RTC, tmpItemTimeInMilliSeconds, tPendingIntentToRepeat);
 			/*
 			tmpAlarmManager.setRepeating(AlarmManager.RTC, tmpNextTimeInFuture, AlarmManager.INTERVAL_DAY,
 					tmpPendingIntentToRepeat);
@@ -145,11 +171,9 @@ public class NotificationServiceC extends IntentService {
 			// that UTC is used.
 		}else{
 			//Cancel the notifications
-			tmpAlarmManager.cancel(tmpPendingIntentToRepeat);
-			tmpPendingIntentToRepeat.cancel();
+			tmpAlarmManager.cancel(tPendingIntentToRepeat);
+			tPendingIntentToRepeat.cancel();
 		}
-		
-		tmpCur.close();
 	}
 	
 	
@@ -170,11 +194,11 @@ public class NotificationServiceC extends IntentService {
 	 */
 	@Override
 	protected void onHandleIntent(Intent inIntent) {
-		Log.d(Utils.getAppTag(), "In method onHandleIntent: One intent received");
+		Log.d(DbgU.getAppTag(), "In method onHandleIntent: One intent received");
 		
 		//Extracting data attached to the intent coming in to this method
 		String tmpIdStringFromListDataItem = inIntent.getStringExtra(ITEM_ID);
-		Uri tmpItemUri = Utils.getItemUriFromId(Long.valueOf(tmpIdStringFromListDataItem));
+		Uri tmpItemUri = DatabaseU.getItemUriFromId(Long.valueOf(tmpIdStringFromListDataItem));
 		String tmpTitleStringFromListDataItem = inIntent.getStringExtra(NOTIFICATION_TITLE);
 
 		//Building the pending intent that will start LauncherServiceC
@@ -195,31 +219,44 @@ public class NotificationServiceC extends IntentService {
 		//Displaying the notification
 		NotificationManager tmpNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 		tmpNotificationManager.notify(tmpIdStringFromListDataItem,
-				Utils.longToIntCutOff(Long.parseLong(tmpIdStringFromListDataItem)), tmpNotification);
+				OtherU.longToIntCutOff(Long.parseLong(tmpIdStringFromListDataItem)), tmpNotification);
 		
 		//Updating the value of the notification in the database
-		Context tmpContext = Utils.getContentProviderContext(this.getApplicationContext());
+		Context tmpContext = DatabaseU.getContentProviderContext(this.getApplicationContext());
 		long tmpNewNotificationValue = findNextTimeInFuture(tmpContext, tmpItemUri);
 		ContentValues tmpContentValue = new ContentValues();
 		tmpContentValue.put(ItemTableM.COLUMN_NOTIFICATION, tmpNewNotificationValue);
 		tmpContext.getContentResolver().update(tmpItemUri, tmpContentValue, null, null);
 	}
 	
-	/*
-	 * Overview: findNextTimeInFuture finds and returns the next notification time in the future that occurs on
-	 *  the same time of day as the old notification time
-	 * Used in: onHandleIntent
+	/**
+	 * \brief findNextTimeInFuture finds and returns the next notification time in the
+	 * future that occurs on the same time of day as the old notification time.
 	 */
 	private static long findNextTimeInFuture(Context inContentProviderContext, Uri inItemUri){
-		long retNotificationTime;
+		long retNotificationTime = DbgU.NO_VALUE_SET;
 		
 		//Extracting notification time from database
 		Cursor tmpCursor = inContentProviderContext.getContentResolver().query(inItemUri, null, null, null, null);
-		tmpCursor.moveToFirst();
-		retNotificationTime = tmpCursor.getLong(
-				tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
-		tmpCursor.close();
 		
+		try{
+			if(tmpCursor != null && tmpCursor.moveToFirst()){
+				retNotificationTime = tmpCursor.getLong(
+						tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
+			}else{
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), new Exception());
+			}
+		}catch(Exception e){
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), e);
+		}finally{
+			if(tmpCursor != null){
+				tmpCursor.close();
+			}
+		}
+		if(retNotificationTime == DbgU.NO_VALUE_SET){
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), new Exception());
+		}
+
 		//Loop past previous times until we find a time in the future
 		while(retNotificationTime <= System.currentTimeMillis()){
 			retNotificationTime = retNotificationTime + AlarmManager.INTERVAL_DAY;

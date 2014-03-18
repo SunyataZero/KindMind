@@ -1,13 +1,13 @@
 package com.sunyata.kindmind;
 
-import com.sunyata.kindmind.List.ListFragmentC;
-
-import com.sunyata.kindmind.R;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.sunyata.kindmind.List.ListFragmentC;
+import com.sunyata.kindmind.util.DbgU;
 
 public abstract class SingleFragmentActivityC extends Activity {
 
@@ -16,7 +16,7 @@ public abstract class SingleFragmentActivityC extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		Log.d(Utils.getAppTag(), Utils.getMethodName());
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 		
 		setContentView(R.layout.activity_fragment);
 		FragmentManager fm = getFragmentManager();

@@ -1,10 +1,10 @@
 package com.sunyata.kindmind.Database;
 
+import com.sunyata.kindmind.util.DatabaseU;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
-import com.sunyata.kindmind.Utils;
 
 /*
  * Overview: DatabaseHelperM is a helper class that is used for database creation and upgrade between versions
@@ -64,7 +64,7 @@ public class DatabaseHelperM extends SQLiteOpenHelper{
 	@Override
 	public void onUpgrade(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
 		//Making a backup of the previous version of the database file
-		Utils.databaseBackupInternal(sContext, DATABASE_NAME, inOldVersion);
+		DatabaseU.databaseBackupInternal(sContext, DATABASE_NAME, inOldVersion);
 		
 		//Upgrading for all the tables
 		if(inOldVersion == 46 && inNewVersion == 47){

@@ -13,8 +13,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.sunyata.kindmind.R;
-import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.List.ListTypeM;
+import com.sunyata.kindmind.util.DbgU;
 
 public class WidgetConfigActivityC extends Activity {
 
@@ -74,7 +74,8 @@ public class WidgetConfigActivityC extends Activity {
 				}else if(mKindnessRadioButton.isChecked()){
 					tmpListType = ListTypeM.KINDNESS;
 				}else{
-					Log.e(Utils.getAppTag(), "Error in onClick: Radio button not covered in if statements");
+					Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + 
+							" Radio button not covered in if statements");
 					finish();
 				}
 				getSharedPreferences(WIDGET_CONFIG_LIST_TYPE_PREFERENCES, Context.MODE_PRIVATE).edit()

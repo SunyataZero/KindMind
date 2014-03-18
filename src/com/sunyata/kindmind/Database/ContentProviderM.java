@@ -14,7 +14,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.sunyata.kindmind.SortTypeM;
-import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.util.DatabaseU;
 
 /*
  * Overview: ContentProviderM
@@ -95,7 +95,7 @@ public class ContentProviderM extends ContentProvider {
 	@Override
 	public boolean onCreate() {
 		mDatabaseHelper = DatabaseHelperM.get(getContext());
-		Utils.setItemTableSortType(SortTypeM.KINDSORT);
+		DatabaseU.setItemTableSortType(SortTypeM.KINDSORT);
 		return true;
 	}
 	
@@ -130,14 +130,14 @@ public class ContentProviderM extends ContentProvider {
 		// 2. The database reference is local, but this method can be called again and will then return the
 		//  same database if it already has been created
 		
-		Cursor retCursor = tmpQueryBuilder.query(
+		Cursor rCursor = tmpQueryBuilder.query(
 				tmpSQLiteDatabase, inProj, inSel, inSelArgs, null, null, inSortOrder);//ItemTableM.COLUMN_NAME
 		/*
 		 * Why can't we use Utils.sSortType here? according do the debgging we have the expected value in Utils.sSortType,
 		 *  but it only works ok when setting the value here.
 		 */
 		
-		retCursor.setNotificationUri(getContext().getContentResolver(), inUri);
+		rCursor.setNotificationUri(getContext().getContentResolver(), inUri);
 		//-Please note that this differs from the update that is done in (for example) the insert method
 		/* From the documentation:
 		 * Parameters
@@ -145,7 +145,7 @@ public class ContentProviderM extends ContentProvider {
 		 * uri	The content URI to watch.
 		 */
 		
-		return retCursor;
+		return rCursor;
 	}
 
 	/*

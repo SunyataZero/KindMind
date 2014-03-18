@@ -4,20 +4,19 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Browser;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
+import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -39,13 +38,15 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.sunyata.kindmind.R;
-import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.List.ListFragmentC;
 import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SetupActionOnClickListenerC;
 import com.sunyata.kindmind.WidgetAndNotifications.NotificationServiceC;
-import com.sunyata.kindmind.WidgetAndNotifications.WidgetProviderC;
+import com.sunyata.kindmind.util.DbgU;
+import com.sunyata.kindmind.util.FileU;
+import com.sunyata.kindmind.util.ItemActionsU;
+import com.sunyata.kindmind.util.OtherU;
 
 /*
  * Overview: SetupFragmentC handles data for a single list item (row in the SQL database).
@@ -108,8 +109,11 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
     	//-super not called in the Big Nerd Ranch book
-    	Log.d(Utils.getAppTag(), Utils.getMethodName());
+    	Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 
+    	int tListType = ListTypeM.NOT_SET;
+    	String tItemName = "";
+    	
     	//Inflating the layout
     	View v = inflater.inflate(R.layout.fragment_item_setup, parent, false);
 
@@ -124,26 +128,38 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 
     	//Getting the SQL cursor for the list item URI
     	String[] tmpProjection = {ItemTableM.COLUMN_LIST_TYPE, ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_NOTIFICATION};
-    	Cursor tmpItemCur = getActivity().getApplicationContext().getContentResolver().query(
+    	Cursor tItemCr = getActivity().getApplicationContext().getContentResolver().query(
     			refItemUri, tmpProjection, null, null, null);
-    	boolean tmpCursorIsEmpty = !tmpItemCur.moveToFirst();
-    	if(tmpCursorIsEmpty){
-    		Log.e(Utils.getAppTag(), "Error in method fillDataFromContentProvider: Cursor is empty");
+    	try{
+	    	if(tItemCr != null && tItemCr.moveToFirst()){
+	    		//Setting the list type enum value
+	    		refListType = tItemCr.getInt(tItemCr.getColumnIndexOrThrow(
+	    				ItemTableM.COLUMN_LIST_TYPE));
+	    		
+	    		//Setting the name of the item
+	    		tItemName = tItemCr.getString(tItemCr.getColumnIndexOrThrow(
+	    				ItemTableM.COLUMN_NAME));
+	    	}else{
+	    		Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor is null or empty");
+	    		getActivity().finish();
+	    		return v;
+	    	}
+    	}catch(Exception e){
+    		Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Exception for cursor");
     		getActivity().finish();
     		return v;
+    	}finally{
+    		if(tItemCr != null){
+    			tItemCr.close();
+    		}
     	}
-
-    	//Setting the list type enum value
-    	refListType = tmpItemCur.getInt(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_LIST_TYPE));
-    	//-Please note: We need to move the cursor to the first position before using .getString() (see above)
 
     	
     	//--------------Title
     	
     	//Storing reference to EditText button containing list item name (from the SQL database)..
     	mItemEditText = (EditText)v.findViewById(R.id.listitem_name);
-    	mItemEditText.setText(
-    			tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME)));
+    	mItemEditText.setText(tItemName);
 
     	//..adding a text changed listener for when the text changes..
     	mItemEditText.addTextChangedListener(new TextWatcher() {
@@ -151,11 +167,11 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     		public void onTextChanged(CharSequence s, int start, int before, int count) {
     			try{
     				//..update the SQL database
-    				ContentValues tmpContentValues = new ContentValues();
-    				tmpContentValues.put(ItemTableM.COLUMN_NAME, s.toString());
-    				getActivity().getContentResolver().update(refItemUri, tmpContentValues, null, null);
+    				ContentValues tContentVals = new ContentValues();
+    				tContentVals.put(ItemTableM.COLUMN_NAME, s.toString());
+    				getActivity().getContentResolver().update(refItemUri, tContentVals, null, null);
     			}catch(NullPointerException npe){
-    				Log.e(Utils.getAppTag(), "NullPointerException in method onTextChanged");
+    				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + "NPE");
     			}
     		}
     		@Override
@@ -211,70 +227,101 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
     	mActionOnClickTextView = (TextView) v.findViewById(R.id.actionOnClickTextView);
     	
     	mNewActionButton = (Button) v.findViewById(R.id.newActionButton);
-    	
+
     	if(refListType == ListTypeM.KINDNESS){
-	    	
-	    	ArrayList<CharSequence> tmpArrayList = new ArrayList<CharSequence>();
-	    	tmpArrayList.add("Image");
-	    	tmpArrayList.add("Audio");
-	    	tmpArrayList.add("Video");
-	    	tmpArrayList.add("Contact");
-	    	tmpArrayList.add("Bookmark");
-	    	///tmpArrayList.add("Custom File");
-	    	///tmpArrayList.add("Custom String");
-	    	
-	    	mTypeChooserButtonAdapter = new ArrayAdapter<CharSequence>(
-	    			getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, tmpArrayList);
-	    	
-	    	mNewActionButton.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					new AlertDialog.Builder(getActivity()).setTitle("Type of action")
-					.setAdapter(mTypeChooserButtonAdapter, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							
-							switch(which){
-							case 0: //--------------Image
-	
-						    	//Setup of image chooser button..
-						    	//..using an external image app for choosing an image
-						    	final Intent tmpImageIntent = new Intent(
-						    			Intent.ACTION_PICK,
-						    			android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI); //-Images
-						    	startActivityForResult(tmpImageIntent, REQUEST_IMAGEFILECHOOSER);
-						    	//-results handled below in the "onActivityResult" method
-								
-								break;
-							case 1: //--------------Audio
-								final Intent tmpAudioIntent = new Intent(
-						    			Intent.ACTION_PICK,
-						    			android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
-								startActivityForResult(tmpAudioIntent, REQUEST_AUDIOFILECHOOSER);
-								break;
-							case 2: //--------------Video
-								//PLEASE NOTE: There is a bug in Android that gives an error when launching
-								// this intent in the emulator (there is no problem on physical device).
-								// More info:
-								// http://stackoverflow.com/questions/19181432/java-lang-securityexception-permission-denial-intent-in-new-version-4-3
-								final Intent tmpVideoIntent = new Intent(
-						    			Intent.ACTION_PICK,
-						    			android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-								startActivityForResult(tmpVideoIntent, REQUEST_VIDEOFILECHOOSER);
-								break;
-							case 3: //--------------Contact
-						    	final Intent tmpContactIntent = new Intent(
-						    			Intent.ACTION_PICK,
-						    			ContactsContract.Contacts.CONTENT_URI);
-						    			startActivityForResult(tmpContactIntent, REQUEST_CONTACTCHOOSER);
-								break;
-							case 4: //--------------Bookmark
-				    			final Intent tmpBookmarkIntent = new Intent(getActivity(), BookmarkChooserActivityC.class);
-				    			tmpBookmarkIntent.putExtra(ListFragmentC.EXTRA_LIST_TYPE, refListType);
-				    			//-Extracted in SingleFragmentActivityC
-				    			startActivityForResult(tmpBookmarkIntent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
-								break;
-								/*
+
+    		ArrayList<CharSequence> tmpArrayList = new ArrayList<CharSequence>();
+    		tmpArrayList.add(getActivity().getResources().getString(
+    				R.string.image_file_chooser_button_title));
+    		tmpArrayList.add(getActivity().getResources().getString(
+    				R.string.audio_file_chooser_button_title));
+    		tmpArrayList.add(getActivity().getResources().getString(
+    				R.string.video_file_chooser_button_title));
+    		tmpArrayList.add(getActivity().getResources().getString(
+    				R.string.contact_chooser_button_title));
+    		tmpArrayList.add(getActivity().getResources().getString(
+    				R.string.bookmark_chooser_button_title));
+    		///tmpArrayList.add("Custom File");
+    		///tmpArrayList.add("Custom String");
+
+    		mTypeChooserButtonAdapter = new ArrayAdapter<CharSequence>(
+    				getActivity().getApplicationContext(), android.R.layout.simple_list_item_1,
+    				tmpArrayList);
+
+    		//PLEASE NOTE: The inner class below could not be made into a private static
+    		//class, we won't get any response from the book mark chooser activity.
+    		//A guess is that we need to be in the same activity/fragment as the one that
+    		//handles the responses.
+    		//TODO: How can this be solved so that there are no memory leaks?
+    		mNewActionButton.setOnClickListener(new OnClickListener() {
+    			@Override
+    			public void onClick(View v) {
+    				new AlertDialog.Builder(getActivity()).setTitle("Type of action")
+    				.setAdapter(mTypeChooserButtonAdapter, new DialogInterface.OnClickListener() {
+    					@Override
+    					public void onClick(DialogInterface dialog, int which) {
+
+    						switch(which){
+    						case 0: //--------------Image
+
+    							//Setup of image chooser button..
+    							//..using an external image app for choosing an image
+    							final Intent tmpImageIntent = new Intent(
+    									Intent.ACTION_PICK,
+    									android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI); //-Images
+    							startActivityForResult(tmpImageIntent, REQUEST_IMAGEFILECHOOSER);
+    							//-results handled below in the "onActivityResult" method
+
+    							break;
+    						case 1: //--------------Audio
+    							final Intent tmpAudioIntent = new Intent(
+    									Intent.ACTION_PICK,
+    									android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+    							startActivityForResult(tmpAudioIntent, REQUEST_AUDIOFILECHOOSER);
+    							break;
+    						case 2: //--------------Video
+    							
+    							
+
+    							
+    							
+    							//PLEASE NOTE: There is a bug in Android that gives an error when launching
+    							//this intent. More info:
+    							//http://stackoverflow.com/questions/19181432/java-lang-securityexception-permission-denial-intent-in-new-version-4-3
+   							  //http://code.google.com/p/android/issues/detail?id=60725
+    							//TODO: Try to handle this more gracefully below
+    							final Intent tmpVideoIntent = new Intent(
+    									Intent.ACTION_PICK,
+    									android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+    							try{
+    								startActivityForResult(tmpVideoIntent, REQUEST_VIDEOFILECHOOSER);
+    							}catch(Exception e){
+    								Log.w(DbgU.getAppTag(), DbgU.getMethodName()
+    										+ " Error may be because of bug in Android 4.3"
+    										+ " where the video chooser activity is not exported."
+    										+ " Instead using app-internal chooser");
+    								
+      							final Intent tmpInternalVideoIntent = new Intent(
+      									getActivity(), VideoChooserActivity.class);
+      							startActivityForResult(tmpInternalVideoIntent, REQUEST_VIDEOFILECHOOSER);
+    								
+    							}
+    							break;
+    							
+    						case 3: //--------------Contact
+    							final Intent tmpContactIntent = new Intent(
+    									Intent.ACTION_PICK,
+    									ContactsContract.Contacts.CONTENT_URI);
+    							startActivityForResult(tmpContactIntent, REQUEST_CONTACTCHOOSER);
+    							break;
+    						case 4: //--------------Bookmark
+    							
+    							final Intent tmpBookmarkIntent = new Intent(getActivity(), BookmarkChooserActivityC.class);
+    							tmpBookmarkIntent.putExtra(ListFragmentC.EXTRA_LIST_TYPE, refListType);
+    							startActivityForResult(tmpBookmarkIntent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
+    							break;
+    							
+    							/*
 							case 5: //--------------Custom file
 				    			//Alternative solution that searches through a volume:
 				    			// http://stackoverflow.com/questions/10384080/mediastore-uri-to-query-all-types-of-files-media-and-non-media
@@ -285,25 +332,24 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 				    			startActivityForResult(customFileIntent, REQUEST_CUSTOMFILECHOOSER);
 				    			//-Calling FileChooserActivityC
 								break;
-								*/
-							default:
-								break;
-							}
-							
-							dialog.dismiss();
-						}
-					}).create().show();
-				}
-			});
-	
-	    	this.updateActionList(v);
-    		
+    							 */
+    						default:
+    							break;
+    						}
+
+    						dialog.dismiss();
+    					}
+    				}).create().show();
+    			}
+    		});
+
+    		this.updateActionList(v);
+
     	}else{ //Feelings or needs
     		mActionOnClickTextView.setVisibility(View.GONE);
     		mNewActionButton.setVisibility(View.GONE);
     	}
 
-    	tmpItemCur.close();
     	return v;
     }
 
@@ -319,7 +365,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		String tmpFilePath = "";
 		
 		if(inResultCode != Activity.RESULT_OK){
-			Log.w(Utils.getAppTag(),"Warning in onActivityResult(): inResultCode was not RESULT_OK");
+			Log.w(DbgU.getAppTag(),"Warning in onActivityResult(): inResultCode was not RESULT_OK");
 			return;
 		}
 		
@@ -331,7 +377,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		case REQUEST_AUDIOFILECHOOSER:
 			//-same as video for now
 		case REQUEST_VIDEOFILECHOOSER:
-			tmpFilePath = Utils.getFilePathFromIntent(getActivity(), inIntent);
+			tmpFilePath = FileU.getFilePathFromMediaIntent(getActivity(), inIntent);
 			break;
 		case REQUEST_CUSTOMFILECHOOSER:
 			tmpFilePath = inIntent.getStringExtra(
@@ -353,27 +399,43 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			 * http://stackoverflow.com/questions/4275167/how-to-open-a-contact-card-in-android-by-id
 			 */
 			
-
-			Cursor tmpContactsCur = getActivity().getContentResolver().query(
-					inIntent.getData(), null, null, null, null);
-			if(tmpContactsCur.getCount() == 0){
-				tmpContactsCur.close();
-				return;
-			}
-			tmpContactsCur.moveToFirst();
-			Uri tmpLookupUri = Uri.withAppendedPath(
-					Contacts.CONTENT_LOOKUP_URI,
-					tmpContactsCur.getString(tmpContactsCur.getColumnIndexOrThrow(ContactsContract.Contacts.LOOKUP_KEY)));
-			tmpFilePath = tmpLookupUri.toString();
 			
-			tmpContactsCur.close();
+			
+			Uri tmpLookupUri = null;
+			Cursor tContactsCr = getActivity().getContentResolver().query(
+					inIntent.getData(), null, null, null, null);
+    	try{
+	    	if(tContactsCr != null && tContactsCr.moveToFirst()){
+
+	    		tmpLookupUri = Uri.withAppendedPath(Contacts.CONTENT_LOOKUP_URI,
+	  					tContactsCr.getString(tContactsCr.getColumnIndexOrThrow(
+	  							ContactsContract.Contacts.LOOKUP_KEY)));
+
+	    	}else{
+	    		Log.w(DbgU.getAppTag(), DbgU.getMethodName() + " Contacts cursor empty");
+					return;
+	    	}
+    	}catch(Exception e){
+    		Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Contacts cursor exception");
+				return;
+    	}finally{
+    		if(tContactsCr != null){
+    			tContactsCr.close();
+    		}
+    	}
+    	if(tmpLookupUri == null){
+    		Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " tmpLookupUri is null");
+    	}
+			
+    	tmpFilePath = tmpLookupUri.toString();
+
 			break;
 		case REQUEST_BOOKMARKCHOOSER:
 			tmpFilePath = inIntent.getStringExtra(
 					BookmarkChooserFragmentC.EXTRA_RETURN_VALUE_FROM_BOOKMARK_CHOOSER_FRAGMENT);
 			break;
 		default:
-			Log.e(Utils.getAppTag(), "Error in onActivityResult(): Case not covered");
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Case not covered");
 			return;
 		}
 		
@@ -381,7 +443,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		//--------------Updating file/dir string value in the database
 		
 		if(tmpFilePath == ""){
-			Log.w(Utils.getAppTag(),
+			Log.w(DbgU.getAppTag(),
 					"Waring in onActivityResult: tmpFilePath is empty even though the result code was RESULT_OK");
 			return;
 		}
@@ -389,13 +451,18 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		//Reading the current string
 		String[] tmpProjection = {ItemTableM.COLUMN_ACTIONS};
 		Cursor tmpItemCur = getActivity().getContentResolver().query(refItemUri, tmpProjection, null, null, null);
-		tmpItemCur.moveToFirst();
+		if(!tmpItemCur.moveToFirst()){
+			tmpItemCur.close();
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Item cursor empty");
+			return;
+		}
 		String tmpActions = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
 		tmpItemCur.close();
 		
 		//Verify that the string to be added does not contain the separator
-		if(tmpFilePath.contains(Utils.ACTIONS_SEPARATOR)){
-			Log.e(Utils.getAppTag(), "Error in onActivityResult: String contains separator character");
+		if(tmpFilePath.contains(OtherU.ACTIONS_SEPARATOR)){
+			Log.e(DbgU.getAppTag(), DbgU.getMethodName() +
+					"String contains separator character, exiting method");
 			return;
 		}
 		
@@ -403,7 +470,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			tmpActions = tmpFilePath;
 		}else{
 			//Updating the string with the appended file path
-			tmpActions = tmpActions + Utils.ACTIONS_SEPARATOR + tmpFilePath;
+			tmpActions = tmpActions + OtherU.ACTIONS_SEPARATOR + tmpFilePath;
 		}
 		
 		//Writing the updated string to the database
@@ -428,7 +495,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		Log.d(Utils.getAppTag(), Utils.getMethodName());
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 		setRetainInstance(true);
 		//-Recommended by CommonsWare:
 		// http://stackoverflow.com/questions/11160412/why-use-fragmentsetretaininstanceboolean
@@ -531,7 +598,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 				this.refItemUri, tmpProjection, null, null, null);
 		tmpItemCur.moveToFirst();
 		String tmpActionsString = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
-    	ArrayList<String> tmpActionsArrayList = Utils.actionsStringToArrayList(tmpActionsString);
+    	ArrayList<String> tmpActionsArrayList = ItemActionsU.actionsStringToArrayList(tmpActionsString);
 
     	LinearLayout tmpActionItem;
 		for(String action : tmpActionsArrayList){
@@ -563,7 +630,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 					tmpItemCur.close();
 					
 					//Removing the matching string
-					tmpActions = Utils.removeStringFromActions(tmpActions, v.getTag().toString());
+					tmpActions = ItemActionsU.removeStringFromActions(tmpActions, v.getTag().toString());
 					
 					//Update the database string
 					ContentValues tmpContentValues = new ContentValues();
@@ -618,7 +685,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	    	///this.updateCursorAdapter();
 			
 			//Updating the app widgets
-			Utils.updateWidgets(getActivity());
+			OtherU.updateWidgets(getActivity());
 			
 			//Remove the list item from the database
 			getActivity().getContentResolver().delete(this.refItemUri, null, null);
@@ -632,6 +699,87 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			return true;
 		default:
 			return super.onOptionsItemSelected(inMenuItem);
+		}
+	}
+	
+	
+	
+
+	public class OnClickOnActionsListenerC implements OnClickListener {
+	
+		@Override
+		public void onClick(View v) {
+			new AlertDialog.Builder(getActivity()).setTitle("Type of action")
+			.setAdapter(mTypeChooserButtonAdapter, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+	
+					switch(which){
+					case 0: //--------------Image
+	
+						//Setup of image chooser button..
+						//..using an external image app for choosing an image
+						final Intent tmpImageIntent = new Intent(
+								Intent.ACTION_PICK,
+								android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI); //-Images
+						startActivityForResult(tmpImageIntent, REQUEST_IMAGEFILECHOOSER);
+						//-results handled below in the "onActivityResult" method
+	
+						break;
+					case 1: //--------------Audio
+						final Intent tmpAudioIntent = new Intent(
+								Intent.ACTION_PICK,
+								android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+						startActivityForResult(tmpAudioIntent, REQUEST_AUDIOFILECHOOSER);
+						break;
+					case 2: //--------------Video
+						//PLEASE NOTE: There is a bug in Android that gives an error when launching
+						//this intent. More info:
+						//http://stackoverflow.com/questions/19181432/java-lang-securityexception-permission-denial-intent-in-new-version-4-3
+						//http://code.google.com/p/android/issues/detail?id=60725
+						//TODO: Try to handle this more gracefully below
+						final Intent tmpVideoIntent = new Intent(
+								Intent.ACTION_PICK,
+								android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+						try{
+							startActivityForResult(tmpVideoIntent, REQUEST_VIDEOFILECHOOSER);
+						}catch(Exception e){
+							Log.e(DbgU.getAppTag(), DbgU.getMethodName()
+									+ " Error may be because of bug in Android 4.3"
+									+ " where the video chooser activity is not exported");
+						}
+						break;
+					case 3: //--------------Contact
+						final Intent tmpContactIntent = new Intent(
+								Intent.ACTION_PICK,
+								ContactsContract.Contacts.CONTENT_URI);
+						startActivityForResult(tmpContactIntent, REQUEST_CONTACTCHOOSER);
+						break;
+					case 4: //--------------Bookmark
+						final Intent tmpBookmarkIntent = new Intent(getActivity(), BookmarkChooserActivityC.class);
+						tmpBookmarkIntent.putExtra(ListFragmentC.EXTRA_LIST_TYPE, refListType);
+						//-Extracted in SingleFragmentActivityC
+						startActivityForResult(tmpBookmarkIntent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
+						break;
+						/*
+					case 5: //--------------Custom file
+		    			//Alternative solution that searches through a volume:
+		    			// http://stackoverflow.com/questions/10384080/mediastore-uri-to-query-all-types-of-files-media-and-non-media
+		    			//..starting a new (app internal) activity (and fragment) for for choosing a file
+						final Intent customFileIntent = new Intent(getActivity(), FileChooserActivityC.class);
+						customFileIntent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
+		    			//-Extracted in SingleFragmentActivityC
+		    			startActivityForResult(customFileIntent, REQUEST_CUSTOMFILECHOOSER);
+		    			//-Calling FileChooserActivityC
+						break;
+						 */
+					default:
+						break;
+					}
+	
+					dialog.dismiss();
+				}
+			}).create().show();
 		}
 	}
 }

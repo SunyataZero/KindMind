@@ -5,6 +5,7 @@
 
     <string name="item_setup_activity_title">Item Setup</string>
     <string name="file_chooser_activity_title">File Chooser</string>
+    <string name="media_chooser_activity_title">Media Chooser</string>
     <string name="bookmark_chooser_activity_title">Bookmark Chooser</string>
     <string name="about_activity_title">About</string>
     
@@ -37,7 +38,7 @@
     <string name="image_file_chooser_button_title">Image</string>
     <string name="audio_file_chooser_button_title">Audio</string>
     <string name="video_file_chooser_button_title">Video</string>
-    <string name="custom_file_chooser_button_title">Custom File</string>
     <string name="contact_chooser_button_title">Contact</string>
     <string name="bookmark_chooser_button_title">Bookmark</string>
+    
 </resources>

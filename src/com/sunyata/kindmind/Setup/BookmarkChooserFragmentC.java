@@ -1,5 +1,7 @@
 package com.sunyata.kindmind.Setup;
 
+import com.sunyata.kindmind.util.DbgU;
+
 import android.app.Activity;
 import android.app.ListFragment;
 import android.content.ContentResolver;
@@ -7,6 +9,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.Browser;
+import android.provider.MediaStore;
+import android.provider.MediaStore.Video;
+import android.provider.MediaStore.Audio.Media;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,8 +20,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-
-import com.sunyata.kindmind.Utils;
 
 public class BookmarkChooserFragmentC extends ListFragment {
 
@@ -44,8 +47,12 @@ public class BookmarkChooserFragmentC extends ListFragment {
 		String[] tmpProjection = new String[]{
 				Browser.BookmarkColumns._ID, Browser.BookmarkColumns.TITLE, Browser.BookmarkColumns.URL};
 		*/
-		String[] tmpDatabaseFrom = new String[]{Browser.BookmarkColumns.TITLE, Browser.BookmarkColumns.URL};
-		int[] tmpDatabaseTo = new int[]{android.R.id.text1, android.R.id.text2}; //R.layout.file_list_item
+		String[] tmpDatabaseFrom = new String[]{
+				Browser.BookmarkColumns.TITLE,
+				Browser.BookmarkColumns.URL};
+		int[] tmpDatabaseTo = new int[]{
+				android.R.id.text1,
+				android.R.id.text2};
 		
 		String tmpSelection = android.provider.Browser.BookmarkColumns.BOOKMARK;
 		
@@ -63,50 +70,27 @@ public class BookmarkChooserFragmentC extends ListFragment {
 		
 		//Not closing the cursor since it is used for the adapter
 	}
-	
+
 	@Override
-    public void onActivityCreated(Bundle inSavedInstanceState){
-    	super.onActivityCreated(inSavedInstanceState);
-    	Log.d(Utils.getAppTag(), Utils.getMethodName());
-    	
-    	
-    	this.updateListWithNewData();
-    	
-    	
-    	super.getListView().setOnItemClickListener(new OnItemClickListener() {
+	public void onActivityCreated(Bundle inSavedInstanceState){
+		super.onActivityCreated(inSavedInstanceState);
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName());
+
+
+		this.updateListWithNewData();
+
+
+		super.getListView().setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> adapter, View inView, int inPosition, long inId) {
-				
+
 				String tmpBookmarkUrl = (String)((TextView) inView.findViewById(android.R.id.text2)).getText();
-				
+
 				Intent tmpIntent = new Intent();
 				tmpIntent.putExtra(EXTRA_RETURN_VALUE_FROM_BOOKMARK_CHOOSER_FRAGMENT, tmpBookmarkUrl);
 				getActivity().setResult(Activity.RESULT_OK, tmpIntent);
 				getActivity().finish();
-				
-				/*
-				CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox));
-				
-				tmpCheckBox.toggle();
-
-				Uri tmpUri = Uri.parse(ListContentProviderM.CONTENT_URI + "/" + inId);
-				ContentValues tmpContentValues = new ContentValues();
-				tmpContentValues.put(ItemTableM.COLUMN_ACTIVE, tmpCheckBox.isChecked());
-				//-Boolean stored as 0 (false) or 1 (true)
-				getActivity().getContentResolver().update(tmpUri, tmpContentValues, null, null);
-				
-				
-				//mToastBehaviour.toast(); //Också för när man klickar på själva checkboxen
-				
-				Cursor tmpCursor = getActivity().getContentResolver().query(tmpUri, null, null, null, Utils.sSortType);
-				tmpCursor.moveToFirst();
-				String tmpFilePath = tmpCursor.getString(
-						tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_FILEORDIRPATH));
-				//mKindActionBehaviour.kindAction(tmpFilePath);
-				 */
-				
-				
 			}
-    	});
-    }
+		});
+	}
 }

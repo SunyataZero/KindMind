@@ -1,6 +1,6 @@
 package com.sunyata.kindmind.Database;
 
-import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.util.DbgU;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
@@ -26,13 +26,13 @@ public class PatternsTableM {
 	
 	public static void createTable(SQLiteDatabase inDatabase) {
 		inDatabase.execSQL(CREATE_DATABASE);
-		Log.i(Utils.getAppTag(), "Database version = " + inDatabase.getVersion());
+		Log.i(DbgU.getAppTag(), "Database version = " + inDatabase.getVersion());
 	}
 
 	public static void upgradeTable(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
 		
-		Log.w(Utils.getAppTag(), "Upgrade removed the database with a previous version and created a new one, " +
-				"all data was deleted");
+		Log.w(DbgU.getAppTag(), "Upgrade removed the database with a previous version" +
+				" and created a new one, all previous data was deleted");
 		
 		inDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_PATTERNS);
 		createTable(inDatabase);

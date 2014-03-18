@@ -10,11 +10,12 @@ import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.sunyata.kindmind.R;
-import com.sunyata.kindmind.Utils;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SortingAlgorithmServiceM;
+import com.sunyata.kindmind.util.DatabaseU;
+import com.sunyata.kindmind.util.DbgU;
 
 public class RemoteViewsServiceC extends RemoteViewsService {
 	@Override
@@ -45,12 +46,12 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 		 * stores an ApplicationContext for later use
 		 */
 		RemoteViewsFactoryC(Context inContext, Intent inIntent){
-			Log.d(Utils.getAppTag(), Utils.getMethodName());
+			Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 			mContext = inContext;
 			mWidgetId = inIntent.getExtras().getInt(
 					AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
 			if(mWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID){
-				Log.e(Utils.getAppTag(), "Error in constructor KindMindRemoteViewsFactory: INVALID_APPWIDGET_ID");
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " INVALID_APPWIDGET_ID");
 				return;
 			}
 		}
@@ -63,12 +64,12 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 		 */
 		@Override
 		public void onCreate() {
-			Log.d(Utils.getAppTag(), Utils.getMethodName());
+			Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 			mItemCursor = createItemCursor();
 		}
 		@Override
 		public void onDestroy() {
-			Log.d(Utils.getAppTag(), Utils.getMethodName());
+			Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 			if(mItemCursor != null){
 				mItemCursor.close();
 			}
@@ -88,7 +89,7 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 
 		@Override
 		public int getCount() {
-			Log.v(Utils.getAppTag(), Utils.getMethodName());
+			Log.v(DbgU.getAppTag(), DbgU.getMethodName());
 			if(mItemCursor != null){
 				return mItemCursor.getCount();
 			}else{
@@ -98,7 +99,7 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 
 		@Override
 		public long getItemId(int inPosition) {
-			Log.v(Utils.getAppTag(), Utils.getMethodName());
+			Log.v(DbgU.getAppTag(), DbgU.getMethodName());
 			if(mItemCursor != null){
 				return mItemCursor.getLong(mItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
 			}else{
@@ -108,19 +109,19 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 
 		@Override
 		public boolean hasStableIds() {
-			Log.v(Utils.getAppTag(), Utils.getMethodName());
+			Log.v(DbgU.getAppTag(), DbgU.getMethodName());
 			return true;
 		}
 		
 		@Override
 		public int getViewTypeCount() {
-			Log.v(Utils.getAppTag(), Utils.getMethodName());
+			Log.v(DbgU.getAppTag(), DbgU.getMethodName());
 			return 1;
 		}
 		
 		@Override
 		public RemoteViews getLoadingView() {
-			Log.v(Utils.getAppTag(), Utils.getMethodName());
+			Log.v(DbgU.getAppTag(), DbgU.getMethodName());
 			return null;
 		}
 		
@@ -140,7 +141,7 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 		 */
 		@Override
 		public void onDataSetChanged() {
-			Log.d(Utils.getAppTag(), Utils.getMethodName());
+			Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 			
 			//Creating a new cursor
 			mItemCursor = createItemCursor();
@@ -156,7 +157,7 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 		 */
 		@Override
 		public RemoteViews getViewAt(int inPosition) {
-			Log.v(Utils.getAppTag(), Utils.getMethodName() + ", inPosition = " + inPosition);
+			Log.v(DbgU.getAppTag(), DbgU.getMethodName() + ", inPosition = " + inPosition);
 
 			//Moving the cursor to the current position
 			mItemCursor.moveToPosition(inPosition);
@@ -164,7 +165,7 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 			//Extracting values from the database
 			String tmpName = mItemCursor.getString(mItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
 			long tmpItemId = mItemCursor.getLong(mItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
-			Uri tmpItemUri = Utils.getItemUriFromId(tmpItemId);
+			Uri tmpItemUri = DatabaseU.getItemUriFromId(tmpItemId);
 			
 			//Setting up the remote views object
 			RemoteViews retRemoteViews = new RemoteViews(mContext.getPackageName(), R.layout.widget_listitem);
@@ -185,7 +186,7 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 		 *  This method is called from both onCreate and onDataSetChanged
 		 */
 		private Cursor createItemCursor(){
-			Log.d(Utils.getAppTag(), Utils.getMethodName());
+			Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 			
 			//Updating sort values
 			mContext.startService(new Intent(mContext, SortingAlgorithmServiceM.class));
@@ -196,7 +197,7 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 					Context.MODE_PRIVATE).getInt(String.valueOf(mWidgetId),
 					ListTypeM.NOT_SET);
 			if(tmpListType == ListTypeM.NOT_SET){
-				Log.e(Utils.getAppTag(), "Error in onCreate: no list type given");
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " No list type given");
 				return null;
 			}
 			

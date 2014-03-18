@@ -21,6 +21,9 @@ import android.widget.Toast;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.List.ListTypeM;
+import com.sunyata.kindmind.util.DatabaseU;
+import com.sunyata.kindmind.util.DbgU;
+import com.sunyata.kindmind.util.ItemActionsU;
 
 public class OnClickToastOrActionC {
 
@@ -53,11 +56,33 @@ public class OnClickToastOrActionC {
 	public static void randomKindAction(Context inContext, Uri inItemUri) {
 		///Log.d(Utils.getClassName(), "inActionsString = " + tmpActions);
 		
-		//Extracting the actions string from the database
+		String tmpActions = "";
 		String[] tmpProjection = {ItemTableM.COLUMN_ACTIONS};
-		Cursor tmpItemCur = inContext.getContentResolver().query(inItemUri, tmpProjection, null, null, null);
-		tmpItemCur.moveToFirst();
-		String tmpActions = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
+		Cursor tItemCr = inContext.getContentResolver().query(
+				inItemUri, tmpProjection, null, null, null);
+		try{
+			if(tItemCr != null && tItemCr.moveToFirst()){
+				
+				//Extracting the actions string from the database
+				tmpActions = tItemCr.getString(tItemCr.getColumnIndexOrThrow(
+						ItemTableM.COLUMN_ACTIONS));    		
+
+			}else{
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor is null or empty",
+						new Exception());
+				return;
+			}
+		}catch(Exception e){
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Exception for cursor", e);
+			return;
+		}finally{
+			if(tItemCr != null){
+				tItemCr.close();
+			}
+		}
+		//If the string has been cleared (or not set) exiting
+		if(tmpActions.equals("")){return;}
+		
 		/*
 02-27 22:29:51.187: E/AndroidRuntime(20502): android.database.CursorIndexOutOfBoundsException: Index 0 requested, with a size of 0
 02-27 22:29:51.187: E/AndroidRuntime(20502): 	at android.database.AbstractCursor.checkPosition(AbstractCursor.java:400)
@@ -67,20 +92,16 @@ public class OnClickToastOrActionC {
 02-27 22:29:51.187: E/AndroidRuntime(20502): 	at com.sunyata.kindmind.OnClickToastOrActionC.randomKindAction(OnClickToastOrActionC.java:58)
 02-27 22:29:51.187: E/AndroidRuntime(20502): 	at com.sunyata.kindmind.WidgetAndNotifications.LauncherServiceC.onHandleIntent(LauncherServiceC.java:40)
 		 */
-		tmpItemCur.close();
 		
-		//If the string has been cleared (or not set) exiting
-		if(tmpActions.equals("")){
-			return;
-		}
 		
-		ArrayList<String> tmpActionList = Utils.actionsStringToArrayList(tmpActions);
+		
+		ArrayList<String> tmpActionList = ItemActionsU.actionsStringToArrayList(tmpActions);
 		
 		Random tmpRandomNumberGenerator = new Random();
 		int tmpRandomNumber = tmpRandomNumberGenerator.nextInt(tmpActionList.size());
 
 		String tmpRandomlyGivenAction = tmpActionList.get(tmpRandomNumber);
-		Log.d(Utils.getAppTag(), "tmpRandomlyGivenAction = " + tmpRandomlyGivenAction);
+		Log.d(DbgU.getAppTag(), "tmpRandomlyGivenAction = " + tmpRandomlyGivenAction);
 
 		kindAction(inContext, tmpRandomlyGivenAction);
 	}
@@ -236,8 +257,7 @@ public class OnClickToastOrActionC {
 			return mToastNeedsString;
 			
 		default:
-			Log.e(Utils.getAppTag(),
-					"Error in getFormattedStringOfActivatedDataListItems: case not covered in switch statement");
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Case not covered");
 			return null;
 		}
 	}
@@ -247,15 +267,36 @@ public class OnClickToastOrActionC {
 				ItemTableM.COLUMN_ACTIVE + " != " + ItemTableM.FALSE + " AND " +
 				ItemTableM.COLUMN_LIST_TYPE + "=" + inListType;
 		//-Please note that we are adding ' signs around the String
-		Cursor tmpCursor = inContext.getContentResolver().query(
-				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null, ContentProviderM.sSortType);
-		for(tmpCursor.moveToFirst(); tmpCursor.isAfterLast() == false; tmpCursor.moveToNext()){
-			//add name to return list
-			String tmpStringToAdd = tmpCursor.getString(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
-			retActivatedData.add(tmpStringToAdd);
-		}
 		
-		tmpCursor.close();
+		
+		String tmpStringToAdd = "";
+		Cursor tItemCr = inContext.getContentResolver().query(
+				ContentProviderM.ITEM_CONTENT_URI, null, tmpSelection, null,
+				ContentProviderM.sSortType);
+		try{
+			if(tItemCr != null && tItemCr.moveToFirst()){
+
+				while(tItemCr.moveToNext()){
+					tmpStringToAdd = tItemCr.getString(tItemCr.getColumnIndexOrThrow(
+							ItemTableM.COLUMN_NAME));
+					
+					//add name to return list
+					retActivatedData.add(tmpStringToAdd);
+				}
+				
+			}else{
+				Log.d(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor is null or empty" +
+						" (this can be the case if we have no items that are active and is not an error)");
+			}
+		}catch(Exception e){
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Exception for cursor");
+			return null;
+		}finally{
+			if(tItemCr != null){
+				tItemCr.close();
+			}
+		}
+
 		return retActivatedData;
 	}
 	//Recursive method

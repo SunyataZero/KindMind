@@ -17,7 +17,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.sunyata.kindmind.R;
-import com.sunyata.kindmind.Utils;
+import com.sunyata.kindmind.util.DbgU;
+import com.sunyata.kindmind.util.FileU;
 
 public class FileChooserFragmentC extends ListFragment {
 	
@@ -44,7 +45,7 @@ public class FileChooserFragmentC extends ListFragment {
     }
     private void initialize(){
     	
-    	File mDirectoryPath = new File(Utils.getKindMindDirectory());
+    	File mDirectoryPath = new File(FileU.getKindMindDirectory());
     	/*-From the javadoc for getExternalStorageDirectory:
     	 * "Note: don't be confused by the word "external" here.
     	 * This directory can better be thought as media/shared storage.
@@ -68,7 +69,7 @@ public class FileChooserFragmentC extends ListFragment {
     	
     	List<String> tmpList = Arrays.asList(mDirectoryPath.list());
     	if(tmpList == null || tmpList.size() == 0){
-    		Log.w(Utils.getAppTag(), "No files in directory or directory not present");
+    		Log.w(DbgU.getAppTag(), "No files in directory or directory not present");
     		getActivity().finish();
     		return;
     	}
@@ -91,8 +92,8 @@ public class FileChooserFragmentC extends ListFragment {
 			String tmpString = getItem(inPosition);
 			
 			//Setting a prefix that describes if the item that the user is choosing is a file or a directory
-			File tmpFileOrDirectory = new File(Utils.getKindMindDirectory() + "/" + tmpString);
-			Log.i(Utils.getAppTag(), "tmpFileOrDirectory = " + tmpFileOrDirectory);
+			File tmpFileOrDirectory = new File(FileU.getKindMindDirectory() + "/" + tmpString);
+			Log.i(DbgU.getAppTag(), "tmpFileOrDirectory = " + tmpFileOrDirectory);
 			String tmpDirectoryOrFileString = "";
 			if(tmpFileOrDirectory.isDirectory() == true){
 				tmpDirectoryOrFileString = "[Dir]  ";
@@ -119,7 +120,7 @@ public class FileChooserFragmentC extends ListFragment {
 			public void onClick(View inView) {
 				
 				String tmpFilePath = 
-						Utils.getKindMindDirectory() + "/"
+						FileU.getKindMindDirectory() + "/"
 						+ (String)((TextView) inView.findViewById(R.id.file_list_item_titleTextView)).getText();
 
 				Intent tmpIntent = new Intent();
