@@ -1,5 +1,6 @@
 package com.sunyata.kindmind.Setup;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -13,10 +14,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Browser;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
-import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -66,17 +65,15 @@ import com.sunyata.kindmind.util.OtherU;
  */
 public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.OnTimeSetListenerI{
 	
-	//----------------------------Fields
 	private EditText mItemEditText;
-	private int refListType;
 	private Button mNotificationTimePickerButton;
 	private Switch mNotificationSwitch;
+	private TextView mNotificationTextView;
 	private TextView mActionOnClickTextView;
-	private Boolean mSupressEvents = false;
-	
-	private ArrayAdapter<CharSequence> mTypeChooserButtonAdapter;
 	private Button mNewActionButton;
 	
+	private int refListType;
+	private Boolean mSupressEvents = false;
 	private Uri refItemUri; //Used to identify the item (SQL table row)
 	
 	static final int REQUEST_IMAGEFILECHOOSER = 11;
@@ -86,8 +83,22 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	static final int REQUEST_CONTACTCHOOSER = 21;
 	static final int REQUEST_BOOKMARKCHOOSER = 31;
 	
-	//newInstance is a simple static factory method which is used for creating instances of the class.
+	/**
+	 * newInstance is a simple static factory method which is used for creating instances of the class.
+	 * @param inAttachedData
+	 * @return
+	 */
 	//inAttachedData contains the Uri of the list item for the instance that is about to be created.
+	
+	/**
+	 * \brief newInstance is a static factory method creating and setting up the fragment.
+	 * 
+	 * Please note that arguments set for a fragment are retained after the system creates
+	 * new instances of the fragment (calling an implicit constructor which takes no
+	 * arguments)  
+	 * @param inAttachedData contians the URI that identifies the list item
+	 * @return The newly created fragment is returned
+	 */
 	public static Fragment newInstance(Object inAttachedData){
 		Bundle tmpArguments = new Bundle();
 		tmpArguments.putString(ListFragmentC.EXTRA_ITEM_URI, inAttachedData.toString());
@@ -99,259 +110,108 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		return retFragment;
 	}
 	
-	
+
 	//----------------------------onCreateView and onActivityResult
 	//Bundled together since they contain the setup (onCreateView) of the various media chooser buttons
 	// and the handling (onActivityResult) of the results from the (sometimes external) applications.
 
-    //onCreateView mainly contains the setup of the buttons and other widgets. Many of the widgets are only shown
-    // when we have a specific type of list.
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
-    	//-super not called in the Big Nerd Ranch book
-    	Log.d(DbgU.getAppTag(), DbgU.getMethodName());
+	/**
+	 * \brief onCreateView mainly contains the setup of the buttons and other widgets.
+	 * Many of the widgets are only shown when we have a specific type of list.
+	 */
+	public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
+		//-super not called because we inflate the view ourselves
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 
-    	int tListType = ListTypeM.NOT_SET;
-    	String tItemName = "";
-    	
-    	//Inflating the layout
-    	View v = inflater.inflate(R.layout.fragment_item_setup, parent, false);
+		String tItemName = "";
 
-    	//Using the app icon and left caret for hierarchical navigation
-    	if(NavUtils.getParentActivityName(getActivity()) != null){
-    		getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-    	}
+		//Inflating the layout
+		View v = inflater.inflate(R.layout.fragment_item_setup, parent, false);
 
-    	//Storing the URI associated with this list item in "refItemUri"
-    	String tmpArgumentsString = this.getArguments().getString(ListFragmentC.EXTRA_ITEM_URI);
-    	refItemUri = Uri.parse(tmpArgumentsString);
+		//Using the app icon and left caret for hierarchical navigation
+		if(NavUtils.getParentActivityName(getActivity()) != null){
+			getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+		}
 
-    	//Getting the SQL cursor for the list item URI
-    	String[] tmpProjection = {ItemTableM.COLUMN_LIST_TYPE, ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_NOTIFICATION};
-    	Cursor tItemCr = getActivity().getApplicationContext().getContentResolver().query(
-    			refItemUri, tmpProjection, null, null, null);
-    	try{
-	    	if(tItemCr != null && tItemCr.moveToFirst()){
-	    		//Setting the list type enum value
-	    		refListType = tItemCr.getInt(tItemCr.getColumnIndexOrThrow(
-	    				ItemTableM.COLUMN_LIST_TYPE));
-	    		
-	    		//Setting the name of the item
-	    		tItemName = tItemCr.getString(tItemCr.getColumnIndexOrThrow(
-	    				ItemTableM.COLUMN_NAME));
-	    	}else{
-	    		Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor is null or empty");
-	    		getActivity().finish();
-	    		return v;
-	    	}
-    	}catch(Exception e){
-    		Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Exception for cursor");
-    		getActivity().finish();
-    		return v;
-    	}finally{
-    		if(tItemCr != null){
-    			tItemCr.close();
-    		}
-    	}
+		//Storing the URI associated with this list item in "refItemUri"
+		String tmpArgumentsString = this.getArguments().getString(
+				ListFragmentC.EXTRA_ITEM_URI);
+		refItemUri = Uri.parse(tmpArgumentsString);
 
-    	
-    	//--------------Title
-    	
-    	//Storing reference to EditText button containing list item name (from the SQL database)..
-    	mItemEditText = (EditText)v.findViewById(R.id.listitem_name);
-    	mItemEditText.setText(tItemName);
+		//Getting the SQL cursor for the list item URI
+		String[] tmpProjection = {ItemTableM.COLUMN_LIST_TYPE,
+				ItemTableM.COLUMN_NAME, ItemTableM.COLUMN_NOTIFICATION};
+		Cursor tItemCr = getActivity().getApplicationContext().getContentResolver().query(
+				refItemUri, tmpProjection, null, null, null);
+		try{
+			if(tItemCr != null && tItemCr.moveToFirst()){
+				//Setting the list type enum value
+				refListType = tItemCr.getInt(tItemCr.getColumnIndexOrThrow(
+						ItemTableM.COLUMN_LIST_TYPE));
 
-    	//..adding a text changed listener for when the text changes..
-    	mItemEditText.addTextChangedListener(new TextWatcher() {
-    		@Override
-    		public void onTextChanged(CharSequence s, int start, int before, int count) {
-    			try{
-    				//..update the SQL database
-    				ContentValues tContentVals = new ContentValues();
-    				tContentVals.put(ItemTableM.COLUMN_NAME, s.toString());
-    				getActivity().getContentResolver().update(refItemUri, tContentVals, null, null);
-    			}catch(NullPointerException npe){
-    				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + "NPE");
-    			}
-    		}
-    		@Override
-    		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-    		}
-    		@Override
-    		public void afterTextChanged(Editable s) {
-    		}
-    	});
-
-    	
-    	//--------------Daily Reminder
-
-    	mNotificationTimePickerButton = (Button) v.findViewById(R.id.timePickerButton);
-    	mNotificationTimePickerButton.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v) { //-Alt: Using the xml property "android:onClick"
-				//..starting a new (app internal) fragment for for choosing time of day
-				DialogFragment tmpTimePickerFragment = TimePickerFragmentC.newInstance(ItemSetupFragmentC.this);
-				tmpTimePickerFragment.show(getFragmentManager(), "TimePicker");
+				//Setting the name of the item
+				tItemName = tItemCr.getString(tItemCr.getColumnIndexOrThrow(
+						ItemTableM.COLUMN_NAME));
+			}else{
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor is null or empty",
+						new Exception());
+				getActivity().finish();
+				return v;
 			}
-		});
+		}catch(Exception e){
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Exception for cursor", e);
+			getActivity().finish();
+			return v;
+		}finally{
+			if(tItemCr != null){
+				tItemCr.close();
+			}else{
+				Log.w(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor has already been closed",
+						new Exception());
+			}
+		}
 
-    	//Setup of notification checkbox which indicates if a recurring notification will be shown..
-    	mNotificationSwitch = (Switch) v.findViewById(R.id.notificationSwitch);
-    	mNotificationSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener(){
-    		@Override
-    		public void onCheckedChanged(CompoundButton inCompoundButton, boolean inChecked) {
-    			if(mSupressEvents == false){
-    				//Set the time in the database table
-    				if(mNotificationSwitch.isChecked() == false){
-    					updateTimeInDB(ItemTableM.FALSE);
-    				}else{
-        				updateTimeInDB(Calendar.getInstance().getTimeInMillis());
-        				// + 1000 * 60 * 60 * 24
-        				//-Minus one minute so that the alarm is not set off
-    				}
-    				
-    				//Update GUI
-    				ItemSetupFragmentC.this.updateSwitchAndNotificationButton();
-    				
-    				//Update notification
-    				ItemSetupFragmentC.this.changeNotificationService();
-    			}
-    		}
-    	});
-    	
-    	this.updateSwitchAndNotificationButton();
-    	
-    	
-    	//--------------Actions on click
-    	
-    	mActionOnClickTextView = (TextView) v.findViewById(R.id.actionOnClickTextView);
-    	
-    	mNewActionButton = (Button) v.findViewById(R.id.newActionButton);
+		//--------------Title
+		//Storing reference to EditText button containing list item name (from the SQL database)..
+		mItemEditText = (EditText)v.findViewById(R.id.listitem_name);
+		mItemEditText.setText(tItemName);
 
-    	if(refListType == ListTypeM.KINDNESS){
+		//..adding a text changed listener for when the text changes..
+		mItemEditText.addTextChangedListener(new TextWatcherC(getActivity(), refItemUri));
 
-    		ArrayList<CharSequence> tmpArrayList = new ArrayList<CharSequence>();
-    		tmpArrayList.add(getActivity().getResources().getString(
-    				R.string.image_file_chooser_button_title));
-    		tmpArrayList.add(getActivity().getResources().getString(
-    				R.string.audio_file_chooser_button_title));
-    		tmpArrayList.add(getActivity().getResources().getString(
-    				R.string.video_file_chooser_button_title));
-    		tmpArrayList.add(getActivity().getResources().getString(
-    				R.string.contact_chooser_button_title));
-    		tmpArrayList.add(getActivity().getResources().getString(
-    				R.string.bookmark_chooser_button_title));
-    		///tmpArrayList.add("Custom File");
-    		///tmpArrayList.add("Custom String");
+		//--------------Daily Reminder
+		mNotificationTextView = (TextView) v.findViewById(R.id.notificationTextView);
+		mNotificationTimePickerButton = (Button) v.findViewById(R.id.timePickerButton);
+		mNotificationSwitch = (Switch) v.findViewById(R.id.notificationSwitch);
 
-    		mTypeChooserButtonAdapter = new ArrayAdapter<CharSequence>(
-    				getActivity().getApplicationContext(), android.R.layout.simple_list_item_1,
-    				tmpArrayList);
+		if(refListType == ListTypeM.NEEDS || refListType == ListTypeM.KINDNESS){
 
-    		//PLEASE NOTE: The inner class below could not be made into a private static
-    		//class, we won't get any response from the book mark chooser activity.
-    		//A guess is that we need to be in the same activity/fragment as the one that
-    		//handles the responses.
-    		//TODO: How can this be solved so that there are no memory leaks?
-    		mNewActionButton.setOnClickListener(new OnClickListener() {
-    			@Override
-    			public void onClick(View v) {
-    				new AlertDialog.Builder(getActivity()).setTitle("Type of action")
-    				.setAdapter(mTypeChooserButtonAdapter, new DialogInterface.OnClickListener() {
-    					@Override
-    					public void onClick(DialogInterface dialog, int which) {
+			mNotificationTimePickerButton.setOnClickListener(
+					new OnClickOnNotificationListener(this));
 
-    						switch(which){
-    						case 0: //--------------Image
+			//Setup of notification checkbox which indicates if a recurring notification will be shown..
+			mNotificationSwitch.setOnCheckedChangeListener(
+					new OnNotificationCheckedChangeListenerC(this));
 
-    							//Setup of image chooser button..
-    							//..using an external image app for choosing an image
-    							final Intent tmpImageIntent = new Intent(
-    									Intent.ACTION_PICK,
-    									android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI); //-Images
-    							startActivityForResult(tmpImageIntent, REQUEST_IMAGEFILECHOOSER);
-    							//-results handled below in the "onActivityResult" method
+			this.updateSwitchAndNotificationButton();
+		}else{
+			mNotificationTextView.setVisibility(View.GONE);
+			mNotificationTimePickerButton.setVisibility(View.GONE);
+			mNotificationSwitch.setVisibility(View.GONE);
+		}
 
-    							break;
-    						case 1: //--------------Audio
-    							final Intent tmpAudioIntent = new Intent(
-    									Intent.ACTION_PICK,
-    									android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
-    							startActivityForResult(tmpAudioIntent, REQUEST_AUDIOFILECHOOSER);
-    							break;
-    						case 2: //--------------Video
-    							
-    							
+		//--------------Actions on click
+		mActionOnClickTextView = (TextView) v.findViewById(R.id.actionOnClickTextView);
+		mNewActionButton = (Button) v.findViewById(R.id.newActionButton);
+		if(refListType == ListTypeM.KINDNESS){
+			mNewActionButton.setOnClickListener(new OnClickOnActionsListenerC(this));
+		}else{
+			mActionOnClickTextView.setVisibility(View.GONE);
+			mNewActionButton.setVisibility(View.GONE);
+		}
 
-    							
-    							
-    							//PLEASE NOTE: There is a bug in Android that gives an error when launching
-    							//this intent. More info:
-    							//http://stackoverflow.com/questions/19181432/java-lang-securityexception-permission-denial-intent-in-new-version-4-3
-   							  //http://code.google.com/p/android/issues/detail?id=60725
-    							//TODO: Try to handle this more gracefully below
-    							final Intent tmpVideoIntent = new Intent(
-    									Intent.ACTION_PICK,
-    									android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-    							try{
-    								startActivityForResult(tmpVideoIntent, REQUEST_VIDEOFILECHOOSER);
-    							}catch(Exception e){
-    								Log.w(DbgU.getAppTag(), DbgU.getMethodName()
-    										+ " Error may be because of bug in Android 4.3"
-    										+ " where the video chooser activity is not exported."
-    										+ " Instead using app-internal chooser");
-    								
-      							final Intent tmpInternalVideoIntent = new Intent(
-      									getActivity(), VideoChooserActivity.class);
-      							startActivityForResult(tmpInternalVideoIntent, REQUEST_VIDEOFILECHOOSER);
-    								
-    							}
-    							break;
-    							
-    						case 3: //--------------Contact
-    							final Intent tmpContactIntent = new Intent(
-    									Intent.ACTION_PICK,
-    									ContactsContract.Contacts.CONTENT_URI);
-    							startActivityForResult(tmpContactIntent, REQUEST_CONTACTCHOOSER);
-    							break;
-    						case 4: //--------------Bookmark
-    							
-    							final Intent tmpBookmarkIntent = new Intent(getActivity(), BookmarkChooserActivityC.class);
-    							tmpBookmarkIntent.putExtra(ListFragmentC.EXTRA_LIST_TYPE, refListType);
-    							startActivityForResult(tmpBookmarkIntent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
-    							break;
-    							
-    							/*
-							case 5: //--------------Custom file
-				    			//Alternative solution that searches through a volume:
-				    			// http://stackoverflow.com/questions/10384080/mediastore-uri-to-query-all-types-of-files-media-and-non-media
-				    			//..starting a new (app internal) activity (and fragment) for for choosing a file
-								final Intent customFileIntent = new Intent(getActivity(), FileChooserActivityC.class);
-								customFileIntent.putExtra(ListFragmentC.EXTRA_AND_BUNDLE_LIST_TYPE, refListType.toString());
-				    			//-Extracted in SingleFragmentActivityC
-				    			startActivityForResult(customFileIntent, REQUEST_CUSTOMFILECHOOSER);
-				    			//-Calling FileChooserActivityC
-								break;
-    							 */
-    						default:
-    							break;
-    						}
-
-    						dialog.dismiss();
-    					}
-    				}).create().show();
-    			}
-    		});
-
-    		this.updateActionList(v);
-
-    	}else{ //Feelings or needs
-    		mActionOnClickTextView.setVisibility(View.GONE);
-    		mNewActionButton.setVisibility(View.GONE);
-    	}
-
-    	return v;
-    }
+		return v;
+	}
 
 
 	//onActivityResult handles the results from the various activities started inside the anonymous inner classes
@@ -385,22 +245,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			//Log.i(Utils.getClassName(),"tmpReturnValueFromFileChooserFragment = " + tmpReturnValueFromFileChooserFragment);
 			break;
 		case REQUEST_CONTACTCHOOSER:
-			
-			
-			//Uri tmpReturnedUri = inIntent.getData().getPath();
-			//String tmpReturnedUriAsStringPath = inIntent.getData().getPath();
-			//String[] tmpProjection = new String[] {ContactsContract.Contacts.};
-			/*
-			 * tmpFilePath = inIntent.getStringExtra(
-			 * DetailsFragmentC.EXTRA_RETURN_VALUE_FROM_EXTERNAL_CONTACT_CHOOSER);
-			 */
-			/*
-			 * Alternative solution:
-			 * http://stackoverflow.com/questions/4275167/how-to-open-a-contact-card-in-android-by-id
-			 */
-			
-			
-			
+						
 			Uri tmpLookupUri = null;
 			Cursor tContactsCr = getActivity().getContentResolver().query(
 					inIntent.getData(), null, null, null, null);
@@ -581,70 +426,50 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	}
 
 	
-    // Overview: updateActionList updates the list of actions
-    // Please note: Currently only one action
-    private void updateActionList(View inView) {
+	// Overview: updateActionList updates the list of actions
+	// Please note: Currently only one action
+	private void updateActionList(View inView) {
 
-    	LinearLayout tmpVerticalList = (LinearLayout)inView.findViewById(R.id.actionsLinearLayout);
+		LinearLayout tmpVerticalList = (LinearLayout)inView.findViewById(R.id.actionsLinearLayout);
 
-    	//Clearing the layout
-    	tmpVerticalList.removeAllViews();
-    	
-    	LayoutInflater tmpLayoutInflater = LayoutInflater.from(this.getActivity().getApplicationContext());
-    	
-    	
+		//Clearing the layout
+		tmpVerticalList.removeAllViews();
+
+		LayoutInflater tmpLayoutInflater = LayoutInflater.from(this.getActivity().getApplicationContext());
+
+
 		String[] tmpProjection = {ItemTableM.COLUMN_ACTIONS};
 		Cursor tmpItemCur = getActivity().getContentResolver().query(
 				this.refItemUri, tmpProjection, null, null, null);
 		tmpItemCur.moveToFirst();
 		String tmpActionsString = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
-    	ArrayList<String> tmpActionsArrayList = ItemActionsU.actionsStringToArrayList(tmpActionsString);
+		ArrayList<String> tmpActionsArrayList = ItemActionsU.actionsStringToArrayList(tmpActionsString);
 
-    	LinearLayout tmpActionItem;
+		LinearLayout tmpActionItem;
 		for(String action : tmpActionsArrayList){
-			
+
 			tmpActionItem = (LinearLayout)tmpLayoutInflater.inflate(
 					R.layout.action_list_item, tmpVerticalList, false); //-please note "attachToRoot = false"
-    		
+
 			TextView tmpTextView = (TextView)tmpActionItem.findViewById(R.id.action_list_item_itemStringTextView);
 			tmpTextView.setText(action);
-			
+
 			//Launching the action if the user presses the text
 			tmpTextView.setOnClickListener(new SetupActionOnClickListenerC(getActivity(), action));
-			
-			Button tmpDeleteButton = (Button)tmpActionItem.findViewById(R.id.action_list_item_deleteButton);
+
+			Button tmpDeleteButton = (Button)tmpActionItem.findViewById(
+					R.id.action_list_item_deleteButton);
 
 			//Using the action name as tag so we can remove this when the delete button is clicked
 			tmpDeleteButton.setTag(action);
-			
-			tmpDeleteButton.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					//Read the current string
-					String[] tmpProjection = {ItemTableM.COLUMN_ACTIONS};
-					Cursor tmpItemCur = getActivity().getContentResolver().query(
-							refItemUri, tmpProjection, null, null, null);
-					tmpItemCur.moveToFirst();
-					String tmpActions = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(
-							ItemTableM.COLUMN_ACTIONS));
-					tmpItemCur.close();
-					
-					//Removing the matching string
-					tmpActions = ItemActionsU.removeStringFromActions(tmpActions, v.getTag().toString());
-					
-					//Update the database string
-					ContentValues tmpContentValues = new ContentValues();
-					tmpContentValues.put(ItemTableM.COLUMN_ACTIONS, tmpActions);
-					getActivity().getContentResolver().update(refItemUri, tmpContentValues, null, null);
-					
-					ItemSetupFragmentC.this.updateActionList(v.getRootView());
-					//-not 100% sure how getRootView works
-				}
-			});
+
+			//TODO
+			tmpDeleteButton.setOnClickListener(new OnClickOnDeleteActionButtonListener(
+					this, refItemUri));
 
 			//Adding the action to the list
 			tmpVerticalList.addView(tmpActionItem);
-    	}
+		}
 	}
 
 	void changeNotificationService(){
@@ -676,26 +501,49 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			return true;
 		case R.id.menu_item_delete_listitem:
 			
-			//Removing any alarms
-			this.updateTimeInDB(ItemTableM.FALSE);
-			this.changeNotificationService();
+			
+			
+			
+			new AlertDialog.Builder(getActivity())
+			.setTitle("tmp_Please confirm")
+			.setMessage("tmp_Are you sure you want to delete this item?")
+			.setNegativeButton("tmp_Cancel", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					return;
+				}})
+			.setPositiveButton("tmp_Delete", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					
+					//Removing any alarms
+					ItemSetupFragmentC.this.updateTimeInDB(ItemTableM.FALSE);
+					ItemSetupFragmentC.this.changeNotificationService();
 
-			//This may not be nessacary:
-			//Updating the adapter in ListFragmentC
-	    	///this.updateCursorAdapter();
-			
-			//Updating the app widgets
-			OtherU.updateWidgets(getActivity());
-			
-			//Remove the list item from the database
-			getActivity().getContentResolver().delete(this.refItemUri, null, null);
-			
-			//Exit the details view of the removed item
-			getActivity().finish();
+					//This may not be nessacary:
+					//Updating the adapter in ListFragmentC
+			    	///this.updateCursorAdapter();
+					
+					//Updating the app widgets
+					OtherU.updateWidgets(getActivity());
+					
+					//Remove the list item from the database
+					getActivity().getContentResolver().delete(
+							ItemSetupFragmentC.this.refItemUri, null, null);
+					
+					//Exit the details view of the removed item
+					getActivity().finish();
 
-			//Update of the layout (loaders, ____)?? Necassary or done automatically?
-			///this.refreshListDataSupport()
+					//Update of the layout (loaders, ____)?? Necassary or done automatically?
+					///this.refreshListDataSupport()
+					
+				}})
+			.create().show();
+
 			
+			
+			
+
 			return true;
 		default:
 			return super.onOptionsItemSelected(inMenuItem);
@@ -705,12 +553,40 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	
 	
 
-	public class OnClickOnActionsListenerC implements OnClickListener {
+	private static class OnClickOnActionsListenerC implements OnClickListener {
 	
+		private final WeakReference<Fragment> mWeakRefToFragment;
+		private ArrayAdapter<CharSequence> mTypeChooserButtonAdapter;
+		
+		public OnClickOnActionsListenerC(Fragment inFragment){
+			mWeakRefToFragment = new WeakReference<Fragment>(inFragment);
+			
+			
+  		ArrayList<CharSequence> tmpArrayList = new ArrayList<CharSequence>();
+  		tmpArrayList.add(inFragment.getActivity().getResources().getString(
+  				R.string.image_file_chooser_button_title));
+  		tmpArrayList.add(inFragment.getActivity().getResources().getString(
+  				R.string.audio_file_chooser_button_title));
+  		tmpArrayList.add(inFragment.getActivity().getResources().getString(
+  				R.string.video_file_chooser_button_title));
+  		tmpArrayList.add(inFragment.getActivity().getResources().getString(
+  				R.string.contact_chooser_button_title));
+  		tmpArrayList.add(inFragment.getActivity().getResources().getString(
+  				R.string.bookmark_chooser_button_title));
+  		///tmpArrayList.add("Custom File");
+  		///tmpArrayList.add("Custom String");
+  		
+			
+  		mTypeChooserButtonAdapter = new ArrayAdapter<CharSequence>(
+  				inFragment.getActivity().getApplicationContext(),
+  				android.R.layout.simple_list_item_1, tmpArrayList);
+		}
+		
 		@Override
 		public void onClick(View v) {
-			new AlertDialog.Builder(getActivity()).setTitle("Type of action")
-			.setAdapter(mTypeChooserButtonAdapter, new DialogInterface.OnClickListener() {
+			new AlertDialog.Builder(mWeakRefToFragment.get().getActivity())
+					.setTitle("Type of action").setAdapter(
+							mTypeChooserButtonAdapter, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 	
@@ -722,7 +598,8 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 						final Intent tmpImageIntent = new Intent(
 								Intent.ACTION_PICK,
 								android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI); //-Images
-						startActivityForResult(tmpImageIntent, REQUEST_IMAGEFILECHOOSER);
+						mWeakRefToFragment.get().startActivityForResult(
+								tmpImageIntent, REQUEST_IMAGEFILECHOOSER);
 						//-results handled below in the "onActivityResult" method
 	
 						break;
@@ -730,7 +607,8 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 						final Intent tmpAudioIntent = new Intent(
 								Intent.ACTION_PICK,
 								android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
-						startActivityForResult(tmpAudioIntent, REQUEST_AUDIOFILECHOOSER);
+						mWeakRefToFragment.get().startActivityForResult(
+								tmpAudioIntent, REQUEST_AUDIOFILECHOOSER);
 						break;
 					case 2: //--------------Video
 						//PLEASE NOTE: There is a bug in Android that gives an error when launching
@@ -742,7 +620,8 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 								Intent.ACTION_PICK,
 								android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
 						try{
-							startActivityForResult(tmpVideoIntent, REQUEST_VIDEOFILECHOOSER);
+							mWeakRefToFragment.get().startActivityForResult(
+									tmpVideoIntent, REQUEST_VIDEOFILECHOOSER);
 						}catch(Exception e){
 							Log.e(DbgU.getAppTag(), DbgU.getMethodName()
 									+ " Error may be because of bug in Android 4.3"
@@ -753,13 +632,14 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 						final Intent tmpContactIntent = new Intent(
 								Intent.ACTION_PICK,
 								ContactsContract.Contacts.CONTENT_URI);
-						startActivityForResult(tmpContactIntent, REQUEST_CONTACTCHOOSER);
+						mWeakRefToFragment.get().startActivityForResult(tmpContactIntent, REQUEST_CONTACTCHOOSER);
 						break;
 					case 4: //--------------Bookmark
-						final Intent tmpBookmarkIntent = new Intent(getActivity(), BookmarkChooserActivityC.class);
-						tmpBookmarkIntent.putExtra(ListFragmentC.EXTRA_LIST_TYPE, refListType);
+						final Intent tmpBookmarkIntent = new Intent(
+								mWeakRefToFragment.get().getActivity(), BookmarkChooserActivityC.class);
 						//-Extracted in SingleFragmentActivityC
-						startActivityForResult(tmpBookmarkIntent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
+						mWeakRefToFragment.get().startActivityForResult(
+								tmpBookmarkIntent, REQUEST_BOOKMARKCHOOSER); //Calling FileChooserActivityC
 						break;
 						/*
 					case 5: //--------------Custom file
@@ -780,6 +660,152 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 					dialog.dismiss();
 				}
 			}).create().show();
+		}
+	}
+	
+	private static class TextWatcherC implements TextWatcher{
+
+		private final WeakReference<Activity> mWeakRefToActivity;
+		private final WeakReference<Uri> mWeakRefToItemUri;
+		
+		public TextWatcherC(Activity iActivity, Uri iRefItemUri){
+			mWeakRefToActivity = new WeakReference<Activity>(iActivity);
+			mWeakRefToItemUri = new WeakReference<Uri>(iRefItemUri);
+		}
+		
+		@Override
+		public void onTextChanged(CharSequence s, int start, int before, int count) {
+			try{
+				//..update the SQL database
+				ContentValues tContentVals = new ContentValues();
+				tContentVals.put(ItemTableM.COLUMN_NAME, s.toString());
+				mWeakRefToActivity.get().getContentResolver().update(
+						mWeakRefToItemUri.get(), tContentVals, null, null);
+			}catch(NullPointerException npe){
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + "NPE");
+			}
+		}
+		@Override
+		public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+		@Override
+		public void afterTextChanged(Editable s) {}
+		
+	}
+	
+	private static class OnNotificationCheckedChangeListenerC implements OnCheckedChangeListener{
+		
+		private final WeakReference<ItemSetupFragmentC> mWeakRefToFragment;
+		
+		public OnNotificationCheckedChangeListenerC(ItemSetupFragmentC iItemSetupFragment){
+			mWeakRefToFragment = new WeakReference<ItemSetupFragmentC>(iItemSetupFragment);
+		}
+		
+		@Override
+		public void onCheckedChanged(CompoundButton inCompoundButton, boolean inChecked) {
+			mWeakRefToFragment.get().fireCheckedChangedEvent();
+		}
+	}
+
+	public void fireCheckedChangedEvent() {
+		if(mSupressEvents == false){
+			//Set the time in the database table
+			if(mNotificationSwitch.isChecked() == false){
+				updateTimeInDB(ItemTableM.FALSE);
+			}else{
+  				updateTimeInDB(Calendar.getInstance().getTimeInMillis());
+  				// + 1000 * 60 * 60 * 24
+  				//-Minus one minute so that the alarm is not set off
+			}
+			
+			//Update GUI
+			ItemSetupFragmentC.this.updateSwitchAndNotificationButton();
+			
+			//Update notification
+			ItemSetupFragmentC.this.changeNotificationService();
+		}
+	}
+	
+	private static class OnClickOnNotificationListener implements OnClickListener{
+		private final WeakReference<ItemSetupFragmentC> mWeakRefToFragment;
+		
+		public OnClickOnNotificationListener(ItemSetupFragmentC iItemSetupFragment){
+			mWeakRefToFragment = new WeakReference<ItemSetupFragmentC>(iItemSetupFragment);
+		}
+		
+		@Override
+		public void onClick(View v) { //-Alt: Using the xml property "android:onClick"
+			//..starting a new (app internal) fragment for for choosing time of day
+			DialogFragment tmpTimePickerFragment = TimePickerFragmentC.newInstance(
+					mWeakRefToFragment.get());
+			tmpTimePickerFragment.show(mWeakRefToFragment.get().getFragmentManager(),
+					"TimePicker");
+		}
+	}
+	
+	private static class OnClickOnDeleteActionButtonListener implements OnClickListener{
+		
+		private final WeakReference<ItemSetupFragmentC> mWeakRefToItemSetupFragment;
+		private final WeakReference<Uri> mWeakRefToItemUri;
+		private WeakReference<View> mWeakRefToOnClickView = null;
+		
+		public OnClickOnDeleteActionButtonListener(ItemSetupFragmentC iItemSetupFragment,
+				Uri iRefItemUri){
+			mWeakRefToItemSetupFragment = new WeakReference<ItemSetupFragmentC>(
+					iItemSetupFragment);
+			mWeakRefToItemUri = new WeakReference<Uri>(iRefItemUri);
+		}
+		
+		@Override
+		public void onClick(View v) {
+			mWeakRefToOnClickView = new WeakReference<View>(v);
+					
+			
+					//Read the current string
+					String tmpActions = "";
+					String tName = "";
+					String[] tmpProjection = {ItemTableM.COLUMN_ACTIONS};
+					
+					Cursor tItemCr = mWeakRefToItemSetupFragment.get().getActivity()
+							.getContentResolver().query(
+									mWeakRefToItemUri.get(), tmpProjection, null, null, null);
+		    	try{
+			    	if(tItemCr != null && tItemCr.moveToFirst()){
+
+			    		tmpActions = tItemCr.getString(tItemCr.getColumnIndexOrThrow(
+			  					ItemTableM.COLUMN_ACTIONS)); 
+			    		tName = tItemCr.getString(tItemCr.getColumnIndexOrThrow(
+			  					ItemTableM.COLUMN_NAME)); 
+
+			    	}else{
+			    		Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor is null or empty", new Exception());
+			    		//error handling
+			    	}
+		    	}catch(Exception e){
+		    		Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Exception for cursor", e);
+		    		//error handling
+		    	}finally{
+		    		if(tItemCr != null){
+		    			tItemCr.close();
+		    		}else{
+		    			Log.w(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor was null when trying to close");
+		    		}
+		    	}
+		    	
+					//Removing the matching string
+					tmpActions = ItemActionsU.removeStringFromActions(
+							tmpActions, mWeakRefToOnClickView.get().getTag().toString());
+
+					//Update the database string
+					ContentValues tmpContentValues = new ContentValues();
+					tmpContentValues.put(ItemTableM.COLUMN_ACTIONS, tmpActions);
+					mWeakRefToItemSetupFragment.get().getActivity().getContentResolver().update(
+							mWeakRefToItemUri.get(), tmpContentValues, null, null);
+
+					mWeakRefToItemSetupFragment.get().updateActionList(
+							mWeakRefToOnClickView.get().getRootView());
+					//-not 100% sure how getRootView works
+		    	
+
 		}
 	}
 }

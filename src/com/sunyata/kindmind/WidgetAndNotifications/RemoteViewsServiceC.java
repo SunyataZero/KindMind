@@ -1,5 +1,6 @@
 package com.sunyata.kindmind.WidgetAndNotifications;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
@@ -16,11 +17,19 @@ import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SortingAlgorithmServiceM;
 import com.sunyata.kindmind.util.DatabaseU;
 import com.sunyata.kindmind.util.DbgU;
+import com.sunyata.kindmind.util.OtherU;
 
 public class RemoteViewsServiceC extends RemoteViewsService {
 	@Override
 	public RemoteViewsFactory onGetViewFactory(Intent inIntent) {
 		return new RemoteViewsFactoryC(this.getApplicationContext(), inIntent);
+	}
+
+	@Override
+	public void onDestroy(){
+		super.onDestroy();
+		
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 	}
 	
 	/**
@@ -89,7 +98,7 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 
 		@Override
 		public int getCount() {
-			Log.v(DbgU.getAppTag(), DbgU.getMethodName());
+			Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 			if(mItemCursor != null){
 				return mItemCursor.getCount();
 			}else{
@@ -99,7 +108,7 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 
 		@Override
 		public long getItemId(int inPosition) {
-			Log.v(DbgU.getAppTag(), DbgU.getMethodName());
+			Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 			if(mItemCursor != null){
 				return mItemCursor.getLong(mItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
 			}else{
@@ -109,19 +118,19 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 
 		@Override
 		public boolean hasStableIds() {
-			Log.v(DbgU.getAppTag(), DbgU.getMethodName());
+			Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 			return true;
 		}
 		
 		@Override
 		public int getViewTypeCount() {
-			Log.v(DbgU.getAppTag(), DbgU.getMethodName());
+			Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 			return 1;
 		}
 		
 		@Override
 		public RemoteViews getLoadingView() {
-			Log.v(DbgU.getAppTag(), DbgU.getMethodName());
+			Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 			return null;
 		}
 		
@@ -157,25 +166,31 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 		 */
 		@Override
 		public RemoteViews getViewAt(int inPosition) {
-			Log.v(DbgU.getAppTag(), DbgU.getMethodName() + ", inPosition = " + inPosition);
+			Log.v(DbgU.getAppTag(), DbgU.getMethodName()
+					+ ", inPosition = " + inPosition);
 
 			//Moving the cursor to the current position
 			mItemCursor.moveToPosition(inPosition);
 			
 			//Extracting values from the database
-			String tmpName = mItemCursor.getString(mItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
-			long tmpItemId = mItemCursor.getLong(mItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
+			String tmpName = mItemCursor.getString(
+					mItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
+			long tmpItemId = mItemCursor.getLong(
+					mItemCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID));
 			Uri tmpItemUri = DatabaseU.getItemUriFromId(tmpItemId);
 			
 			//Setting up the remote views object
-			RemoteViews retRemoteViews = new RemoteViews(mContext.getPackageName(), R.layout.widget_listitem);
+			RemoteViews retRemoteViews = new RemoteViews(
+					mContext.getPackageName(), R.layout.widget_listitem);
 			retRemoteViews.setTextViewText(R.id.widget_listitem_textView, tmpName);
 			
-			//Adding action URI to the intent template which was set for all the list rows in WidgetProviderC.onUpdate
+			//Adding action URI to the intent template which was set for all the
+			//list rows in WidgetProviderC.onUpdate
 			Intent tmpFillInIntent = new Intent();
 			tmpFillInIntent.setData(tmpItemUri);
-			retRemoteViews.setOnClickFillInIntent(R.id.widget_listitem_textView, tmpFillInIntent);
-
+			retRemoteViews.setOnClickFillInIntent(R.id.widget_listitem_textView,
+					tmpFillInIntent);
+			
 			return retRemoteViews;
 		}
 		
@@ -201,7 +216,7 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 				return null;
 			}
 			
-			//Getting and saving a reference to the cursor
+			//Returning a reference to the cursor
 			String tmpSortType = ItemTableM.COLUMN_KINDSORT_VALUE + " DESC";
 			String tmpSelection = ItemTableM.COLUMN_LIST_TYPE + "=?";
 			String[] tmpSelectionArguments = {String.valueOf(tmpListType)};

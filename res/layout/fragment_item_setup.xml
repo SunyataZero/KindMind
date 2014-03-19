@@ -28,7 +28,7 @@
             android:hint="@string/listitem_name_hint" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/notificationTextView"
             style="?android:attr/listSeparatorTextViewStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

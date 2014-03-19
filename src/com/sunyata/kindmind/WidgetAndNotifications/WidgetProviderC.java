@@ -41,30 +41,39 @@ public class WidgetProviderC extends AppWidgetProvider {
 	 * + 
 	 */
 	@Override
-	public void onUpdate(Context iContext, AppWidgetManager iWidgetMgr, int[] iWidgetIds){
+	public void onUpdate(Context iContext, AppWidgetManager iWidgetMgr,
+			int[] iWidgetIds){
 		Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 		
 		//Going through all widgets placed (could be more than one)
 		for(int i = 0; i < iWidgetIds.length; i++){
 			//Setting up the remote view service
-			Intent tmpRVServiceIntent = new Intent(iContext, RemoteViewsServiceC.class);
-			tmpRVServiceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, iWidgetIds[i]);
-			tmpRVServiceIntent.setData(Uri.parse(tmpRVServiceIntent.toUri(Intent.URI_INTENT_SCHEME)));
+			Intent tmpRVServiceIntent = new Intent(iContext,
+					RemoteViewsServiceC.class);
+			tmpRVServiceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+					iWidgetIds[i]);
+			tmpRVServiceIntent.setData(Uri.parse(tmpRVServiceIntent.toUri(
+					Intent.URI_INTENT_SCHEME)));
 			
 			//Setting up the remote views
-			RemoteViews tmpRemoteViews = new RemoteViews(iContext.getPackageName(), R.layout.widget);
-			tmpRemoteViews.setRemoteAdapter(R.id.widget_listview, tmpRVServiceIntent);
-			tmpRemoteViews.setEmptyView(R.id.widget_listview, R.id.widget_empty_view);
+			RemoteViews tmpRemoteViews = new RemoteViews(iContext.getPackageName(),
+					R.layout.widget);
+			tmpRemoteViews.setRemoteAdapter(R.id.widget_listview,
+					tmpRVServiceIntent);
+			tmpRemoteViews.setEmptyView(R.id.widget_listview,
+					R.id.widget_empty_view);
 			
-			//Setting up the pending intent templates
-			Intent tmpTemplateIntent = new Intent(iContext, LauncherServiceC.class);
-			//-the id will be filled in later in RemoteViewsFactoryC.getViewAt()
-			tmpTemplateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, iWidgetIds[i]);
-			PendingIntent tmpPendingIntent = PendingIntent.getService(
-					iContext, iWidgetIds[i], tmpTemplateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-			//-Please note: iWidgetIds[i] is used as unique request code, this solves the
-			//problem with the unresponsive widgets by making each PendingIntent unique.
-			tmpRemoteViews.setPendingIntentTemplate(R.id.widget_listview, tmpPendingIntent);
+			//Setting up the pending intent template (the id will be filled in later
+			//in RemoteViewsFactoryC.getViewAt())
+			Intent tmpTemplateIntent = new Intent(iContext,
+					LauncherServiceC.class);
+			
+			tmpTemplateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+					iWidgetIds[i]);
+			PendingIntent tmpPendingIntent = PendingIntent.getService(iContext,
+					0, tmpTemplateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			tmpRemoteViews.setPendingIntentTemplate(R.id.widget_listview,
+					tmpPendingIntent);
 
 			//Applying the update for the views
 			iWidgetMgr.updateAppWidget(iWidgetIds[i], tmpRemoteViews);

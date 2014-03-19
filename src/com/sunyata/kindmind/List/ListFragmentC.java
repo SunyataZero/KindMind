@@ -246,7 +246,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		}
 
 		//Fundamental setup
-		//super.setRetainInstance(true);
+		super.setRetainInstance(true);
 		//-Recommended by CommonsWare:
 		// http://stackoverflow.com/questions/11160412/why-use-fragmentsetretaininstanceboolean
 		// but not in Reto's book: "genereally not recommended"
