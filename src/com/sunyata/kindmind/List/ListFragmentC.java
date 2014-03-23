@@ -161,12 +161,19 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	 */
 	public void sortDataWithService(){
 
-		if(mLoadingLayout == null){
-			mLoadingLayout = (LinearLayout)getView().findViewById(R.id.loadingLinearLayout);
-			Log.w(DbgU.getAppTag(), DbgU.getMethodName()
-					+ " mLoadingLayout was null and was recreated");
+		try{
+			
+			if(mLoadingLayout == null){
+				mLoadingLayout = (LinearLayout)getView().findViewById(R.id.loadingLinearLayout);
+				Log.w(DbgU.getAppTag(), DbgU.getMethodName()
+						+ " mLoadingLayout was null and was recreated");
+			}
+
+		}catch(Exception e){
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), e);
 		}
 
+		
 		/*
     	for(int i = 0; mLoadingLinearLayout != null; i++){
     		Utils.waitForCondition(500, 10, i);
@@ -382,11 +389,11 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		case R.id.menu_item_new_listitem: //------------New item
 			//Creating and inserting the new list item into the database
 			ContentValues tmpContentValuesToInsert = new ContentValues();
-	    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LIST_TYPE, refListType);
-	    	Uri tmpUriOfNewItem = getActivity().getContentResolver().insert(
-	    			ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);
+			tmpContentValuesToInsert.put(ItemTableM.COLUMN_LIST_TYPE, refListType);
+			Uri tmpUriOfNewItem = getActivity().getContentResolver().insert(
+					ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);
 	    	
-	    	//Launching the details fragment for the newly created item
+	    //Launching the details fragment for the newly created item
 			Intent intent = new Intent(getActivity(), ItemSetupActivityC.class);
 			String tmpExtraString = tmpUriOfNewItem.toString();
 			intent.putExtra(EXTRA_ITEM_URI, tmpExtraString);

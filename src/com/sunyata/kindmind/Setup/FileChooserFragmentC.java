@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.app.ListFragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import com.sunyata.kindmind.util.FileU;
 
 public class FileChooserFragmentC extends ListFragment {
 	
+	File mDirectoryPath;
 	static final String EXTRA_RETURN_VALUE_FROM_FILE_CHOOSER_FRAGMENT = "RETURN_VALUE_FROM_FILECHOOSERFRAGMENT";
 	
 	public static FileChooserFragmentC newInstance(){
@@ -45,7 +47,8 @@ public class FileChooserFragmentC extends ListFragment {
     }
     private void initialize(){
     	
-    	File mDirectoryPath = new File(FileU.getKindMindDirectory());
+    	mDirectoryPath = new File(
+    			Environment.getExternalStorageDirectory().getAbsolutePath());
     	/*-From the javadoc for getExternalStorageDirectory:
     	 * "Note: don't be confused by the word "external" here.
     	 * This directory can better be thought as media/shared storage.
@@ -67,7 +70,13 @@ public class FileChooserFragmentC extends ListFragment {
     	}
     	*/
     	
+    	
     	List<String> tmpList = Arrays.asList(mDirectoryPath.list());
+    	
+    	final String tUpInTree = "..";
+    	
+    	tmpList.add(0, tUpInTree);
+    	
     	if(tmpList == null || tmpList.size() == 0){
     		Log.w(DbgU.getAppTag(), "No files in directory or directory not present");
     		getActivity().finish();
@@ -92,7 +101,7 @@ public class FileChooserFragmentC extends ListFragment {
 			String tmpString = getItem(inPosition);
 			
 			//Setting a prefix that describes if the item that the user is choosing is a file or a directory
-			File tmpFileOrDirectory = new File(FileU.getKindMindDirectory() + "/" + tmpString);
+			File tmpFileOrDirectory = new File(mDirectoryPath + "/" + tmpString);
 			Log.i(DbgU.getAppTag(), "tmpFileOrDirectory = " + tmpFileOrDirectory);
 			String tmpDirectoryOrFileString = "";
 			if(tmpFileOrDirectory.isDirectory() == true){
@@ -120,7 +129,7 @@ public class FileChooserFragmentC extends ListFragment {
 			public void onClick(View inView) {
 				
 				String tmpFilePath = 
-						FileU.getKindMindDirectory() + "/"
+						mDirectoryPath + "/"
 						+ (String)((TextView) inView.findViewById(R.id.file_list_item_titleTextView)).getText();
 
 				Intent tmpIntent = new Intent();

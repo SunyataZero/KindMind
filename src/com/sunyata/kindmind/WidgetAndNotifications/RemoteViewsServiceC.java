@@ -1,6 +1,5 @@
 package com.sunyata.kindmind.WidgetAndNotifications;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +16,6 @@ import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SortingAlgorithmServiceM;
 import com.sunyata.kindmind.util.DatabaseU;
 import com.sunyata.kindmind.util.DbgU;
-import com.sunyata.kindmind.util.OtherU;
 
 public class RemoteViewsServiceC extends RemoteViewsService {
 	@Override
@@ -166,8 +164,7 @@ public class RemoteViewsServiceC extends RemoteViewsService {
 		 */
 		@Override
 		public RemoteViews getViewAt(int inPosition) {
-			Log.v(DbgU.getAppTag(), DbgU.getMethodName()
-					+ ", inPosition = " + inPosition);
+			Log.d(DbgU.getAppTag(), DbgU.getMethodName() + ", inPosition = " + inPosition);
 
 			//Moving the cursor to the current position
 			mItemCursor.moveToPosition(inPosition);

@@ -11,16 +11,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 
 public class FileU {
 
+	/*
 	public static String getKindMindDirectory(){
 		return Environment.getExternalStorageDirectory().getAbsolutePath() + "/KindMind";
 		//return Environment.getRootDirectory().getAbsolutePath() + "/KindMind";
 	}
+	*/
 	
 	public static String getFilePathFromMediaIntent(Context inContext, Intent inIntent){
 		Uri tmpUri = inIntent.getData();

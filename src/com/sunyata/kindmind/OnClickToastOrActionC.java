@@ -276,7 +276,7 @@ public class OnClickToastOrActionC {
 		try{
 			if(tItemCr != null && tItemCr.moveToFirst()){
 
-				while(tItemCr.moveToNext()){
+				for(tItemCr.moveToFirst(); tItemCr.isAfterLast() == false; tItemCr.moveToNext()){
 					tmpStringToAdd = tItemCr.getString(tItemCr.getColumnIndexOrThrow(
 							ItemTableM.COLUMN_NAME));
 					

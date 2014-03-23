@@ -28,7 +28,7 @@ import com.sunyata.kindmind.util.DbgU;
  */
 public class SortingAlgorithmServiceM extends IntentService {
 
-	public static final double PATTERN_MULTIPLIER = 8;
+	public static final double PATTERN_MULTIPLIER = 12;
 	public static final double SIMPLE_PATTERN_MATCH_ADDITION = 1;
 	public static final int UPDATE_SERVICE_DONE = 89742;
 	

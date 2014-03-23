@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.sunyata.kindmind.SortTypeM;
@@ -18,7 +17,7 @@ import com.sunyata.kindmind.List.ListTypeM;
 
 public class DatabaseU {
 	
-	public static final String PREF_IS_FIRST_TIME_APP_STARTED = "IsFirstTimeApplicationStarted";
+	//public static final String PREF_IS_FIRST_TIME_APP_STARTED = "IsFirstTimeApplicationStarted";
 
 	
 	
@@ -195,78 +194,111 @@ if(temporaryValue.equals("")){handle error}
 	///@name Adding new items
 	///@{
 	
+	/*
 	public static boolean isFirstTimeApplicationStarted(Context inContext){
 		boolean retVal = PreferenceManager.getDefaultSharedPreferences(inContext).getBoolean(
 				PREF_IS_FIRST_TIME_APP_STARTED, true); //Default is true (if no value has been written)
 		return retVal;
 	}
+	*/
 
 	public static void createAllStartupItems(Context inContext) {
 		Log.i(DbgU.getAppTag(), "Creating startup items");
 		
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Angry");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Anxious");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Concerned");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Depressed");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Dissapointed");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Embarrassed");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Frustrated");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Guilty");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Hurt");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Overwhelmed");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Resentful");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Sad");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Tired");
-    	createStartupItem(inContext, ListTypeM.FEELINGS, "Uncomfortable");
-    	//Vulnarable
-    	//Suspicious
-    	//Shameful
+		createStartupItem(inContext, ListTypeM.FEELINGS, "Angry");
+		createStartupItem(inContext, ListTypeM.FEELINGS, "Anxious");
+		createStartupItem(inContext, ListTypeM.FEELINGS, "Concerned");
+		createStartupItem(inContext, ListTypeM.FEELINGS, "Depressed");
+		createStartupItem(inContext, ListTypeM.FEELINGS, "Dissapointed");
+		createStartupItem(inContext, ListTypeM.FEELINGS, "Embarrassed");
+		createStartupItem(inContext, ListTypeM.FEELINGS, "Frustrated");
+		createStartupItem(inContext, ListTypeM.FEELINGS, "Guilty");
+		createStartupItem(inContext, ListTypeM.FEELINGS, "Hurt");
+		createStartupItem(inContext, ListTypeM.FEELINGS, "Overwhelmed");
+		createStartupItem(inContext, ListTypeM.FEELINGS, "Resentful");
+		createStartupItem(inContext, ListTypeM.FEELINGS, "Sad");
+		createStartupItem(inContext, ListTypeM.FEELINGS, "Tired");
+		createStartupItem(inContext, ListTypeM.FEELINGS, "Uncomfortable");
+		//Vulnarable
+		//Suspicious
+		//Shameful
 
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Acceptance");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Appreciation");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Authenticity");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Connection");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Consideration");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Contribution");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Creativity");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Emotional safety");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Empathy");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Freedom");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Fun");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Inspiration");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Love");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Mourning");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Physical comfort");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Rest");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Support");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Trust");
-    	createStartupItem(inContext, ListTypeM.NEEDS, "Understanding");
-    	//Self-worth, to matter
+		createStartupItem(inContext, ListTypeM.NEEDS, "Acceptance");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Appreciation");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Authenticity");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Connection");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Consideration");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Contribution");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Creativity");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Emotional safety");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Empathy");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Freedom");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Fun");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Inspiration");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Love");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Mourning");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Physical comfort");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Rest");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Support");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Trust");
+		createStartupItem(inContext, ListTypeM.NEEDS, "Understanding");
+		//Self-worth, to matter
+		//Community
 
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Awareness of a feeling in the body");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Calling a friend");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Enumerating good things recently");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Finding a new way to do something");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Focusing on a need");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Following the breath");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Looking at a plant or a tree nearby");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Seeing alternative ways to respond");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Seeing the bigger perspective");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Stretching");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Thinking about a time when you helped someone");
-    	createStartupItem(inContext, ListTypeM.KINDNESS, "Thinking about someone who shares your experience");
+		createStartupItem(inContext, ListTypeM.KINDNESS, "Awareness of a feeling in the body");
+		createStartupItem(inContext, ListTypeM.KINDNESS, "Calling a friend");
+		createStartupItem(inContext, ListTypeM.KINDNESS, "Enumerating good things recently");
+		createStartupItem(inContext, ListTypeM.KINDNESS, "Finding a new way to do something");
+		createStartupItem(inContext, ListTypeM.KINDNESS, "Focusing on a need");
+		createStartupItem(inContext, ListTypeM.KINDNESS, "Following the breath");
+		createStartupItem(inContext, ListTypeM.KINDNESS, "Looking at a plant or a tree nearby");
+		createStartupItem(inContext, ListTypeM.KINDNESS, "Seeing alternative ways to respond");
+		createStartupItem(inContext, ListTypeM.KINDNESS, "Seeing the bigger perspective");
+		createStartupItem(inContext, ListTypeM.KINDNESS, "Stretching");
+		createStartupItem(inContext, ListTypeM.KINDNESS, "Thinking about a time when you helped someone");
+		createStartupItem(inContext, ListTypeM.KINDNESS, "Thinking about someone who shares your experience");
 
-		
-    	PreferenceManager.getDefaultSharedPreferences(inContext)
-    			.edit()
-    			.putBoolean(PREF_IS_FIRST_TIME_APP_STARTED, false)
-    			.commit();
+		/*
+		PreferenceManager.getDefaultSharedPreferences(inContext)
+		.edit()
+		.putBoolean(PREF_IS_FIRST_TIME_APP_STARTED, false)
+		.commit();
+		*/
 	}
-	private static void createStartupItem(Context inContext, int inListTypeInt, String inColumnName){
-		ContentValues tmpContentValuesToInsert = new ContentValues();
-    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_LIST_TYPE, inListTypeInt);
-    	tmpContentValuesToInsert.put(ItemTableM.COLUMN_NAME, inColumnName);
-    	inContext.getContentResolver().insert(ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);
+	private static void createStartupItem(Context iContext, int iListTypeInt, String iName){
+		ContentValues tContentValsToIns = new ContentValues();
+
+		//Using the name to see if the item has already been added
+		String tName = "";
+		Cursor tItemCr = iContext.getContentResolver().query(
+				ContentProviderM.ITEM_CONTENT_URI, null, null, null, null);
+		try{
+			if(tItemCr != null && tItemCr.moveToFirst()){
+
+				for(tItemCr.moveToFirst(); tItemCr.isAfterLast() == false; tItemCr.moveToNext()){
+					tName = tItemCr.getString(tItemCr.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
+					if(iName.compareTo(tName) == 0){
+						//item with same name already exists, exiting without adding item
+						return;
+					}
+				}
+
+			}else{
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor null or empty", new Exception());
+			}
+		}catch(Exception e){
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Exception when using cursor", e);
+		}finally{
+			if(tItemCr != null){
+				tItemCr.close();
+			}else{
+				Log.w(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor null when trying to close");
+			}
+		}
+
+		tContentValsToIns.put(ItemTableM.COLUMN_LIST_TYPE, iListTypeInt);
+		tContentValsToIns.put(ItemTableM.COLUMN_NAME, iName);
+		iContext.getContentResolver().insert(ContentProviderM.ITEM_CONTENT_URI, tContentValsToIns);
 	}
 	
 	///@}

@@ -80,12 +80,10 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         if(Utils.BuildConfig.DEBUG){
         	StrictMode.enableDefaults();
         }
-		 */
+		*/
 
 		//Creation of new list items
-		if(DatabaseU.isFirstTimeApplicationStarted(this) == true){
-			DatabaseU.createAllStartupItems(this);
-		}
+		DatabaseU.createAllStartupItems(this);
 
 		//Setting layout and title
 		setContentView(R.layout.activity_main);

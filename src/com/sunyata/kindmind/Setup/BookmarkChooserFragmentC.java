@@ -23,7 +23,8 @@ import android.widget.TextView;
 
 public class BookmarkChooserFragmentC extends ListFragment {
 
-	static final String EXTRA_RETURN_VALUE_FROM_BOOKMARK_CHOOSER_FRAGMENT = "RETURN_VALUE_FROM_BOOKMARKCHOOSERFRAGMENT";
+	public static final String EXTRA_RETURN_VALUE_FROM_BOOKMARK_CHOOSER_FRAGMENT =
+			"RETURN_VALUE_FROM_BOOKMARKCHOOSERFRAGMENT";
 	
 	public static BookmarkChooserFragmentC newInstance(){
 		BookmarkChooserFragmentC retListFragment = new BookmarkChooserFragmentC();

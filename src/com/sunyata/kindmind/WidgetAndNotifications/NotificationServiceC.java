@@ -62,22 +62,22 @@ public class NotificationServiceC extends IntentService {
 	 */
 	public static void setServiceNotificationAll(Context inContext){
 		//Creating SQL cursor
-		Cursor tmpCursor = inContext.getContentResolver().query(
+		Cursor tItemCr = inContext.getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, null, null, ContentProviderM.sSortType);
 		try{
 			long tmpNotification = -1;
 			Uri tmpItemUri = null;
-			if(tmpCursor != null && tmpCursor.moveToFirst()){
+			if(tItemCr != null && tItemCr.moveToFirst()){
 
 				//Iterating through all the database rows..
-				while(tmpCursor.moveToNext()){
+				for(tItemCr.moveToFirst(); tItemCr.isAfterLast() == false; tItemCr.moveToNext()){
 					
 					//..extracting notification data and list item URI
-					tmpNotification = tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
+					tmpNotification = tItemCr.getLong(tItemCr.getColumnIndexOrThrow(ItemTableM.COLUMN_NOTIFICATION));
 					tmpItemUri = Uri.withAppendedPath(
 							ContentProviderM.ITEM_CONTENT_URI,
 							"/" +
-							(tmpCursor.getLong(tmpCursor.getColumnIndexOrThrow(ItemTableM.COLUMN_ID))));
+							(tItemCr.getLong(tItemCr.getColumnIndexOrThrow(ItemTableM.COLUMN_ID))));
 					
 					//..if the notification is active, calling setServiceNotificationSingle
 					if(tmpNotification > -1){
@@ -91,8 +91,8 @@ public class NotificationServiceC extends IntentService {
 		}catch(Exception e){
 			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), e);
 		}finally{
-			if(tmpCursor != null){
-				tmpCursor.close();
+			if(tItemCr != null){
+				tItemCr.close();
 			}else{
 				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), new Exception());
 			}
