@@ -42,6 +42,7 @@ import com.sunyata.kindmind.List.ListFragmentC;
 import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SetupActionOnClickListenerC;
 import com.sunyata.kindmind.WidgetAndNotifications.NotificationServiceC;
+import com.sunyata.kindmind.util.DatabaseU;
 import com.sunyata.kindmind.util.DbgU;
 import com.sunyata.kindmind.util.FileU;
 import com.sunyata.kindmind.util.ItemActionsU;
@@ -203,13 +204,11 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			mActionOnClickTextView.setVisibility(View.GONE);
 			mNewActionButton.setVisibility(View.GONE);
 		}
+		this.updateActionList(v);
 
 		return v;
 	}
 
-
-	//----------------------------Other methods
-	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -312,40 +311,11 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 
 		//--------------Updating file/dir string value in the database
 
-		if(tmpFilePath == ""){
-			Log.w(DbgU.getAppTag(),
-					"Waring in onActivityResult: tmpFilePath is empty even though the result code was RESULT_OK");
-			return;
-		}
 
-		//Reading the current string
-		String[] tmpProjection = {ItemTableM.COLUMN_ACTIONS};
-		Cursor tmpItemCur = getActivity().getContentResolver().query(refItemUri, tmpProjection, null, null, null);
-		if(!tmpItemCur.moveToFirst()){
-			tmpItemCur.close();
-			return;
-		}
-		String tmpActions = tmpItemCur.getString(tmpItemCur.getColumnIndexOrThrow(ItemTableM.COLUMN_ACTIONS));
-		tmpItemCur.close();
 
-		//Verify that the string to be added does not contain the separator
-		if(tmpFilePath.contains(OtherU.ACTIONS_SEPARATOR)){
-			Log.e(DbgU.getAppTag(), DbgU.getMethodName() +
-					"String contains separator character, exiting method");
-			return;
-		}
+		ItemActionsU.addAction(this.getActivity(), refItemUri, tmpFilePath);
 
-		if(tmpActions == null || tmpActions.equals("")){
-			tmpActions = tmpFilePath;
-		}else{
-			//Updating the string with the appended file path
-			tmpActions = tmpActions + OtherU.ACTIONS_SEPARATOR + tmpFilePath;
-		}
 
-		//Writing the updated string to the database
-		ContentValues tmpContentValues = new ContentValues();
-		tmpContentValues.put(ItemTableM.COLUMN_ACTIONS, tmpActions);
-		getActivity().getContentResolver().update(refItemUri, tmpContentValues, null, null);
 
 		/*
 	long tmpItemId = Utils.getIdFromUri(refItemUri);

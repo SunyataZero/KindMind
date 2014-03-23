@@ -53,18 +53,18 @@ public class DbgU {
 		} catch (NameNotFoundException e) {
 			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName());
 		}
-		String tmpVerName = tmpPackageInfo.versionName;
-		if(tmpVerName.contains("alpha") || tmpVerName.contains("Alpha") || tmpVerName.contains("ALPHA")
-				|| tmpVerName.contains("beta") || tmpVerName.contains("Beta") || tmpVerName.contains("BETA")){
-			return false;
-		}
 		
 		//Checking if this is a debug build
 		if(BuildConfig.DEBUG){
 			return false;
 		}
 		
+		//Checking if this is a testing version
+		String tVerName = tmpPackageInfo.versionName;
+		if(tVerName.contains("test") || tVerName.contains("Test") || tVerName.contains("TEST")){
+			return false;
+		}
+		
 		return true;
 	}
-	
 }

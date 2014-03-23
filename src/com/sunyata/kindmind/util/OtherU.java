@@ -36,7 +36,6 @@ import com.sunyata.kindmind.WidgetAndNotifications.WidgetProviderC;
 public class OtherU {
 
 	public static final String LIST_TYPE = "LIST_TYPE";
-	public static final String ACTIONS_SEPARATOR = ";";
 	public static final int MAX_NR_OF_PATTERN_ROWS = 2000;
 
 
@@ -97,4 +96,6 @@ public class OtherU {
 					+ "Waited a long time for condition");
 		}
 	}
+
+
 }

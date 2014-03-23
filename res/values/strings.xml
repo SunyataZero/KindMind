@@ -26,7 +26,7 @@
     
     <!-- DetailsFragmentC -->
     <string name="delete_list_item">Delete item</string>
-    <string name="listitem_name_hint">Please enter a new list item title</string> <!-- \nQuote from the Buddha -->
+    <string name="listitem_name_hint">Please enter a title for the new list item</string>
     <string name="notification_textbox_title">Activate notification</string>
     <string name="notification_button_title">Change notification time</string>
     <string name="notification_time_not_set_title">"--:--"</string>

@@ -17,7 +17,6 @@
             android:paddingTop="20dp"
             android:text="Version"
             android:textAppearance="?android:attr/textAppearanceSmall" />
-
         <TextView
             android:id="@+id/versionTextView"
             android:layout_width="match_parent"
@@ -31,13 +30,12 @@
             android:paddingTop="20dp"
             android:text="Created By"
             android:textAppearance="?android:attr/textAppearanceSmall" />
-
         <TextView
             android:id="@+id/createdByTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="email"
-            android:text="Tord Dellsén\ntord.dellsen@gmail.com" />
+            android:text="Tord Dellsén\nsunyata.apps@gmail.com" />
 
         <TextView
             android:id="@+id/priceTitletextView"
@@ -47,15 +45,40 @@
             android:paddingTop="20dp"
             android:text="Price"
             android:textAppearance="?android:attr/textAppearanceSmall" />
-
         <TextView
             android:id="@+id/priceTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="This app is completely cost-free as of this writing. This may change and there may be parts of
-the app that will be priced. My hope is that in the future this software will be open source and free (free as in freedom)
-to the extent that this is possible on the platform." />
+            android:text="This app is completely cost-free as of this writing. This may change and there may be parts of the app that will be priced. My hope is that in the future this software will be open source and free (free as in freedom)" />
 
+        <TextView
+            android:id="@+id/privacyTitletextView"
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="20dp"
+            android:text="Privacy"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+        <TextView
+            android:id="@+id/privacyTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="This application is designed with the idea in mind to keep user data locally, google analytics is not used and backup is not done to any cloud service" />
+
+        <TextView
+            android:id="@+id/legalTitleTextView"
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="20dp"
+            android:text="Legal"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+        <TextView
+            android:id="@+id/legalTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Using this software, you are accepting the software &quot;as is&quot;. The developer will not be held responsible for any damages arising from use of the software. There is no warranty for this software" />
+        
         <TextView
             android:id="@+id/photoCreditsTitletextView"
             style="?android:attr/listSeparatorTextViewStyle"
@@ -64,15 +87,13 @@ to the extent that this is possible on the platform." />
             android:paddingTop="20dp"
             android:text="Photo Credits"
             android:textAppearance="?android:attr/textAppearanceSmall" />
-
         <TextView
             android:id="@+id/photoCreditsTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="web"
-            android:text="The KindMind white flower logo and icon (and some google play image resources) are based on
-a photo taken by Torgny Dellsén, the image is used with permission.\n
-   http://torgnydellsen.zenfolio.com/" />
+            android:text="The KindMind white flower logo and icon (and some google play image resources) are based on a photo taken by Torgny Dellsén, the image is used with permission.
+\n   http://torgnydellsen.zenfolio.com/" />
 
         <TextView
             android:id="@+id/thanksTitletextView"
@@ -82,13 +103,11 @@ a photo taken by Torgny Dellsén, the image is used with permission.\n
             android:paddingTop="20dp"
             android:text="Thanks"
             android:textAppearance="?android:attr/textAppearanceSmall" />
-
         <TextView
             android:id="@+id/thanksTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Some of the sources of inspiration for this app:
-Jane McGonigal, Marshall Rosenberg and Nonviolent Communication (sm), Kristin Neff" />
+            android:text="Some of the sources of inspiration for this app: Jane McGonigal, Marshall Rosenberg and Nonviolent Communication (sm), Kristin Neff" />
 
         <TextView
             android:id="@+id/openSourceLicensesTitletextView"
@@ -98,24 +117,22 @@ Jane McGonigal, Marshall Rosenberg and Nonviolent Communication (sm), Kristin Ne
             android:paddingTop="20dp"
             android:text="Open Source Licenses"
             android:textAppearance="?android:attr/textAppearanceSmall" />
-
         <TextView
             android:id="@+id/openSourceLicensesHoloColorsTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="web"
-            android:text="Android Holo Colors\n
-			http://android-holo-colors.com\n
-			http://creativecommons.org/licenses/by/3.0/" />
-
+            android:text="Android Holo Colors
+\n   http://android-holo-colors.com
+\n   http://creativecommons.org/licenses/by/3.0/" />
         <TextView
             android:id="@+id/openSourceLicensesActionBarTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="web"
-            android:text="Android Action Bar Style Generator\n
-   http://jgilfelt.github.io/android-actionbarstylegenerator\n
-   http://creativecommons.org/licenses/by/3.0/" />
+            android:text="Android Action Bar Style Generator
+\n   http://jgilfelt.github.io/android-actionbarstylegenerator
+\n   http://creativecommons.org/licenses/by/3.0/" />
 
         <!--
 		<TextView

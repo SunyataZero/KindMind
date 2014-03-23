@@ -6,9 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-import com.sunyata.kindmind.util.DatabaseU;
 import com.sunyata.kindmind.util.DbgU;
-import com.sunyata.kindmind.util.OtherU;
+import com.sunyata.kindmind.util.ItemActionsU;
 
 
 /*
@@ -107,7 +106,7 @@ public class ItemTableM {
 			for(tItemCr.moveToFirst(); tItemCr.isAfterLast() == false; tItemCr.moveToNext()){
 				String tmpActions = tItemCr.getString(tItemCr.getColumnIndexOrThrow(COLUMN_ACTIONS));
 				String tmpId = tItemCr.getString(tItemCr.getColumnIndexOrThrow(COLUMN_ID));
-				tmpActions = tmpActions.replace(OLD_SEPARATOR, OtherU.ACTIONS_SEPARATOR);
+				tmpActions = tmpActions.replace(OLD_SEPARATOR, ItemActionsU.ACTIONS_SEPARATOR);
 				ContentValues tmpContentValues = new ContentValues();
 				tmpContentValues.put(ItemTableM.COLUMN_ACTIONS, tmpActions);
 				inDatabase.update(ItemTableM.TABLE_ITEM, tmpContentValues, COLUMN_ID + "=" + tmpId, null);

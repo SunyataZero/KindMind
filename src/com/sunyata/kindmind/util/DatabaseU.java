@@ -191,6 +191,10 @@ if(temporaryValue.equals("")){handle error}
 		}
 	}
 	
+	
+
+	
+	
 	///@name Adding new items
 	///@{
 	
@@ -202,62 +206,85 @@ if(temporaryValue.equals("")){handle error}
 	}
 	*/
 
-	public static void createAllStartupItems(Context inContext) {
+	public static void createAllStartupItems(Context iCt) {
 		Log.i(DbgU.getAppTag(), "Creating startup items");
 		
-		createStartupItem(inContext, ListTypeM.FEELINGS, "Angry");
-		createStartupItem(inContext, ListTypeM.FEELINGS, "Anxious");
-		createStartupItem(inContext, ListTypeM.FEELINGS, "Concerned");
-		createStartupItem(inContext, ListTypeM.FEELINGS, "Depressed");
-		createStartupItem(inContext, ListTypeM.FEELINGS, "Dissapointed");
-		createStartupItem(inContext, ListTypeM.FEELINGS, "Embarrassed");
-		createStartupItem(inContext, ListTypeM.FEELINGS, "Frustrated");
-		createStartupItem(inContext, ListTypeM.FEELINGS, "Guilty");
-		createStartupItem(inContext, ListTypeM.FEELINGS, "Hurt");
-		createStartupItem(inContext, ListTypeM.FEELINGS, "Overwhelmed");
-		createStartupItem(inContext, ListTypeM.FEELINGS, "Resentful");
-		createStartupItem(inContext, ListTypeM.FEELINGS, "Sad");
-		createStartupItem(inContext, ListTypeM.FEELINGS, "Tired");
-		createStartupItem(inContext, ListTypeM.FEELINGS, "Uncomfortable");
+		Uri tUri = null; //-used for adding actions to items
+		
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Angry");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Anxious");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Concerned");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Depressed");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Dissapointed");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Embarrassed");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Frustrated");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Guilty");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Hurt");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Overwhelmed");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Resentful");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Sad");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Tired");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Uncomfortable");
 		//Vulnarable
 		//Suspicious
 		//Shameful
+		//TODO: Hint: Please remember the distinction between feelings and thoughts, feelings are based in
+		//the body while thoughts are often ________
 
-		createStartupItem(inContext, ListTypeM.NEEDS, "Acceptance");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Appreciation");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Authenticity");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Connection");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Consideration");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Contribution");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Creativity");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Emotional safety");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Empathy");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Freedom");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Fun");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Inspiration");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Love");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Mourning");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Physical comfort");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Rest");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Support");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Trust");
-		createStartupItem(inContext, ListTypeM.NEEDS, "Understanding");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Acceptance");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Appreciation");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Authenticity");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Connection");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Consideration");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Contribution");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Creativity");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Emotional safety");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Empathy");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Freedom");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Fun");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Inspiration");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Love");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Mourning");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Physical comfort");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Rest");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Support");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Trust");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Understanding");
 		//Self-worth, to matter
 		//Community
+		//Meaning (cmp Contribution)
+		//TODO: Hint: Please remember that needs can be fulfilled by any person, including oneself
+		//For example you can give support for yourself
+		
 
-		createStartupItem(inContext, ListTypeM.KINDNESS, "Awareness of a feeling in the body");
-		createStartupItem(inContext, ListTypeM.KINDNESS, "Calling a friend");
-		createStartupItem(inContext, ListTypeM.KINDNESS, "Enumerating good things recently");
-		createStartupItem(inContext, ListTypeM.KINDNESS, "Finding a new way to do something");
-		createStartupItem(inContext, ListTypeM.KINDNESS, "Focusing on a need");
-		createStartupItem(inContext, ListTypeM.KINDNESS, "Following the breath");
-		createStartupItem(inContext, ListTypeM.KINDNESS, "Looking at a plant or a tree nearby");
-		createStartupItem(inContext, ListTypeM.KINDNESS, "Seeing alternative ways to respond");
-		createStartupItem(inContext, ListTypeM.KINDNESS, "Seeing the bigger perspective");
-		createStartupItem(inContext, ListTypeM.KINDNESS, "Stretching");
-		createStartupItem(inContext, ListTypeM.KINDNESS, "Thinking about a time when you helped someone");
-		createStartupItem(inContext, ListTypeM.KINDNESS, "Thinking about someone who shares your experience");
-
+		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Awareness of a feeling in the body");
+		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Calling a friend");
+		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Enumerating good things");
+		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Focusing on a need");
+		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Following the breath");
+		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Looking at a plant or a tree");
+		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Seeing alternative ways to respond");
+		ItemActionsU.addAction(iCt, tUri, "http://www.youtube.com/user/baynvc/");
+		ItemActionsU.addAction(iCt, tUri, "http://www.youtube.com/user/MettaCenter/");
+		ItemActionsU.addAction(iCt, tUri, "http://www.youtube.com/channel/UCH6fuu1ChJNrs7ecSDdR8QQ");
+		ItemActionsU.addAction(iCt, tUri, "http://yourskillfulmeans.com/");
+		ItemActionsU.addAction(iCt, tUri, "https://sites.google.com/site/mindfulnessandhealing/home");
+		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Seeing the bigger perspective");
+		ItemActionsU.addAction(iCt, tUri, "http://apod.nasa.gov/apod/");
+		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Stretching");
+		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Thinking about a time when you helped someone");
+		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Thinking about someone who shares your experience");
+		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Thinking about an inspiring person");
+		ItemActionsU.addAction(iCt, tUri, "http://dalailama.com/gallery");
+		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Thinking about an inspiring person");
+		
+		//
+		
+		//TODO: Hint: Edit the setup view for an item by long clicking on it
+		
+		//TODO: Hint: Multiple items can be added
+		//TODO: Create a hint class that writes to a preferences file if a hint has been performed
+		
 		/*
 		PreferenceManager.getDefaultSharedPreferences(inContext)
 		.edit()
@@ -265,7 +292,7 @@ if(temporaryValue.equals("")){handle error}
 		.commit();
 		*/
 	}
-	private static void createStartupItem(Context iContext, int iListTypeInt, String iName){
+	private static Uri createStartupItem(Context iContext, int iListTypeInt, String iName){
 		ContentValues tContentValsToIns = new ContentValues();
 
 		//Using the name to see if the item has already been added
@@ -273,18 +300,18 @@ if(temporaryValue.equals("")){handle error}
 		Cursor tItemCr = iContext.getContentResolver().query(
 				ContentProviderM.ITEM_CONTENT_URI, null, null, null, null);
 		try{
-			if(tItemCr != null && tItemCr.moveToFirst()){
+			if(tItemCr != null){
 
 				for(tItemCr.moveToFirst(); tItemCr.isAfterLast() == false; tItemCr.moveToNext()){
 					tName = tItemCr.getString(tItemCr.getColumnIndexOrThrow(ItemTableM.COLUMN_NAME));
 					if(iName.compareTo(tName) == 0){
 						//item with same name already exists, exiting without adding item
-						return;
+						return null;
 					}
 				}
 
 			}else{
-				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor null or empty", new Exception());
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor null", new Exception());
 			}
 		}catch(Exception e){
 			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Exception when using cursor", e);
@@ -298,7 +325,15 @@ if(temporaryValue.equals("")){handle error}
 
 		tContentValsToIns.put(ItemTableM.COLUMN_LIST_TYPE, iListTypeInt);
 		tContentValsToIns.put(ItemTableM.COLUMN_NAME, iName);
-		iContext.getContentResolver().insert(ContentProviderM.ITEM_CONTENT_URI, tContentValsToIns);
+		/*
+		tContentValsToIns.put(ItemTableM.COLUMN_ACTIONS, "http://apod.nasa.gov/apod/astropix.html"
+				+ ItemActionsU.ACTIONS_SEPARATOR);
+		*/
+
+		Uri rNewItemUri = iContext.getContentResolver().insert(
+				ContentProviderM.ITEM_CONTENT_URI, tContentValsToIns);
+		
+		return rNewItemUri;
 	}
 	
 	///@}
