@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  
     <!-- MainActivityC -->
     <string name="app_name">KindMind</string>
-
-    <string name="item_setup_activity_title">Item Setup</string>
-    <string name="file_chooser_activity_title">File Chooser</string>
-    <string name="media_chooser_activity_title">Media Chooser</string>
-    <string name="bookmark_chooser_activity_title">Bookmark Chooser</string>
-    <string name="about_activity_title">About</string>
-    
     <string name="feelings_title">Feelings</string>
     <string name="needs_title">Needs</string>
     <string name="kindness_title">Kindness</string>
@@ -20,6 +14,7 @@
     <string name="sort_alphabetically">Sort alphabetically</string>
     <string name="sort_by_rank">Sort using KindSort (default)</string>
     <string name="send_as_text_all">Send lists as text</string>
+    <string name="about_activity_title">About</string>
     <string name="share_experience">[DEBUG] Share experience</string>
     <string name="backup_database">[DEBUG] Backup database</string>
     <string name="reset_database">[DEBUG] Reset database</string>
@@ -34,11 +29,40 @@
     <string name="file_chooser_title">Choose one of the following actions to be performed when pressing the item in the list</string>
     <string name="add_new_action">Add new action</string>
     
-    <!-- DetailsFragmentC action choice popup -->
+    <!-- SetupFragmentC -->
+    <string name="item_setup_activity_title">Item Setup</string>
+    <string name="video_chooser_activity_title">Video Chooser</string>
+    <string name="bookmark_chooser_activity_title">Bookmark Chooser</string>
     <string name="image_file_chooser_button_title">Image</string>
     <string name="audio_file_chooser_button_title">Audio</string>
     <string name="video_file_chooser_button_title">Video</string>
     <string name="contact_chooser_button_title">Contact</string>
     <string name="bookmark_chooser_button_title">Bookmark</string>
+    
+    <!-- AboutFragmentC -->
+    <string name="about_version_title">Version</string>
+    <!-- version text is set programmatically, ex: "0.14.31_BETA -->
+    <string name="about_createdBy_title">Created By</string>
+    <string name="about_createdBy_text">Version</string>
+    <string name="about_price_title">Price</string>
+    <string name="about_price_text">"This app is completely cost-free as of this writing. This may change and there may be parts of the app that will be priced. My hope is that in the future this software will be open source and free (free as in freedom)"</string>
+    <string name="about_privacy_title">Privacy</string>
+    <string name="about_privacy_text">This application is designed with the idea in mind to keep user data locally, google analytics is not used and backup is not done to any cloud service</string>
+    <string name="about_legal_title">Legal</string>
+    <string name="about_legal_text">Using this software, you are accepting the software &quot;as is&quot;. The developer will not be held responsible for any damages arising from use of the software. There is no warranty for this software</string>
+    <string name="about_photoCredits_title">Photo Credits</string>
+    <string name="about_photoCredits_text">The KindMind white flower logo and icon (and some google play image resources) are based on a photo taken by Torgny Dellsén, the image has been used with permission.
+\n   http://torgnydellsen.zenfolio.com/</string>
+    <string name="about_thanks_title">Thanks</string>
+    <string name="about_thanks_text">The idea for this app came from work by Jane McGonigal. The structure of feelings and needs are from Marshall Rosenberg and Nonviolent Communication (sm). Ideas from Kristin Neff and Buddhism also influenced this app.</string>
+    
+    <!-- Widget Config -->
+    <string name="widgetConfig_title">Widget Setup</string>
+    <string name="widgetConfig_text">Please choose type of widget:</string>
+    <string name="widgetConfig_ok">OK</string>
+    <string name="widgetConfig_cancel">Cancel</string>
+    
+    <!-- Other -->
+    <string name="widgetList_empty">Empty</string>
     
 </resources>

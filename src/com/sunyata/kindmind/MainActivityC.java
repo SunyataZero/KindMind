@@ -10,10 +10,11 @@ import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
-import android.database.CursorIndexOutOfBoundsException;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -31,6 +32,7 @@ import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SortingAlgorithmServiceM;
 import com.sunyata.kindmind.util.DatabaseU;
 import com.sunyata.kindmind.util.DbgU;
+import com.sunyata.kindmind.util.ItemActionsU;
 import com.sunyata.kindmind.util.OtherU;
 
 /**
@@ -50,7 +52,9 @@ import com.sunyata.kindmind.util.OtherU;
  */
 public class MainActivityC extends FragmentActivity implements MainActivityCallbackListenerI{
 
-	public final static String EXTRA_URI_AS_STRING = "uri_as_string";
+	private static final String PREF_APP_VERSION_CODE = "app_version_code";
+	private static final int APP_NEVER_STARTED = -1;
+	public static final String EXTRA_URI_AS_STRING = "uri_as_string";
 
 	private ViewPagerM mViewPager;
 	private FragmentAdapterM mPagerAdapter;
@@ -70,7 +74,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	 * + http://developer.android.com/reference/android/support/v4/view/ViewPager.OnPageChangeListener.html
 	 */
 	@Override
-	protected void onCreate(Bundle inSavedInstanceState) {
+	public void onCreate(Bundle inSavedInstanceState) {
 		super.onCreate(inSavedInstanceState);
 		Log.d(DbgU.getAppTag(), DbgU.getMethodName());
 
@@ -82,9 +86,31 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
         }
 		*/
 
-		//Creation of new list items
-		DatabaseU.createAllStartupItems(this);
-
+		//Checking if this is the first time the app is started or if we are running a new version
+		int tOldVer = PreferenceManager.getDefaultSharedPreferences(this).getInt(
+				PREF_APP_VERSION_CODE, APP_NEVER_STARTED);
+		int tNewVer = 0;
+		try {
+			tNewVer = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+		} catch (NameNotFoundException e) {
+			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName());
+			e.printStackTrace();
+			finish();
+		}
+		if(tNewVer > tOldVer){
+			//Creating or updating pre-configured startup item
+			DatabaseU.createOrUpdateAllStartupItems(this);
+			
+			//Writing the new version into the shared preferences
+			PreferenceManager.getDefaultSharedPreferences(this)
+					.edit()
+					.putInt(PREF_APP_VERSION_CODE, tNewVer)
+					.commit();
+		}
+		
+		//Going through the database and removing any possible broken uri file references
+		ItemActionsU.removeActionsWithBrokenUriFilePaths(this);
+		
 		//Setting layout and title
 		setContentView(R.layout.activity_main);
 		setTitle(R.string.app_name);
@@ -98,7 +124,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		/////mViewPagerPosition = ListTypeM.FEELINGS;
 		mViewPager.setAdapter(mPagerAdapter);
 		mViewPager.setOffscreenPageLimit(ListTypeM.NUMBER_OF_TYPES - 1);
-		//-Using this becase getAdapter sometimes gives null, for more info, see this link:
+		//-Using this because getAdapter sometimes gives null, for more info, see this link:
 		// http://stackoverflow.com/questions/13651262/getactivity-in-arrayadapter-sometimes-returns-null
 
 		//Create and set the OnPageChangeListener for the ViewPager
@@ -218,7 +244,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		this.getContentResolver().delete(ContentProviderM.PATTERNS_CONTENT_URI, null, null);
 
 		//Adding new data
-		DatabaseU.createAllStartupItems(this);
+		DatabaseU.createOrUpdateAllStartupItems(this);
 
 		//Resetting static variables
 		mViewPager.setCurrentItem(ListTypeM.FEELINGS);

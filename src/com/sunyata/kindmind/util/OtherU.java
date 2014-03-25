@@ -1,36 +1,16 @@
 package com.sunyata.kindmind.util;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
 
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.Environment;
-import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.util.Log;
 
 import com.sunyata.kindmind.R;
-import com.sunyata.kindmind.SortTypeM;
-import com.sunyata.kindmind.Database.ContentProviderM;
-import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.List.ListTypeM;
-import com.sunyata.kindmind.R.id;
 import com.sunyata.kindmind.WidgetAndNotifications.WidgetProviderC;
 
 public class OtherU {

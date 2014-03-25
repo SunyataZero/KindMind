@@ -31,7 +31,6 @@ import android.widget.ListView;
 import com.sunyata.kindmind.AboutActivityC;
 import com.sunyata.kindmind.BuildConfig;
 import com.sunyata.kindmind.MainActivityCallbackListenerI;
-import com.sunyata.kindmind.OnClickToastOrActionC;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.SortTypeM;
 import com.sunyata.kindmind.Database.ContentProviderM;

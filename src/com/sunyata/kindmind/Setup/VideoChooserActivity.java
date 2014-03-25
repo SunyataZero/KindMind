@@ -7,11 +7,14 @@ import android.database.Cursor;
 import android.database.MergeCursor;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
+
+import com.sunyata.kindmind.util.DbgU;
 
 public class VideoChooserActivity extends ListActivity {
 
@@ -19,13 +22,6 @@ public class VideoChooserActivity extends ListActivity {
 			"RETURN_VALUE_FROM_VIDEO_CHOOSER_FRAGMENT";
 
 	private SimpleCursorAdapter mCursorAdapter;
-	
-	/*
-	public FileChooserActivity(String iTitleColumn, String iUriColumn){
-		mTitleColumn = iTitleColumn;
-		mUriColumn = iUriColumn;
-	}
-	*/
 	
 	@Override
 	public void onCreate(Bundle iSavedInstanceState){
@@ -52,6 +48,9 @@ public class VideoChooserActivity extends ListActivity {
 		
 		MergeCursor tMergeCursor = new MergeCursor(tCursorArray);
 
+		Log.d(DbgU.getAppTag(), DbgU.getMethodName()
+				+ " tMergeCursor.getCount() = " + tMergeCursor.getCount());
+		//PLEASE NOTE: The emulator may have to be restarted for the system to detect new files
 		
 		mCursorAdapter = new SimpleCursorAdapter(
 				this, android.R.layout.simple_list_item_2, tMergeCursor,

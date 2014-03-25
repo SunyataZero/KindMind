@@ -1,4 +1,4 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.List;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
-import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.util.DatabaseU;
 import com.sunyata.kindmind.util.DbgU;
 import com.sunyata.kindmind.util.ItemActionsU;
@@ -81,8 +80,9 @@ public class OnClickToastOrActionC {
 			}
 		}
 		//If the string has been cleared (or not set) exiting
-		if(tmpActions.equals("")){return;}
-		
+		if(tmpActions.equals("") || tmpActions.equals(ItemActionsU.ACTIONS_DELINEATOR)){
+			return;
+		}
 		/*
 02-27 22:29:51.187: E/AndroidRuntime(20502): android.database.CursorIndexOutOfBoundsException: Index 0 requested, with a size of 0
 02-27 22:29:51.187: E/AndroidRuntime(20502): 	at android.database.AbstractCursor.checkPosition(AbstractCursor.java:400)
@@ -168,9 +168,10 @@ public class OnClickToastOrActionC {
 					inRandomlyGivenAction.toString().endsWith(".mp3")){
 
 				
-				if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
+				if(tmpAudioManager.isWiredHeadsetOn() == false
+						|| tmpAudioManager.isSpeakerphoneOn() == true){
 				/*
-				PLEASE NOTE: Half deprecated but this method can still be used for checking connectivity:
+				PLEASE NOTE: "Half deprecated" but this method can still be used for checking connectivity:
 				"
 				This method was deprecated in API level 14.
 				***Use only to check is a headset is connected or not.***
@@ -183,6 +184,7 @@ public class OnClickToastOrActionC {
 							"Not playing audio since headset is not connected or speaker phone is on",
 							Toast.LENGTH_LONG)
 							.show();
+					
 					return;
 				}
 			
@@ -190,7 +192,8 @@ public class OnClickToastOrActionC {
 
 			}else if(
 					inRandomlyGivenAction.toString().endsWith(".mp4")||
-					inRandomlyGivenAction.toString().endsWith(".avi")){
+					inRandomlyGivenAction.toString().endsWith(".avi")||
+					inRandomlyGivenAction.toString().endsWith(".mkv")){
 				if(tmpAudioManager.isWiredHeadsetOn() == false || tmpAudioManager.isSpeakerphoneOn() == true){
 					//-See comments above about isWiredHeadsetOn()
 					Toast.makeText(
@@ -198,13 +201,16 @@ public class OnClickToastOrActionC {
 							"Not playing video since headset is not connected or speaker phone is on",
 							Toast.LENGTH_LONG)
 							.show();
+					
+					/////////////////////tmpAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+					
 					return;
 				}
 
 				tmpTypeString = "video/*";
 
 			}else{
-				//Continue with "*/*"
+				//Continuing with "*/*"
 			}
 
 			//For all media files:

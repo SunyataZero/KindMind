@@ -36,7 +36,7 @@ import com.sunyata.kindmind.util.OtherU;
  * Used in: 
  * Notes: 
  * Improvements: 
- * Documentation: 
+ * Documentation: http://developer.android.com/guide/topics/ui/notifiers/notifications.html
  */
 public class NotificationServiceC extends IntentService {
 

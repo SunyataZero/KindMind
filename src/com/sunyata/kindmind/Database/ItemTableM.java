@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+import com.sunyata.kindmind.util.DatabaseU;
 import com.sunyata.kindmind.util.DbgU;
 import com.sunyata.kindmind.util.ItemActionsU;
 
@@ -73,7 +74,7 @@ public class ItemTableM {
 			+ COLUMN_NAME + " TEXT NOT NULL DEFAULT '" + NO_NAME + "', "
 			+ COLUMN_LIST_TYPE + " INTEGER NOT NULL, "
 			+ COLUMN_ACTIVE + " INTEGER NOT NULL DEFAULT " + String.valueOf(FALSE) + ", "
-			+ COLUMN_ACTIONS + " TEXT NOT NULL DEFAULT '" + NO_NAME + "', "
+			+ COLUMN_ACTIONS + " TEXT NOT NULL DEFAULT '" + ItemActionsU.ACTIONS_DELINEATOR + "', "
 			+ COLUMN_NOTIFICATION + " INTEGER NOT NULL DEFAULT " + String.valueOf(FALSE) + ", "
 			+ COLUMN_KINDSORT_VALUE + " REAL NOT NULL DEFAULT 0"
 			+ ");";
@@ -93,10 +94,12 @@ public class ItemTableM {
 	
 	
 
-	public static void upgradeTable(SQLiteDatabase inDatabase, int inOldVersion, int inNewVersion) {
-		//Upgrading the database by changing the action separator character from " " to ";"
-		if(inOldVersion == 46 && inNewVersion == 47){
-			
+	public static void upgradeTable(SQLiteDatabase inDatabase, int iOldVer, int iNewVer) {
+		
+
+		
+		if(iOldVer == 46 && iNewVer == 47){
+			//Upgrading the database by changing the action separator character from " " to ";"
 			Cursor tItemCr = inDatabase.query(ItemTableM.TABLE_ITEM, null, null, null, null, null, null);
 			if(tItemCr.getCount() == 0){
 				tItemCr.close();
@@ -106,12 +109,54 @@ public class ItemTableM {
 			for(tItemCr.moveToFirst(); tItemCr.isAfterLast() == false; tItemCr.moveToNext()){
 				String tmpActions = tItemCr.getString(tItemCr.getColumnIndexOrThrow(COLUMN_ACTIONS));
 				String tmpId = tItemCr.getString(tItemCr.getColumnIndexOrThrow(COLUMN_ID));
-				tmpActions = tmpActions.replace(OLD_SEPARATOR, ItemActionsU.ACTIONS_SEPARATOR);
+				tmpActions = tmpActions.replace(OLD_SEPARATOR, ItemActionsU.ACTIONS_DELINEATOR);
 				ContentValues tmpContentValues = new ContentValues();
 				tmpContentValues.put(ItemTableM.COLUMN_ACTIONS, tmpActions);
 				inDatabase.update(ItemTableM.TABLE_ITEM, tmpContentValues, COLUMN_ID + "=" + tmpId, null);
 			}
 			tItemCr.close();
+			
+			
+		}else if((iOldVer == 52 || iOldVer == 53 || iOldVer == 54 || iOldVer == 55 || iOldVer == 56)
+				&& iNewVer == 57){
+			
+			Cursor tItemCr = inDatabase.query(ItemTableM.TABLE_ITEM, null, null, null, null, null, null);
+			try{
+				if(tItemCr != null && tItemCr.moveToFirst()){
+					for(tItemCr.moveToFirst(); tItemCr.isAfterLast() == false; tItemCr.moveToNext()){
+						
+						String tmpActions = tItemCr.getString(tItemCr.getColumnIndexOrThrow(COLUMN_ACTIONS));
+						if(tmpActions.equals(ItemActionsU.ACTIONS_DELINEATOR)){
+							continue;
+						}else if(tmpActions.equals("")){
+							tmpActions = ItemActionsU.ACTIONS_DELINEATOR;
+						}else{
+							if(tmpActions.startsWith(ItemActionsU.ACTIONS_DELINEATOR) == false){
+								tmpActions = ItemActionsU.ACTIONS_DELINEATOR + tmpActions;
+							}
+							if(tmpActions.endsWith(ItemActionsU.ACTIONS_DELINEATOR) == false){
+								tmpActions = tmpActions + ItemActionsU.ACTIONS_DELINEATOR;
+							}
+						}
+						
+						//Updating the actions string
+						String tmpId = tItemCr.getString(tItemCr.getColumnIndexOrThrow(COLUMN_ID));
+						ContentValues tmpContentValues = new ContentValues();
+						tmpContentValues.put(ItemTableM.COLUMN_ACTIONS, tmpActions);
+						inDatabase.update(ItemTableM.TABLE_ITEM, tmpContentValues,
+								COLUMN_ID + "=" + tmpId, null);
+					}
+				}
+			}catch(Exception e){
+				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " Exception when using cursor", e);
+			}finally{
+				if(tItemCr != null){
+					tItemCr.close();
+				}else{
+					Log.w(DbgU.getAppTag(), DbgU.getMethodName() + " Cursor null when trying to close");
+				}
+			}
+			
 			
 		}else{
 			Log.w(DbgU.getAppTag(), "Upgrade removed the database with a previous version and created a new one, " +

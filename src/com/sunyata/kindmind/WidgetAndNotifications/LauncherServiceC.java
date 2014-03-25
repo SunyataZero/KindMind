@@ -6,7 +6,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.sunyata.kindmind.MainActivityC;
-import com.sunyata.kindmind.OnClickToastOrActionC;
+import com.sunyata.kindmind.List.OnClickToastOrActionC;
 import com.sunyata.kindmind.util.DbgU;
 
 /*

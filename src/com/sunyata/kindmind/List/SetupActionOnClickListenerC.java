@@ -1,6 +1,5 @@
 package com.sunyata.kindmind.List;
 
-import com.sunyata.kindmind.OnClickToastOrActionC;
 
 import android.content.Context;
 import android.view.View;
