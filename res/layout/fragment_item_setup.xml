@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="20dp"
-            android:text="Title"
+            android:text="@string/itemSetup_itemTitle"
             android:textAppearance="?android:attr/textAppearanceSmall"
             style="?android:attr/listSeparatorTextViewStyle" />
         <EditText
@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="20dp"
-            android:text="Daily reminder"
+            android:text="@string/itemSetup_dailyReminder"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <RelativeLayout
@@ -63,7 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="20dp"
-            android:text="Action on click"
+            android:text="@string/itemSetup_actionOnClick"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <LinearLayout 
@@ -78,7 +78,7 @@
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/add_new_action" />
+            android:text="@string/itemSetup_addNewAction" />
  
     </LinearLayout>
 

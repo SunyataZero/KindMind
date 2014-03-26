@@ -6,7 +6,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.sunyata.kindmind.MainActivityC;
-import com.sunyata.kindmind.List.OnClickToastOrActionC;
+import com.sunyata.kindmind.List.ToastOrActionC;
 import com.sunyata.kindmind.util.DbgU;
 
 /*
@@ -64,7 +64,7 @@ public class LauncherServiceC extends IntentService {
 			}
 			
 			////Context tmpContentProviderContext = Utils.getContentProviderContext(getApplicationContext());
-			OnClickToastOrActionC.randomKindAction(getApplicationContext(), tmpItemUri);
+			ToastOrActionC.randomKindAction(getApplicationContext(), tmpItemUri);
 		}
 	}
 

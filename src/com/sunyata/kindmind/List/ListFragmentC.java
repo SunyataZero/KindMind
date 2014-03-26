@@ -27,6 +27,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.sunyata.kindmind.AboutActivityC;
 import com.sunyata.kindmind.BuildConfig;
@@ -336,7 +337,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 	public void onListItemClick(ListView l, View inView, int pos, long inId){ //[list update]
 		super.onListItemClick(l, inView, pos, inId);
 
-		//Switching the checkbox off/on
+		//Switching the check box off/on
 		CheckBox tmpCheckBox = ((CheckBox)inView.findViewById(R.id.list_item_activeCheckBox));
 		boolean tmpNewCheckedState = !tmpCheckBox.isChecked();
 
@@ -347,12 +348,13 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		getActivity().getContentResolver().update(tmpUri, tmpContentValues, null, null);
 
 		//Performing the various toasts or actions
+		String tName = (String)((TextView)inView.findViewById(R.id.list_item_titleTextView)).getText();
 		if(refListType == ListTypeM.FEELINGS){
-			OnClickToastOrActionC.feelingsToast(getActivity());
+			ToastOrActionC.feelingsToast(getActivity(), tName);
 		}else if(refListType == ListTypeM.NEEDS){
-			OnClickToastOrActionC.needsToast(getActivity());
+			ToastOrActionC.needsToast(getActivity(), tName);
 		}else if(refListType == ListTypeM.KINDNESS && tmpNewCheckedState){
-			OnClickToastOrActionC.randomKindAction(getActivity(), DatabaseU.getItemUriFromId(inId));
+			ToastOrActionC.randomKindAction(getActivity(), DatabaseU.getItemUriFromId(inId));
 		}
 
 		//Sorting

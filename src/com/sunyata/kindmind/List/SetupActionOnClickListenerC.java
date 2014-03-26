@@ -18,7 +18,7 @@ public class SetupActionOnClickListenerC implements OnClickListener {
 	
 	@Override
 	public void onClick(View v) {
-		OnClickToastOrActionC.kindAction(mContext, mAction);
+		ToastOrActionC.kindAction(mContext, mAction);
 	}
 
 }

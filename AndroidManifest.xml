@@ -34,7 +34,7 @@
     
     <activity
       android:name="com.sunyata.kindmind.Setup.ItemSetupActivityC"
-      android:label="@string/item_setup_activity_title" >
+      android:label="@string/itemSetup_activityTitle" >
       <meta-data
         android:name="android.support.PARENT_ACTIVITY"
         android:value=".MainActivityC" />
@@ -42,12 +42,12 @@
     
     <activity
       android:name="com.sunyata.kindmind.Setup.VideoChooserActivity"
-      android:label="@string/video_chooser_activity_title" >
+      android:label="@string/videoChooser_activityTitle" >
     </activity>
     
     <activity
       android:name="com.sunyata.kindmind.Setup.BookmarkChooserActivityC"
-      android:label="@string/bookmark_chooser_activity_title" >
+      android:label="@string/bookmarkChooser_activityTitle" >
     </activity>
 
     <receiver android:name="com.sunyata.kindmind.WidgetAndNotifications.BootCompletedReceiverC" >
@@ -74,7 +74,7 @@
     </service>
 
     <activity android:name="com.sunyata.kindmind.WidgetAndNotifications.WidgetConfigActivityC"
-      android:label="@string/widgetConfig_title" >
+      android:label="@string/widgetConfig_activityTitle" >
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
       </intent-filter>
@@ -106,7 +106,7 @@
 
     <activity
       android:name="com.sunyata.kindmind.AboutActivityC"
-      android:label="@string/about_activity_title" >
+      android:label="@string/about_activityTitle" >
       <meta-data
         android:name="android.support.PARENT_ACTIVITY"
         android:value=".MainActivityC" />

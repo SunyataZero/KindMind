@@ -485,19 +485,19 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			
 			
   		tArray[REQ_CODE_IMAGE_CHOOSER] = iItemSetupFragment.getActivity()
-  				.getResources().getString(R.string.image_file_chooser_button_title);
+  				.getResources().getString(R.string.itemSetup_imageChooser);
   		
   		tArray[REQ_CODE_AUDIO_CHOOSER] = iItemSetupFragment.getActivity()
-  				.getResources().getString(R.string.audio_file_chooser_button_title);
+  				.getResources().getString(R.string.itemSetup_audioChooser);
   				
   		tArray[REQ_CODE_VIDEO_CHOOSER] = iItemSetupFragment.getActivity()
-  				.getResources().getString(R.string.video_file_chooser_button_title);
+  				.getResources().getString(R.string.itemSetup_videoChooser);
 
   		tArray[REQ_CODE_CONTACT_CHOOSER] = iItemSetupFragment.getActivity()
-  				.getResources().getString(R.string.contact_chooser_button_title);
+  				.getResources().getString(R.string.itemSetup_contactChooser);
 
   		tArray[REQ_CODE_BOOKMARK_CHOOSER] = iItemSetupFragment.getActivity()
-  				.getResources().getString(R.string.bookmark_chooser_button_title);
+  				.getResources().getString(R.string.itemSetup_bookmarkChooser);
 
   		List<CharSequence> tArrayList = Arrays.asList(tArray);
 
