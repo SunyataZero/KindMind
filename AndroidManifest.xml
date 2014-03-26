@@ -115,6 +115,9 @@
     <service android:name="com.sunyata.kindmind.List.SortingAlgorithmServiceM" >
     </service>
     
+    <service android:name="com.sunyata.kindmind.ToastServiceC" >
+    </service>
+
   </application>
 
 </manifest>

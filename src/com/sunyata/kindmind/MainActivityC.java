@@ -62,6 +62,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	private String mFeelingTitle;
 	private String mNeedTitle;
 	private String mActionTitle;
+	private ToastOrActionC mToastOrAction;
 
 	///@name Life cycle
 	///@{
@@ -139,6 +140,9 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		rActionBar.addTab(rActionBar.newTab().setText(mNeedTitle).setTabListener(tmpTabListener));
 		rActionBar.addTab(rActionBar.newTab().setText(mActionTitle).setTabListener(tmpTabListener));
 		this.fireUpdateTabTitlesEvent();
+		
+		//Creating an instance of ToastOrAction class
+		mToastOrAction = new ToastOrActionC();
 	}
 
 	/**
@@ -600,5 +604,19 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		public void onTabUnselected(Tab tab, FragmentTransaction ft) {}
 		@Override
 		public void onTabReselected(Tab tab, FragmentTransaction ft) {}
+	}
+
+	@Override
+	public void fireFeelingsToastEvent(String iName) {
+		
+		mToastOrAction.feelingsToast(this, iName);
+		
+	}
+
+	@Override
+	public void fireNeedsToastEvent(String iName) {
+
+		mToastOrAction.needsToast(this, iName);
+		
 	}
 }

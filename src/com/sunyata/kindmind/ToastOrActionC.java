@@ -1,14 +1,12 @@
-package com.sunyata.kindmind.List;
+package com.sunyata.kindmind;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,6 +22,7 @@ import android.widget.Toast;
 
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.util.DbgU;
 import com.sunyata.kindmind.util.ItemActionsU;
 
@@ -32,7 +31,6 @@ public class ToastOrActionC {
 	private static final long BREATHING_LENGTH_IN = 6500;
 	private static final long BREATHING_LENGTH_OUT = 8000;
 	
-	
 	/**
 	 * \brief ToastCountDownTimerC uses multiple toasts to show what to the user
 	 * looks like a longer toast than is otherwise possible
@@ -40,17 +38,18 @@ public class ToastOrActionC {
 	 * Implemented as a wrapper containing a CountDownTimer. Assumes Toast.LONG = 3500 ms
 	 * 
 	 * Documentation: http://stackoverflow.com/questions/2220560/can-an-android-toast-be-longer-than-toast-length-long
+	 * 
+	 * Improvement: http://stackoverflow.com/questions/5659137/some-kind-of-queue-for-asynctask
 	 */
-	private static class ToastCountDownTimerC{
-
+	private class ToastCountDownTimerC{
 		private static final long TOAST_INTERVAL = 1000;
 		private static final long TOAST_LENGTH_SHORT = 2000;
 		
-		public ToastCountDownTimerC(final Context iContext,
+		public ToastCountDownTimerC(final Activity iActivity,
 				long iInBreathLength, final long iOutBreathLength,
 				String iInBreathText, final String iOutBreathText) {
 
-			showToast(iContext, iInBreathLength, iInBreathText);
+			showToast(iActivity, iInBreathLength, iInBreathText);
 
 			//After a set period of time, starting a similar operation for the out breath
 			new CountDownTimer(iInBreathLength, iInBreathLength){
@@ -58,19 +57,19 @@ public class ToastOrActionC {
 				public void onTick(long millisUntilFinished) {}
 				@Override
 				public void onFinish() {
-					showToast(iContext, iOutBreathLength, iOutBreathText);
+					showToast(iActivity, iOutBreathLength, iOutBreathText);
 				}
 			}.start();
 		}
 
-		private void showToast(Context iContext, long iLength, String iText) {
+		private void showToast(Activity iActivity, long iLength, String iText) {
 			long tTotalTimeForTimer = iLength - TOAST_LENGTH_SHORT;
 			if(tTotalTimeForTimer <= 0){
 				Log.wtf(DbgU.getAppTag(), DbgU.getMethodName() + " length under low boundary",
 						new Exception());
 			}
 			
-			final Toast tToastToShow = Toast.makeText(iContext, iText, Toast.LENGTH_SHORT);
+			final Toast tToastToShow = Toast.makeText(iActivity, iText, Toast.LENGTH_SHORT);
 			
 			tToastToShow.show();
 			
@@ -95,12 +94,24 @@ public class ToastOrActionC {
 	 * 
 	 * @param inContext
 	 */
-	@SuppressLint("ShowToast")
-	public static void feelingsToast(Context inContext, String iFeeling) {
+	public void feelingsToast(final Activity iActivity, final String iFeeling) {
 
-		new ToastCountDownTimerC(inContext, BREATHING_LENGTH_IN, BREATHING_LENGTH_OUT,
-				"Breathing in, I am aware of a feeling of " + iFeeling + " in me, ...",
-				"... breathing out, I calm the feeling of " + iFeeling +  " in me");
+		//inContext.startService(new Intent(inContext, ToastServiceC.class));
+
+				new ToastCountDownTimerC(iActivity, BREATHING_LENGTH_IN, BREATHING_LENGTH_OUT,
+						"Breathing in, I am aware of a feeling of " + iFeeling + " in me, ...",
+						"... breathing out, I calm the feeling of " + iFeeling +  " in me");
+
+				/*
+				Thread tThread = new Thread(new Runnable(){
+					@Override
+					public void run() {
+
+					}
+				});
+				tThread.start();
+				*/
+
 		
 		/*
 		final Toast tFeelingsToastOut = Toast.makeText(
@@ -153,12 +164,10 @@ public class ToastOrActionC {
 		*/
 	}
 		
-	public static void needsToast(Context inContext, String iNeed) {
-		
-		new ToastCountDownTimerC(inContext, BREATHING_LENGTH_IN, BREATHING_LENGTH_OUT,
+	public void needsToast(Activity iActivity, String iNeed) {
+		new ToastCountDownTimerC(iActivity, BREATHING_LENGTH_IN, BREATHING_LENGTH_OUT,
 				"Breathing in, I know that I have a need for " + iNeed + ", ...",
 				"... breathing out, I smile to my need for" + iNeed);
-
 		
 		/*
 		String tmpToastFeelingsString = getToastString(inContext, ListTypeM.FEELINGS);

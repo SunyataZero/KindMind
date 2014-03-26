@@ -5,4 +5,6 @@ public interface MainActivityCallbackListenerI {
 	public void fireUpdateTabTitlesEvent();
 	public void fireResetDataEvent();
 	public void fireClearDatabaseAndUpdateGuiEvent();
+	public void fireFeelingsToastEvent(String iName);
+	public void fireNeedsToastEvent(String iName);
 }

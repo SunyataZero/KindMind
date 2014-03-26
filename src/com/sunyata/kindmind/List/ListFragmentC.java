@@ -34,6 +34,7 @@ import com.sunyata.kindmind.BuildConfig;
 import com.sunyata.kindmind.MainActivityCallbackListenerI;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.SortTypeM;
+import com.sunyata.kindmind.ToastOrActionC;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.DatabaseHelperM;
 import com.sunyata.kindmind.Database.ItemTableM;
@@ -350,9 +351,10 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		//Performing the various toasts or actions
 		String tName = (String)((TextView)inView.findViewById(R.id.list_item_titleTextView)).getText();
 		if(refListType == ListTypeM.FEELINGS){
-			ToastOrActionC.feelingsToast(getActivity(), tName);
+			sCallbackListener.fireFeelingsToastEvent(tName);
+			//ToastOrActionC.feelingsToast(getActivity(), tName);
 		}else if(refListType == ListTypeM.NEEDS){
-			ToastOrActionC.needsToast(getActivity(), tName);
+			sCallbackListener.fireNeedsToastEvent(tName);
 		}else if(refListType == ListTypeM.KINDNESS && tmpNewCheckedState){
 			ToastOrActionC.randomKindAction(getActivity(), DatabaseU.getItemUriFromId(inId));
 		}
