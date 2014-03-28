@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <!-- 
     <item
         android:id="@+id/menu_item_new_listitem"
         android:icon="@android:drawable/ic_menu_add"
         android:title="@string/listFragment_menu_newAction"
         android:showAsAction="always" />
+	-->
     <item
         android:id="@+id/menu_item_save_pattern"
         android:icon="@drawable/ic_action_accept"
@@ -33,6 +35,10 @@
     <item
         android:id="@+id/menu_item_about"
         android:title="@string/listFragment_menu_about"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/menu_item_help"
+        android:title="@string/listFragment_menu_help"
         android:showAsAction="never" />
     
     <!-- The following are only used when debuggning -->

@@ -45,6 +45,18 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal" >
 
+    <Button
+      android:id="@+id/widgetConfigCancel_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:padding="8dp"
+      android:text="@string/widgetConfig_cancel" />
+    
+    <Space
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginLeft="12dp" />
+
     <Space
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -56,18 +68,7 @@
       android:layout_height="wrap_content"
       android:padding="8dp"
       android:text="@string/widgetConfig_ok" />
-
-    <Space
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginLeft="12dp" />
-
-    <Button
-      android:id="@+id/widgetConfigCancel_button"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:padding="8dp"
-      android:text="@string/widgetConfig_cancel" />
+    
   </LinearLayout>
 
 </LinearLayout>

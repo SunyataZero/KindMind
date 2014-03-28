@@ -1,4 +1,4 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.main;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -24,12 +24,17 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.sunyata.kindmind.R;
+import com.sunyata.kindmind.SortTypeM;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Database.PatternsTableM;
 import com.sunyata.kindmind.List.ListFragmentC;
 import com.sunyata.kindmind.List.ListTypeM;
 import com.sunyata.kindmind.List.SortingAlgorithmServiceM;
+import com.sunyata.kindmind.R.id;
+import com.sunyata.kindmind.R.layout;
+import com.sunyata.kindmind.R.string;
 import com.sunyata.kindmind.util.DatabaseU;
 import com.sunyata.kindmind.util.DbgU;
 import com.sunyata.kindmind.util.ItemActionsU;
@@ -62,7 +67,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 	private String mFeelingTitle;
 	private String mNeedTitle;
 	private String mActionTitle;
-	private ToastOrActionC mToastOrAction;
 
 	///@name Life cycle
 	///@{
@@ -140,9 +144,6 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		rActionBar.addTab(rActionBar.newTab().setText(mNeedTitle).setTabListener(tmpTabListener));
 		rActionBar.addTab(rActionBar.newTab().setText(mActionTitle).setTabListener(tmpTabListener));
 		this.fireUpdateTabTitlesEvent();
-		
-		//Creating an instance of ToastOrAction class
-		mToastOrAction = new ToastOrActionC();
 	}
 
 	/**
@@ -606,17 +607,4 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		public void onTabReselected(Tab tab, FragmentTransaction ft) {}
 	}
 
-	@Override
-	public void fireFeelingsToastEvent(String iName) {
-		
-		mToastOrAction.feelingsToast(this, iName);
-		
-	}
-
-	@Override
-	public void fireNeedsToastEvent(String iName) {
-
-		mToastOrAction.needsToast(this, iName);
-		
-	}
 }

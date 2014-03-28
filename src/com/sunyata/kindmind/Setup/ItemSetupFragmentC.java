@@ -315,7 +315,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	public boolean onOptionsItemSelected(MenuItem inMenuItem){
 		switch (inMenuItem.getItemId()){
 		case android.R.id.home:
-			//Navigating upwards in the activity heirarchy
+			//Navigating upwards in the activity hierarchy
 			if(NavUtils.getParentActivityName(getActivity()) != null){
 
 				//NavUtils.navigateUpFromSameTask(getActivity()); //-this will recreate MainActivityC
@@ -328,10 +328,12 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			return true;
 		case R.id.menu_item_delete_listitem:
 			AlertDialog.Builder tBuilder= new AlertDialog.Builder(getActivity());
-			tBuilder.setTitle("tmp_Please confirm")
-			.setMessage("tmp_Are you sure you want to delete this item?")
-			.setNegativeButton("tmp_Cancel", new OnClickOnCancelButton())
-			.setPositiveButton("tmp_Delete", new OnClickOnConfirmButton(this))
+			tBuilder.setTitle(R.string.itemSetup_menu_deleteListItem_dialog_title)
+			.setMessage(R.string.itemSetup_menu_deleteListItem_dialog_message)
+			.setNegativeButton(R.string.itemSetup_menu_deleteListItem_dialog_cancel,
+					new OnClickOnCancelButton())
+			.setPositiveButton(R.string.itemSetup_menu_deleteListItem_dialog_delete,
+					new OnClickOnConfirmButton(this))
 			.create().show();
 			return true;
 		default:

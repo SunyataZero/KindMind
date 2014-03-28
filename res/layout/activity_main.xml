@@ -1,4 +1,4 @@
-<com.sunyata.kindmind.ViewPagerM xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sunyata.kindmind.main.ViewPagerM xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/pager"
     android:layout_width="match_parent"
@@ -31,4 +31,4 @@
         android:layout_height="wrap_content"
         android:text="@string/delete_button_title" />
 	 -->
-</com.sunyata.kindmind.ViewPagerM>
+</com.sunyata.kindmind.main.ViewPagerM>

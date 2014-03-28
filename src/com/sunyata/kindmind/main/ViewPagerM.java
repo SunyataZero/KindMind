@@ -1,4 +1,4 @@
-package com.sunyata.kindmind;
+package com.sunyata.kindmind.main;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;

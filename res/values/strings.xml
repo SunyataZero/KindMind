@@ -15,18 +15,10 @@
     <string name="listFragment_menu_sortByRank">Sort using KindSort (default)</string>
     <string name="listFragment_menu_sendAllAsText">Send lists as text</string>
     <string name="listFragment_menu_about">About</string>
+    <string name="listFragment_menu_help">Help (online)</string>
     <string name="listFragment_menu_shareExperience_debug">[DEBUG] Share experience</string>
     <string name="listFragment_menu_backupDatabase_debug">[DEBUG] Backup database</string>
     <string name="listFragment_menu_resetDatabase_debug">[DEBUG] Reset database</string>
-    
-    <!-- DetailsFragmentC -->
-    <string name="delete_list_item">Delete item</string>
-    <string name="listitem_name_hint">Please enter a title for the new list item</string>
-    <string name="notification_textbox_title">Activate notification</string>
-    <string name="notification_button_title">Change notification time</string>
-    <string name="notification_time_not_set_title">"--:--"</string>
-    <string name="clear_chooser_button_title">Clear action</string>
-    <string name="file_chooser_title">Choose one of the following actions to be performed when pressing the item in the list</string>
     
     <!-- AboutFragmentC -->
     <string name="about_activityTitle">About KindMind</string>
@@ -35,14 +27,13 @@
     <string name="about_createdBy_title">Created By</string>
     <string name="about_createdBy_text">Version</string>
     <string name="about_price_title">Price</string>
-    <string name="about_price_text">"This app is completely cost-free as of this writing. This may change and there may be parts of the app that will be priced. My hope is that in the future this software will be open source and free (free as in freedom)"</string>
+    <string name="about_price_text">"As of this writing the app is completely cost-free but not free and open source software. Any of these facts may change in the future"</string>
     <string name="about_privacy_title">Privacy</string>
     <string name="about_privacy_text">This application is designed with the idea in mind to keep user data locally, google analytics is not used and backup is not done to any cloud service</string>
     <string name="about_legal_title">Legal</string>
     <string name="about_legal_text">Using this software, you are accepting the software \"as is\". The developer will not be held responsible for any damages arising from use of the software. There is no warranty for this software</string>
     <string name="about_photoCredits_title">Photo Credits</string>
-    <string name="about_photoCredits_text">The KindMind white flower logo and icon (and some google play image resources) are based on a photo taken by Torgny Dellsén, the image has been used with permission.
-\n   http://torgnydellsen.zenfolio.com/</string>
+    <string name="about_photoCredits_text">The KindMind white flower logo and icon (and some google play image resources) are based on a photo taken by Torgny Dellsén, the image has been used with permission.\n   http://torgnydellsen.zenfolio.com/</string>
     <string name="about_thanks_title">Thanks</string>
     <string name="about_thanks_text">The idea for this app came from work by Jane McGonigal. The structure of feelings and needs are from Marshall Rosenberg and Nonviolent Communication (sm). Ideas from Kristin Neff and Buddhism also influenced this app.</string>
     
@@ -54,10 +45,17 @@
 
     <!-- ItemSetupFragmentC -->
     <string name="itemSetup_activityTitle">Item Setup</string>
-    <string name="itemSetup_itemTitle">Title</string>
-    <string name="itemSetup_dailyReminder">Daily Reminder</string>
-    <string name="itemSetup_actionOnClick">Action on Click</string>
-    <string name="itemSetup_addNewAction">Add new action</string>
+    <string name="itemSetup_listItem_title">Title</string>
+    <string name="itemSetup_dailyReminder_title">Daily Reminder</string>
+    <string name="itemSetup_dailyReminder_timeNotSet">"--:--"</string>
+    <string name="itemSetup_actionsOnClick_title">Actions on Click</string>
+    <string name="itemSetup_addNewAction_title">Add new action</string>
+    <string name="itemSetup_menu_deleteListItem">Delete item</string>
+    <string name="itemSetup_menu_deleteListItem_dialog_title">Please confirm</string>
+    <string name="itemSetup_menu_deleteListItem_dialog_message">Are you sure you want to delete this item?</string>
+    <string name="itemSetup_menu_deleteListItem_dialog_cancel">Cancel</string>
+    <string name="itemSetup_menu_deleteListItem_dialog_delete">Delete</string>
+    <string name="itemSetup_listItemNameHint">Please enter a title for the new list item</string>
     
     <!-- ItemSetupFragmentC: Add new action dialog -->
     <string name="itemSetup_imageChooser">Image</string>
@@ -71,5 +69,8 @@
     <string name="videoChooser_activityTitle">Video Chooser</string>
     <string name="bookmarkChooser_activityTitle">Bookmark Chooser</string>
     <string name="actionListItem_delete">Del</string>
+    <string name="listFragment_empty">List empty, to add a new kindness list item, click on the plus sign at the top of the page\n\nIdeas for new actions can be found here:\n   https://sites.google.com/site/mindfulnessandhealing/kindmind/kindness\n</string>
+    
+    
     
 </resources>

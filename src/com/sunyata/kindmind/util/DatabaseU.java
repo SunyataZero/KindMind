@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.sunyata.kindmind.SortTypeM;
@@ -148,67 +147,54 @@ public class DatabaseU {
 		
 		Uri tUri = null; //-used for adding actions to items
 		
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Angry");
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Anxious");
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Concerned");
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Depressed"); //Low energy
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Dissapointed");
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Embarrassed");
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Frustrated");
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Guilty");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Anger");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Anxiety");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Concern");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Fatigue"); //Low energy
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Dissapointment");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Embarrassment");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Frustration");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Guilt");
 		createStartupItem(iCt, ListTypeM.FEELINGS, "Hurt");
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Overwhelmed");
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Resentful");
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Sad");
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Tired");
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Uncomfortable");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Exhaustion");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Resentment");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Sadness");
 		//Vulnarable
 		//Suspicious
 		//Shameful
+		//Tiredness
 		//TODO: Hint: Please remember the distinction between feelings and thoughts, feelings are based in
 		//the body while thoughts are often ________
 
 		createStartupItem(iCt, ListTypeM.NEEDS, "Acceptance");
 		createStartupItem(iCt, ListTypeM.NEEDS, "Appreciation");
-		createStartupItem(iCt, ListTypeM.NEEDS, "Authenticity");
-		createStartupItem(iCt, ListTypeM.NEEDS, "Connection"); //Community
-		createStartupItem(iCt, ListTypeM.NEEDS, "Consideration"); //Care, cmp Love, cmp Trust, cmp Support
-		createStartupItem(iCt, ListTypeM.NEEDS, "Contribution"); //Meaning, to matter
-		createStartupItem(iCt, ListTypeM.NEEDS, "Creativity");
-		createStartupItem(iCt, ListTypeM.NEEDS, "Emotional safety"); //Peace
+		//createStartupItem(iCt, ListTypeM.NEEDS, "Authenticity");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Community/Connection");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Consideration/Care"); //Care, cmp Love, cmp Trust, cmp Support
+		createStartupItem(iCt, ListTypeM.NEEDS, "Contribution/Meaning"); //Meaning, to matter
+		//createStartupItem(iCt, ListTypeM.NEEDS, "Creativity");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Peace"); //Emotional safety
 		createStartupItem(iCt, ListTypeM.NEEDS, "Empathy");
 		createStartupItem(iCt, ListTypeM.NEEDS, "Freedom");
-		createStartupItem(iCt, ListTypeM.NEEDS, "Fun"); //Play
-		createStartupItem(iCt, ListTypeM.NEEDS, "Inspiration");
-		createStartupItem(iCt, ListTypeM.NEEDS, "Love");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Play/Fun"); //Play
+		createStartupItem(iCt, ListTypeM.NEEDS, "Inspiration/Creativity");
+		//createStartupItem(iCt, ListTypeM.NEEDS, "Love");
 		createStartupItem(iCt, ListTypeM.NEEDS, "Mourning");
-		createStartupItem(iCt, ListTypeM.NEEDS, "Physical comfort"); //Exercise, movement
+		createStartupItem(iCt, ListTypeM.NEEDS, "Exercise/Movement"); //Exercise, movement, Physical comfort
 		createStartupItem(iCt, ListTypeM.NEEDS, "Rest");
-		createStartupItem(iCt, ListTypeM.NEEDS, "Support");
-		createStartupItem(iCt, ListTypeM.NEEDS, "Trust");
+		//createStartupItem(iCt, ListTypeM.NEEDS, "Support");
+		//createStartupItem(iCt, ListTypeM.NEEDS, "Trust");
 		createStartupItem(iCt, ListTypeM.NEEDS, "Understanding"); //cmp Authenticity
 		//TODO: Hint: Please remember that needs can be fulfilled by any person, including oneself
 		//For example you can give support for yourself
 		
 
+		/*
 		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Awareness of a feeling in the body");
 		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Calling a friend");
 		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Enumerating good things");
 		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Focusing on a need");
-		tUri = createStartupItem(iCt, ListTypeM.KINDNESS,
-				"Mindfully staying with and breathing with the feeling");
-		//ItemActionsU.addAction(iCt, tUri, "");
-		/*Search: "thich nhat hanh breathing difficult emotions cooking"
-Recognizing, Embracing, Relieving the Suffering of Anger
-
-The first function of mindfulness is to recognize, not to fight. "Breathing in, I know that anger has manifested in me. Hello, my little anger." And breathing out, "I will take good care of you."
-
-Once we have recognized our anger, we embrace it. This is the second function of mindfulness and it is a very pleasant practice. Instead of fighting, we are taking good care of our emotion. If you know how to embrace your anger, something will change.
-
-It is like cooking potatoes. You cover the pot and then the water will begin to boil. You must keep the stove on for at least twenty minutes for the potatoes to cook. Your anger is a kind of potato and you cannot eat a raw potato.
-
-Mindfulness is like the fire cooking the potatoes of anger. The first few minutes of recognizing and embracing your anger with tenderness can bring results. You get some relief. Anger is still there, but you do not suffer so much anymore, because you know how to take care of your baby. So the third function of mindfulness is soothing, relieving. Anger is there, but it is being taken care of. The situation is no longer in chaos, with the crying baby left all alone. The mother is there to take care of the baby and the situation is under control.
-		 */
+		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Breathing with the feeling");
 		//tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Looking at a plant or a tree");
 		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Seeing alternative ways to respond");
 		ItemActionsU.addAction(iCt, tUri, "http://www.youtube.com/user/baynvc/", false);
@@ -223,6 +209,7 @@ Mindfulness is like the fire cooking the potatoes of anger. The first few minute
 		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Thinking about someone who shares your experience");
 		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Thinking about an inspiring person");
 		ItemActionsU.addAction(iCt, tUri, "http://dalailama.com/gallery", false);
+		*/
 		
 		//TODO: Kelly McG
 		
@@ -231,6 +218,18 @@ Mindfulness is like the fire cooking the potatoes of anger. The first few minute
 		//TODO: Hint: Multiple items can be added
 		//TODO: Create a hint class that writes to a preferences file if a hint has been performed
 		
+		//ItemActionsU.addAction(iCt, tUri, "");
+		/*Search: "thich nhat hanh breathing difficult emotions cooking"
+Recognizing, Embracing, Relieving the Suffering of Anger
+
+The first function of mindfulness is to recognize, not to fight. "Breathing in, I know that anger has manifested in me. Hello, my little anger." And breathing out, "I will take good care of you."
+
+Once we have recognized our anger, we embrace it. This is the second function of mindfulness and it is a very pleasant practice. Instead of fighting, we are taking good care of our emotion. If you know how to embrace your anger, something will change.
+
+It is like cooking potatoes. You cover the pot and then the water will begin to boil. You must keep the stove on for at least twenty minutes for the potatoes to cook. Your anger is a kind of potato and you cannot eat a raw potato.
+
+Mindfulness is like the fire cooking the potatoes of anger. The first few minutes of recognizing and embracing your anger with tenderness can bring results. You get some relief. Anger is still there, but you do not suffer so much anymore, because you know how to take care of your baby. So the third function of mindfulness is soothing, relieving. Anger is there, but it is being taken care of. The situation is no longer in chaos, with the crying baby left all alone. The mother is there to take care of the baby and the situation is under control.
+		 */
 
 	}
 	private static Uri createStartupItem(Context iContext, int iListTypeInt, String iName){

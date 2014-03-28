@@ -59,7 +59,7 @@ public class ContentProviderM extends ContentProvider {
 
 	private DatabaseHelperM mDatabaseHelper;
 
-	private static final String AUTHORITY = "com.sunyata.kindmind.contentprovider";
+	private static final String AUTHORITY = "com.sunyata.kindmind.provider";
 
 	private static final String LIST_BASE_PATH = "list";
 	static final int ITEM = 11;

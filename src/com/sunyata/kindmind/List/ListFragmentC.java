@@ -21,9 +21,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -31,14 +33,14 @@ import android.widget.TextView;
 
 import com.sunyata.kindmind.AboutActivityC;
 import com.sunyata.kindmind.BuildConfig;
-import com.sunyata.kindmind.MainActivityCallbackListenerI;
 import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.SortTypeM;
-import com.sunyata.kindmind.ToastOrActionC;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.DatabaseHelperM;
 import com.sunyata.kindmind.Database.ItemTableM;
 import com.sunyata.kindmind.Setup.ItemSetupActivityC;
+import com.sunyata.kindmind.main.MainActivityCallbackListenerI;
+import com.sunyata.kindmind.main.ToastOrActionC;
 import com.sunyata.kindmind.util.DatabaseU;
 import com.sunyata.kindmind.util.DbgU;
 import com.sunyata.kindmind.util.ItemActionsU;
@@ -69,6 +71,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 	//-static because we want to be sure that it is the same for all fragments
 	private SimpleCursorAdapter mCursorAdapter;
 	private LinearLayout mLoadingLayout;
+	private Button mAddNewItemButtonFooter;
+	private Button mAddNewItemButtonEmptyView;
 
 	public static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
 	public static final String EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE";
@@ -257,12 +261,37 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		super.setRetainInstance(true);
 		//-Recommended by CommonsWare:
 		// http://stackoverflow.com/questions/11160412/why-use-fragmentsetretaininstanceboolean
-		// but not in Reto's book: "genereally not recommended"
+		// but not in Reto's book: "generally not recommended"
 		super.setHasOptionsMenu(true);
+		
+		
+		
+		
+		//Adding footer view
+		View mFooterView = getActivity().getLayoutInflater()
+				.inflate(R.layout.list_fragment_footer, null);
+		getListView().addFooterView(mFooterView);
+		
+		
+		
 		this.fillListWithDataFromAdapter();
 
 		//Setup for long click listener
 		super.getListView().setOnItemLongClickListener(new OnItemLongClickListenerC(getActivity()));
+		
+
+		
+		mAddNewItemButtonFooter = (Button)getView().findViewById(R.id.listFragment_addNewItem_button);
+		mAddNewItemButtonFooter.setOnClickListener(new OnClickNewItemListener());
+		/*
+		 * -we cannot have this code in onCreateView, if so we will get null from the first line
+		 * TODO: Why??
+		 */
+		
+		mAddNewItemButtonEmptyView = (Button)getView().findViewById(R.id.listFragment_empty_addFirstItem_button);
+		mAddNewItemButtonEmptyView.setOnClickListener(new OnClickNewItemListener());
+		//The same click listener is used here as for the button above
+
 	}
 	
 	private static class OnItemLongClickListenerC implements OnItemLongClickListener{
@@ -309,6 +338,13 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		//-we can access the listview with getListView() so we don't need to save this reference
 		mLoadingLayout.setVisibility(View.GONE);
 
+
+		/*
+		//Adding footer view
+		Button tFooterView = (Button) View.inflate(getActivity(), R.id.listFragment_footer, (ViewGroup) v);
+		getListView().addFooterView(tFooterView);
+		 */
+		
 		return v;
 	}
 
@@ -350,11 +386,10 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 
 		//Performing the various toasts or actions
 		String tName = (String)((TextView)inView.findViewById(R.id.list_item_titleTextView)).getText();
-		if(refListType == ListTypeM.FEELINGS){
-			sCallbackListener.fireFeelingsToastEvent(tName);
-			//ToastOrActionC.feelingsToast(getActivity(), tName);
-		}else if(refListType == ListTypeM.NEEDS){
-			sCallbackListener.fireNeedsToastEvent(tName);
+		if(refListType == ListTypeM.FEELINGS && tmpNewCheckedState){
+			ToastOrActionC.feelingsToast(getActivity(), tName);
+		}else if(refListType == ListTypeM.NEEDS && tmpNewCheckedState){
+			ToastOrActionC.needsToast(getActivity(), tName);
 		}else if(refListType == ListTypeM.KINDNESS && tmpNewCheckedState){
 			ToastOrActionC.randomKindAction(getActivity(), DatabaseU.getItemUriFromId(inId));
 		}
@@ -389,35 +424,17 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 	public boolean onOptionsItemSelected(MenuItem inMenuItem){
 		
 		switch (inMenuItem.getItemId()){
-		case R.id.menu_item_new_listitem: //------------New item
-			//Creating and inserting the new list item into the database
-			ContentValues tmpContentValuesToInsert = new ContentValues();
-			tmpContentValuesToInsert.put(ItemTableM.COLUMN_LIST_TYPE, refListType);
-			Uri tmpUriOfNewItem = getActivity().getContentResolver().insert(
-					ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);
-	    	
-	    //Launching the details fragment for the newly created item
-			Intent intent = new Intent(getActivity(), ItemSetupActivityC.class);
-			String tmpExtraString = tmpUriOfNewItem.toString();
-			intent.putExtra(EXTRA_ITEM_URI, tmpExtraString);
-			//-Extracted in SingleFragmentActivityC and sent to DataDetailsFragmentC
-			startActivityForResult(intent, 0);
-			
-			//Updating the app widgets
-			////Utils.updateWidgets(getActivity());
-			
-			return true;
-		case R.id.menu_item_save_pattern: //------------Saving pattern
+		case R.id.menu_item_save_pattern:
 			sCallbackListener.fireSavePatternEvent();
 			
 			return true;
-		case R.id.menu_item_sort_alphabetically: //------------Sort alphabeta
+		case R.id.menu_item_sort_alphabetically:
 			//Changing the sort method used and refreshing list
 			DatabaseU.setItemTableSortType(SortTypeM.ALPHABETASORT);
 			getListView().smoothScrollToPositionFromTop(0, 0);
 			
 			return true;
-		case R.id.menu_item_kindsort: //------------Sort kindsort
+		case R.id.menu_item_kindsort:
 			//Sorting and updating
 			this.sortDataWithService();
 			
@@ -427,13 +444,13 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 			getListView().smoothScrollToPositionFromTop(0, 0);
 			
 			return true;
-		case R.id.menu_item_clear_all_list_selections: //------------Clear checkmarks for all lists
+		case R.id.menu_item_clear_all_list_selections:
 			//Clearing activated and going left
 			getListView().smoothScrollToPositionFromTop(0, 0);
 			sCallbackListener.fireClearDatabaseAndUpdateGuiEvent();
 			
 			return true;
-		case R.id.menu_item_send_as_text_all: //------------Send lists as text (partial backup)
+		case R.id.menu_item_send_as_text_all:
 			String tmpAllListsAsText =
 				this.getFormattedStringForListType(ListTypeM.FEELINGS) +
 				this.getFormattedStringForListType(ListTypeM.NEEDS) +
@@ -441,8 +458,13 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 			OtherU.sendAsEmail(getActivity(), "KindMind all lists as text", tmpAllListsAsText, null);
 
 			return true;
-		case R.id.menu_item_about: //------------About
+		case R.id.menu_item_about:
 			startActivity(new Intent(getActivity(), AboutActivityC.class));
+			
+			return true;
+		case R.id.menu_item_help:
+			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(
+					"http://sites.google.com/site/mindfulnessandhealing/kindmind")));
 			
 			return true;
 		case R.id.menu_item_share_experience: //TODO: Do this as a hard coded action instead
@@ -542,10 +564,9 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		if(BuildConfig.DEBUG){
 			//ItemTableM.COLUMN_KINDSORT_VALUE
 		}
-
-		
 		
 		mCursorAdapter.setViewBinder(new ViewBinderM((Context)getActivity()));
+		
 		
 		//..using this CursorAdapter as the adapter for this ListFragment
 		super.setListAdapter(mCursorAdapter);
@@ -619,6 +640,29 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 
 			//Returning false for other values, which means that default mapping will be done
 			return false;
+		}
+	}
+	
+	//TODO: Static + Weak Ref
+	//used both by ___ and ___
+	private class OnClickNewItemListener implements OnClickListener{
+		@Override
+		public void onClick(View inView) {
+			//Creating and inserting the new list item into the database
+			ContentValues tmpContentValuesToInsert = new ContentValues();
+			tmpContentValuesToInsert.put(ItemTableM.COLUMN_LIST_TYPE, refListType);
+			Uri tmpUriOfNewItem = getActivity().getContentResolver().insert(
+					ContentProviderM.ITEM_CONTENT_URI, tmpContentValuesToInsert);
+	    	
+	    //Launching the details fragment for the newly created item
+			Intent intent = new Intent(getActivity(), ItemSetupActivityC.class);
+			String tmpExtraString = tmpUriOfNewItem.toString();
+			intent.putExtra(EXTRA_ITEM_URI, tmpExtraString);
+			//-Extracted in SingleFragmentActivityC and sent to DataDetailsFragmentC
+			startActivityForResult(intent, 0);
+			
+			//Updating the app widgets
+			////Utils.updateWidgets(getActivity());
 		}
 	}
 }

@@ -3,6 +3,7 @@ package com.sunyata.kindmind.util;
 import java.io.File;
 import java.math.BigDecimal;
 
+import com.sunyata.kindmind.R;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,7 +11,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-import com.sunyata.kindmind.R;
 import com.sunyata.kindmind.WidgetAndNotifications.WidgetProviderC;
 
 public class OtherU {

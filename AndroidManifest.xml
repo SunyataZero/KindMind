@@ -23,7 +23,7 @@
     android:theme="@style/AppThemeKindMind" >
     
     <activity
-      android:name="com.sunyata.kindmind.MainActivityC"
+      android:name="com.sunyata.kindmind.main.MainActivityC"
       android:label="@string/app_name"
       android:launchMode="standard" >
       <intent-filter>
@@ -37,7 +37,7 @@
       android:label="@string/itemSetup_activityTitle" >
       <meta-data
         android:name="android.support.PARENT_ACTIVITY"
-        android:value=".MainActivityC" />
+        android:value="com.sunyata.kindmind.main.MainActivityC" />
     </activity>
     
     <activity
@@ -82,7 +82,7 @@
 
     <provider
       android:name="com.sunyata.kindmind.Database.ContentProviderM"
-      android:authorities="com.sunyata.kindmind.contentprovider"
+      android:authorities="com.sunyata.kindmind.provider"
       android:exported="true" >
       <!-- grantUriPermission -->
       <!--
@@ -115,9 +115,6 @@
     <service android:name="com.sunyata.kindmind.List.SortingAlgorithmServiceM" >
     </service>
     
-    <service android:name="com.sunyata.kindmind.ToastServiceC" >
-    </service>
-
   </application>
 
 </manifest>

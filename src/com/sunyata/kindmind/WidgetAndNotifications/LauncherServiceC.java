@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-import com.sunyata.kindmind.MainActivityC;
-import com.sunyata.kindmind.ToastOrActionC;
+import com.sunyata.kindmind.main.MainActivityC;
+import com.sunyata.kindmind.main.ToastOrActionC;
 import com.sunyata.kindmind.util.DbgU;
 
 /*

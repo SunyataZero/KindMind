@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="20dp"
-            android:text="@string/itemSetup_itemTitle"
+            android:text="@string/itemSetup_listItem_title"
             android:textAppearance="?android:attr/textAppearanceSmall"
             style="?android:attr/listSeparatorTextViewStyle" />
         <EditText
@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textNoSuggestions|textCapSentences"
-            android:hint="@string/listitem_name_hint" />
+            android:hint="@string/itemSetup_listItemNameHint" />
 
         <TextView
             android:id="@+id/notificationTextView"
@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="20dp"
-            android:text="@string/itemSetup_dailyReminder"
+            android:text="@string/itemSetup_dailyReminder_title"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <RelativeLayout
@@ -53,7 +53,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentTop="true"
                 android:layout_toRightOf="@id/notificationSwitch"
-                android:text="@string/notification_time_not_set_title" />
+                android:text="@string/itemSetup_dailyReminder_timeNotSet" />
 
         </RelativeLayout>
 
@@ -63,7 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="20dp"
-            android:text="@string/itemSetup_actionOnClick"
+            android:text="@string/itemSetup_actionsOnClick_title"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <LinearLayout 
@@ -78,7 +78,7 @@
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/itemSetup_addNewAction" />
+            android:text="@string/itemSetup_addNewAction_title" />
  
     </LinearLayout>
 
