@@ -8,11 +8,15 @@
     <string name="kindness_title">Kindness</string>
 
     <!-- ListFragmentC Option Menu Items -->
-    <string name="listFragment_menu_newAction">New list item</string>
+    <string name="listFragment_newItem">Add New List Item</string>
+    <string name="listFragment_firstKindnessItem">Add First Kindness Item</string>
+    <string name="listFragment_empty">List empty, to add a new kindness list item, click on the button below. Ideas for new actions can be found here:\nhttps://sites.google.com/site/mindfulnessandhealing/kindmind/kindness\n</string>
+    
+    <!-- ListFragmentC Option Menu Items -->
     <string name="listFragment_menu_savePattern">Save pattern</string>
-    <string name="listFragment_menu_clearAllSelections">Clear list selections</string>
-    <string name="listFragment_menu_sortAlphabetically">Sort alphabetically</string>
-    <string name="listFragment_menu_sortByRank">Sort using KindSort (default)</string>
+    <string name="listFragment_menu_clearAllSelections">[DEBUG] Clear list selections</string>
+    <string name="listFragment_menu_sortAlphabetically">[DEBUG] Sort alphabetically</string>
+    <string name="listFragment_menu_sortByRank">[DEBUG] Sort using KindSort (default)</string>
     <string name="listFragment_menu_sendAllAsText">Send lists as text</string>
     <string name="listFragment_menu_about">About</string>
     <string name="listFragment_menu_help">Help (online)</string>
@@ -25,7 +29,7 @@
     <string name="about_version_title">Version</string>
     <!-- version text is set programmatically, ex: "0.14.31_BETA -->
     <string name="about_createdBy_title">Created By</string>
-    <string name="about_createdBy_text">Version</string>
+    <string name="about_createdBy_text">Tord Dellsén, sunyata.software@gmail.com</string>
     <string name="about_price_title">Price</string>
     <string name="about_price_text">"As of this writing the app is completely cost-free but not free and open source software. Any of these facts may change in the future"</string>
     <string name="about_privacy_title">Privacy</string>
@@ -69,7 +73,6 @@
     <string name="videoChooser_activityTitle">Video Chooser</string>
     <string name="bookmarkChooser_activityTitle">Bookmark Chooser</string>
     <string name="actionListItem_delete">Del</string>
-    <string name="listFragment_empty">List empty, to add a new kindness list item, click on the plus sign at the top of the page\n\nIdeas for new actions can be found here:\n   https://sites.google.com/site/mindfulnessandhealing/kindmind/kindness\n</string>
     
     
     

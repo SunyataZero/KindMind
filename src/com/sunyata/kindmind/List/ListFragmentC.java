@@ -316,6 +316,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		}
 	}
 
+	
 	/*
 	 * Overview: onCreateView inflates the layout and prepares for the loading by storing a reference to
 	 *  the loading layout
@@ -411,6 +412,9 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 			inMenu.findItem(R.id.menu_item_share_experience).setVisible(false);
 			inMenu.findItem(R.id.menu_item_backup_database).setVisible(false);
 			inMenu.findItem(R.id.menu_item_reset_database).setVisible(false);
+			inMenu.findItem(R.id.menu_item_clear_all_list_selections).setVisible(false);
+			inMenu.findItem(R.id.menu_item_sort_alphabetically).setVisible(false);
+			inMenu.findItem(R.id.menu_item_kindsort).setVisible(false);
 		}
 	}
 	
@@ -431,16 +435,15 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		case R.id.menu_item_sort_alphabetically:
 			//Changing the sort method used and refreshing list
 			DatabaseU.setItemTableSortType(SortTypeM.ALPHABETASORT);
+			getLoaderManager().restartLoader(refListType, null, this);
 			getListView().smoothScrollToPositionFromTop(0, 0);
 			
 			return true;
 		case R.id.menu_item_kindsort:
-			//Sorting and updating
-			this.sortDataWithService();
-			
 			//Changing the sort method used and refreshing list
 			DatabaseU.setItemTableSortType(SortTypeM.KINDSORT);
-			
+			getLoaderManager().restartLoader(refListType, null, this);
+			this.sortDataWithService();
 			getListView().smoothScrollToPositionFromTop(0, 0);
 			
 			return true;
@@ -624,7 +627,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 						ItemTableM.COLUMN_ACTIONS));
 				LinearLayout tmpRectangle = (LinearLayout)inView.findViewById(
 						R.id.list_item_indicatorRectangle);
-				if(tmpActions == null || tmpActions.equals("")){
+				if(tmpActions == null || tmpActions.equals(ItemActionsU.ACTIONS_DELINEATOR)){
 					tmpRectangle.setVisibility(View.INVISIBLE);
 				}else if(ItemActionsU.numberOfActions(tmpActions) == 1){
 					tmpRectangle.setVisibility(View.VISIBLE);

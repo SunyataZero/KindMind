@@ -12,7 +12,8 @@ _______NotFoundException: Resource ID ______ is not valid
     android:id="@+id/listFragment_addNewItem_button"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="-----Add New Item-----" >
+    style="?android:attr/buttonBarButtonStyle"
+    android:text="@string/listFragment_newItem" >
   </Button>
   
 </LinearLayout>

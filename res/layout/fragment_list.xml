@@ -60,6 +60,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:autoLink="web"
+      android:textSize="16sp"
       android:text="@string/listFragment_empty" >
     </TextView>
     <Button
@@ -67,7 +68,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_below="@id/listFragment_empty_textView"
-      android:text="-----Add First Item-----" >
+      android:text="@string/listFragment_firstKindnessItem" >
     </Button>
   </RelativeLayout>
 

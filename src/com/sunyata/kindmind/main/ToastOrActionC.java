@@ -103,6 +103,11 @@ public class ToastOrActionC {
 	}
 	
 	public static void needsToast(Activity iActivity, String iNeed) {
+		
+		if(sToastIsRunning == true){
+			return;
+		}
+		
 		String tNeed = iNeed.toLowerCase(Locale.getDefault());
 		startToast(iActivity, BREATHING_LENGTH_IN, BREATHING_LENGTH_OUT,
 				"Breathing in, I know that I have a need for " + tNeed + ", ...",

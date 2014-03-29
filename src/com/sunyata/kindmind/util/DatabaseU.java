@@ -142,23 +142,30 @@ public class DatabaseU {
 	}
 */
 
+	/**
+	 * 
+	 * Synonyms can be found on these sites:
+	 * - http://www.synonym.com/synonyms/
+	 * - http://thesaurus.com/
+	 * @param iCt
+	 */
 	public static void createOrUpdateAllStartupItems(Context iCt) {
 		Log.i(DbgU.getAppTag(), "Creating startup items");
 		
-		Uri tUri = null; //-used for adding actions to items
+		//Uri tUri = null; //-used for adding actions to items
 		
 		createStartupItem(iCt, ListTypeM.FEELINGS, "Anger");
 		createStartupItem(iCt, ListTypeM.FEELINGS, "Anxiety");
 		createStartupItem(iCt, ListTypeM.FEELINGS, "Concern");
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Fatigue"); //Low energy
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Depression"); //Fatigue, Low energy
 		createStartupItem(iCt, ListTypeM.FEELINGS, "Dissapointment");
 		createStartupItem(iCt, ListTypeM.FEELINGS, "Embarrassment");
 		createStartupItem(iCt, ListTypeM.FEELINGS, "Frustration");
 		createStartupItem(iCt, ListTypeM.FEELINGS, "Guilt");
 		createStartupItem(iCt, ListTypeM.FEELINGS, "Hurt");
-		createStartupItem(iCt, ListTypeM.FEELINGS, "Exhaustion");
 		createStartupItem(iCt, ListTypeM.FEELINGS, "Resentment");
 		createStartupItem(iCt, ListTypeM.FEELINGS, "Sadness");
+		createStartupItem(iCt, ListTypeM.FEELINGS, "Tiredness");
 		//Vulnarable
 		//Suspicious
 		//Shameful
@@ -173,17 +180,18 @@ public class DatabaseU {
 		createStartupItem(iCt, ListTypeM.NEEDS, "Consideration/Care"); //Care, cmp Love, cmp Trust, cmp Support
 		createStartupItem(iCt, ListTypeM.NEEDS, "Contribution/Meaning"); //Meaning, to matter
 		//createStartupItem(iCt, ListTypeM.NEEDS, "Creativity");
-		createStartupItem(iCt, ListTypeM.NEEDS, "Peace"); //Emotional safety
+		createStartupItem(iCt, ListTypeM.NEEDS, "Emotional safety/Peace"); //Emotional safety
 		createStartupItem(iCt, ListTypeM.NEEDS, "Empathy");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Exercise/Movement"); //Exercise, movement, Physical comfort
 		createStartupItem(iCt, ListTypeM.NEEDS, "Freedom");
-		createStartupItem(iCt, ListTypeM.NEEDS, "Play/Fun"); //Play
 		createStartupItem(iCt, ListTypeM.NEEDS, "Inspiration/Creativity");
 		//createStartupItem(iCt, ListTypeM.NEEDS, "Love");
 		createStartupItem(iCt, ListTypeM.NEEDS, "Mourning");
-		createStartupItem(iCt, ListTypeM.NEEDS, "Exercise/Movement"); //Exercise, movement, Physical comfort
+		createStartupItem(iCt, ListTypeM.NEEDS, "Play/Fun"); //Play
 		createStartupItem(iCt, ListTypeM.NEEDS, "Rest");
 		//createStartupItem(iCt, ListTypeM.NEEDS, "Support");
-		//createStartupItem(iCt, ListTypeM.NEEDS, "Trust");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Transcendence");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Trust");
 		createStartupItem(iCt, ListTypeM.NEEDS, "Understanding"); //cmp Authenticity
 		//TODO: Hint: Please remember that needs can be fulfilled by any person, including oneself
 		//For example you can give support for yourself
@@ -211,12 +219,7 @@ public class DatabaseU {
 		ItemActionsU.addAction(iCt, tUri, "http://dalailama.com/gallery", false);
 		*/
 		
-		//TODO: Kelly McG
-		
-		//TODO: Hint: Edit the setup view for an item by long clicking on it
-		
 		//TODO: Hint: Multiple items can be added
-		//TODO: Create a hint class that writes to a preferences file if a hint has been performed
 		
 		//ItemActionsU.addAction(iCt, tUri, "");
 		/*Search: "thich nhat hanh breathing difficult emotions cooking"
