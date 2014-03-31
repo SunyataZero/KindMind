@@ -1,4 +1,4 @@
-package com.sunyata.kindmind.main;
+package com.sunyata.kindmind.Main;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,8 +28,8 @@ import com.sunyata.kindmind.util.ItemActionsU;
 
 public class ToastOrActionC {
 
-	private static final long BREATHING_LENGTH_IN = 5000;
-	private static final long BREATHING_LENGTH_OUT = 6500;
+	public static final long BREATHING_LENGTH_IN = 5000;
+	public static final long BREATHING_LENGTH_OUT = 6500;
 	
 	private static boolean sToastIsRunning = false;
 	private static final long TOAST_INTERVAL = 1000;

@@ -190,7 +190,7 @@ public class DatabaseU {
 		createStartupItem(iCt, ListTypeM.NEEDS, "Play/Fun"); //Play
 		createStartupItem(iCt, ListTypeM.NEEDS, "Rest");
 		//createStartupItem(iCt, ListTypeM.NEEDS, "Support");
-		createStartupItem(iCt, ListTypeM.NEEDS, "Transcendence");
+		createStartupItem(iCt, ListTypeM.NEEDS, "Transcendence/Communion");
 		createStartupItem(iCt, ListTypeM.NEEDS, "Trust");
 		createStartupItem(iCt, ListTypeM.NEEDS, "Understanding"); //cmp Authenticity
 		//TODO: Hint: Please remember that needs can be fulfilled by any person, including oneself
@@ -218,8 +218,6 @@ public class DatabaseU {
 		tUri = createStartupItem(iCt, ListTypeM.KINDNESS, "Thinking about an inspiring person");
 		ItemActionsU.addAction(iCt, tUri, "http://dalailama.com/gallery", false);
 		*/
-		
-		//TODO: Hint: Multiple items can be added
 		
 		//ItemActionsU.addAction(iCt, tUri, "");
 		/*Search: "thich nhat hanh breathing difficult emotions cooking"

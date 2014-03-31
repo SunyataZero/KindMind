@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-import com.sunyata.kindmind.main.MainActivityC;
-import com.sunyata.kindmind.main.ToastOrActionC;
+import com.sunyata.kindmind.Main.MainActivityC;
+import com.sunyata.kindmind.Main.ToastOrActionC;
 import com.sunyata.kindmind.util.DbgU;
 
 /*
@@ -67,5 +67,4 @@ public class LauncherServiceC extends IntentService {
 			ToastOrActionC.randomKindAction(getApplicationContext(), tmpItemUri);
 		}
 	}
-
 }

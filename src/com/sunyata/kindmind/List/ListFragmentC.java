@@ -38,9 +38,9 @@ import com.sunyata.kindmind.SortTypeM;
 import com.sunyata.kindmind.Database.ContentProviderM;
 import com.sunyata.kindmind.Database.DatabaseHelperM;
 import com.sunyata.kindmind.Database.ItemTableM;
+import com.sunyata.kindmind.Main.MainActivityCallbackListenerI;
+import com.sunyata.kindmind.Main.ToastOrActionC;
 import com.sunyata.kindmind.Setup.ItemSetupActivityC;
-import com.sunyata.kindmind.main.MainActivityCallbackListenerI;
-import com.sunyata.kindmind.main.ToastOrActionC;
 import com.sunyata.kindmind.util.DatabaseU;
 import com.sunyata.kindmind.util.DbgU;
 import com.sunyata.kindmind.util.ItemActionsU;
@@ -76,8 +76,8 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 
 	public static final String EXTRA_ITEM_URI = "EXTRA_LIST_DATA_ITEM_ID";
 	public static final String EXTRA_LIST_TYPE = "EXTRA_LIST_TYPE";
-    public static final String EXTRA_KINDSORT_RESULT = "kindsort_result";
-	
+  public static final String EXTRA_KINDSORT_RESULT = "kindsort_result";
+
 	public static ListFragmentC newInstance(int inListTypeInt, MainActivityCallbackListenerI inCallbackListener){
 		ListFragmentC retListFragment = new ListFragmentC();
 		retListFragment.refListType = inListTypeInt;
@@ -226,7 +226,8 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 				mWeakRefToLoadingLayout.get().setVisibility(View.GONE);
 				mWeakRefToListView.get().setVisibility(View.VISIBLE);
 
-				mWeakRefToListView.get().smoothScrollToPositionFromTop(0, 0);
+				mWeakRefToListView.get().smoothScrollToPositionFromTop(
+						0, 0, (int)ToastOrActionC.BREATHING_LENGTH_IN);
 				//-http://stackoverflow.com/questions/11334207/smoothscrolltoposition-only-scrolls-partway-in-android-ics
 				sCallbackListener.fireUpdateTabTitlesEvent();
 			}
@@ -312,7 +313,9 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 			//-Extracted in DataDetailsFragmentC
 			mWeakRefToActivity.get().startActivityForResult(intent, 0);
 			//-Calling DataDetailsActivityC
-			return false;
+			return true;
+			//-important that we return true here, otherwise we will sometimes also get
+			//an ordinary click
 		}
 	}
 
@@ -498,7 +501,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 		}
 	}
 	
-    ///@}
+  ///@}
 	//-------------------------------------------Private-------------------------------------------
 	
 	/*
@@ -663,9 +666,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 			intent.putExtra(EXTRA_ITEM_URI, tmpExtraString);
 			//-Extracted in SingleFragmentActivityC and sent to DataDetailsFragmentC
 			startActivityForResult(intent, 0);
-			
-			//Updating the app widgets
-			////Utils.updateWidgets(getActivity());
+
 		}
 	}
 }

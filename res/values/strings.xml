@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  
+ 
     <!-- MainActivityC -->
     <string name="app_name">KindMind</string>
     <string name="feelings_title">Feelings</string>

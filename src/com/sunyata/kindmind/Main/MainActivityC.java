@@ -1,4 +1,4 @@
-package com.sunyata.kindmind.main;
+package com.sunyata.kindmind.Main;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -233,8 +233,7 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 		this.scrollLeftmost();
 		((FragmentAdapterM)mViewPager.getAdapter()).getCurrentFragment().sortDataWithService();
 		this.fireUpdateTabTitlesEvent();
-		((FragmentAdapterM)mViewPager.getAdapter()).getCurrentFragment().getListView()
-		.smoothScrollToPositionFromTop(0, 0);
+		this.mPagerAdapter.scrollToTopOfAllLists();
 	}
 
 	/**
@@ -533,6 +532,12 @@ public class MainActivityC extends FragmentActivity implements MainActivityCallb
 			return ListTypeM.NUMBER_OF_TYPES;
 		}
 
+		public void scrollToTopOfAllLists(){
+			getItem(ListTypeM.KINDNESS).getListView().smoothScrollToPositionFromTop(0, 0, 0);
+			getItem(ListTypeM.NEEDS).getListView().smoothScrollToPositionFromTop(0, 0, 0);
+			getItem(ListTypeM.FEELINGS).getListView().smoothScrollToPositionFromTop(0, 0, 0);
+		}
+		
 		public ListFragmentC getCurrentFragment(){
 			Log.v(DbgU.getAppTag(), DbgU.getMethodName());
 

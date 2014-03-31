@@ -1,7 +1,7 @@
 package com.sunyata.kindmind.List;
 
 
-import com.sunyata.kindmind.main.ToastOrActionC;
+import com.sunyata.kindmind.Main.ToastOrActionC;
 
 import android.content.Context;
 import android.view.View;

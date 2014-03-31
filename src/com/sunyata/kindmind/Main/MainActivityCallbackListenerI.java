@@ -1,4 +1,4 @@
-package com.sunyata.kindmind.main;
+package com.sunyata.kindmind.Main;
 
 public interface MainActivityCallbackListenerI {
 	public void fireSavePatternEvent();

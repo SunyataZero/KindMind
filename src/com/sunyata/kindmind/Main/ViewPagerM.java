@@ -1,4 +1,4 @@
-package com.sunyata.kindmind.main;
+package com.sunyata.kindmind.Main;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;
@@ -29,7 +29,6 @@ public class ViewPagerM extends ViewPager{
 	
 	private static int sPosition = ListTypeM.FEELINGS;
 	
-
 	@Override
 	public int getCurrentItem(){
 		assert(sPosition == super.getCurrentItem());
