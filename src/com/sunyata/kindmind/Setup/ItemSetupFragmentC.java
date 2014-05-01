@@ -424,8 +424,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 	}
 
 	
-	// Overview: updateActionList updates the list of actions
-	// Please note: Currently only one action
+	//Updates the list of actions
 	private void updateActionList(View inView) {
 
 		LinearLayout tmpVerticalList = (LinearLayout)inView.findViewById(R.id.actionsLinearLayout);
@@ -519,7 +518,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
   		tmpArrayList.add(REQ_CODE_BOOKMARK_CHOOSER,
   				iItemSetupFragment.getActivity().getResources().getString(
   						R.string.bookmark_chooser_button_title));
-*/
+  		 */
   		//ArrayList<CharSequence> tmpArrayList = new ArrayList<CharSequence>();
 
   		
@@ -562,7 +561,6 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 		public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 		@Override
 		public void afterTextChanged(Editable s) {}
-		
 	}
 	
 	private static class OnNotificationCheckedChangeListenerC implements OnCheckedChangeListener{
@@ -613,8 +611,7 @@ public class ItemSetupFragmentC extends Fragment implements TimePickerFragmentC.
 			//..starting a new (app internal) fragment for for choosing time of day
 			DialogFragment tmpTimePickerFragment = TimePickerFragmentC.newInstance(
 					mWeakRefToFragment.get());
-			tmpTimePickerFragment.show(mWeakRefToFragment.get().getFragmentManager(),
-					"TimePicker");
+			tmpTimePickerFragment.show(mWeakRefToFragment.get().getFragmentManager(), "TimePicker");
 		}
 	}
 	

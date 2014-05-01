@@ -66,13 +66,13 @@
             android:text="@string/itemSetup_actionsOnClick_title"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
+        <!-- List of actions -->
         <LinearLayout 
             android:id="@+id/actionsLinearLayout"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
         </LinearLayout>
-
         <Button
             android:id="@+id/newActionButton"
             style="?android:attr/buttonStyleSmall"

@@ -178,7 +178,6 @@ public class ListFragmentC extends ListFragment implements LoaderManager.LoaderC
 			Log.wtf(DbgU.getAppTag(), DbgU.getMethodName(), e);
 		}
 
-		
 		/*
     	for(int i = 0; mLoadingLinearLayout != null; i++){
     		Utils.waitForCondition(500, 10, i);
@@ -193,11 +192,13 @@ at com.sunyata.kindmind.List.ListFragmentC.onOptionsItemSelected(ListFragmentC.j
 at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568)
 		 */
 
-
+		
 		//Showing the Loading progress bar / "spinner"
-
-		mLoadingLayout.setVisibility(View.VISIBLE);
-		getListView().setVisibility(View.GONE);
+		if(mLoadingLayout != null){
+			//-checking against null again because of npe on my device (sony xperia)
+			mLoadingLayout.setVisibility(View.VISIBLE);
+			getListView().setVisibility(View.GONE);
+		}
 
 		//Sorting data (for all lists)
 		Intent tmpIntent = new Intent(getActivity(), SortingAlgorithmServiceM.class);
@@ -240,7 +241,7 @@ at android.support.v4.app.Fragment.performOptionsItemSelected(Fragment.java:1568
 	 */
 	///@{
 	
-	/*
+	/**
 	 * \brief onActivityCreated restores the state, does fundamental setup for the fragment
 	 *  and setup for the long click
 	 *  
